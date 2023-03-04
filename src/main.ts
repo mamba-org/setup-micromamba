@@ -1,6 +1,7 @@
 import * as fs from 'fs/promises'
 import * as core from '@actions/core'
 import decompress from 'decompress'
+import fetch from 'node-fetch'
 import { PATHS, sha256, micromambaUrl } from './util'
 
 async function downloadMicromamba(url: string) {

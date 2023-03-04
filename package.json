@@ -24,6 +24,7 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "decompress": "^4.2.1",
+    "node-fetch": "^3.3.0",
     "zod": "^3.20.6"
   },
   "devDependencies": {
