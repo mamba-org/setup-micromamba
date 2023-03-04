@@ -6,9 +6,6 @@ author: 'Pavel Zwerschke'
 #   icon: "chevrons-right"
 #   color: "green"
 inputs:
-  milliseconds:
-    description: 'Number of milliseconds to wait'
-    required: true
   condarc-file:
     description: >-
       Path to a condarc file to use
