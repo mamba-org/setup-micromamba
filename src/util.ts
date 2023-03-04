@@ -1,5 +1,6 @@
 import * as path from 'path'
 import * as os from 'os'
+import type { BinaryLike } from 'crypto'
 import { createHash } from 'crypto'
 
 export const PATHS = {
@@ -14,12 +15,6 @@ export const micromambaUrl = (os: string, version: string) => {
   return `https://micro.mamba.pm/api/micromamba/${os}/${version}`
 }
 
-export const sha256 = (s: Buffer) => {
-  const h = createHash('sha256')
-  h.update(s)
-  return h.digest().hexSlice()
-}
-
-export const sha256Short = (s: string) => {
-  return sha256(s).substr(0, 8)
+export const sha256 = (s: BinaryLike) => {
+  return createHash('sha256').update(s).digest('hex')
 }
