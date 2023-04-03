@@ -12,7 +12,23 @@ export const PATHS = {
 }
 
 export const micromambaUrl = (os: string, version: string) => {
-  return `https://micro.mamba.pm/api/micromamba/${os}/${version}`
+  return `https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-${os}-${version}`
+}
+
+export const getCondaArch = () => {
+  const archDict: Record<string, string> = {
+    'darwin-x64': 'osx-64',
+    'darwin-arm64': 'osx-arm64',
+    'linux-x64': 'linux-64',
+    'linux-arm64': 'linux-aarch64',
+    'linux-ppc64': 'linux-ppc64le',
+    'win32-x64': 'win-64'
+  }
+  const arch = archDict[`${os.platform()}-${os.arch()}`]
+  if (!arch) {
+    throw new Error(`Unsupported platform: ${os.platform()}-${os.arch()}`)
+  }
+  return arch
 }
 
 export const sha256 = (s: BinaryLike) => {

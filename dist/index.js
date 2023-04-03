@@ -728,7 +728,7 @@ var require_tunnel = __commonJS({
         connectOptions.headers = connectOptions.headers || {};
         connectOptions.headers["Proxy-Authorization"] = "Basic " + new Buffer(connectOptions.proxyAuth).toString("base64");
       }
-      debug2("making CONNECT request");
+      debug("making CONNECT request");
       var connectReq = self2.request(connectOptions);
       connectReq.useChunkedEncodingByDefault = false;
       connectReq.once("response", onResponse);
@@ -748,40 +748,40 @@ var require_tunnel = __commonJS({
         connectReq.removeAllListeners();
         socket.removeAllListeners();
         if (res.statusCode !== 200) {
-          debug2(
+          debug(
             "tunneling socket could not be established, statusCode=%d",
             res.statusCode
           );
           socket.destroy();
-          var error2 = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
-          error2.code = "ECONNRESET";
-          options.request.emit("error", error2);
+          var error = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
+          error.code = "ECONNRESET";
+          options.request.emit("error", error);
           self2.removeSocket(placeholder);
           return;
         }
         if (head.length > 0) {
-          debug2("got illegal response body from proxy");
+          debug("got illegal response body from proxy");
           socket.destroy();
-          var error2 = new Error("got illegal response body from proxy");
-          error2.code = "ECONNRESET";
-          options.request.emit("error", error2);
+          var error = new Error("got illegal response body from proxy");
+          error.code = "ECONNRESET";
+          options.request.emit("error", error);
           self2.removeSocket(placeholder);
           return;
         }
-        debug2("tunneling connection has established");
+        debug("tunneling connection has established");
         self2.sockets[self2.sockets.indexOf(placeholder)] = socket;
         return cb(socket);
       }
       function onError(cause) {
         connectReq.removeAllListeners();
-        debug2(
+        debug(
           "tunneling socket could not be established, cause=%s\n",
           cause.message,
           cause.stack
         );
-        var error2 = new Error("tunneling socket could not be established, cause=" + cause.message);
-        error2.code = "ECONNRESET";
-        options.request.emit("error", error2);
+        var error = new Error("tunneling socket could not be established, cause=" + cause.message);
+        error.code = "ECONNRESET";
+        options.request.emit("error", error);
         self2.removeSocket(placeholder);
       }
     };
@@ -836,9 +836,9 @@ var require_tunnel = __commonJS({
       }
       return target;
     }
-    var debug2;
+    var debug;
     if (process.env.NODE_DEBUG && /\btunnel\b/.test(process.env.NODE_DEBUG)) {
-      debug2 = function() {
+      debug = function() {
         var args = Array.prototype.slice.call(arguments);
         if (typeof args[0] === "string") {
           args[0] = "TUNNEL: " + args[0];
@@ -848,10 +848,10 @@ var require_tunnel = __commonJS({
         console.error.apply(console, args);
       };
     } else {
-      debug2 = function() {
+      debug = function() {
       };
     }
-    exports.debug = debug2;
+    exports.debug = debug;
   }
 });
 
@@ -1608,12 +1608,12 @@ var require_oidc_utils = __commonJS({
         var _a4;
         return __awaiter(this, void 0, void 0, function* () {
           const httpclient = OidcClient.createHttpClient();
-          const res = yield httpclient.getJson(id_token_url).catch((error2) => {
+          const res = yield httpclient.getJson(id_token_url).catch((error) => {
             throw new Error(`Failed to get ID Token. 
  
-        Error Code : ${error2.statusCode}
+        Error Code : ${error.statusCode}
  
-        Error Message: ${error2.result.message}`);
+        Error Message: ${error.result.message}`);
           });
           const id_token = (_a4 = res.result) === null || _a4 === void 0 ? void 0 : _a4.value;
           if (!id_token) {
@@ -1634,8 +1634,8 @@ var require_oidc_utils = __commonJS({
             const id_token = yield OidcClient.getCall(id_token_url);
             core_1.setSecret(id_token);
             return id_token;
-          } catch (error2) {
-            throw new Error(`Error message: ${error2.message}`);
+          } catch (error) {
+            throw new Error(`Error message: ${error.message}`);
           }
         });
       }
@@ -2130,21 +2130,21 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     exports.setCommandEcho = setCommandEcho;
     function setFailed(message) {
       process.exitCode = ExitCode.Failure;
-      error2(message);
+      error(message);
     }
     exports.setFailed = setFailed;
     function isDebug() {
       return process.env["RUNNER_DEBUG"] === "1";
     }
     exports.isDebug = isDebug;
-    function debug2(message) {
+    function debug(message) {
       command_1.issueCommand("debug", {}, message);
     }
-    exports.debug = debug2;
-    function error2(message, properties = {}) {
+    exports.debug = debug;
+    function error(message, properties = {}) {
       command_1.issueCommand("error", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
-    exports.error = error2;
+    exports.error = error;
     function warning(message, properties = {}) {
       command_1.issueCommand("warning", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
@@ -2223,7 +2223,7 @@ var require_polyfills = __commonJS({
     var constants = require("constants");
     var origCwd = process.cwd;
     var cwd = null;
-    var platform = process.env.GRACEFUL_FS_PLATFORM || process.platform;
+    var platform2 = process.env.GRACEFUL_FS_PLATFORM || process.platform;
     process.cwd = function() {
       if (!cwd)
         cwd = origCwd.call(process);
@@ -2285,7 +2285,7 @@ var require_polyfills = __commonJS({
         fs3.lchownSync = function() {
         };
       }
-      if (platform === "win32") {
+      if (platform2 === "win32") {
         fs3.rename = typeof fs3.rename !== "function" ? fs3.rename : function(fs$rename) {
           function rename(from, to, cb) {
             var start = Date.now();
@@ -2681,11 +2681,11 @@ var require_graceful_fs = __commonJS({
         }
       });
     }
-    var debug2 = noop2;
+    var debug = noop2;
     if (util.debuglog)
-      debug2 = util.debuglog("gfs4");
+      debug = util.debuglog("gfs4");
     else if (/\bgfs4\b/i.test(process.env.NODE_DEBUG || ""))
-      debug2 = function() {
+      debug = function() {
         var m2 = util.format.apply(util, arguments);
         m2 = "GFS4: " + m2.split(/\n/).join("\nGFS4: ");
         console.error(m2);
@@ -2720,7 +2720,7 @@ var require_graceful_fs = __commonJS({
       }(fs3.closeSync);
       if (/\bgfs4\b/i.test(process.env.NODE_DEBUG || "")) {
         process.on("exit", function() {
-          debug2(fs3[gracefulQueue]);
+          debug(fs3[gracefulQueue]);
           require("assert").equal(fs3[gracefulQueue].length, 0);
         });
       }
@@ -2973,7 +2973,7 @@ var require_graceful_fs = __commonJS({
       return fs4;
     }
     function enqueue(elem) {
-      debug2("ENQUEUE", elem[0].name, elem[1]);
+      debug("ENQUEUE", elem[0].name, elem[1]);
       fs3[gracefulQueue].push(elem);
       retry();
     }
@@ -3000,10 +3000,10 @@ var require_graceful_fs = __commonJS({
       var startTime = elem[3];
       var lastTime = elem[4];
       if (startTime === void 0) {
-        debug2("RETRY", fn.name, args);
+        debug("RETRY", fn.name, args);
         fn.apply(null, args);
       } else if (Date.now() - startTime >= 6e4) {
-        debug2("TIMEOUT", fn.name, args);
+        debug("TIMEOUT", fn.name, args);
         var cb = args.pop();
         if (typeof cb === "function")
           cb.call(null, err);
@@ -3012,7 +3012,7 @@ var require_graceful_fs = __commonJS({
         var sinceStart = Math.max(lastTime - startTime, 1);
         var desiredDelay = Math.min(sinceStart * 1.2, 100);
         if (sinceAttempt >= desiredDelay) {
-          debug2("RETRY", fn.name, args);
+          debug("RETRY", fn.name, args);
           fn.apply(null, args.concat([startTime]));
         } else {
           fs3[gracefulQueue].push(elem);
@@ -4694,11 +4694,11 @@ var require_stream_readable = __commonJS({
     var util = Object.create(require_util());
     util.inherits = require_inherits();
     var debugUtil = require("util");
-    var debug2 = void 0;
+    var debug = void 0;
     if (debugUtil && debugUtil.debuglog) {
-      debug2 = debugUtil.debuglog("stream");
+      debug = debugUtil.debuglog("stream");
     } else {
-      debug2 = function() {
+      debug = function() {
       };
     }
     var BufferList = require_BufferList();
@@ -4925,14 +4925,14 @@ var require_stream_readable = __commonJS({
       return state.length;
     }
     Readable.prototype.read = function(n) {
-      debug2("read", n);
+      debug("read", n);
       n = parseInt(n, 10);
       var state = this._readableState;
       var nOrig = n;
       if (n !== 0)
         state.emittedReadable = false;
       if (n === 0 && state.needReadable && (state.length >= state.highWaterMark || state.ended)) {
-        debug2("read: emitReadable", state.length, state.ended);
+        debug("read: emitReadable", state.length, state.ended);
         if (state.length === 0 && state.ended)
           endReadable(this);
         else
@@ -4946,16 +4946,16 @@ var require_stream_readable = __commonJS({
         return null;
       }
       var doRead = state.needReadable;
-      debug2("need readable", doRead);
+      debug("need readable", doRead);
       if (state.length === 0 || state.length - n < state.highWaterMark) {
         doRead = true;
-        debug2("length less than watermark", doRead);
+        debug("length less than watermark", doRead);
       }
       if (state.ended || state.reading) {
         doRead = false;
-        debug2("reading or ended", doRead);
+        debug("reading or ended", doRead);
       } else if (doRead) {
-        debug2("do read");
+        debug("do read");
         state.reading = true;
         state.sync = true;
         if (state.length === 0)
@@ -5003,7 +5003,7 @@ var require_stream_readable = __commonJS({
       var state = stream._readableState;
       state.needReadable = false;
       if (!state.emittedReadable) {
-        debug2("emitReadable", state.flowing);
+        debug("emitReadable", state.flowing);
         state.emittedReadable = true;
         if (state.sync)
           pna.nextTick(emitReadable_, stream);
@@ -5012,7 +5012,7 @@ var require_stream_readable = __commonJS({
       }
     }
     function emitReadable_(stream) {
-      debug2("emit readable");
+      debug("emit readable");
       stream.emit("readable");
       flow(stream);
     }
@@ -5025,7 +5025,7 @@ var require_stream_readable = __commonJS({
     function maybeReadMore_(stream, state) {
       var len = state.length;
       while (!state.reading && !state.flowing && !state.ended && state.length < state.highWaterMark) {
-        debug2("maybeReadMore read 0");
+        debug("maybeReadMore read 0");
         stream.read(0);
         if (len === state.length)
           break;
@@ -5052,7 +5052,7 @@ var require_stream_readable = __commonJS({
           break;
       }
       state.pipesCount += 1;
-      debug2("pipe count=%d opts=%j", state.pipesCount, pipeOpts);
+      debug("pipe count=%d opts=%j", state.pipesCount, pipeOpts);
       var doEnd = (!pipeOpts || pipeOpts.end !== false) && dest !== process.stdout && dest !== process.stderr;
       var endFn = doEnd ? onend : unpipe;
       if (state.endEmitted)
@@ -5061,7 +5061,7 @@ var require_stream_readable = __commonJS({
         src.once("end", endFn);
       dest.on("unpipe", onunpipe);
       function onunpipe(readable, unpipeInfo) {
-        debug2("onunpipe");
+        debug("onunpipe");
         if (readable === src) {
           if (unpipeInfo && unpipeInfo.hasUnpiped === false) {
             unpipeInfo.hasUnpiped = true;
@@ -5070,14 +5070,14 @@ var require_stream_readable = __commonJS({
         }
       }
       function onend() {
-        debug2("onend");
+        debug("onend");
         dest.end();
       }
       var ondrain = pipeOnDrain(src);
       dest.on("drain", ondrain);
       var cleanedUp = false;
       function cleanup() {
-        debug2("cleanup");
+        debug("cleanup");
         dest.removeListener("close", onclose);
         dest.removeListener("finish", onfinish);
         dest.removeListener("drain", ondrain);
@@ -5093,12 +5093,12 @@ var require_stream_readable = __commonJS({
       var increasedAwaitDrain = false;
       src.on("data", ondata);
       function ondata(chunk) {
-        debug2("ondata");
+        debug("ondata");
         increasedAwaitDrain = false;
         var ret = dest.write(chunk);
         if (false === ret && !increasedAwaitDrain) {
           if ((state.pipesCount === 1 && state.pipes === dest || state.pipesCount > 1 && indexOf(state.pipes, dest) !== -1) && !cleanedUp) {
-            debug2("false write response, pause", state.awaitDrain);
+            debug("false write response, pause", state.awaitDrain);
             state.awaitDrain++;
             increasedAwaitDrain = true;
           }
@@ -5106,7 +5106,7 @@ var require_stream_readable = __commonJS({
         }
       }
       function onerror(er) {
-        debug2("onerror", er);
+        debug("onerror", er);
         unpipe();
         dest.removeListener("error", onerror);
         if (EElistenerCount(dest, "error") === 0)
@@ -5119,18 +5119,18 @@ var require_stream_readable = __commonJS({
       }
       dest.once("close", onclose);
       function onfinish() {
-        debug2("onfinish");
+        debug("onfinish");
         dest.removeListener("close", onclose);
         unpipe();
       }
       dest.once("finish", onfinish);
       function unpipe() {
-        debug2("unpipe");
+        debug("unpipe");
         src.unpipe(dest);
       }
       dest.emit("pipe", src);
       if (!state.flowing) {
-        debug2("pipe resume");
+        debug("pipe resume");
         src.resume();
       }
       return dest;
@@ -5138,7 +5138,7 @@ var require_stream_readable = __commonJS({
     function pipeOnDrain(src) {
       return function() {
         var state = src._readableState;
-        debug2("pipeOnDrain", state.awaitDrain);
+        debug("pipeOnDrain", state.awaitDrain);
         if (state.awaitDrain)
           state.awaitDrain--;
         if (state.awaitDrain === 0 && EElistenerCount(src, "data")) {
@@ -5206,13 +5206,13 @@ var require_stream_readable = __commonJS({
     };
     Readable.prototype.addListener = Readable.prototype.on;
     function nReadingNextTick(self2) {
-      debug2("readable nexttick read 0");
+      debug("readable nexttick read 0");
       self2.read(0);
     }
     Readable.prototype.resume = function() {
       var state = this._readableState;
       if (!state.flowing) {
-        debug2("resume");
+        debug("resume");
         state.flowing = true;
         resume(this, state);
       }
@@ -5226,7 +5226,7 @@ var require_stream_readable = __commonJS({
     }
     function resume_(stream, state) {
       if (!state.reading) {
-        debug2("resume read 0");
+        debug("resume read 0");
         stream.read(0);
       }
       state.resumeScheduled = false;
@@ -5237,9 +5237,9 @@ var require_stream_readable = __commonJS({
         stream.read(0);
     }
     Readable.prototype.pause = function() {
-      debug2("call pause flowing=%j", this._readableState.flowing);
+      debug("call pause flowing=%j", this._readableState.flowing);
       if (false !== this._readableState.flowing) {
-        debug2("pause");
+        debug("pause");
         this._readableState.flowing = false;
         this.emit("pause");
       }
@@ -5247,7 +5247,7 @@ var require_stream_readable = __commonJS({
     };
     function flow(stream) {
       var state = stream._readableState;
-      debug2("flow", state.flowing);
+      debug("flow", state.flowing);
       while (state.flowing && stream.read() !== null) {
       }
     }
@@ -5256,7 +5256,7 @@ var require_stream_readable = __commonJS({
       var state = this._readableState;
       var paused = false;
       stream.on("end", function() {
-        debug2("wrapped end");
+        debug("wrapped end");
         if (state.decoder && !state.ended) {
           var chunk = state.decoder.end();
           if (chunk && chunk.length)
@@ -5265,7 +5265,7 @@ var require_stream_readable = __commonJS({
         _this.push(null);
       });
       stream.on("data", function(chunk) {
-        debug2("wrapped data");
+        debug("wrapped data");
         if (state.decoder)
           chunk = state.decoder.write(chunk);
         if (state.objectMode && (chunk === null || chunk === void 0))
@@ -5291,7 +5291,7 @@ var require_stream_readable = __commonJS({
         stream.on(kProxyEvents[n], this.emit.bind(this, kProxyEvents[n]));
       }
       this._read = function(n2) {
-        debug2("wrapped _read", n2);
+        debug("wrapped _read", n2);
         if (paused) {
           paused = false;
           stream.resume();
@@ -9886,21 +9886,21 @@ var require_get_stream = __commonJS({
       var clean;
       var p = new Promise2(function(resolve, reject) {
         stream = bufferStream(opts);
-        inputStream.once("error", error2);
+        inputStream.once("error", error);
         inputStream.pipe(stream);
         stream.on("data", function() {
           if (stream.getBufferedLength() > maxBuffer) {
             reject(new Error("maxBuffer exceeded"));
           }
         });
-        stream.once("error", error2);
+        stream.once("error", error);
         stream.on("end", resolve);
         clean = function() {
           if (inputStream.unpipe) {
             inputStream.unpipe(stream);
           }
         };
-        function error2(err) {
+        function error(err) {
           if (err) {
             err.bufferedData = stream.getBufferedValue();
           }
@@ -11253,8 +11253,8 @@ var require_yauzl = __commonJS({
         cb();
       };
       writeStream.on("finish", callback);
-      readStream.on("error", function(error2) {
-        callback(error2);
+      readStream.on("error", function(error) {
+        callback(error);
       });
       readStream.pipe(writeStream);
     };
@@ -13368,10 +13368,10 @@ var require_ponyfill_es2018 = __commonJS({
         });
         return promise;
       }
-      function WritableStreamDealWithRejection(stream, error2) {
+      function WritableStreamDealWithRejection(stream, error) {
         const state = stream._state;
         if (state === "writable") {
-          WritableStreamStartErroring(stream, error2);
+          WritableStreamStartErroring(stream, error);
           return;
         }
         WritableStreamFinishErroring(stream);
@@ -13420,10 +13420,10 @@ var require_ponyfill_es2018 = __commonJS({
         stream._inFlightWriteRequest._resolve(void 0);
         stream._inFlightWriteRequest = void 0;
       }
-      function WritableStreamFinishInFlightWriteWithError(stream, error2) {
-        stream._inFlightWriteRequest._reject(error2);
+      function WritableStreamFinishInFlightWriteWithError(stream, error) {
+        stream._inFlightWriteRequest._reject(error);
         stream._inFlightWriteRequest = void 0;
-        WritableStreamDealWithRejection(stream, error2);
+        WritableStreamDealWithRejection(stream, error);
       }
       function WritableStreamFinishInFlightClose(stream) {
         stream._inFlightCloseRequest._resolve(void 0);
@@ -13442,14 +13442,14 @@ var require_ponyfill_es2018 = __commonJS({
           defaultWriterClosedPromiseResolve(writer);
         }
       }
-      function WritableStreamFinishInFlightCloseWithError(stream, error2) {
-        stream._inFlightCloseRequest._reject(error2);
+      function WritableStreamFinishInFlightCloseWithError(stream, error) {
+        stream._inFlightCloseRequest._reject(error);
         stream._inFlightCloseRequest = void 0;
         if (stream._pendingAbortRequest !== void 0) {
-          stream._pendingAbortRequest._reject(error2);
+          stream._pendingAbortRequest._reject(error);
           stream._pendingAbortRequest = void 0;
         }
-        WritableStreamDealWithRejection(stream, error2);
+        WritableStreamDealWithRejection(stream, error);
       }
       function WritableStreamCloseQueuedOrInFlight(stream) {
         if (stream._closeRequest === void 0 && stream._inFlightCloseRequest === void 0) {
@@ -13662,18 +13662,18 @@ var require_ponyfill_es2018 = __commonJS({
         }
         return WritableStreamDefaultWriterClose(writer);
       }
-      function WritableStreamDefaultWriterEnsureClosedPromiseRejected(writer, error2) {
+      function WritableStreamDefaultWriterEnsureClosedPromiseRejected(writer, error) {
         if (writer._closedPromiseState === "pending") {
-          defaultWriterClosedPromiseReject(writer, error2);
+          defaultWriterClosedPromiseReject(writer, error);
         } else {
-          defaultWriterClosedPromiseResetToRejected(writer, error2);
+          defaultWriterClosedPromiseResetToRejected(writer, error);
         }
       }
-      function WritableStreamDefaultWriterEnsureReadyPromiseRejected(writer, error2) {
+      function WritableStreamDefaultWriterEnsureReadyPromiseRejected(writer, error) {
         if (writer._readyPromiseState === "pending") {
-          defaultWriterReadyPromiseReject(writer, error2);
+          defaultWriterReadyPromiseReject(writer, error);
         } else {
-          defaultWriterReadyPromiseResetToRejected(writer, error2);
+          defaultWriterReadyPromiseResetToRejected(writer, error);
         }
       }
       function WritableStreamDefaultWriterGetDesiredSize(writer) {
@@ -13898,9 +13898,9 @@ var require_ponyfill_es2018 = __commonJS({
           WritableStreamDefaultControllerProcessWrite(controller, value);
         }
       }
-      function WritableStreamDefaultControllerErrorIfNeeded(controller, error2) {
+      function WritableStreamDefaultControllerErrorIfNeeded(controller, error) {
         if (controller._controlledWritableStream._state === "writable") {
-          WritableStreamDefaultControllerError(controller, error2);
+          WritableStreamDefaultControllerError(controller, error);
         }
       }
       function WritableStreamDefaultControllerProcessClose(controller) {
@@ -13939,10 +13939,10 @@ var require_ponyfill_es2018 = __commonJS({
         const desiredSize = WritableStreamDefaultControllerGetDesiredSize(controller);
         return desiredSize <= 0;
       }
-      function WritableStreamDefaultControllerError(controller, error2) {
+      function WritableStreamDefaultControllerError(controller, error) {
         const stream = controller._controlledWritableStream;
         WritableStreamDefaultControllerClearAlgorithms(controller);
-        WritableStreamStartErroring(stream, error2);
+        WritableStreamStartErroring(stream, error);
       }
       function streamBrandCheckException$2(name) {
         return new TypeError(`WritableStream.prototype.${name} can only be used on a WritableStream`);
@@ -14068,12 +14068,12 @@ var require_ponyfill_es2018 = __commonJS({
           let abortAlgorithm;
           if (signal !== void 0) {
             abortAlgorithm = () => {
-              const error2 = new DOMException$1("Aborted", "AbortError");
+              const error = new DOMException$1("Aborted", "AbortError");
               const actions = [];
               if (!preventAbort) {
                 actions.push(() => {
                   if (dest._state === "writable") {
-                    return WritableStreamAbort(dest, error2);
+                    return WritableStreamAbort(dest, error);
                   }
                   return promiseResolvedWith(void 0);
                 });
@@ -14081,12 +14081,12 @@ var require_ponyfill_es2018 = __commonJS({
               if (!preventCancel) {
                 actions.push(() => {
                   if (source._state === "readable") {
-                    return ReadableStreamCancel(source, error2);
+                    return ReadableStreamCancel(source, error);
                   }
                   return promiseResolvedWith(void 0);
                 });
               }
-              shutdownWithAction(() => Promise.all(actions.map((action) => action())), true, error2);
+              shutdownWithAction(() => Promise.all(actions.map((action) => action())), true, error);
             };
             if (signal.aborted) {
               abortAlgorithm();
@@ -14185,25 +14185,25 @@ var require_ponyfill_es2018 = __commonJS({
               uponPromise(action(), () => finalize(originalIsError, originalError), (newError) => finalize(true, newError));
             }
           }
-          function shutdown(isError, error2) {
+          function shutdown(isError, error) {
             if (shuttingDown) {
               return;
             }
             shuttingDown = true;
             if (dest._state === "writable" && !WritableStreamCloseQueuedOrInFlight(dest)) {
-              uponFulfillment(waitForWritesToFinish(), () => finalize(isError, error2));
+              uponFulfillment(waitForWritesToFinish(), () => finalize(isError, error));
             } else {
-              finalize(isError, error2);
+              finalize(isError, error);
             }
           }
-          function finalize(isError, error2) {
+          function finalize(isError, error) {
             WritableStreamDefaultWriterRelease(writer);
             ReadableStreamReaderGenericRelease(reader);
             if (signal !== void 0) {
               signal.removeEventListener("abort", abortAlgorithm);
             }
             if (isError) {
-              reject(error2);
+              reject(error);
             } else {
               resolve(void 0);
             }
@@ -15469,8 +15469,8 @@ var require_ponyfill_es2018 = __commonJS({
         const stream = controller._controlledTransformStream;
         const readableController = stream._readable._readableStreamController;
         ReadableStreamDefaultControllerClose(readableController);
-        const error2 = new TypeError("TransformStream terminated");
-        TransformStreamErrorWritableAndUnblockWrite(stream, error2);
+        const error = new TypeError("TransformStream terminated");
+        TransformStreamErrorWritableAndUnblockWrite(stream, error);
       }
       function TransformStreamDefaultSinkWriteAlgorithm(stream, chunk) {
         const controller = stream._transformStreamController;
@@ -15547,11 +15547,11 @@ var require_streams = __commonJS({
           };
           Object.assign(globalThis, require("stream/web"));
           process2.emitWarning = emitWarning;
-        } catch (error2) {
+        } catch (error) {
           process2.emitWarning = emitWarning;
-          throw error2;
+          throw error;
         }
-      } catch (error2) {
+      } catch (error) {
         Object.assign(globalThis, require_ponyfill_es2018());
       }
     }
@@ -15575,7 +15575,7 @@ var require_streams = __commonJS({
           });
         };
       }
-    } catch (error2) {
+    } catch (error) {
     }
   }
 });
@@ -16360,7 +16360,7 @@ var init_multipart_parser = __esm({
 
 // src/main.ts
 var fs2 = __toESM(require("fs/promises"));
-var core = __toESM(require_core());
+var coreDefault = __toESM(require_core());
 var import_decompress = __toESM(require_decompress());
 
 // node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/index.js
@@ -16510,8 +16510,8 @@ var Body = class {
     this.size = size;
     if (body instanceof import_node_stream.default) {
       body.on("error", (error_) => {
-        const error2 = error_ instanceof FetchBaseError ? error_ : new FetchError(`Invalid response body while trying to fetch ${this.url}: ${error_.message}`, "system", error_);
-        this[INTERNALS].error = error2;
+        const error = error_ instanceof FetchBaseError ? error_ : new FetchError(`Invalid response body while trying to fetch ${this.url}: ${error_.message}`, "system", error_);
+        this[INTERNALS].error = error;
       });
     }
   }
@@ -16617,15 +16617,15 @@ async function consumeBody(data) {
   try {
     for await (const chunk of body) {
       if (data.size > 0 && accumBytes + chunk.length > data.size) {
-        const error2 = new FetchError(`content size at ${data.url} over limit: ${data.size}`, "max-size");
-        body.destroy(error2);
-        throw error2;
+        const error = new FetchError(`content size at ${data.url} over limit: ${data.size}`, "max-size");
+        body.destroy(error);
+        throw error;
       }
       accumBytes += chunk.length;
       accum.push(chunk);
     }
-  } catch (error2) {
-    const error_ = error2 instanceof FetchBaseError ? error2 : new FetchError(`Invalid response body while trying to fetch ${data.url}: ${error2.message}`, "system", error2);
+  } catch (error) {
+    const error_ = error instanceof FetchBaseError ? error : new FetchError(`Invalid response body while trying to fetch ${data.url}: ${error.message}`, "system", error);
     throw error_;
   }
   if (body.readableEnded === true || body._readableState.ended === true) {
@@ -16634,8 +16634,8 @@ async function consumeBody(data) {
         return import_node_buffer.Buffer.from(accum.join(""));
       }
       return import_node_buffer.Buffer.concat(accum, accumBytes);
-    } catch (error2) {
-      throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error2.message}`, "system", error2);
+    } catch (error) {
+      throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error.message}`, "system", error);
     }
   } else {
     throw new FetchError(`Premature close of server response while trying to fetch ${data.url}`);
@@ -16719,16 +16719,16 @@ var import_node_util2 = require("util");
 var import_node_http = __toESM(require("http"), 1);
 var validateHeaderName = typeof import_node_http.default.validateHeaderName === "function" ? import_node_http.default.validateHeaderName : (name) => {
   if (!/^[\^`\-\w!#$%&'*+.|~]+$/.test(name)) {
-    const error2 = new TypeError(`Header name must be a valid HTTP token [${name}]`);
-    Object.defineProperty(error2, "code", { value: "ERR_INVALID_HTTP_TOKEN" });
-    throw error2;
+    const error = new TypeError(`Header name must be a valid HTTP token [${name}]`);
+    Object.defineProperty(error, "code", { value: "ERR_INVALID_HTTP_TOKEN" });
+    throw error;
   }
 };
 var validateHeaderValue = typeof import_node_http.default.validateHeaderValue === "function" ? import_node_http.default.validateHeaderValue : (name, value) => {
   if (/[^\t\u0020-\u007E\u0080-\u00FF]/.test(value)) {
-    const error2 = new TypeError(`Invalid character in header content ["${name}"]`);
-    Object.defineProperty(error2, "code", { value: "ERR_INVALID_CHAR" });
-    throw error2;
+    const error = new TypeError(`Invalid character in header content ["${name}"]`);
+    Object.defineProperty(error, "code", { value: "ERR_INVALID_CHAR" });
+    throw error;
   }
 };
 var Headers = class extends URLSearchParams {
@@ -17402,15 +17402,15 @@ async function fetch(url, options_) {
     const { signal } = request;
     let response = null;
     const abort = () => {
-      const error2 = new AbortError("The operation was aborted.");
-      reject(error2);
+      const error = new AbortError("The operation was aborted.");
+      reject(error);
       if (request.body && request.body instanceof import_node_stream2.default.Readable) {
-        request.body.destroy(error2);
+        request.body.destroy(error);
       }
       if (!response || !response.body) {
         return;
       }
-      response.body.emit("error", error2);
+      response.body.emit("error", error);
     };
     if (signal && signal.aborted) {
       abort();
@@ -17430,13 +17430,13 @@ async function fetch(url, options_) {
         signal.removeEventListener("abort", abortAndFinalize);
       }
     };
-    request_.on("error", (error2) => {
-      reject(new FetchError(`request to ${request.url} failed, reason: ${error2.message}`, "system", error2));
+    request_.on("error", (error) => {
+      reject(new FetchError(`request to ${request.url} failed, reason: ${error.message}`, "system", error));
       finalize();
     });
-    fixResponseChunkedTransferBadEnding(request_, (error2) => {
+    fixResponseChunkedTransferBadEnding(request_, (error) => {
       if (response && response.body) {
-        response.body.destroy(error2);
+        response.body.destroy(error);
       }
     });
     if (process.version < "v14") {
@@ -17447,9 +17447,9 @@ async function fetch(url, options_) {
         });
         s2.prependListener("close", (hadError) => {
           if (response && endedWithEventsCount < s2._eventsCount && !hadError) {
-            const error2 = new Error("Premature close");
-            error2.code = "ERR_STREAM_PREMATURE_CLOSE";
-            response.body.emit("error", error2);
+            const error = new Error("Premature close");
+            error.code = "ERR_STREAM_PREMATURE_CLOSE";
+            response.body.emit("error", error);
           }
         });
       });
@@ -17530,9 +17530,9 @@ async function fetch(url, options_) {
           signal.removeEventListener("abort", abortAndFinalize);
         });
       }
-      let body = (0, import_node_stream2.pipeline)(response_, new import_node_stream2.PassThrough(), (error2) => {
-        if (error2) {
-          reject(error2);
+      let body = (0, import_node_stream2.pipeline)(response_, new import_node_stream2.PassThrough(), (error) => {
+        if (error) {
+          reject(error);
         }
       });
       if (process.version < "v12.10") {
@@ -17558,9 +17558,9 @@ async function fetch(url, options_) {
         finishFlush: import_node_zlib.default.Z_SYNC_FLUSH
       };
       if (codings === "gzip" || codings === "x-gzip") {
-        body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createGunzip(zlibOptions), (error2) => {
-          if (error2) {
-            reject(error2);
+        body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createGunzip(zlibOptions), (error) => {
+          if (error) {
+            reject(error);
           }
         });
         response = new Response(body, responseOptions);
@@ -17568,22 +17568,22 @@ async function fetch(url, options_) {
         return;
       }
       if (codings === "deflate" || codings === "x-deflate") {
-        const raw = (0, import_node_stream2.pipeline)(response_, new import_node_stream2.PassThrough(), (error2) => {
-          if (error2) {
-            reject(error2);
+        const raw = (0, import_node_stream2.pipeline)(response_, new import_node_stream2.PassThrough(), (error) => {
+          if (error) {
+            reject(error);
           }
         });
         raw.once("data", (chunk) => {
           if ((chunk[0] & 15) === 8) {
-            body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createInflate(), (error2) => {
-              if (error2) {
-                reject(error2);
+            body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createInflate(), (error) => {
+              if (error) {
+                reject(error);
               }
             });
           } else {
-            body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createInflateRaw(), (error2) => {
-              if (error2) {
-                reject(error2);
+            body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createInflateRaw(), (error) => {
+              if (error) {
+                reject(error);
               }
             });
           }
@@ -17599,9 +17599,9 @@ async function fetch(url, options_) {
         return;
       }
       if (codings === "br") {
-        body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createBrotliDecompress(), (error2) => {
-          if (error2) {
-            reject(error2);
+        body = (0, import_node_stream2.pipeline)(body, import_node_zlib.default.createBrotliDecompress(), (error) => {
+          if (error) {
+            reject(error);
           }
         });
         response = new Response(body, responseOptions);
@@ -17626,9 +17626,9 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
   request.on("socket", (socket) => {
     const onSocketClose = () => {
       if (isChunkedTransfer && !properLastChunkReceived) {
-        const error2 = new Error("Premature close");
-        error2.code = "ERR_STREAM_PREMATURE_CLOSE";
-        errorCallback(error2);
+        const error = new Error("Premature close");
+        error.code = "ERR_STREAM_PREMATURE_CLOSE";
+        errorCallback(error);
       }
     };
     const onData = (buf) => {
@@ -17661,15 +17661,64 @@ var PATHS = {
 var micromambaUrl = (os2, version2) => {
   return `https://micro.mamba.pm/api/micromamba/${os2}/${version2}`;
 };
+var getCondaArch = () => {
+  const archDict = {
+    "darwin-x64": "osx-64",
+    "darwin-arm64": "osx-arm64",
+    "linux-x64": "linux-64",
+    "linux-arm64": "linux-aarch64",
+    "linux-ppc64": "linux-ppc64le",
+    "win32-x64": "win-64"
+  };
+  const arch2 = archDict[`${os.platform()}-${os.arch()}`];
+  if (!arch2) {
+    throw new Error(`Unsupported platform: ${os.platform()}-${os.arch()}`);
+  }
+  return arch2;
+};
 var sha256 = (s2) => {
   return (0, import_crypto4.createHash)("sha256").update(s2).digest("hex");
 };
 
+// src/mocking.ts
+var coreMocked = {
+  setFailed: (msg) => {
+    coreMocked.error(msg);
+    process.exit(1);
+  },
+  getInput: (name) => {
+    const value = process.env[`INPUT_${name.replace(/-/g, "_").toUpperCase()}`];
+    if (value === void 0) {
+      throw new Error(`Input required and not supplied: ${name}`);
+    }
+    return value;
+  },
+  // github internally just calls toString on everything, this can lead to confusion, therefore just accepting strings here outright
+  setOutput(name, value) {
+    console.log(`::set-output name=${name}::${value}`);
+  },
+  info: (msg) => console.log(`\x1B[44m\x1B[37m I \x1B[39m\x1B[49m ` + msg),
+  // blue "I"
+  debug: (msg) => console.log(`\x1B[45m\x1B[37m D \x1B[39m\x1B[49m ` + msg),
+  // magenta "D"
+  warning: (msg) => console.warn(`\x1B[43m\x1B[37m W \x1B[39m\x1B[49m ` + msg),
+  // yellow "W"
+  notice: (msg) => console.info(`\x1B[44m\x1B[37m ? \x1B[39m\x1B[49m ` + msg),
+  // blue "?"
+  error: (msg) => console.error(`\x1B[41m\x1B[37m E \x1B[39m\x1B[49m ` + msg),
+  // red "E"
+  startGroup: (label) => console.group(`\x1B[47m\x1B[30m \u25BC \x1B[39m\x1B[49m ` + label),
+  // white "▼"
+  endGroup: () => console.groupEnd()
+};
+
 // src/main.ts
-async function downloadMicromamba(url) {
-  await fs2.mkdir(PATHS.micromambaBinFolder, { recursive: true });
+var core = process.env.MOCKING ? coreMocked : coreDefault;
+var downloadMicromamba = async (url) => {
+  core.startGroup("Install micromamba");
   core.debug(`Downloading micromamba from ${url} ...`);
-  fetch(url).then((response) => response.arrayBuffer()).then((buffer) => Buffer.from(buffer)).then((buffer) => {
+  const mkDir = fs2.mkdir(PATHS.micromambaBinFolder, { recursive: true });
+  const downloadMicromamba2 = fetch(url).then((response) => response.arrayBuffer()).then((buffer) => Buffer.from(buffer)).then((buffer) => {
     core.debug(`.tar.bz2 sha256: ${sha256(buffer)}`);
     return (0, import_decompress.default)(buffer, {
       filter: (file) => file.path === "bin/micromamba",
@@ -17678,16 +17727,17 @@ async function downloadMicromamba(url) {
         return file;
       }
     });
-  }).then((files) => {
+  });
+  Promise.all([mkDir, downloadMicromamba2]).then(([, files]) => {
     const buffer = files[0].data;
     fs2.writeFile(PATHS.micromambaBin, buffer, { encoding: "binary", mode: 493 });
     core.debug(`Downloaded micromamba executable to ${PATHS.micromambaBin} ...`);
   }).catch((err) => {
-    core.error(`Error downloading file: ${err.message}`);
+    core.error(`Error installing micromamba: ${err.message}`);
   });
-}
+};
 var run = async () => {
-  await downloadMicromamba(micromambaUrl("osx-arm64", "1.3.0"));
+  await downloadMicromamba(micromambaUrl(getCondaArch(), "latest"));
 };
 run();
 /*! Bundled license information:

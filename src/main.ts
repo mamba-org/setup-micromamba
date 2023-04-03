@@ -1,13 +1,18 @@
 import * as fs from 'fs/promises'
-import * as core from '@actions/core'
+import * as coreDefault from '@actions/core'
 import decompress from 'decompress'
 import fetch from 'node-fetch'
-import { PATHS, sha256, micromambaUrl } from './util'
+import { PATHS, sha256, micromambaUrl, getCondaArch } from './util'
+import { coreMocked } from './mocking'
 
-async function downloadMicromamba(url: string) {
-  await fs.mkdir(PATHS.micromambaBinFolder, { recursive: true })
+const core = process.env.MOCKING ? coreMocked : coreDefault
+
+const downloadMicromamba = (url: string) => {
+  core.startGroup('Install micromamba')
   core.debug(`Downloading micromamba from ${url} ...`)
-  fetch(url)
+
+  const mkDir = fs.mkdir(PATHS.micromambaBinFolder, { recursive: true })
+  const downloadMicromamba = fetch(url)
     .then((response) => response.arrayBuffer())
     .then((buffer) => Buffer.from(buffer))
     .then((buffer) => {
@@ -20,18 +25,26 @@ async function downloadMicromamba(url: string) {
         }
       })
     })
-    .then((files) => {
+
+  return Promise.all([mkDir, downloadMicromamba])
+    .then(([, files]) => {
       const buffer = files[0].data
       fs.writeFile(PATHS.micromambaBin, buffer, { encoding: 'binary', mode: 0o755 })
       core.debug(`Downloaded micromamba executable to ${PATHS.micromambaBin} ...`)
     })
     .catch((err) => {
-      core.error(`Error downloading file: ${err.message}`)
+      core.error(`Error installing micromamba: ${err.message}`)
     })
 }
 
 const run = async () => {
-  await downloadMicromamba(micromambaUrl('osx-arm64', '1.3.0'))
+  // const inputs = {
+  //   micromambaVersion: core.getInput('micromamba-version'),
+  //   micromambaUrl: core.getInput('micromamba-url')
+
+  // }
+  // await installMicromamba()
+  await downloadMicromamba(micromambaUrl(getCondaArch(), 'latest'))
 }
 
 run()
