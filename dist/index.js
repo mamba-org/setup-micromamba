@@ -8143,81 +8143,6 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
   });
 }
 
-// src/util.ts
-var path = __toESM(require("path"));
-var os = __toESM(require("os"));
-var import_crypto4 = require("crypto");
-var PATHS = {
-  // TODO fix paths
-  // micromambaBinFolder: path.join(os.homedir(), 'micromamba-bin'),
-  micromambaBinFolder: path.join(os.homedir(), "debug", "micromamba-bin"),
-  // micromambaBin: path.join(os.homedir(), 'micromamba-bin', 'micromamba')
-  micromambaBin: path.join(os.homedir(), "debug", "micromamba-bin", "micromamba")
-};
-var getMicromambaUrl = (arch2, version2) => {
-  return `https://github.com/mamba-org/micromamba-releases/releases/${version2}/download/micromamba-${arch2}`;
-};
-var getCondaArch = () => {
-  const archDict = {
-    "darwin-x64": "osx-64",
-    "darwin-arm64": "osx-arm64",
-    "linux-x64": "linux-64",
-    "linux-arm64": "linux-aarch64",
-    "linux-ppc64": "linux-ppc64le",
-    "win32-x64": "win-64"
-  };
-  const arch2 = archDict[`${os.platform()}-${os.arch()}`];
-  if (!arch2) {
-    throw new Error(`Unsupported platform: ${os.platform()}-${os.arch()}`);
-  }
-  return arch2;
-};
-var getMicromambaUrlFromInputs = (micromambaUrl, micromambaVersion) => {
-  if (micromambaUrl) {
-    return micromambaUrl;
-  }
-  const arch2 = getCondaArch();
-  if (!micromambaVersion) {
-    return getMicromambaUrl(arch2, "latest");
-  }
-  return getMicromambaUrl(arch2, micromambaVersion);
-};
-var sha256 = (s2) => {
-  return (0, import_crypto4.createHash)("sha256").update(s2).digest("hex");
-};
-
-// src/mocking.ts
-var coreMocked = {
-  setFailed: (msg) => {
-    coreMocked.error(msg);
-    process.exit(1);
-  },
-  getInput: (name) => {
-    const value = process.env[`INPUT_${name.replace(/-/g, "_").toUpperCase()}`];
-    if (value === void 0) {
-      throw new Error(`Input required and not supplied: ${name}`);
-    }
-    return value;
-  },
-  // github internally just calls toString on everything, this can lead to confusion, therefore just accepting strings here outright
-  setOutput(name, value) {
-    console.log(`::set-output name=${name}::${value}`);
-  },
-  info: (msg) => console.log(`\x1B[44m\x1B[37m I \x1B[39m\x1B[49m ` + msg),
-  // blue "I"
-  debug: (msg) => console.log(`\x1B[45m\x1B[37m D \x1B[39m\x1B[49m ` + msg),
-  // magenta "D"
-  warning: (msg) => console.warn(`\x1B[43m\x1B[37m W \x1B[39m\x1B[49m ` + msg),
-  // yellow "W"
-  notice: (msg) => console.info(`\x1B[44m\x1B[37m ? \x1B[39m\x1B[49m ` + msg),
-  // blue "?"
-  error: (msg) => console.error(`\x1B[41m\x1B[37m E \x1B[39m\x1B[49m ` + msg),
-  // red "E"
-  startGroup: (label) => console.group(`\x1B[47m\x1B[30m \u25BC \x1B[39m\x1B[49m ` + label),
-  // white "▼"
-  endGroup: () => console.groupEnd()
-};
-
 // node_modules/.pnpm/zod@3.20.6/node_modules/zod/lib/index.mjs
 var util;
 (function(util2) {
@@ -11460,14 +11385,83 @@ var nullableType = ZodNullable.create;
 var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
-// src/schemas.ts
-var micromambaUrlSchema = unionType([literalType(""), stringType().url()]);
-var micromambaVersionSchema = unionType([literalType(""), literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+$/)]);
-var logLevelSchema = enumType(["trace", "debug", "info", "warn", "error", "critical", "off"]);
-var extraSpecsSchema = arrayType(stringType());
-var createArgsSchema = arrayType(stringType());
-var createEnvSchema = booleanType();
-var initMicromambaSchema = arrayType(enumType(["bash", "zsh", "xonsh", "powershell", "cmd"]));
+// src/util.ts
+var path = __toESM(require("path"));
+var os = __toESM(require("os"));
+var import_crypto4 = require("crypto");
+var PATHS = {
+  // TODO fix paths
+  // micromambaBinFolder: path.join(os.homedir(), 'micromamba-bin'),
+  micromambaBinFolder: path.join(os.homedir(), "debug", "micromamba-bin"),
+  // micromambaBin: path.join(os.homedir(), 'micromamba-bin', 'micromamba')
+  micromambaBin: path.join(os.homedir(), "debug", "micromamba-bin", "micromamba")
+};
+var getMicromambaUrl = (arch2, version2) => {
+  if (version2 === "latest") {
+    return `https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-${arch2}`;
+  }
+  return `https://github.com/mamba-org/micromamba-releases/releases/download/${version2}/micromamba-${arch2}`;
+};
+var getCondaArch = () => {
+  const archDict = {
+    "darwin-x64": "osx-64",
+    "darwin-arm64": "osx-arm64",
+    "linux-x64": "linux-64",
+    "linux-arm64": "linux-aarch64",
+    "linux-ppc64": "linux-ppc64le",
+    "win32-x64": "win-64"
+  };
+  const arch2 = archDict[`${os.platform()}-${os.arch()}`];
+  if (!arch2) {
+    throw new Error(`Unsupported platform: ${os.platform()}-${os.arch()}`);
+  }
+  return arch2;
+};
+var getMicromambaUrlFromInputs = (micromambaUrl, micromambaVersion) => {
+  if (micromambaUrl) {
+    return micromambaUrl;
+  }
+  const arch2 = getCondaArch();
+  if (!micromambaVersion) {
+    return getMicromambaUrl(arch2, "latest");
+  }
+  return getMicromambaUrl(arch2, micromambaVersion);
+};
+var sha256 = (s2) => {
+  return (0, import_crypto4.createHash)("sha256").update(s2).digest("hex");
+};
+
+// src/mocking.ts
+var coreMocked = {
+  setFailed: (msg) => {
+    coreMocked.error(msg);
+    process.exit(1);
+  },
+  getInput: (name) => {
+    const value = process.env[`INPUT_${name.replace(/-/g, "_").toUpperCase()}`];
+    if (value === void 0) {
+      throw new Error(`Input required and not supplied: ${name}`);
+    }
+    return value;
+  },
+  // github internally just calls toString on everything, this can lead to confusion, therefore just accepting strings here outright
+  setOutput(name, value) {
+    console.log(`::set-output name=${name}::${value}`);
+  },
+  info: (msg) => console.log(`\x1B[44m\x1B[37m I \x1B[39m\x1B[49m ` + msg),
+  // blue "I"
+  debug: (msg) => console.log(`\x1B[45m\x1B[37m D \x1B[39m\x1B[49m ` + msg),
+  // magenta "D"
+  warning: (msg) => console.warn(`\x1B[43m\x1B[37m W \x1B[39m\x1B[49m ` + msg),
+  // yellow "W"
+  notice: (msg) => console.info(`\x1B[44m\x1B[37m ? \x1B[39m\x1B[49m ` + msg),
+  // blue "?"
+  error: (msg) => console.error(`\x1B[41m\x1B[37m E \x1B[39m\x1B[49m ` + msg),
+  // red "E"
+  startGroup: (label) => console.group(`\x1B[47m\x1B[30m \u25BC \x1B[39m\x1B[49m ` + label),
+  // white "▼"
+  endGroup: () => console.groupEnd()
+};
 
 // src/main.ts
 var core = process.env.MOCKING ? coreMocked : coreDefault;
@@ -11489,19 +11483,32 @@ var downloadMicromamba = (url) => {
     core.error(`Error installing micromamba: ${err.message}`);
   });
 };
+var parseOrUndefined = (input, schema) => {
+  if (input === "") {
+    return void 0;
+  }
+  return schema.parse(input);
+};
 var run = async () => {
   const inputs = {
-    micromambaUrl: micromambaUrlSchema.parse(core.getInput("micromamba-url")),
-    micromambaVersion: micromambaVersionSchema.parse(core.getInput("micromamba-version"))
-    // logLevel: logLevelSchema.parse(core.getInput('log-level')),
-    // condarcFile: core.getInput('condarc-file'),
-    // environmentFile: core.getInput('environment-file'),
-    // environmentName: core.getInput('environment-name'),
-    // extraSpecs: extraSpecsSchema.parse(JSON.parse(core.getInput('extra-specs'))),
-    // createArgs: createArgsSchema.parse(JSON.parse(core.getInput('create-args'))),
-    // createEnv: createEnvSchema.parse(JSON.parse(core.getInput('create-env'))),
-    // cacheKey: core.getInput('cache-key'),
-    // initMicromamba: initMicromambaSchema.parse(JSON.parse(core.getInput('init-micromamba')))
+    // TODO: parseOrUndefined is not needed everywhere
+    micromambaUrl: parseOrUndefined(core.getInput("micromamba-url"), stringType().url()),
+    micromambaVersion: parseOrUndefined(
+      core.getInput("micromamba-version"),
+      unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)])
+    ),
+    logLevel: parseOrUndefined(core.getInput("log-level"), enumType(["debug", "info"])),
+    condarcFile: parseOrUndefined(core.getInput("condarc-file"), stringType()),
+    environmentFile: parseOrUndefined(core.getInput("environment-file"), stringType()),
+    environmentName: parseOrUndefined(core.getInput("environment-name"), stringType()),
+    extraSpecs: parseOrUndefined(core.getInput("extra-specs"), arrayType(stringType())),
+    createArgs: parseOrUndefined(core.getInput("create-args"), arrayType(stringType())),
+    createEnvironment: parseOrUndefined(JSON.parse(core.getInput("create-environment")), booleanType()),
+    cacheKey: parseOrUndefined(core.getInput("cache-key"), stringType()),
+    initMicromamba: parseOrUndefined(
+      core.getInput("init-micromamba") && JSON.parse(core.getInput("init-micromamba")),
+      arrayType(enumType(["bash", "zsh", "xonsh", "powershell", "cmd"]))
+    )
   };
   core.info(`Inputs: ${JSON.stringify(inputs, null, 2)}`);
   const url = getMicromambaUrlFromInputs(inputs.micromambaUrl, inputs.micromambaVersion);

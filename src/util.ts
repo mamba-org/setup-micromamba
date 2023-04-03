@@ -12,7 +12,10 @@ export const PATHS = {
 }
 
 const getMicromambaUrl = (arch: string, version: string) => {
-  return `https://github.com/mamba-org/micromamba-releases/releases/${version}/download/micromamba-${arch}`
+  if (version === 'latest') {
+    return `https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-${arch}`
+  }
+  return `https://github.com/mamba-org/micromamba-releases/releases/download/${version}/micromamba-${arch}`
 }
 
 const getCondaArch = () => {
@@ -31,7 +34,10 @@ const getCondaArch = () => {
   return arch
 }
 
-export const getMicromambaUrlFromInputs = (micromambaUrl: string, micromambaVersion: string) => {
+export const getMicromambaUrlFromInputs = (
+  micromambaUrl: string | undefined,
+  micromambaVersion: string | undefined
+) => {
   if (micromambaUrl) {
     return micromambaUrl
   }

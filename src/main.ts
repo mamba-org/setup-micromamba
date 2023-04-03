@@ -1,9 +1,9 @@
 import * as fs from 'fs/promises'
 import * as coreDefault from '@actions/core'
 import fetch from 'node-fetch'
+import * as z from 'zod'
 import { PATHS, sha256, getMicromambaUrlFromInputs } from './util'
 import { coreMocked } from './mocking'
-import { micromambaUrlSchema, micromambaVersionSchema } from './schemas'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -32,19 +32,33 @@ const downloadMicromamba = (url: string) => {
     })
 }
 
+const parseOrUndefined = <T>(input: string, schema: z.ZodSchema<T>): T | undefined => {
+  if (input === '') {
+    return undefined
+  }
+  return schema.parse(input)
+}
+
 const run = async () => {
   const inputs = {
-    micromambaUrl: micromambaUrlSchema.parse(core.getInput('micromamba-url')),
-    micromambaVersion: micromambaVersionSchema.parse(core.getInput('micromamba-version'))
-    // logLevel: logLevelSchema.parse(core.getInput('log-level')),
-    // condarcFile: core.getInput('condarc-file'),
-    // environmentFile: core.getInput('environment-file'),
-    // environmentName: core.getInput('environment-name'),
-    // extraSpecs: extraSpecsSchema.parse(JSON.parse(core.getInput('extra-specs'))),
-    // createArgs: createArgsSchema.parse(JSON.parse(core.getInput('create-args'))),
-    // createEnv: createEnvSchema.parse(JSON.parse(core.getInput('create-env'))),
-    // cacheKey: core.getInput('cache-key'),
-    // initMicromamba: initMicromambaSchema.parse(JSON.parse(core.getInput('init-micromamba')))
+    // TODO: parseOrUndefined is not needed everywhere
+    micromambaUrl: parseOrUndefined(core.getInput('micromamba-url'), z.string().url()),
+    micromambaVersion: parseOrUndefined(
+      core.getInput('micromamba-version'),
+      z.union([z.literal('latest'), z.string().regex(/^\d+\.\d+\.\d+-\d+$/)])
+    ),
+    logLevel: parseOrUndefined(core.getInput('log-level'), z.enum(['debug', 'info'])),
+    condarcFile: parseOrUndefined(core.getInput('condarc-file'), z.string()),
+    environmentFile: parseOrUndefined(core.getInput('environment-file'), z.string()),
+    environmentName: parseOrUndefined(core.getInput('environment-name'), z.string()),
+    extraSpecs: parseOrUndefined(core.getInput('extra-specs'), z.array(z.string())),
+    createArgs: parseOrUndefined(core.getInput('create-args'), z.array(z.string())),
+    createEnvironment: parseOrUndefined(JSON.parse(core.getInput('create-environment')), z.boolean()),
+    cacheKey: parseOrUndefined(core.getInput('cache-key'), z.string()),
+    initMicromamba: parseOrUndefined(
+      core.getInput('init-micromamba') && JSON.parse(core.getInput('init-micromamba')),
+      z.array(z.enum(['bash', 'zsh', 'xonsh', 'powershell', 'cmd']))
+    )
   }
 
   core.info(`Inputs: ${JSON.stringify(inputs, null, 2)}`)
