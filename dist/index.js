@@ -11462,7 +11462,7 @@ var pipelineType = ZodPipeline.create;
 
 // src/schemas.ts
 var micromambaUrlSchema = unionType([literalType(""), stringType().url()]);
-var micromambaVersionSchema = unionType([literalType(""), stringType().regex(/^\d+\.\d+\.\d+$/)]);
+var micromambaVersionSchema = unionType([literalType(""), literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+$/)]);
 var logLevelSchema = enumType(["trace", "debug", "info", "warn", "error", "critical", "off"]);
 var extraSpecsSchema = arrayType(stringType());
 var createArgsSchema = arrayType(stringType());

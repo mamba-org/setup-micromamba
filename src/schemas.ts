@@ -2,7 +2,7 @@ import * as z from 'zod'
 
 const micromambaUrlSchema = z.union([z.literal(''), z.string().url()])
 
-const micromambaVersionSchema = z.union([z.literal(''), z.string().regex(/^\d+\.\d+\.\d+$/)])
+const micromambaVersionSchema = z.union([z.literal(''), z.literal('latest'), z.string().regex(/^\d+\.\d+\.\d+$/)])
 
 // TODO: only use valid log levels
 const logLevelSchema = z.enum(['trace', 'debug', 'info', 'warn', 'error', 'critical', 'off'])
