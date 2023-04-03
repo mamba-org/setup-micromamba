@@ -1,8 +1,9 @@
 import * as fs from 'fs/promises'
 import * as coreDefault from '@actions/core'
 import fetch from 'node-fetch'
-import { PATHS, sha256, micromambaUrl, getCondaArch } from './util'
+import { PATHS, sha256, getMicromambaUrlFromInputs } from './util'
 import { coreMocked } from './mocking'
+import { micromambaUrlSchema, micromambaVersionSchema } from './schemas'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -32,13 +33,30 @@ const downloadMicromamba = (url: string) => {
 }
 
 const run = async () => {
+  const inputs = {
+    micromambaUrl: micromambaUrlSchema.parse(core.getInput('micromamba-url')),
+    micromambaVersion: micromambaVersionSchema.parse(core.getInput('micromamba-version'))
+    // logLevel: logLevelSchema.parse(core.getInput('log-level')),
+    // condarcFile: core.getInput('condarc-file'),
+    // environmentFile: core.getInput('environment-file'),
+    // environmentName: core.getInput('environment-name'),
+    // extraSpecs: extraSpecsSchema.parse(JSON.parse(core.getInput('extra-specs'))),
+    // createArgs: createArgsSchema.parse(JSON.parse(core.getInput('create-args'))),
+    // createEnv: createEnvSchema.parse(JSON.parse(core.getInput('create-env'))),
+    // cacheKey: core.getInput('cache-key'),
+    // initMicromamba: initMicromambaSchema.parse(JSON.parse(core.getInput('init-micromamba')))
+  }
+
+  core.info(`Inputs: ${JSON.stringify(inputs, null, 2)}`)
+
   // const inputs = {
   //   micromambaVersion: core.getInput('micromamba-version'),
   //   micromambaUrl: core.getInput('micromamba-url')
 
   // }
   // await installMicromamba()
-  await downloadMicromamba(micromambaUrl(getCondaArch(), 'latest'))
+  const url = getMicromambaUrlFromInputs(inputs.micromambaUrl, inputs.micromambaVersion)
+  await downloadMicromamba(url)
 }
 
 run()
