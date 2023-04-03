@@ -12,7 +12,7 @@ export const PATHS = {
 }
 
 export const micromambaUrl = (os: string, version: string) => {
-  return `https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-${os}-${version}`
+  return `https://github.com/mamba-org/micromamba-releases/releases/${version}/download/micromamba-${os}`
 }
 
 export const getCondaArch = () => {
