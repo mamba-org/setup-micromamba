@@ -1,10 +1,11 @@
 import * as fs from 'fs/promises'
+
 import * as coreDefault from '@actions/core'
 import fetch from 'node-fetch'
-import { PATHS, sha256, getMicromambaUrlFromInputs, micromambaCmd, execute } from './util'
+import { PATHS, sha256, getMicromambaUrlFromInputs } from './util'
 import { coreMocked } from './mocking'
-import type { LogLevelType } from './inputs'
 import { parseInputs } from './inputs'
+import { shellInit } from './shell-init'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -33,19 +34,8 @@ const downloadMicromamba = (url: string) => {
     .finally(core.endGroup)
 }
 
-const shellInit = (shell: string, logLevel: LogLevelType) => {
-  core.startGroup(`Initialize micromamba for ${shell}`)
-  // if (shell === 'powershell' || shell === 'cmd') {
-  //   throw new Error(`Shell ${shell} is not supported`)
-  // }
-  // const command = micromambaCmd(`shell init -s ${shell}`, logLevel)
-  const command = micromambaCmd(`--version`, logLevel)
-  return execute(command)
-}
-
 const run = async () => {
   const inputs = parseInputs()
-
   core.debug(`Parsed inputs: ${JSON.stringify(inputs, null, 2)}`)
 
   const url = getMicromambaUrlFromInputs(inputs.micromambaUrl, inputs.micromambaVersion)

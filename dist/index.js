@@ -117,11 +117,11 @@ var require_command = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.issue = exports.issueCommand = void 0;
-    var os2 = __importStar(require("os"));
+    var os3 = __importStar(require("os"));
     var utils_1 = require_utils();
     function issueCommand(command, properties, message) {
       const cmd = new Command(command, properties, message);
-      process.stdout.write(cmd.toString() + os2.EOL);
+      process.stdout.write(cmd.toString() + os3.EOL);
     }
     exports.issueCommand = issueCommand;
     function issue(name, message = "") {
@@ -537,8 +537,8 @@ var require_file_command = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
-    var fs3 = __importStar(require("fs"));
-    var os2 = __importStar(require("os"));
+    var fs4 = __importStar(require("fs"));
+    var os3 = __importStar(require("os"));
     var uuid_1 = (init_esm_node(), __toCommonJS(esm_node_exports));
     var utils_1 = require_utils();
     function issueFileCommand(command, message) {
@@ -546,10 +546,10 @@ var require_file_command = __commonJS({
       if (!filePath) {
         throw new Error(`Unable to find environment variable for file command ${command}`);
       }
-      if (!fs3.existsSync(filePath)) {
+      if (!fs4.existsSync(filePath)) {
         throw new Error(`Missing file at path: ${filePath}`);
       }
-      fs3.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os2.EOL}`, {
+      fs4.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os3.EOL}`, {
         encoding: "utf8"
       });
     }
@@ -563,7 +563,7 @@ var require_file_command = __commonJS({
       if (convertedValue.includes(delimiter)) {
         throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
       }
-      return `${key}<<${delimiter}${os2.EOL}${convertedValue}${os2.EOL}${delimiter}`;
+      return `${key}<<${delimiter}${os3.EOL}${convertedValue}${os3.EOL}${delimiter}`;
     }
     exports.prepareKeyValueMessage = prepareKeyValueMessage;
   }
@@ -1679,7 +1679,7 @@ var require_summary = __commonJS({
     exports.summary = exports.markdownSummary = exports.SUMMARY_DOCS_URL = exports.SUMMARY_ENV_VAR = void 0;
     var os_1 = require("os");
     var fs_1 = require("fs");
-    var { access, appendFile, writeFile: writeFile2 } = fs_1.promises;
+    var { access, appendFile: appendFile2, writeFile: writeFile3 } = fs_1.promises;
     exports.SUMMARY_ENV_VAR = "GITHUB_STEP_SUMMARY";
     exports.SUMMARY_DOCS_URL = "https://docs.github.com/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary";
     var Summary = class {
@@ -1737,7 +1737,7 @@ var require_summary = __commonJS({
         return __awaiter(this, void 0, void 0, function* () {
           const overwrite = !!(options === null || options === void 0 ? void 0 : options.overwrite);
           const filePath = yield this.filePath();
-          const writeFunc = overwrite ? writeFile2 : appendFile;
+          const writeFunc = overwrite ? writeFile3 : appendFile2;
           yield writeFunc(filePath, this._buffer, { encoding: "utf8" });
           return this.emptyBuffer();
         });
@@ -2052,7 +2052,7 @@ var require_core = __commonJS({
     var command_1 = require_command();
     var file_command_1 = require_file_command();
     var utils_1 = require_utils();
-    var os2 = __importStar(require("os"));
+    var os3 = __importStar(require("os"));
     var path2 = __importStar(require("path"));
     var oidc_utils_1 = require_oidc_utils();
     var ExitCode;
@@ -2120,7 +2120,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       if (filePath) {
         return file_command_1.issueFileCommand("OUTPUT", file_command_1.prepareKeyValueMessage(name, value));
       }
-      process.stdout.write(os2.EOL);
+      process.stdout.write(os3.EOL);
       command_1.issueCommand("set-output", { name }, utils_1.toCommandValue(value));
     }
     exports.setOutput = setOutput;
@@ -2154,7 +2154,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     }
     exports.notice = notice;
     function info(message) {
-      process.stdout.write(message + os2.EOL);
+      process.stdout.write(message + os3.EOL);
     }
     exports.info = info;
     function startGroup(name) {
@@ -6856,8 +6856,8 @@ var init_multipart_parser = __esm({
 });
 
 // src/main.ts
-var fs2 = __toESM(require("fs/promises"));
-var coreDefault3 = __toESM(require_core());
+var fs3 = __toESM(require("fs/promises"));
+var coreDefault4 = __toESM(require_core());
 
 // node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/index.js
 var import_node_http2 = __toESM(require("http"), 1);
@@ -8189,7 +8189,9 @@ var PATHS = {
   micromambaBinFolder: path.join(os.homedir(), "debug", "micromamba-bin"),
   micromambaBin: path.join(os.homedir(), "debug", "micromamba-bin", "micromamba"),
   micromambaRoot: path.join(os.homedir(), "debug", "micromamba-root"),
-  micromambaEnvs: path.join(os.homedir(), "debug", "micromamba-root", "envs")
+  micromambaEnvs: path.join(os.homedir(), "debug", "micromamba-root", "envs"),
+  bashProfile: path.join(os.homedir(), ".bash_profile"),
+  bashrc: path.join(os.homedir(), ".bashrc")
 };
 var getMicromambaUrl = (arch2, version2) => {
   if (version2 === "latest") {
@@ -8212,6 +8214,7 @@ var getCondaArch = () => {
   }
   return arch2;
 };
+var mambaRegexBlock = /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\\s\\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/;
 var getMicromambaUrlFromInputs = (micromambaUrl, micromambaVersion) => {
   if (micromambaUrl) {
     return micromambaUrl;
@@ -11511,12 +11514,37 @@ var parseInputs = () => {
   return inputs;
 };
 
-// src/main.ts
+// src/shell-init.ts
+var fs2 = __toESM(require("fs/promises"));
+var os2 = __toESM(require("os"));
+var coreDefault3 = __toESM(require_core());
 var core3 = process.env.MOCKING ? coreMocked : coreDefault3;
+var copyMambaInitBlockToBashProfile = () => {
+  core3.info("Moving mamba initialize block to .bash_profile");
+  return fs2.readFile(PATHS.bashrc, { encoding: "utf-8" }).then((bashrc) => {
+    const matches = bashrc.match(mambaRegexBlock);
+    if (!matches) {
+      throw new Error("Could not find mamba initialization block in .bashrc");
+    }
+    core3.debug(`Adding mamba initialization block to .bash_profile: ${matches[0]}`);
+    return fs2.appendFile(PATHS.bashProfile, matches[0]);
+  });
+};
+var shellInit = (shell, logLevel) => {
+  core3.startGroup(`Initialize micromamba for ${shell}`);
+  const command = execute(micromambaCmd(`shell init -s ${shell}`, logLevel));
+  if (os2.platform() === "linux" && shell === "bash") {
+    return command.then(copyMambaInitBlockToBashProfile);
+  }
+  return command;
+};
+
+// src/main.ts
+var core4 = process.env.MOCKING ? coreMocked : coreDefault4;
 var downloadMicromamba = (url) => {
-  core3.startGroup("Install micromamba");
-  core3.debug(`Downloading micromamba from ${url} ...`);
-  const mkDir = fs2.mkdir(PATHS.micromambaBinFolder, { recursive: true });
+  core4.startGroup("Install micromamba");
+  core4.debug(`Downloading micromamba from ${url} ...`);
+  const mkDir = fs3.mkdir(PATHS.micromambaBinFolder, { recursive: true });
   const downloadMicromamba2 = fetch(url).then((res) => {
     if (!res.ok) {
       throw new Error(`Download failed: ${res.statusText}`);
@@ -11524,20 +11552,15 @@ var downloadMicromamba = (url) => {
     return res.arrayBuffer();
   }).then((arrayBuffer) => Buffer.from(arrayBuffer));
   return Promise.all([mkDir, downloadMicromamba2]).then(([, buffer]) => {
-    core3.debug(`micromamba binary sha256: ${sha256(buffer)}`);
-    return fs2.writeFile(PATHS.micromambaBin, buffer, { encoding: "binary", mode: 493 });
+    core4.debug(`micromamba binary sha256: ${sha256(buffer)}`);
+    return fs3.writeFile(PATHS.micromambaBin, buffer, { encoding: "binary", mode: 493 });
   }).catch((err) => {
-    core3.error(`Error installing micromamba: ${err.message}`);
-  }).finally(core3.endGroup);
-};
-var shellInit = (shell, logLevel) => {
-  core3.startGroup(`Initialize micromamba for ${shell}`);
-  const command = micromambaCmd(`--version`, logLevel);
-  return execute(command);
+    core4.error(`Error installing micromamba: ${err.message}`);
+  }).finally(core4.endGroup);
 };
 var run = async () => {
   const inputs = parseInputs();
-  core3.debug(`Parsed inputs: ${JSON.stringify(inputs, null, 2)}`);
+  core4.debug(`Parsed inputs: ${JSON.stringify(inputs, null, 2)}`);
   const url = getMicromambaUrlFromInputs(inputs.micromambaUrl, inputs.micromambaVersion);
   await downloadMicromamba(url);
   for (const shell of inputs.initMicromamba) {

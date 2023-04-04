@@ -14,7 +14,9 @@ export const PATHS = {
   micromambaBinFolder: path.join(os.homedir(), 'debug', 'micromamba-bin'),
   micromambaBin: path.join(os.homedir(), 'debug', 'micromamba-bin', 'micromamba'),
   micromambaRoot: path.join(os.homedir(), 'debug', 'micromamba-root'),
-  micromambaEnvs: path.join(os.homedir(), 'debug', 'micromamba-root', 'envs')
+  micromambaEnvs: path.join(os.homedir(), 'debug', 'micromamba-root', 'envs'),
+  bashProfile: path.join(os.homedir(), '.bash_profile'),
+  bashrc: path.join(os.homedir(), '.bashrc')
 }
 
 const getMicromambaUrl = (arch: string, version: string) => {
@@ -39,6 +41,9 @@ const getCondaArch = () => {
   }
   return arch
 }
+
+export const mambaRegexBlock =
+  /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\\s\\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/
 
 export const getMicromambaUrlFromInputs = (
   micromambaUrl: string | undefined,
