@@ -29,7 +29,7 @@ inputs:
   create-args:
     description: >-
       Extra arguments to pass to `micromamba create`.
-  create-env:
+  create-environment:
     description: >-
       Whether to create a micromamba environment. If `false`, the action will only install micromamba.
     default: 'true'
@@ -45,6 +45,12 @@ inputs:
   micromamba-url:
     description: >-
       URL to download micromamba from.
+  init-shell:
+    description: >-
+      Which shells to initialize micromamba in.
+      Array of `"bash"`, `"cmd.exe"`, `"powershell"`.
+      Also supports other shells, but they are not tested.
+    default: '["bash"]'
   post-deinit:
     description: >-
       Whether to run `micromamba shell deinit` after the action or not.
@@ -56,11 +62,11 @@ inputs:
   cache-downloads-key:
     description: >-
       Cache key to use for caching.
-  cache-env:
+  cache-environment:
     description: >-
       Whether to cache the environment or not.
     default: 'true'
-  cache-env-key:
+  cache-environment-key:
     description: >-
       Cache key to use for caching.
 runs:

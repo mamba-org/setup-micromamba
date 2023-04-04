@@ -12516,6 +12516,7 @@ var pipelineType = ZodPipeline.create;
 // src/inputs.ts
 var core2 = process.env.MOCKING ? coreMocked : coreDefault2;
 var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
+var shellSchema = enumType(["bash", "cmd.exe", "dash", "fish", "posix", "powershell", "tcsh", "xonsh", "zsh"]);
 var parseOrUndefined = (input, schema) => {
   if (input === "") {
     return void 0;
@@ -12525,23 +12526,25 @@ var parseOrUndefined = (input, schema) => {
 var parseInputs = () => {
   const inputs = {
     // TODO: parseOrUndefined is not needed everywhere
-    micromambaUrl: parseOrUndefined(core2.getInput("micromamba-url"), stringType().url()),
-    micromambaVersion: parseOrUndefined(
-      core2.getInput("micromamba-version"),
-      unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)])
-    ),
-    logLevel: logLevelSchema.parse(core2.getInput("log-level")),
     condarcFile: parseOrUndefined(core2.getInput("condarc-file"), stringType()),
     environmentFile: parseOrUndefined(core2.getInput("environment-file"), stringType()),
     environmentName: parseOrUndefined(core2.getInput("environment-name"), stringType()),
     extraSpecs: parseOrUndefined(core2.getInput("extra-specs"), arrayType(stringType())),
     createArgs: parseOrUndefined(core2.getInput("create-args"), arrayType(stringType())),
     createEnvironment: parseOrUndefined(JSON.parse(core2.getInput("create-environment")), booleanType()),
-    cacheKey: parseOrUndefined(core2.getInput("cache-key"), stringType()),
-    initMicromamba: parseOrUndefined(
-      core2.getInput("init-micromamba") && JSON.parse(core2.getInput("init-micromamba")),
-      arrayType(enumType(["bash", "zsh", "xonsh", "powershell", "cmd"]))
-    ) || []
+    logLevel: logLevelSchema.parse(core2.getInput("log-level")),
+    micromambaVersion: parseOrUndefined(
+      core2.getInput("micromamba-version"),
+      unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)])
+    ),
+    micromambaUrl: parseOrUndefined(core2.getInput("micromamba-url"), stringType().url()),
+    // cacheKey: parseOrUndefined(core.getInput('cache-key'), z.string()),
+    initShell: parseOrUndefined(core2.getInput("init-shell") && JSON.parse(core2.getInput("init-shell")), arrayType(shellSchema)) || [],
+    postDeinit: booleanType().parse(core2.getInput("post-deinit")),
+    cacheDownloads: parseOrUndefined(JSON.parse(core2.getInput("cache-downloads")), booleanType()),
+    cacheDownloadsKey: parseOrUndefined(core2.getInput("cache-downloads-key"), stringType()),
+    cacheEnvironment: parseOrUndefined(JSON.parse(core2.getInput("cache-environment")), booleanType()),
+    cacheEnvironmentKey: parseOrUndefined(core2.getInput("cache-environment-key"), stringType())
   };
   return inputs;
 };
