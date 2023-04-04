@@ -11,5 +11,5 @@ export default defineConfig({
   sourcemap: true,
   minify: false,
   // need to bundle dependencies because they aren't available otherwise when run inside the action
-  noExternal: ['@actions/core', 'decompress', 'node-fetch', 'zod']
+  noExternal: ['@actions/core', '@actions/exec', 'node-fetch', 'zod']
 })
