@@ -18,7 +18,7 @@ export type Input = {
   initMicromamba: string[]
 }
 
-const logLevelSchema = z.enum(['debug', 'info'])
+const logLevelSchema = z.enum(['off', 'critical', 'error', 'warning', 'info', 'debug', 'trace'])
 export type LogLevelType = z.infer<typeof logLevelSchema>
 
 const parseOrUndefined = <T>(input: string, schema: z.ZodSchema<T>): T | undefined => {

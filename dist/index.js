@@ -12515,7 +12515,7 @@ var pipelineType = ZodPipeline.create;
 
 // src/inputs.ts
 var core2 = process.env.MOCKING ? coreMocked : coreDefault2;
-var logLevelSchema = enumType(["debug", "info"]);
+var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
 var parseOrUndefined = (input, schema) => {
   if (input === "") {
     return void 0;
