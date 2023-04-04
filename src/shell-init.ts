@@ -3,7 +3,7 @@ import * as os from 'os'
 import * as coreDefault from '@actions/core'
 import { coreMocked } from './mocking'
 import { PATHS, execute, mambaRegexBlock, micromambaCmd } from './util'
-import type { LogLevelType } from './inputs'
+import type { Input } from './inputs'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -34,18 +34,18 @@ const removeMambaInitBlockFromBashProfile = () => {
   })
 }
 
-export const shellInit = (shell: string, logLevel: LogLevelType) => {
+export const shellInit = (shell: string, inputs: Input) => {
   core.startGroup(`Initialize micromamba for ${shell}`)
-  const command = execute(micromambaCmd(`shell init -s ${shell}`, logLevel))
+  const command = execute(micromambaCmd(`shell init -s ${shell}`, inputs.logLevel, inputs.condarcFile))
   if (os.platform() === 'linux' && shell === 'bash') {
-    return command.then(copyMambaInitBlockToBashProfile)
+    return command.then(copyMambaInitBlockToBashProfile).finally(core.endGroup)
   }
-  return command
+  return command.finally(core.endGroup)
 }
 
-export const shellDeinit = (shell: string, logLevel: LogLevelType) => {
+export const shellDeinit = (shell: string, inputs: Input) => {
   core.startGroup(`Deinitialize micromamba for ${shell}`)
-  const command = execute(micromambaCmd(`shell deinit -s ${shell}`, logLevel))
+  const command = execute(micromambaCmd(`shell deinit -s ${shell}`, inputs.logLevel, inputs.condarcFile))
   if (os.platform() === 'linux' && shell === 'bash') {
     return command.then(removeMambaInitBlockFromBashProfile)
   }

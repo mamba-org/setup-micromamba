@@ -1679,7 +1679,7 @@ var require_summary = __commonJS({
     exports.summary = exports.markdownSummary = exports.SUMMARY_DOCS_URL = exports.SUMMARY_ENV_VAR = void 0;
     var os_1 = require("os");
     var fs_1 = require("fs");
-    var { access, appendFile: appendFile2, writeFile: writeFile3 } = fs_1.promises;
+    var { access: access2, appendFile: appendFile2, writeFile: writeFile3 } = fs_1.promises;
     exports.SUMMARY_ENV_VAR = "GITHUB_STEP_SUMMARY";
     exports.SUMMARY_DOCS_URL = "https://docs.github.com/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary";
     var Summary = class {
@@ -1702,7 +1702,7 @@ var require_summary = __commonJS({
             throw new Error(`Unable to find environment variable for $${exports.SUMMARY_ENV_VAR}. Check if your runtime environment supports job summaries.`);
           }
           try {
-            yield access(pathFromEnv, fs_1.constants.R_OK | fs_1.constants.W_OK);
+            yield access2(pathFromEnv, fs_1.constants.R_OK | fs_1.constants.W_OK);
           } catch (_a4) {
             throw new Error(`Unable to access summary file: '${pathFromEnv}'. Check if the file has correct read/write permissions.`);
           }
@@ -9223,7 +9223,8 @@ var PATHS = {
   micromambaRoot: path.join(os.homedir(), "debug", "micromamba-root"),
   micromambaEnvs: path.join(os.homedir(), "debug", "micromamba-root", "envs"),
   bashProfile: path.join(os.homedir(), ".bash_profile"),
-  bashrc: path.join(os.homedir(), ".bashrc")
+  bashrc: path.join(os.homedir(), ".bashrc"),
+  condarc: path.join(os.homedir(), ".condarc")
 };
 var getMicromambaUrl = (arch2, version2) => {
   if (version2 === "latest") {
@@ -9260,8 +9261,15 @@ var getMicromambaUrlFromInputs = (micromambaUrl, micromambaVersion) => {
 var sha256 = (s2) => {
   return (0, import_crypto4.createHash)("sha256").update(s2).digest("hex");
 };
-var micromambaCmd = (command, logLevel) => {
-  return [PATHS.micromambaBin].concat(command.split(" "), ["--log-level", logLevel]);
+var micromambaCmd = (command, logLevel, condarcFile) => {
+  let commandArray = [PATHS.micromambaBin].concat(command.split(" "));
+  if (logLevel) {
+    commandArray = commandArray.concat(["--log-level", logLevel]);
+  }
+  if (condarcFile) {
+    commandArray = commandArray.concat(["--rc-file", condarcFile]);
+  }
+  return commandArray;
 };
 var execute = (cmd) => {
   core.debug(`Executing: ${cmd.join(" ")}`);
@@ -12527,6 +12535,7 @@ var parseInputs = () => {
   const inputs = {
     // TODO: parseOrUndefined is not needed everywhere
     condarcFile: parseOrUndefined(core2.getInput("condarc-file"), stringType()),
+    condarc: parseOrUndefined(core2.getInput("condarc"), stringType()),
     environmentFile: parseOrUndefined(core2.getInput("environment-file"), stringType()),
     environmentName: parseOrUndefined(core2.getInput("environment-name"), stringType()),
     extraSpecs: parseOrUndefined(core2.getInput("extra-specs"), arrayType(stringType())),
@@ -12548,6 +12557,18 @@ var parseInputs = () => {
   };
   return inputs;
 };
+var validateInputs = (inputs) => {
+  if (inputs.createEnvironment) {
+    if (!inputs.environmentFile && (!inputs.environmentName || !inputs.extraSpecs)) {
+      throw new Error(
+        "You must specify either an environment file or an environment name and extra specs to create an environment."
+      );
+    }
+  }
+  if (inputs.condarcFile && inputs.condarc) {
+    throw new Error("You must specify either a condarc file or a condarc string, not both.");
+  }
+};
 
 // src/shell-init.ts
 var fs2 = __toESM(require("fs/promises"));
@@ -12565,13 +12586,13 @@ var copyMambaInitBlockToBashProfile = () => {
     return fs2.appendFile(PATHS.bashProfile, matches[0]);
   });
 };
-var shellInit = (shell, logLevel) => {
+var shellInit = (shell, inputs) => {
   core3.startGroup(`Initialize micromamba for ${shell}`);
-  const command = execute(micromambaCmd(`shell init -s ${shell}`, logLevel));
+  const command = execute(micromambaCmd(`shell init -s ${shell}`, inputs.logLevel, inputs.condarcFile));
   if (os2.platform() === "linux" && shell === "bash") {
-    return command.then(copyMambaInitBlockToBashProfile);
+    return command.then(copyMambaInitBlockToBashProfile).finally(core3.endGroup);
   }
-  return command;
+  return command.finally(core3.endGroup);
 };
 
 // src/main.ts
@@ -12593,12 +12614,26 @@ var downloadMicromamba = (url) => {
     core4.error(`Error installing micromamba: ${err.message}`);
   }).finally(core4.endGroup);
 };
+var generateCondarc = (inputs) => {
+  if (inputs.condarcFile) {
+    core4.debug(`Using condarc file ${inputs.condarcFile} ...`);
+    return fs3.access(inputs.condarcFile, fs3.constants.F_OK);
+  }
+  if (inputs.condarc) {
+    core4.info(`Writing condarc contents to ${PATHS.condarc} ...`);
+    return fs3.writeFile(PATHS.condarc, inputs.condarc);
+  }
+  core4.info("Adding conda-forge to condarc channels ...");
+  return fs3.writeFile(PATHS.condarc, "channels:\n  - conda-forge");
+};
 var run = async () => {
   const inputs = parseInputs();
   core4.debug(`Parsed inputs: ${JSON.stringify(inputs, null, 2)}`);
+  validateInputs(inputs);
   const url = getMicromambaUrlFromInputs(inputs.micromambaUrl, inputs.micromambaVersion);
   await downloadMicromamba(url);
-  await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs.logLevel)));
+  await generateCondarc(inputs);
+  await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs)));
 };
 run();
 /*! Bundled license information:

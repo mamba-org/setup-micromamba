@@ -9,7 +9,11 @@ inputs:
   condarc-file:
     description: >-
       Path to a condarc file to use
-    default: '~/.condarc'
+    default: ''
+  condarc:
+    description: >-
+      Contents of a condarc file to use.
+    default: ''
   environment-file:
     description: >-
       Path to the `environment.yml` or `.lock` file for the environment.
