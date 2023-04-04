@@ -40,7 +40,7 @@ const run = async () => {
 
   const url = getMicromambaUrlFromInputs(inputs.micromambaUrl, inputs.micromambaVersion)
   await downloadMicromamba(url)
-  await Promise.all(inputs.initMicromamba.map((shell) => shellInit(shell, inputs.logLevel)))
+  await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs.logLevel)))
 }
 
 run()

@@ -12598,7 +12598,7 @@ var run = async () => {
   core4.debug(`Parsed inputs: ${JSON.stringify(inputs, null, 2)}`);
   const url = getMicromambaUrlFromInputs(inputs.micromambaUrl, inputs.micromambaVersion);
   await downloadMicromamba(url);
-  await Promise.all(inputs.initMicromamba.map((shell) => shellInit(shell, inputs.logLevel)));
+  await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs.logLevel)));
 };
 run();
 /*! Bundled license information:
