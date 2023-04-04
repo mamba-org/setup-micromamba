@@ -64,7 +64,7 @@ export const sha256 = (s: BinaryLike) => {
 }
 
 export const micromambaCmd = (command: string, logLevel: LogLevelType) => {
-  return [PATHS.micromambaBin, command, '--log-level', logLevel]
+  return [PATHS.micromambaBin].concat(command.split(' '), ['--log-level', logLevel])
 }
 
 export const execute = (cmd: string[]) => {

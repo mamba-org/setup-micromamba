@@ -8229,7 +8229,7 @@ var sha256 = (s2) => {
   return (0, import_crypto4.createHash)("sha256").update(s2).digest("hex");
 };
 var micromambaCmd = (command, logLevel) => {
-  return [PATHS.micromambaBin, command, "--log-level", logLevel];
+  return [PATHS.micromambaBin].concat(command.split(" "), ["--log-level", logLevel]);
 };
 var execute = (cmd) => {
   core.debug(`Executing: ${cmd.join(" ")}`);
@@ -11563,9 +11563,7 @@ var run = async () => {
   core4.debug(`Parsed inputs: ${JSON.stringify(inputs, null, 2)}`);
   const url = getMicromambaUrlFromInputs(inputs.micromambaUrl, inputs.micromambaVersion);
   await downloadMicromamba(url);
-  for (const shell of inputs.initMicromamba) {
-    await shellInit(shell, inputs.logLevel);
-  }
+  await Promise.all(inputs.initMicromamba.map((shell) => shellInit(shell, inputs.logLevel)));
 };
 run();
 /*! Bundled license information:
