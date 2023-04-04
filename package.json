@@ -14,10 +14,10 @@
     "url": "git+https://github.com/actions/typescript-action.git"
   },
   "keywords": [
-    "actions",
-    "node",
     "setup",
-    "micromamba"
+    "micromamba",
+    "conda",
+    "mamba"
   ],
   "author": "Pavel Zwerschke <pavel.zwerschke@quantco.com>",
   "license": "MIT",

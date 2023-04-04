@@ -43,7 +43,7 @@ const getCondaArch = () => {
 }
 
 export const mambaRegexBlock =
-  /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\\s\\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/
+  /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/
 
 export const getMicromambaUrlFromInputs = (
   micromambaUrl: string | undefined,

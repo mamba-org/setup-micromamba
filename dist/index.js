@@ -9246,7 +9246,7 @@ var getCondaArch = () => {
   }
   return arch2;
 };
-var mambaRegexBlock = /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\\s\\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/;
+var mambaRegexBlock = /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/;
 var getMicromambaUrlFromInputs = (micromambaUrl, micromambaVersion) => {
   if (micromambaUrl) {
     return micromambaUrl;
