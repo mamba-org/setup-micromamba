@@ -1,37 +1,46 @@
 import * as fs from 'fs/promises'
-import * as core from '@actions/core'
-import decompress from 'decompress'
-import fetch from 'node-fetch'
-import { PATHS, sha256, micromambaUrl } from './util'
 
-async function downloadMicromamba(url: string) {
-  await fs.mkdir(PATHS.micromambaBinFolder, { recursive: true })
+import * as coreDefault from '@actions/core'
+import fetch from 'node-fetch'
+import { PATHS, sha256, getMicromambaUrlFromInputs } from './util'
+import { coreMocked } from './mocking'
+import { parseInputs } from './inputs'
+import { shellInit } from './shell-init'
+
+const core = process.env.MOCKING ? coreMocked : coreDefault
+
+const downloadMicromamba = (url: string) => {
+  core.startGroup('Install micromamba')
   core.debug(`Downloading micromamba from ${url} ...`)
-  fetch(url)
-    .then((response) => response.arrayBuffer())
-    .then((buffer) => Buffer.from(buffer))
-    .then((buffer) => {
-      core.debug(`.tar.bz2 sha256: ${sha256(buffer)}`)
-      return decompress(buffer, {
-        filter: (file) => file.path === 'bin/micromamba',
-        map: (file) => {
-          file.path = 'micromamba'
-          return file
-        }
-      })
+
+  const mkDir = fs.mkdir(PATHS.micromambaBinFolder, { recursive: true })
+  const downloadMicromamba = fetch(url)
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Download failed: ${res.statusText}`)
+      }
+      return res.arrayBuffer()
     })
-    .then((files) => {
-      const buffer = files[0].data
-      fs.writeFile(PATHS.micromambaBin, buffer, { encoding: 'binary', mode: 0o755 })
-      core.debug(`Downloaded micromamba executable to ${PATHS.micromambaBin} ...`)
+    .then((arrayBuffer) => Buffer.from(arrayBuffer))
+
+  return Promise.all([mkDir, downloadMicromamba])
+    .then(([, buffer]) => {
+      core.debug(`micromamba binary sha256: ${sha256(buffer)}`)
+      return fs.writeFile(PATHS.micromambaBin, buffer, { encoding: 'binary', mode: 0o755 })
     })
     .catch((err) => {
-      core.error(`Error downloading file: ${err.message}`)
+      core.error(`Error installing micromamba: ${err.message}`)
     })
+    .finally(core.endGroup)
 }
 
 const run = async () => {
-  await downloadMicromamba(micromambaUrl('osx-arm64', '1.3.0'))
+  const inputs = parseInputs()
+  core.debug(`Parsed inputs: ${JSON.stringify(inputs, null, 2)}`)
+
+  const url = getMicromambaUrlFromInputs(inputs.micromambaUrl, inputs.micromambaVersion)
+  await downloadMicromamba(url)
+  await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs.logLevel)))
 }
 
 run()
