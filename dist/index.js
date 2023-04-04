@@ -12540,7 +12540,7 @@ var parseInputs = () => {
     micromambaUrl: parseOrUndefined(core2.getInput("micromamba-url"), stringType().url()),
     // cacheKey: parseOrUndefined(core.getInput('cache-key'), z.string()),
     initShell: parseOrUndefined(core2.getInput("init-shell") && JSON.parse(core2.getInput("init-shell")), arrayType(shellSchema)) || [],
-    postDeinit: booleanType().parse(core2.getInput("post-deinit")),
+    postDeinit: booleanType().parse(JSON.parse(core2.getInput("post-deinit"))),
     cacheDownloads: parseOrUndefined(JSON.parse(core2.getInput("cache-downloads")), booleanType()),
     cacheDownloadsKey: parseOrUndefined(core2.getInput("cache-downloads-key"), stringType()),
     cacheEnvironment: parseOrUndefined(JSON.parse(core2.getInput("cache-environment")), booleanType()),

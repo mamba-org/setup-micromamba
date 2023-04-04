@@ -54,7 +54,7 @@ export const parseInputs = (): Input => {
     initShell:
       parseOrUndefined(core.getInput('init-shell') && JSON.parse(core.getInput('init-shell')), z.array(shellSchema)) ||
       [],
-    postDeinit: z.boolean().parse(core.getInput('post-deinit')),
+    postDeinit: z.boolean().parse(JSON.parse(core.getInput('post-deinit'))),
     cacheDownloads: parseOrUndefined(JSON.parse(core.getInput('cache-downloads')), z.boolean()),
     cacheDownloadsKey: parseOrUndefined(core.getInput('cache-downloads-key'), z.string()),
     cacheEnvironment: parseOrUndefined(JSON.parse(core.getInput('cache-environment')), z.boolean()),
