@@ -15,6 +15,9 @@ dependencies:
     version: 3.20.6
 
 devDependencies:
+  '@types/decompress':
+    specifier: ^4.2.4
+    version: 4.2.4
   '@types/node':
     specifier: ^18.14.2
     version: 18.14.2
@@ -339,6 +342,12 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
+    dev: true
+
+  /@types/decompress@4.2.4:
+    resolution: {integrity: sha512-/C8kTMRTNiNuWGl5nEyKbPiMv6HA+0RbEXzFhFBEzASM6+oa4tJro9b8nj7eRlOFfuLdzUU+DS/GPDlvvzMOhA==}
+    dependencies:
+      '@types/node': 18.14.2
     dev: true
 
   /@types/json-schema@7.0.11:
