@@ -59,7 +59,7 @@ const createEnvironment = (inputs: Input) => {
   core.debug(`extraSpecs: ${inputs.extraSpecs}`)
   core.debug(`createArgs: ${inputs.createArgs}`)
   core.debug(`condarcFile: ${inputs.condarcFile}`)
-  let commandStr = `create -y -p "${PATHS.micromambaRoot}"`
+  let commandStr = `create -y -p ${PATHS.micromambaRoot}`
   if (inputs.environmentFile) {
     commandStr += ` -f ${inputs.environmentFile}`
   }

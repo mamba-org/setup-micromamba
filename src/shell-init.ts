@@ -40,7 +40,7 @@ export const shellInit = (shell: string, inputs: Input) => {
   const command = execute(
     micromambaCmd(
       PATHS.micromambaBin,
-      `shell init -s ${shell} -p "${PATHS.micromambaRoot}"`,
+      `shell init -s ${shell} -p ${PATHS.micromambaRoot}`,
       inputs.logLevel,
       inputs.condarcFile
     )
@@ -56,7 +56,7 @@ export const shellDeinit = (shell: string, inputs: Input) => {
   const command = execute(
     micromambaCmd(
       PATHS.micromambaBin,
-      `shell deinit -s ${shell} -p "${PATHS.micromambaRoot}"`,
+      `shell deinit -s ${shell} -p ${PATHS.micromambaRoot}`,
       inputs.logLevel,
       inputs.condarcFile
     )
