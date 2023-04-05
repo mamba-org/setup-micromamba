@@ -76,7 +76,7 @@ const createEnvironment = (inputs: Input) => {
   if (inputs.condarcFile) {
     commandStr += ` --rc-file ${inputs.condarcFile}`
   }
-  return execute(micromambaCmd('micromamba', commandStr, inputs.logLevel, inputs.condarcFile))
+  return execute(micromambaCmd(commandStr, inputs.logLevel, inputs.condarcFile))
 }
 
 const determineEnvironmentName = (inputs: Input) => {
@@ -119,15 +119,15 @@ const generateInfo = (inputs: Input) => {
   core.startGroup('micromamba info')
   let command: Promise<number>
   if (inputs.initShell.includes('bash')) {
-    command = execute(['bash', '-eol', 'pipefail', '-c', `${micromambaCmd('micromamba', 'info').join(' ')}`])
+    command = execute(['bash', '-eol', 'pipefail', '-c', `${micromambaCmd('info').join(' ')}`])
   } else if (inputs.initShell.includes('powershell')) {
     core.warning('Powershell is not supported yet.')
-    command = execute(micromambaCmd('micromamba', 'info'))
+    command = execute(micromambaCmd('info'))
   } else if (inputs.initShell.includes('cmd.exe')) {
     core.warning('cmd.exe is not supported yet.')
-    command = execute(micromambaCmd('micromamba', 'info'))
+    command = execute(micromambaCmd('info'))
   } else {
-    command = execute(micromambaCmd('micromamba', 'info'))
+    command = execute(micromambaCmd('info'))
   }
   return command.finally(core.endGroup)
 }

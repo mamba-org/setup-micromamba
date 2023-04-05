@@ -69,8 +69,14 @@ export const sha256 = (s: BinaryLike) => {
   return createHash('sha256').update(s).digest('hex')
 }
 
-export const micromambaCmd = (executable: string, command: string, logLevel?: LogLevelType, condarcFile?: string) => {
-  let commandArray = [executable].concat(command.split(' '))
+// export const micromambaLoginShellCmd = (executable: string, logLevel?: LogLevelType, condarcFile?: string) => {
+//   if (os.platform() === 'win32') {
+//     // return micromambaCmd(executable, 'shell hook', logLevel, condarcFile)
+//   }
+// }
+
+export const micromambaCmd = (command: string, logLevel?: LogLevelType, condarcFile?: string) => {
+  let commandArray = [PATHS.micromambaBin].concat(command.split(' '))
   if (logLevel) {
     commandArray = commandArray.concat(['--log-level', logLevel])
   }

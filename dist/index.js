@@ -9285,8 +9285,8 @@ var getMicromambaUrlFromInputs = (micromambaUrl, micromambaVersion) => {
 var sha256 = (s2) => {
   return (0, import_crypto4.createHash)("sha256").update(s2).digest("hex");
 };
-var micromambaCmd = (executable, command, logLevel, condarcFile) => {
-  let commandArray = [executable].concat(command.split(" "));
+var micromambaCmd = (command, logLevel, condarcFile) => {
+  let commandArray = [PATHS.micromambaBin].concat(command.split(" "));
   if (logLevel) {
     commandArray = commandArray.concat(["--log-level", logLevel]);
   }
@@ -12617,12 +12617,7 @@ var copyMambaInitBlockToBashProfile = () => {
 var shellInit = (shell, inputs) => {
   core3.startGroup(`Initialize micromamba for ${shell}`);
   const command = execute(
-    micromambaCmd(
-      PATHS.micromambaBin,
-      `shell init -s ${shell} -p ${PATHS.micromambaRoot}`,
-      inputs.logLevel,
-      inputs.condarcFile
-    )
+    micromambaCmd(`shell init -s ${shell} -p ${PATHS.micromambaRoot}`, inputs.logLevel, inputs.condarcFile)
   );
   if (os2.platform() === "linux" && shell === "bash") {
     return command.then(copyMambaInitBlockToBashProfile).finally(core3.endGroup);
@@ -12709,7 +12704,7 @@ var createEnvironment = (inputs) => {
   if (inputs.condarcFile) {
     commandStr += ` --rc-file ${inputs.condarcFile}`;
   }
-  return execute(micromambaCmd("micromamba", commandStr, inputs.logLevel, inputs.condarcFile));
+  return execute(micromambaCmd(commandStr, inputs.logLevel, inputs.condarcFile));
 };
 var determineEnvironmentName = (inputs) => {
   core4.debug("Determining environment name from inputs.");
@@ -12744,15 +12739,15 @@ var generateInfo = (inputs) => {
   core4.startGroup("micromamba info");
   let command;
   if (inputs.initShell.includes("bash")) {
-    command = execute(["bash", "-eol", "pipefail", "-c", `${micromambaCmd("micromamba", "info").join(" ")}`]);
+    command = execute(["bash", "-eol", "pipefail", "-c", `${micromambaCmd("info").join(" ")}`]);
   } else if (inputs.initShell.includes("powershell")) {
     core4.warning("Powershell is not supported yet.");
-    command = execute(micromambaCmd("micromamba", "info"));
+    command = execute(micromambaCmd("info"));
   } else if (inputs.initShell.includes("cmd.exe")) {
     core4.warning("cmd.exe is not supported yet.");
-    command = execute(micromambaCmd("micromamba", "info"));
+    command = execute(micromambaCmd("info"));
   } else {
-    command = execute(micromambaCmd("micromamba", "info"));
+    command = execute(micromambaCmd("info"));
   }
   return command.finally(core4.endGroup);
 };
