@@ -85,7 +85,7 @@ const addEnvironmentToPowershellProfile = (environmentName: string) => {
       ]).then(() => Promise.resolve())
     case 'linux':
     case 'darwin':
-      return addEnvironmentToRcFile(environmentName, 'pwshUnix')
+      return addEnvironmentToRcFile(environmentName, rcFileDict.pwshUnix)
     default:
       throw new Error(`Unsupported platform: ${os.platform()}`)
   }
