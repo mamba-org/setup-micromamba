@@ -58,6 +58,7 @@ export const shellDeinit = (shell: string, inputs: Input) => {
 }
 
 const addEnvironmentToRcFile = (environmentName: string, rcFile: string) => {
+  core.debug(`Adding \`micromamba activate ${environmentName}\n\` to ${rcFile}`)
   return fs.appendFile(rcFile, `micromamba activate ${environmentName}\n`)
 }
 

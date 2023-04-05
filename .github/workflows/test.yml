@@ -67,9 +67,12 @@ jobs:
         with:
           init-shell: '["powershell"]'
           environment-file: 'test/environment.yml'
-      - name: micromamba info (powershell.exe)
+      - name: micromamba info (powershell)
         run: micromamba info
         shell: powershell
+      - name: micromamba info (pwsh)
+        run: micromamba info
+        shell: pwsh
       # - uses: mxschmitt/action-tmate@v3
       # - run: micromamba info
       #   shell: powershell

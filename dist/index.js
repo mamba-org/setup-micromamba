@@ -12625,6 +12625,8 @@ var shellInit = (shell, inputs) => {
   return command.finally(core3.endGroup);
 };
 var addEnvironmentToRcFile = (environmentName, rcFile) => {
+  core3.debug(`Adding \`micromamba activate ${environmentName}
+\` to ${rcFile}`);
   return fs2.appendFile(rcFile, `micromamba activate ${environmentName}
 `);
 };
