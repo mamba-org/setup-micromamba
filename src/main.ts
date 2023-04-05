@@ -117,9 +117,15 @@ const installEnvironment = (inputs: Input) => {
 
 const generateInfo = (inputs: Input) => {
   core.startGroup('micromamba info')
-  return determineEnvironmentName(inputs)
-    .then((environmentName) => execute(micromambaCmd(`info -r ${PATHS.micromambaRoot} -n ${environmentName}`)))
-    .finally(core.endGroup)
+  let command: Promise<number>
+  if (!inputs.createEnvironment) {
+    command = execute(micromambaCmd(`info -r ${PATHS.micromambaRoot}`))
+  } else {
+    command = determineEnvironmentName(inputs).then((environmentName) =>
+      execute(micromambaCmd(`info -r ${PATHS.micromambaRoot} -n ${environmentName}`))
+    )
+  }
+  return command.finally(core.endGroup)
 }
 
 const run = async () => {

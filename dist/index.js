@@ -12737,7 +12737,15 @@ var installEnvironment = (inputs) => {
 };
 var generateInfo = (inputs) => {
   core4.startGroup("micromamba info");
-  return determineEnvironmentName(inputs).then((environmentName) => execute(micromambaCmd(`info -r ${PATHS.micromambaRoot} -n ${environmentName}`))).finally(core4.endGroup);
+  let command;
+  if (!inputs.createEnvironment) {
+    command = execute(micromambaCmd(`info -r ${PATHS.micromambaRoot}`));
+  } else {
+    command = determineEnvironmentName(inputs).then(
+      (environmentName) => execute(micromambaCmd(`info -r ${PATHS.micromambaRoot} -n ${environmentName}`))
+    );
+  }
+  return command.finally(core4.endGroup);
 };
 var run = async () => {
   core4.debug(`process.env.HOME: ${process.env.HOME}`);
