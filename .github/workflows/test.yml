@@ -25,8 +25,41 @@ jobs:
       - name: Rebuild the dist/ directory
         run: pnpm all
 
-  test:
+  test-no-environment-file:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./
+        with:
+          environment-name: test
+          extra-specs: '["python", "cython"]'
+          environment-file: ''
+
+  test-environment-file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          environment-file: 'test/environment.yml'
+
+  test-create-environment-false:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          create-environment: false
+  
+  test-micromamba-old-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          micromamba-version: 1.2.0-1
+          environment-file: 'test/environment.yml'
+      - run: |
+          micromamba --version
+          micromamba info
+        shell: bash -el {0}

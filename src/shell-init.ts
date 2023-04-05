@@ -1,9 +1,10 @@
 import * as fs from 'fs/promises'
 import * as os from 'os'
+import path from 'path'
 import * as coreDefault from '@actions/core'
 import { coreMocked } from './mocking'
 import { PATHS, execute, mambaRegexBlock, micromambaCmd } from './util'
-import type { Input } from './inputs'
+import type { Input, ShellType } from './inputs'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -50,4 +51,49 @@ export const shellDeinit = (shell: string, inputs: Input) => {
     return command.then(removeMambaInitBlockFromBashProfile)
   }
   return command
+}
+
+const addEnvironmentToRcFile = (environmentName: string, rcFile: string) => {
+  return fs.appendFile(rcFile, `micromamba activate ${environmentName}\n`)
+}
+
+const rcFileDict = {
+  bash: PATHS.bashProfile,
+  zsh: path.join(os.homedir(), '.zshrc'),
+  fish: path.join(os.homedir(), '.config', 'fish', 'config.fish'),
+  tcsh: path.join(os.homedir(), '.tcshrc'),
+  xonsh: path.join(os.homedir(), '.xonshrc')
+}
+
+export const addEnvironmentToAutoActivate = (environmentName: string, shell: ShellType) => {
+  core.info(`Adding environment ${environmentName} to auto-activate ${shell} ...`)
+  if (shell === 'cmd.exe') {
+    core.warning('cmd.exe is not supported')
+    return Promise.resolve()
+  }
+  if (shell === 'powershell') {
+    core.warning('powershell is not supported')
+    return Promise.resolve()
+  }
+  return addEnvironmentToRcFile(environmentName, rcFileDict[shell])
+}
+
+export const removeEnvironmentFromAutoActivate = (environmentName: string, shell: ShellType) => {
+  core.info(`Removing environment ${environmentName} from auto-activate ${shell} ...`)
+  if (shell === 'cmd.exe') {
+    core.warning('cmd.exe is not supported')
+    return Promise.resolve()
+  }
+  if (shell === 'powershell') {
+    core.warning('powershell is not supported')
+    return Promise.resolve()
+  }
+  return fs.readFile(rcFileDict[shell], { encoding: 'utf-8' }).then((rcFile) => {
+    const matches = rcFile.match(new RegExp(`micromamba activate ${environmentName}`))
+    if (!matches) {
+      throw new Error(`Could not find micromamba activate ${environmentName} in ${rcFileDict[shell]}`)
+    }
+    core.debug(`Removing micromamba activate ${environmentName} from ${rcFileDict[shell]}`)
+    return fs.writeFile(rcFileDict[shell], rcFile.replace(matches[0], ''))
+  })
 }

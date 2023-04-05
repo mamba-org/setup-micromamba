@@ -2,12 +2,11 @@ import * as fs from 'fs/promises'
 import * as coreDefault from '@actions/core'
 import fetch from 'node-fetch'
 import untildify from 'untildify'
-import { PATHS, sha256, getMicromambaUrlFromInputs } from './util'
+import { PATHS, sha256, getMicromambaUrlFromInputs, micromambaCmd, execute } from './util'
 import { coreMocked } from './mocking'
 import { parseInputs, validateInputs } from './inputs'
 import type { Input } from './inputs'
-import { shellInit } from './shell-init'
-// import type { Input } from './inputs'
+import { addEnvironmentToAutoActivate, shellInit } from './shell-init'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -30,8 +29,12 @@ const downloadMicromamba = (url: string) => {
       core.debug(`micromamba binary sha256: ${sha256(buffer)}`)
       return fs.writeFile(PATHS.micromambaBin, buffer, { encoding: 'binary', mode: 0o755 })
     })
+    .then(() => {
+      core.info(`micromamba installed to ${PATHS.micromambaBin}`)
+    })
     .catch((err) => {
       core.error(`Error installing micromamba: ${err.message}`)
+      throw err
     })
     .finally(core.endGroup)
 }
@@ -49,12 +52,71 @@ const generateCondarc = (inputs: Input) => {
   return fs.writeFile(PATHS.condarc, 'channels:\n  - conda-forge')
 }
 
-// const createEnvironment = (inputs: Input) => {
-//   core.startGroup('Create environment')
-//   return Promise.resolve().finally(core.endGroup)
-// }
+const createEnvironment = (inputs: Input) => {
+  core.startGroup('Create environment')
+  core.debug(`environmentFile: ${inputs.environmentFile}`)
+  core.debug(`environmentName: ${inputs.environmentName}`)
+  core.debug(`extraSpecs: ${inputs.extraSpecs}`)
+  core.debug(`createArgs: ${inputs.createArgs}`)
+  core.debug(`condarcFile: ${inputs.condarcFile}`)
+  let commandStr = 'create -y'
+  if (inputs.environmentFile) {
+    commandStr += ` -f ${inputs.environmentFile}`
+  }
+  if (inputs.environmentName) {
+    commandStr += ` -n ${inputs.environmentName}`
+  }
+  if (inputs.extraSpecs) {
+    console.log(`EXTRASPECS ${inputs.extraSpecs}`)
+    commandStr += ` ${inputs.extraSpecs.join(' ')}`
+  }
+  if (inputs.createArgs) {
+    commandStr += ` ${inputs.createArgs}`
+  }
+  if (inputs.condarcFile) {
+    commandStr += ` --rc-file ${inputs.condarcFile}`
+  }
+  return execute(micromambaCmd(commandStr, inputs.logLevel, inputs.condarcFile)).finally(core.endGroup)
+}
+
+const determineEnvironmentName = (inputs: Input) => {
+  core.debug('Determining environment name from inputs.')
+  if (inputs.environmentName) {
+    core.debug(`Determined environment name: ${inputs.environmentName}`)
+    return Promise.resolve(inputs.environmentName)
+  }
+  if (!inputs.environmentFile) {
+    // This should never happen, because validateInputs should have thrown an error
+    // TODO: make this prettier
+    core.error('No environment name or file specified.')
+    throw new Error()
+  }
+  return fs.readFile(inputs.environmentFile, 'utf8').then((fileContents) => {
+    const environmentName = fileContents.toString().match(/name:\s*(.*)/)?.[1]
+    if (!environmentName) {
+      const errorMessage = `Could not determine environment name from file ${inputs.environmentFile}`
+      core.error(errorMessage)
+      throw new Error(errorMessage)
+    }
+    core.debug(`Determined environment name from file ${inputs.environmentFile}: ${environmentName}`)
+    return environmentName
+  })
+}
+
+const installEnvironment = (inputs: Input) => {
+  return determineEnvironmentName(inputs)
+    .then((environmentName) => {
+      core.startGroup(`Install environment ${environmentName}`)
+      return createEnvironment(inputs).then((_exitCode) => environmentName)
+    })
+    .then((environmentName) => {
+      return Promise.all(inputs.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)))
+    })
+    .finally(core.endGroup)
+}
 
 const run = async () => {
+  core.debug(core.getInput('extra-specs'))
   const inputs = parseInputs()
   core.debug(`Parsed inputs: ${JSON.stringify(inputs, null, 2)}`)
   validateInputs(inputs)
@@ -63,9 +125,9 @@ const run = async () => {
   await downloadMicromamba(url)
   await generateCondarc(inputs)
   await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs)))
-  // if (inputs.createEnvironment) {
-  //   await createEnvironment(inputs)
-  // }
+  if (inputs.createEnvironment) {
+    await installEnvironment(inputs)
+  }
 }
 
 run()
