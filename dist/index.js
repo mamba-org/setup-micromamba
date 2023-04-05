@@ -12728,9 +12728,21 @@ var installEnvironment = (inputs) => {
     return Promise.all(inputs.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)));
   }).finally(core4.endGroup);
 };
-var generateInfo = () => {
+var generateInfo = (inputs) => {
   core4.startGroup("micromamba info");
-  return execute(["bash", "-eol", "pipefail", "-c", `${micromambaCmd("info").join(" ")}`]).finally(core4.endGroup);
+  let command;
+  if (inputs.initShell.includes("bash")) {
+    command = execute(["bash", "-eol", "pipefail", "-c", `${micromambaCmd("info").join(" ")}`]);
+  } else if (inputs.initShell.includes("powershell")) {
+    core4.warning("Powershell is not supported yet.");
+    command = execute(micromambaCmd("info"));
+  } else if (inputs.initShell.includes("cmd.exe")) {
+    core4.warning("cmd.exe is not supported yet.");
+    command = execute(micromambaCmd("info"));
+  } else {
+    command = execute(micromambaCmd("info"));
+  }
+  return command.finally(core4.endGroup);
 };
 var run = async () => {
   core4.debug(core4.getInput("extra-specs"));
@@ -12744,7 +12756,7 @@ var run = async () => {
   if (inputs.createEnvironment) {
     await installEnvironment(inputs);
   }
-  await generateInfo();
+  await generateInfo(inputs);
 };
 run();
 /*! Bundled license information:

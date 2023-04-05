@@ -114,9 +114,21 @@ const installEnvironment = (inputs: Input) => {
     .finally(core.endGroup)
 }
 
-const generateInfo = () => {
+const generateInfo = (inputs: Input) => {
   core.startGroup('micromamba info')
-  return execute(['bash', '-eol', 'pipefail', '-c', `${micromambaCmd('info').join(' ')}`]).finally(core.endGroup)
+  let command: Promise<number>
+  if (inputs.initShell.includes('bash')) {
+    command = execute(['bash', '-eol', 'pipefail', '-c', `${micromambaCmd('info').join(' ')}`])
+  } else if (inputs.initShell.includes('powershell')) {
+    core.warning('Powershell is not supported yet.')
+    command = execute(micromambaCmd('info'))
+  } else if (inputs.initShell.includes('cmd.exe')) {
+    core.warning('cmd.exe is not supported yet.')
+    command = execute(micromambaCmd('info'))
+  } else {
+    command = execute(micromambaCmd('info'))
+  }
+  return command.finally(core.endGroup)
 }
 
 const run = async () => {
@@ -132,7 +144,7 @@ const run = async () => {
   if (inputs.createEnvironment) {
     await installEnvironment(inputs)
   }
-  await generateInfo()
+  await generateInfo(inputs)
 }
 
 run()
