@@ -117,7 +117,7 @@ const installEnvironment = (inputs: Input) => {
 
 const generateInfo = (inputs: Input) => {
   core.startGroup('micromamba info')
-  const command = execute(micromambaCmd(`info -r ${PATHS.micromambaRoot}`, inputs.logLevel, inputs.condarcFile))
+  const command = execute(micromambaCmd(`info`, inputs.logLevel, inputs.condarcFile))
   // let command: Promise<number>
   // if (inputs.initShell.includes('bash')) {
   //   command = execute(['bash', '-eol', 'pipefail', '-c', `${micromambaCmd('info').join(' ')}`])

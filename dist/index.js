@@ -12737,7 +12737,7 @@ var installEnvironment = (inputs) => {
 };
 var generateInfo = (inputs) => {
   core4.startGroup("micromamba info");
-  const command = execute(micromambaCmd(`info -r ${PATHS.micromambaRoot}`, inputs.logLevel, inputs.condarcFile));
+  const command = execute(micromambaCmd(`info`, inputs.logLevel, inputs.condarcFile));
   return command.finally(core4.endGroup);
 };
 var run = async () => {
