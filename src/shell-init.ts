@@ -37,7 +37,9 @@ const removeMambaInitBlockFromBashProfile = () => {
 
 export const shellInit = (shell: string, inputs: Input) => {
   core.startGroup(`Initialize micromamba for ${shell}`)
-  const command = execute(micromambaCmd(`shell init -s ${shell}`, inputs.logLevel, inputs.condarcFile))
+  const command = execute(
+    micromambaCmd(`shell init -s ${shell} -p ${PATHS.micromambaRoot}`, inputs.logLevel, inputs.condarcFile)
+  )
   if (os.platform() === 'linux' && shell === 'bash') {
     return command.then(copyMambaInitBlockToBashProfile).finally(core.endGroup)
   }
@@ -46,7 +48,9 @@ export const shellInit = (shell: string, inputs: Input) => {
 
 export const shellDeinit = (shell: string, inputs: Input) => {
   core.startGroup(`Deinitialize micromamba for ${shell}`)
-  const command = execute(micromambaCmd(`shell deinit -s ${shell}`, inputs.logLevel, inputs.condarcFile))
+  const command = execute(
+    micromambaCmd(`shell deinit -s ${shell} -p ${PATHS.micromambaRoot}`, inputs.logLevel, inputs.condarcFile)
+  )
   if (os.platform() === 'linux' && shell === 'bash') {
     return command.then(removeMambaInitBlockFromBashProfile)
   }

@@ -12616,7 +12616,9 @@ var copyMambaInitBlockToBashProfile = () => {
 };
 var shellInit = (shell, inputs) => {
   core3.startGroup(`Initialize micromamba for ${shell}`);
-  const command = execute(micromambaCmd(`shell init -s ${shell}`, inputs.logLevel, inputs.condarcFile));
+  const command = execute(
+    micromambaCmd(`shell init -s ${shell} -p ${PATHS.micromambaRoot}`, inputs.logLevel, inputs.condarcFile)
+  );
   if (os2.platform() === "linux" && shell === "bash") {
     return command.then(copyMambaInitBlockToBashProfile).finally(core3.endGroup);
   }
