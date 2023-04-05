@@ -117,18 +117,20 @@ const installEnvironment = (inputs: Input) => {
 
 const generateInfo = (inputs: Input) => {
   core.startGroup('micromamba info')
-  let command: Promise<number>
-  if (inputs.initShell.includes('bash')) {
-    command = execute(['bash', '-eol', 'pipefail', '-c', `${micromambaCmd('info').join(' ')}`])
-  } else if (inputs.initShell.includes('powershell')) {
-    core.warning('Powershell is not supported yet.')
-    command = execute(micromambaCmd('info'))
-  } else if (inputs.initShell.includes('cmd.exe')) {
-    core.warning('cmd.exe is not supported yet.')
-    command = execute(micromambaCmd('info'))
-  } else {
-    command = execute(micromambaCmd('info'))
-  }
+  const command = execute(micromambaCmd(`info -r ${PATHS.micromambaRoot}`, inputs.logLevel, inputs.condarcFile))
+  // let command: Promise<number>
+  // if (inputs.initShell.includes('bash')) {
+  //   command = execute(['bash', '-eol', 'pipefail', '-c', `${micromambaCmd('info').join(' ')}`])
+  // } else if (inputs.initShell.includes('powershell')) {
+  //   core.warning('Powershell is not supported yet.')
+  //   command = execute(micromambaCmd('info'))
+  // } else if (inputs.initShell.includes('cmd.exe')) {
+  //   core.warning('cmd.exe is not supported yet.')
+  //   command = execute(micromambaCmd('info'))
+  // } else {
+  //   core.info('`micromamba info` will not contain environment information since the shell was not initialized.')
+  //   command = execute(micromambaCmd('info'))
+  // }
   return command.finally(core.endGroup)
 }
 

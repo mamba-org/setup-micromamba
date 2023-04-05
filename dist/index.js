@@ -12737,18 +12737,7 @@ var installEnvironment = (inputs) => {
 };
 var generateInfo = (inputs) => {
   core4.startGroup("micromamba info");
-  let command;
-  if (inputs.initShell.includes("bash")) {
-    command = execute(["bash", "-eol", "pipefail", "-c", `${micromambaCmd("info").join(" ")}`]);
-  } else if (inputs.initShell.includes("powershell")) {
-    core4.warning("Powershell is not supported yet.");
-    command = execute(micromambaCmd("info"));
-  } else if (inputs.initShell.includes("cmd.exe")) {
-    core4.warning("cmd.exe is not supported yet.");
-    command = execute(micromambaCmd("info"));
-  } else {
-    command = execute(micromambaCmd("info"));
-  }
+  const command = execute(micromambaCmd(`info -r ${PATHS.micromambaRoot}`, inputs.logLevel, inputs.condarcFile));
   return command.finally(core4.endGroup);
 };
 var run = async () => {
