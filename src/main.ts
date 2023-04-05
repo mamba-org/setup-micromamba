@@ -1,9 +1,11 @@
 import * as fs from 'fs/promises'
 import * as coreDefault from '@actions/core'
 import fetch from 'node-fetch'
+import untildify from 'untildify'
 import { PATHS, sha256, getMicromambaUrlFromInputs } from './util'
 import { coreMocked } from './mocking'
-import { Input, parseInputs, validateInputs } from './inputs'
+import { parseInputs, validateInputs } from './inputs'
+import type { Input } from './inputs'
 import { shellInit } from './shell-init'
 // import type { Input } from './inputs'
 
@@ -37,7 +39,7 @@ const downloadMicromamba = (url: string) => {
 const generateCondarc = (inputs: Input) => {
   if (inputs.condarcFile) {
     core.debug(`Using condarc file ${inputs.condarcFile} ...`)
-    return fs.access(inputs.condarcFile, fs.constants.F_OK)
+    return fs.access(untildify(inputs.condarcFile), fs.constants.F_OK)
   }
   if (inputs.condarc) {
     core.info(`Writing condarc contents to ${PATHS.condarc} ...`)

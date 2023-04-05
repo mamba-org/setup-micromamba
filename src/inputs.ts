@@ -43,8 +43,12 @@ export const parseInputs = (): Input => {
     condarc: parseOrUndefined(core.getInput('condarc'), z.string()),
     environmentFile: parseOrUndefined(core.getInput('environment-file'), z.string()),
     environmentName: parseOrUndefined(core.getInput('environment-name'), z.string()),
-    extraSpecs: parseOrUndefined(core.getInput('extra-specs'), z.array(z.string())),
-    createArgs: parseOrUndefined(core.getInput('create-args'), z.array(z.string())),
+    extraSpecs:
+      parseOrUndefined(core.getInput('extra-specs') && JSON.parse(core.getInput('extra-specs')), z.array(z.string())) ||
+      [],
+    createArgs:
+      parseOrUndefined(core.getInput('create-args') && JSON.parse(core.getInput('create-args')), z.array(z.string())) ||
+      [],
     createEnvironment: parseOrUndefined(JSON.parse(core.getInput('create-environment')), z.boolean()),
     logLevel: logLevelSchema.parse(core.getInput('log-level')),
     micromambaVersion: parseOrUndefined(

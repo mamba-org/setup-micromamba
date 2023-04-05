@@ -6855,6 +6855,21 @@ var init_multipart_parser = __esm({
   }
 });
 
+// node_modules/.pnpm/untildify@4.0.0/node_modules/untildify/index.js
+var require_untildify = __commonJS({
+  "node_modules/.pnpm/untildify@4.0.0/node_modules/untildify/index.js"(exports, module2) {
+    "use strict";
+    var os3 = require("os");
+    var homeDirectory = os3.homedir();
+    module2.exports = (pathWithTilde) => {
+      if (typeof pathWithTilde !== "string") {
+        throw new TypeError(`Expected a string, got ${typeof pathWithTilde}`);
+      }
+      return homeDirectory ? pathWithTilde.replace(/^~(?=$|\/|\\)/, homeDirectory) : pathWithTilde;
+    };
+  }
+});
+
 // node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io-util.js
 var require_io_util = __commonJS({
   "node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io-util.js"(exports) {
@@ -9174,6 +9189,9 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
     });
   });
 }
+
+// src/main.ts
+var import_untildify = __toESM(require_untildify());
 
 // src/util.ts
 var path = __toESM(require("path"));
@@ -12538,8 +12556,8 @@ var parseInputs = () => {
     condarc: parseOrUndefined(core2.getInput("condarc"), stringType()),
     environmentFile: parseOrUndefined(core2.getInput("environment-file"), stringType()),
     environmentName: parseOrUndefined(core2.getInput("environment-name"), stringType()),
-    extraSpecs: parseOrUndefined(core2.getInput("extra-specs"), arrayType(stringType())),
-    createArgs: parseOrUndefined(core2.getInput("create-args"), arrayType(stringType())),
+    extraSpecs: parseOrUndefined(core2.getInput("extra-specs") && JSON.parse(core2.getInput("extra-specs")), arrayType(stringType())) || [],
+    createArgs: parseOrUndefined(core2.getInput("create-args") && JSON.parse(core2.getInput("create-args")), arrayType(stringType())) || [],
     createEnvironment: parseOrUndefined(JSON.parse(core2.getInput("create-environment")), booleanType()),
     logLevel: logLevelSchema.parse(core2.getInput("log-level")),
     micromambaVersion: parseOrUndefined(
@@ -12617,7 +12635,7 @@ var downloadMicromamba = (url) => {
 var generateCondarc = (inputs) => {
   if (inputs.condarcFile) {
     core4.debug(`Using condarc file ${inputs.condarcFile} ...`);
-    return fs3.access(inputs.condarcFile, fs3.constants.F_OK);
+    return fs3.access((0, import_untildify.default)(inputs.condarcFile), fs3.constants.F_OK);
   }
   if (inputs.condarc) {
     core4.info(`Writing condarc contents to ${PATHS.condarc} ...`);
