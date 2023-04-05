@@ -53,4 +53,4 @@ jobs:
           init-shell: '["cmd.exe"]'
           environment-file: 'test/environment.yml'
       - run: micromamba --version
-        shell: cmd.exe
+        shell: cmd
