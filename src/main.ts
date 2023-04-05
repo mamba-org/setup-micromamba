@@ -53,7 +53,6 @@ const generateCondarc = (inputs: Input) => {
 }
 
 const createEnvironment = (inputs: Input) => {
-  core.startGroup('Create environment')
   core.debug(`environmentFile: ${inputs.environmentFile}`)
   core.debug(`environmentName: ${inputs.environmentName}`)
   core.debug(`extraSpecs: ${inputs.extraSpecs}`)
@@ -76,7 +75,7 @@ const createEnvironment = (inputs: Input) => {
   if (inputs.condarcFile) {
     commandStr += ` --rc-file ${inputs.condarcFile}`
   }
-  return execute(micromambaCmd(commandStr, inputs.logLevel, inputs.condarcFile)).finally(core.endGroup)
+  return execute(micromambaCmd(commandStr, inputs.logLevel, inputs.condarcFile))
 }
 
 const determineEnvironmentName = (inputs: Input) => {
@@ -106,13 +105,18 @@ const determineEnvironmentName = (inputs: Input) => {
 const installEnvironment = (inputs: Input) => {
   return determineEnvironmentName(inputs)
     .then((environmentName) => {
-      core.startGroup(`Install environment ${environmentName}`)
+      core.startGroup(`Install environment \`${environmentName}\``)
       return createEnvironment(inputs).then((_exitCode) => environmentName)
     })
     .then((environmentName) => {
       return Promise.all(inputs.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)))
     })
     .finally(core.endGroup)
+}
+
+const generateInfo = () => {
+  core.startGroup('micromamba info')
+  return execute(micromambaCmd('info')).finally(core.endGroup)
 }
 
 const run = async () => {
@@ -128,6 +132,7 @@ const run = async () => {
   if (inputs.createEnvironment) {
     await installEnvironment(inputs)
   }
+  await generateInfo()
 }
 
 run()

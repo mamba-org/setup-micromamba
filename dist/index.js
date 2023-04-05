@@ -12675,7 +12675,6 @@ var generateCondarc = (inputs) => {
   return fs3.writeFile(PATHS.condarc, "channels:\n  - conda-forge");
 };
 var createEnvironment = (inputs) => {
-  core4.startGroup("Create environment");
   core4.debug(`environmentFile: ${inputs.environmentFile}`);
   core4.debug(`environmentName: ${inputs.environmentName}`);
   core4.debug(`extraSpecs: ${inputs.extraSpecs}`);
@@ -12698,7 +12697,7 @@ var createEnvironment = (inputs) => {
   if (inputs.condarcFile) {
     commandStr += ` --rc-file ${inputs.condarcFile}`;
   }
-  return execute(micromambaCmd(commandStr, inputs.logLevel, inputs.condarcFile)).finally(core4.endGroup);
+  return execute(micromambaCmd(commandStr, inputs.logLevel, inputs.condarcFile));
 };
 var determineEnvironmentName = (inputs) => {
   core4.debug("Determining environment name from inputs.");
@@ -12723,11 +12722,15 @@ var determineEnvironmentName = (inputs) => {
 };
 var installEnvironment = (inputs) => {
   return determineEnvironmentName(inputs).then((environmentName) => {
-    core4.startGroup(`Install environment ${environmentName}`);
+    core4.startGroup(`Install environment \`${environmentName}\``);
     return createEnvironment(inputs).then((_exitCode) => environmentName);
   }).then((environmentName) => {
     return Promise.all(inputs.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)));
   }).finally(core4.endGroup);
+};
+var generateInfo = () => {
+  core4.startGroup("micromamba info");
+  return execute(micromambaCmd("info")).finally(core4.endGroup);
 };
 var run = async () => {
   core4.debug(core4.getInput("extra-specs"));
@@ -12741,6 +12744,7 @@ var run = async () => {
   if (inputs.createEnvironment) {
     await installEnvironment(inputs);
   }
+  await generateInfo();
 };
 run();
 /*! Bundled license information:
