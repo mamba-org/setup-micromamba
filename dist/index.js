@@ -12556,7 +12556,10 @@ var parseInputs = () => {
     condarc: parseOrUndefined(core2.getInput("condarc"), stringType()),
     environmentFile: parseOrUndefined(core2.getInput("environment-file"), stringType()),
     environmentName: parseOrUndefined(core2.getInput("environment-name"), stringType()),
-    extraSpecs: parseOrUndefined(core2.getInput("extra-specs") && JSON.parse(core2.getInput("extra-specs")), arrayType(stringType())),
+    extraSpecs: parseOrUndefined(
+      core2.getInput("extra-specs") && JSON.parse(core2.getInput("extra-specs")),
+      arrayType(stringType())
+    ),
     createArgs: parseOrUndefined(core2.getInput("create-args"), stringType()),
     createEnvironment: parseOrUndefined(JSON.parse(core2.getInput("create-environment")), booleanType()),
     logLevel: logLevelSchema.parse(core2.getInput("log-level")),
