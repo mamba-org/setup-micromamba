@@ -95,7 +95,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v3
-      # - uses: mxschmitt/action-tmate@v3
+      - uses: mxschmitt/action-tmate@v3
       - uses: ./
         with:
           init-shell: '["powershell"]'
