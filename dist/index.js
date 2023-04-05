@@ -12687,7 +12687,7 @@ var createEnvironment = (inputs) => {
   core4.debug(`extraSpecs: ${inputs.extraSpecs}`);
   core4.debug(`createArgs: ${inputs.createArgs}`);
   core4.debug(`condarcFile: ${inputs.condarcFile}`);
-  let commandStr = `create -y -p ${PATHS.micromambaRoot}`;
+  let commandStr = `create -y -r ${PATHS.micromambaRoot}`;
   if (inputs.environmentFile) {
     commandStr += ` -f ${inputs.environmentFile}`;
   }
