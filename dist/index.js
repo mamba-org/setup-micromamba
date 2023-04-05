@@ -9237,7 +9237,12 @@ var core = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
   // TODO fix paths
   micromambaBinFolder: path.join(os.homedir(), "debug", "micromamba-bin"),
-  micromambaBin: path.join(os.homedir(), "debug", "micromamba-bin", "micromamba"),
+  micromambaBin: path.join(
+    os.homedir(),
+    "debug",
+    "micromamba-bin",
+    `micromamba${os.platform() === "win32" ? "micromamba.exe" : ""}`
+  ),
   micromambaRoot: path.join(os.homedir(), "debug", "micromamba-root"),
   micromambaEnvs: path.join(os.homedir(), "debug", "micromamba-root", "envs"),
   bashProfile: path.join(os.homedir(), ".bash_profile"),
