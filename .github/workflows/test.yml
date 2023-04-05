@@ -85,6 +85,7 @@ jobs:
         with:
           init-shell: '["powershell"]'
           environment-file: 'test/environment.yml'
+          log-level: 'debug'
       - name: micromamba info (pwsh)
         run: micromamba info
         shell: pwsh
