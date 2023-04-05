@@ -9242,7 +9242,7 @@ var PATHS = {
     os.homedir(),
     "debug",
     "micromamba-bin",
-    `micromamba${os.platform() === "win32" ? "micromamba.exe" : ""}`
+    `micromamba${os.platform() === "win32" ? ".exe" : ""}`
   ),
   micromambaRoot: path.join(os.homedir(), "debug", "micromamba-root"),
   micromambaEnvs: path.join(os.homedir(), "debug", "micromamba-root", "envs"),
@@ -12687,7 +12687,7 @@ var createEnvironment = (inputs) => {
   core4.debug(`extraSpecs: ${inputs.extraSpecs}`);
   core4.debug(`createArgs: ${inputs.createArgs}`);
   core4.debug(`condarcFile: ${inputs.condarcFile}`);
-  let commandStr = "create -y";
+  let commandStr = `create -y -p ${PATHS.micromambaRoot}`;
   if (inputs.environmentFile) {
     commandStr += ` -f ${inputs.environmentFile}`;
   }
