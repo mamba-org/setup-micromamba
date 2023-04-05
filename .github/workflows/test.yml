@@ -55,5 +55,6 @@ jobs:
       - name: micromamba info (cmd.exe)
         run: micromamba info
         shell: cmd /C CALL {0}
+      - uses: mxschmitt/action-tmate@v3
       # - run: micromamba info
       #   shell: cmd
