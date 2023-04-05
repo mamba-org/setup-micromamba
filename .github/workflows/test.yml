@@ -1,4 +1,3 @@
-name: 'build-test'
 on:
   pull_request:
   push:
@@ -6,26 +5,7 @@ on:
     #   - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 7
-          run_install: true
-
-      - name: Rebuild the dist/ directory
-        run: pnpm all
-
-  test-no-environment-file:
+  no-environment-file:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -35,7 +15,7 @@ jobs:
           extra-specs: '["python", "cython"]'
           environment-file: ''
 
-  test-environment-file:
+  environment-file:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -43,7 +23,7 @@ jobs:
         with:
           environment-file: 'test/environment.yml'
 
-  test-create-environment-false:
+  create-environment-false:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -51,7 +31,7 @@ jobs:
         with:
           create-environment: false
   
-  test-micromamba-old-version:
+  micromamba-old-version:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -63,3 +43,14 @@ jobs:
           micromamba --version
           micromamba info
         shell: bash -el {0}
+
+  micromamba-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          init-shell: '["cmd.exe"]'
+          environment-file: 'test/environment.yml'
+      - run: micromamba --version
+        shell: cmd.exe
