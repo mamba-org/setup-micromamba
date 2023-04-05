@@ -12634,13 +12634,29 @@ var rcFileDict = {
   fish: import_path.default.join(os2.homedir(), ".config", "fish", "config.fish"),
   tcsh: import_path.default.join(os2.homedir(), ".tcshrc"),
   xonsh: import_path.default.join(os2.homedir(), ".xonshrc"),
-  "cmd.exe": import_path.default.join(PATHS.micromambaRoot, "condabin", "mamba_hook.bat")
+  "cmd.exe": import_path.default.join(PATHS.micromambaRoot, "condabin", "mamba_hook.bat"),
+  powershell: import_path.default.join(os2.homedir(), "Documents", "WindowsPowershell", "profile.ps1"),
+  pwshWin: import_path.default.join(os2.homedir(), "Documents", "Powershell", "profile.ps1"),
+  pwshUnix: import_path.default.join(os2.homedir(), ".config", "powershell", "profile.ps1")
+};
+var addEnvironmentToPowershellProfile = (environmentName) => {
+  switch (os2.platform()) {
+    case "win32":
+      return Promise.all([
+        addEnvironmentToRcFile(environmentName, rcFileDict.powershell),
+        addEnvironmentToRcFile(environmentName, rcFileDict.pwshWin)
+      ]).then(() => Promise.resolve());
+    case "linux":
+    case "darwin":
+      return addEnvironmentToRcFile(environmentName, "pwshUnix");
+    default:
+      throw new Error(`Unsupported platform: ${os2.platform()}`);
+  }
 };
 var addEnvironmentToAutoActivate = (environmentName, shell) => {
   core3.info(`Adding environment ${environmentName} to auto-activate ${shell} ...`);
   if (shell === "powershell") {
-    core3.warning("powershell is not supported");
-    return Promise.resolve();
+    return addEnvironmentToPowershellProfile(environmentName);
   }
   const rcFilePath = rcFileDict[shell];
   core3.debug(`Adding \`micromamba activate ${environmentName}\` to ${rcFilePath}`);

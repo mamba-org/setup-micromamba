@@ -70,6 +70,32 @@ jobs:
       - name: micromamba info (powershell.exe)
         run: micromamba info
         shell: powershell
-      - uses: mxschmitt/action-tmate@v3
+      # - uses: mxschmitt/action-tmate@v3
       # - run: micromamba info
       #   shell: powershell
+
+  linux-pwsh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          init-shell: '["powershell"]'
+          environment-file: 'test/environment.yml'
+      - name: micromamba info (pwsh)
+        run: micromamba info
+        shell: pwsh
+      # - uses: mxschmitt/action-tmate@v3
+  
+  macos-pwsh:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          init-shell: '["powershell"]'
+          environment-file: 'test/environment.yml'
+      - name: micromamba info (pwsh)
+        run: micromamba info
+        shell: pwsh
+      # - uses: mxschmitt/action-tmate@v3

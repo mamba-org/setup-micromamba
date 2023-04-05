@@ -67,14 +67,33 @@ const rcFileDict = {
   fish: path.join(os.homedir(), '.config', 'fish', 'config.fish'),
   tcsh: path.join(os.homedir(), '.tcshrc'),
   xonsh: path.join(os.homedir(), '.xonshrc'),
-  'cmd.exe': path.join(PATHS.micromambaRoot, 'condabin', 'mamba_hook.bat')
+  'cmd.exe': path.join(PATHS.micromambaRoot, 'condabin', 'mamba_hook.bat'),
+  powershell: path.join(os.homedir(), 'Documents', 'WindowsPowershell', 'profile.ps1'),
+  pwshWin: path.join(os.homedir(), 'Documents', 'Powershell', 'profile.ps1'),
+  pwshUnix: path.join(os.homedir(), '.config', 'powershell', 'profile.ps1')
+}
+
+const addEnvironmentToPowershellProfile = (environmentName: string) => {
+  // On GitHub Windows runners, powershell (the Windows version) and pwsh (the cross-platform version)
+  // are both available. We need to add the environment to both profiles.
+  switch (os.platform()) {
+    case 'win32':
+      return Promise.all([
+        addEnvironmentToRcFile(environmentName, rcFileDict.powershell),
+        addEnvironmentToRcFile(environmentName, rcFileDict.pwshWin)
+      ]).then(() => Promise.resolve())
+    case 'linux':
+    case 'darwin':
+      return addEnvironmentToRcFile(environmentName, 'pwshUnix')
+    default:
+      throw new Error(`Unsupported platform: ${os.platform()}`)
+  }
 }
 
 export const addEnvironmentToAutoActivate = (environmentName: string, shell: ShellType) => {
   core.info(`Adding environment ${environmentName} to auto-activate ${shell} ...`)
   if (shell === 'powershell') {
-    core.warning('powershell is not supported')
-    return Promise.resolve()
+    return addEnvironmentToPowershellProfile(environmentName)
   }
   const rcFilePath = rcFileDict[shell]
   core.debug(`Adding \`micromamba activate ${environmentName}\` to ${rcFilePath}`)
