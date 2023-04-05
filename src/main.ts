@@ -116,7 +116,7 @@ const installEnvironment = (inputs: Input) => {
 
 const generateInfo = () => {
   core.startGroup('micromamba info')
-  return execute(micromambaCmd('info')).finally(core.endGroup)
+  return execute(['bash', '-eol', 'pipefail', '-c', `${micromambaCmd('info').join(' ')}`]).finally(core.endGroup)
 }
 
 const run = async () => {

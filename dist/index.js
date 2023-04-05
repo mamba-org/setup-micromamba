@@ -12730,7 +12730,7 @@ var installEnvironment = (inputs) => {
 };
 var generateInfo = () => {
   core4.startGroup("micromamba info");
-  return execute(micromambaCmd("info")).finally(core4.endGroup);
+  return execute(["bash", "-eol", "pipefail", "-c", `${micromambaCmd("info").join(" ")}`]).finally(core4.endGroup);
 };
 var run = async () => {
   core4.debug(core4.getInput("extra-specs"));
