@@ -30,7 +30,7 @@ jobs:
       - uses: ./
         with:
           create-environment: false
-  
+
   micromamba-old-version:
     runs-on: ubuntu-latest
     steps:
@@ -44,7 +44,7 @@ jobs:
           micromamba info
         shell: bash -el {0}
 
-  windows-cmd:
+  cmd:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -55,11 +55,11 @@ jobs:
       - name: micromamba info (cmd.exe)
         run: micromamba info
         shell: cmd /C CALL {0}
-      # - uses: mxschmitt/action-tmate@v3
-      # - run: micromamba info
-      #   shell: cmd
-  
-  windows-powershell:
+
+  powershell:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
@@ -67,42 +67,10 @@ jobs:
         with:
           init-shell: '["powershell"]'
           environment-file: 'test/environment.yml'
+      - name: micromamba info (pwsh)
+        run: micromamba info
+        shell: pwsh
       - name: micromamba info (powershell)
+        if: matrix.os == 'windows-latest'
         run: micromamba info
         shell: powershell
-      - name: micromamba info (pwsh)
-        run: micromamba info
-        shell: pwsh
-      # - uses: mxschmitt/action-tmate@v3
-      # - run: micromamba info
-      #   shell: powershell
-
-  linux-pwsh:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: mxschmitt/action-tmate@v3
-      - uses: ./
-        with:
-          init-shell: '["powershell"]'
-          environment-file: 'test/environment.yml'
-          log-level: 'debug'
-      - name: micromamba info (pwsh)
-        run: micromamba info
-        shell: pwsh
-      # - uses: mxschmitt/action-tmate@v3
-  
-  macos-pwsh:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      # - uses: mxschmitt/action-tmate@v3
-      - uses: ./
-        with:
-          init-shell: '["powershell"]'
-          environment-file: 'test/environment.yml'
-          log-level: 'debug'
-      - name: micromamba info (pwsh)
-        run: micromamba info
-        shell: pwsh
-      # - uses: mxschmitt/action-tmate@v3
