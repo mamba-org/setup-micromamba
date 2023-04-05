@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+# This script is used to be able to use `shell: micromamba-shell {0}` in GitHub Actions.
+# When providing a custom shell, this program is called with the contents of `run:` as the first argument (in a temporary file).
+# The script then executes the contents of the file.
+
+chmod +x $1
+$MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1

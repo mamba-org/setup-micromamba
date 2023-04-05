@@ -43,6 +43,24 @@ jobs:
           micromamba --version
           micromamba info
         shell: bash -el {0}
+  
+  micromamba-shell:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          init-shell: '[]'
+          environment-file: ''
+          extra-specs: '["pytest"]'
+          environment-name: test
+      - run: |
+          pytest --version
+          python --version
+        shell: micromamba-shell {0}
 
   cmd:
     runs-on: windows-latest
@@ -60,7 +78,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
       - uses: ./

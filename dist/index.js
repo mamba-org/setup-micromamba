@@ -12765,6 +12765,18 @@ var generateInfo = (inputs) => {
   }
   return command.finally(core4.endGroup);
 };
+var generateMicromambaCustomShell = (inputs) => {
+  if (os3.platform() === "win32") {
+    core4.info("Skipping micromamba custom shell on Windows");
+    return Promise.resolve();
+  }
+  core4.info("Generate micromamba custom shell");
+  const micromambaShellFile = fs3.readFile("src/resources/micromamba-shell", { encoding: "utf8" });
+  return Promise.all([micromambaShellFile, determineEnvironmentName(inputs)]).then(([fileContents, environmentName]) => {
+    const file = fileContents.replace(/\$MAMBA_EXE/g, PATHS.micromambaBin).replace(/\$MAMBA_ROOT_PREFIX/g, PATHS.micromambaRoot).replace(/\$MAMBA_DEFAULT_ENV/g, environmentName);
+    return fs3.writeFile("/usr/local/bin/micromamba-shell", file, { encoding: "utf8", mode: 493 });
+  }).finally(core4.endGroup);
+};
 var run = async () => {
   core4.debug(`process.env.HOME: ${process.env.HOME}`);
   core4.debug(`os.homedir(): ${os3.homedir()}`);
@@ -12779,6 +12791,7 @@ var run = async () => {
   await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs)));
   if (inputs.createEnvironment) {
     await installEnvironment(inputs);
+    await generateMicromambaCustomShell(inputs);
   }
   await generateInfo(inputs);
 };

@@ -128,6 +128,24 @@ const generateInfo = (inputs: Input) => {
   return command.finally(core.endGroup)
 }
 
+const generateMicromambaCustomShell = (inputs: Input) => {
+  if (os.platform() === 'win32') {
+    core.info('Skipping micromamba custom shell on Windows')
+    return Promise.resolve()
+  }
+  core.info('Generate micromamba custom shell')
+  const micromambaShellFile = fs.readFile('src/resources/micromamba-shell', { encoding: 'utf8' })
+  return Promise.all([micromambaShellFile, determineEnvironmentName(inputs)])
+    .then(([fileContents, environmentName]) => {
+      const file = fileContents
+        .replace(/\$MAMBA_EXE/g, PATHS.micromambaBin)
+        .replace(/\$MAMBA_ROOT_PREFIX/g, PATHS.micromambaRoot)
+        .replace(/\$MAMBA_DEFAULT_ENV/g, environmentName)
+      return fs.writeFile('/usr/local/bin/micromamba-shell', file, { encoding: 'utf8', mode: 0o755 })
+    })
+    .finally(core.endGroup)
+}
+
 const run = async () => {
   core.debug(`process.env.HOME: ${process.env.HOME}`)
   core.debug(`os.homedir(): ${os.homedir()}`)
@@ -143,6 +161,8 @@ const run = async () => {
   await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs)))
   if (inputs.createEnvironment) {
     await installEnvironment(inputs)
+    // TODO: delete micromamba-shell in post step
+    await generateMicromambaCustomShell(inputs)
   }
   await generateInfo(inputs)
 }
