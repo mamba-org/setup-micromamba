@@ -52,7 +52,7 @@ jobs:
         with:
           init-shell: '["cmd.exe"]'
           environment-file: 'test/environment.yml'
-      - run: micromamba info
-        shell: cmd
       - run: micromamba info cmd /C CALL {0}
         shell: cmd /C CALL {0}
+      # - run: micromamba info
+      #   shell: cmd
