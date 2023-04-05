@@ -16,7 +16,8 @@ export const PATHS = {
   micromambaRoot: path.join(os.homedir(), 'debug', 'micromamba-root'),
   micromambaEnvs: path.join(os.homedir(), 'debug', 'micromamba-root', 'envs'),
   bashProfile: path.join(os.homedir(), '.bash_profile'),
-  bashrc: path.join(os.homedir(), '.bashrc')
+  bashrc: path.join(os.homedir(), '.bashrc'),
+  condarc: path.join(os.homedir(), '.condarc')
 }
 
 const getMicromambaUrl = (arch: string, version: string) => {
@@ -63,8 +64,15 @@ export const sha256 = (s: BinaryLike) => {
   return createHash('sha256').update(s).digest('hex')
 }
 
-export const micromambaCmd = (command: string, logLevel: LogLevelType) => {
-  return [PATHS.micromambaBin].concat(command.split(' '), ['--log-level', logLevel])
+export const micromambaCmd = (command: string, logLevel?: LogLevelType, condarcFile?: string) => {
+  let commandArray = [PATHS.micromambaBin].concat(command.split(' '))
+  if (logLevel) {
+    commandArray = commandArray.concat(['--log-level', logLevel])
+  }
+  if (condarcFile) {
+    commandArray = commandArray.concat(['--rc-file', condarcFile])
+  }
+  return commandArray
 }
 
 export const execute = (cmd: string[]) => {

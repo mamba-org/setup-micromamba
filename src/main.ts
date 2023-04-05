@@ -1,11 +1,13 @@
 import * as fs from 'fs/promises'
-
 import * as coreDefault from '@actions/core'
 import fetch from 'node-fetch'
+import untildify from 'untildify'
 import { PATHS, sha256, getMicromambaUrlFromInputs } from './util'
 import { coreMocked } from './mocking'
-import { parseInputs } from './inputs'
+import { parseInputs, validateInputs } from './inputs'
+import type { Input } from './inputs'
 import { shellInit } from './shell-init'
+// import type { Input } from './inputs'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -34,13 +36,36 @@ const downloadMicromamba = (url: string) => {
     .finally(core.endGroup)
 }
 
+const generateCondarc = (inputs: Input) => {
+  if (inputs.condarcFile) {
+    core.debug(`Using condarc file ${inputs.condarcFile} ...`)
+    return fs.access(untildify(inputs.condarcFile), fs.constants.F_OK)
+  }
+  if (inputs.condarc) {
+    core.info(`Writing condarc contents to ${PATHS.condarc} ...`)
+    return fs.writeFile(PATHS.condarc, inputs.condarc)
+  }
+  core.info('Adding conda-forge to condarc channels ...')
+  return fs.writeFile(PATHS.condarc, 'channels:\n  - conda-forge')
+}
+
+// const createEnvironment = (inputs: Input) => {
+//   core.startGroup('Create environment')
+//   return Promise.resolve().finally(core.endGroup)
+// }
+
 const run = async () => {
   const inputs = parseInputs()
   core.debug(`Parsed inputs: ${JSON.stringify(inputs, null, 2)}`)
+  validateInputs(inputs)
 
   const url = getMicromambaUrlFromInputs(inputs.micromambaUrl, inputs.micromambaVersion)
   await downloadMicromamba(url)
-  await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs.logLevel)))
+  await generateCondarc(inputs)
+  await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs)))
+  // if (inputs.createEnvironment) {
+  //   await createEnvironment(inputs)
+  // }
 }
 
 run()

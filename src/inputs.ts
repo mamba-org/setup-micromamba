@@ -6,6 +6,7 @@ const core = process.env.MOCKING ? coreMocked : coreDefault
 
 export type Input = {
   condarcFile: string | undefined
+  condarc: string | undefined
   environmentFile: string | undefined
   environmentName: string | undefined
   extraSpecs: string[] | undefined
@@ -39,10 +40,15 @@ export const parseInputs = (): Input => {
   const inputs = {
     // TODO: parseOrUndefined is not needed everywhere
     condarcFile: parseOrUndefined(core.getInput('condarc-file'), z.string()),
+    condarc: parseOrUndefined(core.getInput('condarc'), z.string()),
     environmentFile: parseOrUndefined(core.getInput('environment-file'), z.string()),
     environmentName: parseOrUndefined(core.getInput('environment-name'), z.string()),
-    extraSpecs: parseOrUndefined(core.getInput('extra-specs'), z.array(z.string())),
-    createArgs: parseOrUndefined(core.getInput('create-args'), z.array(z.string())),
+    extraSpecs:
+      parseOrUndefined(core.getInput('extra-specs') && JSON.parse(core.getInput('extra-specs')), z.array(z.string())) ||
+      [],
+    createArgs:
+      parseOrUndefined(core.getInput('create-args') && JSON.parse(core.getInput('create-args')), z.array(z.string())) ||
+      [],
     createEnvironment: parseOrUndefined(JSON.parse(core.getInput('create-environment')), z.boolean()),
     logLevel: logLevelSchema.parse(core.getInput('log-level')),
     micromambaVersion: parseOrUndefined(
@@ -61,4 +67,17 @@ export const parseInputs = (): Input => {
     cacheEnvironmentKey: parseOrUndefined(core.getInput('cache-environment-key'), z.string())
   }
   return inputs
+}
+
+export const validateInputs = (inputs: Input): void => {
+  if (inputs.createEnvironment) {
+    if (!inputs.environmentFile && (!inputs.environmentName || !inputs.extraSpecs)) {
+      throw new Error(
+        'You must specify either an environment file or an environment name and extra specs to create an environment.'
+      )
+    }
+  }
+  if (inputs.condarcFile && inputs.condarc) {
+    throw new Error('You must specify either a condarc file or a condarc string, not both.')
+  }
 }
