@@ -1,4 +1,5 @@
 import * as fs from 'fs/promises'
+import * as os from 'os'
 import * as coreDefault from '@actions/core'
 import fetch from 'node-fetch'
 import untildify from 'untildify'
@@ -132,6 +133,9 @@ const generateInfo = (inputs: Input) => {
 }
 
 const run = async () => {
+  core.debug(`process.env.HOME: ${process.env.HOME}`)
+  core.debug(`os.homedir(): ${os.homedir()}`)
+  core.debug(`bashProfile ${PATHS.bashProfile}`)
   core.debug(core.getInput('extra-specs'))
   const inputs = parseInputs()
   core.debug(`Parsed inputs: ${JSON.stringify(inputs, null, 2)}`)

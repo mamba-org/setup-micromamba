@@ -117,11 +117,11 @@ var require_command = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.issue = exports.issueCommand = void 0;
-    var os3 = __importStar(require("os"));
+    var os4 = __importStar(require("os"));
     var utils_1 = require_utils();
     function issueCommand(command, properties, message) {
       const cmd = new Command(command, properties, message);
-      process.stdout.write(cmd.toString() + os3.EOL);
+      process.stdout.write(cmd.toString() + os4.EOL);
     }
     exports.issueCommand = issueCommand;
     function issue(name, message = "") {
@@ -538,7 +538,7 @@ var require_file_command = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
     var fs4 = __importStar(require("fs"));
-    var os3 = __importStar(require("os"));
+    var os4 = __importStar(require("os"));
     var uuid_1 = (init_esm_node(), __toCommonJS(esm_node_exports));
     var utils_1 = require_utils();
     function issueFileCommand(command, message) {
@@ -549,7 +549,7 @@ var require_file_command = __commonJS({
       if (!fs4.existsSync(filePath)) {
         throw new Error(`Missing file at path: ${filePath}`);
       }
-      fs4.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os3.EOL}`, {
+      fs4.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os4.EOL}`, {
         encoding: "utf8"
       });
     }
@@ -563,7 +563,7 @@ var require_file_command = __commonJS({
       if (convertedValue.includes(delimiter)) {
         throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
       }
-      return `${key}<<${delimiter}${os3.EOL}${convertedValue}${os3.EOL}${delimiter}`;
+      return `${key}<<${delimiter}${os4.EOL}${convertedValue}${os4.EOL}${delimiter}`;
     }
     exports.prepareKeyValueMessage = prepareKeyValueMessage;
   }
@@ -2052,7 +2052,7 @@ var require_core = __commonJS({
     var command_1 = require_command();
     var file_command_1 = require_file_command();
     var utils_1 = require_utils();
-    var os3 = __importStar(require("os"));
+    var os4 = __importStar(require("os"));
     var path3 = __importStar(require("path"));
     var oidc_utils_1 = require_oidc_utils();
     var ExitCode;
@@ -2120,7 +2120,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       if (filePath) {
         return file_command_1.issueFileCommand("OUTPUT", file_command_1.prepareKeyValueMessage(name, value));
       }
-      process.stdout.write(os3.EOL);
+      process.stdout.write(os4.EOL);
       command_1.issueCommand("set-output", { name }, utils_1.toCommandValue(value));
     }
     exports.setOutput = setOutput;
@@ -2154,7 +2154,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     }
     exports.notice = notice;
     function info(message) {
-      process.stdout.write(message + os3.EOL);
+      process.stdout.write(message + os4.EOL);
     }
     exports.info = info;
     function startGroup(name) {
@@ -6859,8 +6859,8 @@ var init_multipart_parser = __esm({
 var require_untildify = __commonJS({
   "node_modules/.pnpm/untildify@4.0.0/node_modules/untildify/index.js"(exports, module2) {
     "use strict";
-    var os3 = require("os");
-    var homeDirectory = os3.homedir();
+    var os4 = require("os");
+    var homeDirectory = os4.homedir();
     module2.exports = (pathWithTilde) => {
       if (typeof pathWithTilde !== "string") {
         throw new TypeError(`Expected a string, got ${typeof pathWithTilde}`);
@@ -7362,7 +7362,7 @@ var require_toolrunner = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.argStringToArray = exports.ToolRunner = void 0;
-    var os3 = __importStar(require("os"));
+    var os4 = __importStar(require("os"));
     var events = __importStar(require("events"));
     var child = __importStar(require("child_process"));
     var path3 = __importStar(require("path"));
@@ -7417,12 +7417,12 @@ var require_toolrunner = __commonJS({
       _processLineBuffer(data, strBuffer, onLine) {
         try {
           let s2 = strBuffer + data.toString();
-          let n = s2.indexOf(os3.EOL);
+          let n = s2.indexOf(os4.EOL);
           while (n > -1) {
             const line = s2.substring(0, n);
             onLine(line);
-            s2 = s2.substring(n + os3.EOL.length);
-            n = s2.indexOf(os3.EOL);
+            s2 = s2.substring(n + os4.EOL.length);
+            n = s2.indexOf(os4.EOL);
           }
           return s2;
         } catch (err) {
@@ -7591,7 +7591,7 @@ var require_toolrunner = __commonJS({
             }
             const optionsNonNull = this._cloneExecOptions(this.options);
             if (!optionsNonNull.silent && optionsNonNull.outStream) {
-              optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os3.EOL);
+              optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os4.EOL);
             }
             const state = new ExecState(optionsNonNull, this.toolPath);
             state.on("debug", (message) => {
@@ -7904,6 +7904,7 @@ var require_exec = __commonJS({
 
 // src/main.ts
 var fs3 = __toESM(require("fs/promises"));
+var os3 = __toESM(require("os"));
 var coreDefault4 = __toESM(require_core());
 
 // node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/index.js
@@ -12630,19 +12631,18 @@ var rcFileDict = {
   zsh: import_path.default.join(os2.homedir(), ".zshrc"),
   fish: import_path.default.join(os2.homedir(), ".config", "fish", "config.fish"),
   tcsh: import_path.default.join(os2.homedir(), ".tcshrc"),
-  xonsh: import_path.default.join(os2.homedir(), ".xonshrc")
+  xonsh: import_path.default.join(os2.homedir(), ".xonshrc"),
+  "cmd.exe": import_path.default.join(PATHS.micromambaRoot, "condabin", "mamba_hook.bat")
 };
 var addEnvironmentToAutoActivate = (environmentName, shell) => {
   core3.info(`Adding environment ${environmentName} to auto-activate ${shell} ...`);
-  if (shell === "cmd.exe") {
-    core3.warning("cmd.exe is not supported");
-    return Promise.resolve();
-  }
   if (shell === "powershell") {
     core3.warning("powershell is not supported");
     return Promise.resolve();
   }
-  return addEnvironmentToRcFile(environmentName, rcFileDict[shell]);
+  const rcFilePath = rcFileDict[shell];
+  core3.debug(`Adding \`micromamba activate ${environmentName}\` to ${rcFilePath}`);
+  return addEnvironmentToRcFile(environmentName, rcFilePath);
 };
 
 // src/main.ts
@@ -12750,6 +12750,9 @@ var generateInfo = (inputs) => {
   return command.finally(core4.endGroup);
 };
 var run = async () => {
+  core4.debug(`process.env.HOME: ${process.env.HOME}`);
+  core4.debug(`os.homedir(): ${os3.homedir()}`);
+  core4.debug(`bashProfile ${PATHS.bashProfile}`);
   core4.debug(core4.getInput("extra-specs"));
   const inputs = parseInputs();
   core4.debug(`Parsed inputs: ${JSON.stringify(inputs, null, 2)}`);
