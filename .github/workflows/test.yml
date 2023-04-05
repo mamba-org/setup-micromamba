@@ -1,4 +1,3 @@
-name: 'build-test'
 on:
   pull_request:
   push:
@@ -6,27 +5,72 @@ on:
     #   - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 7
-          run_install: true
-
-      - name: Rebuild the dist/ directory
-        run: pnpm all
-
-  test:
+  no-environment-file:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./
+        with:
+          environment-name: test
+          extra-specs: '["python", "cython"]'
+          environment-file: ''
+
+  environment-file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          environment-file: 'test/environment.yml'
+
+  create-environment-false:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          create-environment: false
+
+  micromamba-old-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          micromamba-version: 1.2.0-1
+          environment-file: 'test/environment.yml'
+      - run: |
+          micromamba --version
+          micromamba info
+        shell: bash -el {0}
+
+  cmd:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          init-shell: '["cmd.exe"]'
+          environment-file: 'test/environment.yml'
+      - name: micromamba info (cmd.exe)
+        run: micromamba info
+        shell: cmd /C CALL {0}
+
+  powershell:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          init-shell: '["powershell"]'
+          environment-file: 'test/environment.yml'
+      - name: micromamba info (pwsh)
+        run: micromamba info
+        shell: pwsh
+      - name: micromamba info (powershell)
+        if: matrix.os == 'windows-latest'
+        run: micromamba info
+        shell: powershell

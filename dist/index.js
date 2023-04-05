@@ -117,11 +117,11 @@ var require_command = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.issue = exports.issueCommand = void 0;
-    var os3 = __importStar(require("os"));
+    var os4 = __importStar(require("os"));
     var utils_1 = require_utils();
     function issueCommand(command, properties, message) {
       const cmd = new Command(command, properties, message);
-      process.stdout.write(cmd.toString() + os3.EOL);
+      process.stdout.write(cmd.toString() + os4.EOL);
     }
     exports.issueCommand = issueCommand;
     function issue(name, message = "") {
@@ -538,7 +538,7 @@ var require_file_command = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
     var fs4 = __importStar(require("fs"));
-    var os3 = __importStar(require("os"));
+    var os4 = __importStar(require("os"));
     var uuid_1 = (init_esm_node(), __toCommonJS(esm_node_exports));
     var utils_1 = require_utils();
     function issueFileCommand(command, message) {
@@ -549,7 +549,7 @@ var require_file_command = __commonJS({
       if (!fs4.existsSync(filePath)) {
         throw new Error(`Missing file at path: ${filePath}`);
       }
-      fs4.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os3.EOL}`, {
+      fs4.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os4.EOL}`, {
         encoding: "utf8"
       });
     }
@@ -563,7 +563,7 @@ var require_file_command = __commonJS({
       if (convertedValue.includes(delimiter)) {
         throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
       }
-      return `${key}<<${delimiter}${os3.EOL}${convertedValue}${os3.EOL}${delimiter}`;
+      return `${key}<<${delimiter}${os4.EOL}${convertedValue}${os4.EOL}${delimiter}`;
     }
     exports.prepareKeyValueMessage = prepareKeyValueMessage;
   }
@@ -1972,7 +1972,7 @@ var require_path_utils = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.toPlatformPath = exports.toWin32Path = exports.toPosixPath = void 0;
-    var path2 = __importStar(require("path"));
+    var path3 = __importStar(require("path"));
     function toPosixPath(pth) {
       return pth.replace(/[\\]/g, "/");
     }
@@ -1982,7 +1982,7 @@ var require_path_utils = __commonJS({
     }
     exports.toWin32Path = toWin32Path;
     function toPlatformPath(pth) {
-      return pth.replace(/[/\\]/g, path2.sep);
+      return pth.replace(/[/\\]/g, path3.sep);
     }
     exports.toPlatformPath = toPlatformPath;
   }
@@ -2052,8 +2052,8 @@ var require_core = __commonJS({
     var command_1 = require_command();
     var file_command_1 = require_file_command();
     var utils_1 = require_utils();
-    var os3 = __importStar(require("os"));
-    var path2 = __importStar(require("path"));
+    var os4 = __importStar(require("os"));
+    var path3 = __importStar(require("path"));
     var oidc_utils_1 = require_oidc_utils();
     var ExitCode;
     (function(ExitCode2) {
@@ -2081,7 +2081,7 @@ var require_core = __commonJS({
       } else {
         command_1.issueCommand("add-path", {}, inputPath);
       }
-      process.env["PATH"] = `${inputPath}${path2.delimiter}${process.env["PATH"]}`;
+      process.env["PATH"] = `${inputPath}${path3.delimiter}${process.env["PATH"]}`;
     }
     exports.addPath = addPath;
     function getInput(name, options) {
@@ -2120,7 +2120,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       if (filePath) {
         return file_command_1.issueFileCommand("OUTPUT", file_command_1.prepareKeyValueMessage(name, value));
       }
-      process.stdout.write(os3.EOL);
+      process.stdout.write(os4.EOL);
       command_1.issueCommand("set-output", { name }, utils_1.toCommandValue(value));
     }
     exports.setOutput = setOutput;
@@ -2154,7 +2154,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     }
     exports.notice = notice;
     function info(message) {
-      process.stdout.write(message + os3.EOL);
+      process.stdout.write(message + os4.EOL);
     }
     exports.info = info;
     function startGroup(name) {
@@ -6859,8 +6859,8 @@ var init_multipart_parser = __esm({
 var require_untildify = __commonJS({
   "node_modules/.pnpm/untildify@4.0.0/node_modules/untildify/index.js"(exports, module2) {
     "use strict";
-    var os3 = require("os");
-    var homeDirectory = os3.homedir();
+    var os4 = require("os");
+    var homeDirectory = os4.homedir();
     module2.exports = (pathWithTilde) => {
       if (typeof pathWithTilde !== "string") {
         throw new TypeError(`Expected a string, got ${typeof pathWithTilde}`);
@@ -6933,7 +6933,7 @@ var require_io_util = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
     var fs4 = __importStar(require("fs"));
-    var path2 = __importStar(require("path"));
+    var path3 = __importStar(require("path"));
     _a4 = fs4.promises, exports.chmod = _a4.chmod, exports.copyFile = _a4.copyFile, exports.lstat = _a4.lstat, exports.mkdir = _a4.mkdir, exports.open = _a4.open, exports.readdir = _a4.readdir, exports.readlink = _a4.readlink, exports.rename = _a4.rename, exports.rm = _a4.rm, exports.rmdir = _a4.rmdir, exports.stat = _a4.stat, exports.symlink = _a4.symlink, exports.unlink = _a4.unlink;
     exports.IS_WINDOWS = process.platform === "win32";
     exports.UV_FS_O_EXLOCK = 268435456;
@@ -6982,7 +6982,7 @@ var require_io_util = __commonJS({
         }
         if (stats && stats.isFile()) {
           if (exports.IS_WINDOWS) {
-            const upperExt = path2.extname(filePath).toUpperCase();
+            const upperExt = path3.extname(filePath).toUpperCase();
             if (extensions.some((validExt) => validExt.toUpperCase() === upperExt)) {
               return filePath;
             }
@@ -7006,11 +7006,11 @@ var require_io_util = __commonJS({
           if (stats && stats.isFile()) {
             if (exports.IS_WINDOWS) {
               try {
-                const directory = path2.dirname(filePath);
-                const upperName = path2.basename(filePath).toUpperCase();
+                const directory = path3.dirname(filePath);
+                const upperName = path3.basename(filePath).toUpperCase();
                 for (const actualName of yield exports.readdir(directory)) {
                   if (upperName === actualName.toUpperCase()) {
-                    filePath = path2.join(directory, actualName);
+                    filePath = path3.join(directory, actualName);
                     break;
                   }
                 }
@@ -7110,7 +7110,7 @@ var require_io = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.findInPath = exports.which = exports.mkdirP = exports.rmRF = exports.mv = exports.cp = void 0;
     var assert_1 = require("assert");
-    var path2 = __importStar(require("path"));
+    var path3 = __importStar(require("path"));
     var ioUtil = __importStar(require_io_util());
     function cp(source, dest, options = {}) {
       return __awaiter(this, void 0, void 0, function* () {
@@ -7119,7 +7119,7 @@ var require_io = __commonJS({
         if (destStat && destStat.isFile() && !force) {
           return;
         }
-        const newDest = destStat && destStat.isDirectory() && copySourceDirectory ? path2.join(dest, path2.basename(source)) : dest;
+        const newDest = destStat && destStat.isDirectory() && copySourceDirectory ? path3.join(dest, path3.basename(source)) : dest;
         if (!(yield ioUtil.exists(source))) {
           throw new Error(`no such file or directory: ${source}`);
         }
@@ -7131,7 +7131,7 @@ var require_io = __commonJS({
             yield cpDirRecursive(source, newDest, 0, force);
           }
         } else {
-          if (path2.relative(source, newDest) === "") {
+          if (path3.relative(source, newDest) === "") {
             throw new Error(`'${newDest}' and '${source}' are the same file`);
           }
           yield copyFile(source, newDest, force);
@@ -7144,7 +7144,7 @@ var require_io = __commonJS({
         if (yield ioUtil.exists(dest)) {
           let destExists = true;
           if (yield ioUtil.isDirectory(dest)) {
-            dest = path2.join(dest, path2.basename(source));
+            dest = path3.join(dest, path3.basename(source));
             destExists = yield ioUtil.exists(dest);
           }
           if (destExists) {
@@ -7155,7 +7155,7 @@ var require_io = __commonJS({
             }
           }
         }
-        yield mkdirP(path2.dirname(dest));
+        yield mkdirP(path3.dirname(dest));
         yield ioUtil.rename(source, dest);
       });
     }
@@ -7218,7 +7218,7 @@ var require_io = __commonJS({
         }
         const extensions = [];
         if (ioUtil.IS_WINDOWS && process.env["PATHEXT"]) {
-          for (const extension of process.env["PATHEXT"].split(path2.delimiter)) {
+          for (const extension of process.env["PATHEXT"].split(path3.delimiter)) {
             if (extension) {
               extensions.push(extension);
             }
@@ -7231,12 +7231,12 @@ var require_io = __commonJS({
           }
           return [];
         }
-        if (tool.includes(path2.sep)) {
+        if (tool.includes(path3.sep)) {
           return [];
         }
         const directories = [];
         if (process.env.PATH) {
-          for (const p of process.env.PATH.split(path2.delimiter)) {
+          for (const p of process.env.PATH.split(path3.delimiter)) {
             if (p) {
               directories.push(p);
             }
@@ -7244,7 +7244,7 @@ var require_io = __commonJS({
         }
         const matches = [];
         for (const directory of directories) {
-          const filePath = yield ioUtil.tryGetExecutablePath(path2.join(directory, tool), extensions);
+          const filePath = yield ioUtil.tryGetExecutablePath(path3.join(directory, tool), extensions);
           if (filePath) {
             matches.push(filePath);
           }
@@ -7362,10 +7362,10 @@ var require_toolrunner = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.argStringToArray = exports.ToolRunner = void 0;
-    var os3 = __importStar(require("os"));
+    var os4 = __importStar(require("os"));
     var events = __importStar(require("events"));
     var child = __importStar(require("child_process"));
-    var path2 = __importStar(require("path"));
+    var path3 = __importStar(require("path"));
     var io = __importStar(require_io());
     var ioUtil = __importStar(require_io_util());
     var timers_1 = require("timers");
@@ -7417,12 +7417,12 @@ var require_toolrunner = __commonJS({
       _processLineBuffer(data, strBuffer, onLine) {
         try {
           let s2 = strBuffer + data.toString();
-          let n = s2.indexOf(os3.EOL);
+          let n = s2.indexOf(os4.EOL);
           while (n > -1) {
             const line = s2.substring(0, n);
             onLine(line);
-            s2 = s2.substring(n + os3.EOL.length);
-            n = s2.indexOf(os3.EOL);
+            s2 = s2.substring(n + os4.EOL.length);
+            n = s2.indexOf(os4.EOL);
           }
           return s2;
         } catch (err) {
@@ -7580,7 +7580,7 @@ var require_toolrunner = __commonJS({
       exec() {
         return __awaiter(this, void 0, void 0, function* () {
           if (!ioUtil.isRooted(this.toolPath) && (this.toolPath.includes("/") || IS_WINDOWS && this.toolPath.includes("\\"))) {
-            this.toolPath = path2.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
+            this.toolPath = path3.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
           }
           this.toolPath = yield io.which(this.toolPath, true);
           return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -7591,7 +7591,7 @@ var require_toolrunner = __commonJS({
             }
             const optionsNonNull = this._cloneExecOptions(this.options);
             if (!optionsNonNull.silent && optionsNonNull.outStream) {
-              optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os3.EOL);
+              optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os4.EOL);
             }
             const state = new ExecState(optionsNonNull, this.toolPath);
             state.on("debug", (message) => {
@@ -7904,6 +7904,7 @@ var require_exec = __commonJS({
 
 // src/main.ts
 var fs3 = __toESM(require("fs/promises"));
+var os3 = __toESM(require("os"));
 var coreDefault4 = __toESM(require_core());
 
 // node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/index.js
@@ -9237,7 +9238,12 @@ var core = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
   // TODO fix paths
   micromambaBinFolder: path.join(os.homedir(), "debug", "micromamba-bin"),
-  micromambaBin: path.join(os.homedir(), "debug", "micromamba-bin", "micromamba"),
+  micromambaBin: path.join(
+    os.homedir(),
+    "debug",
+    "micromamba-bin",
+    `micromamba${os.platform() === "win32" ? ".exe" : ""}`
+  ),
   micromambaRoot: path.join(os.homedir(), "debug", "micromamba-root"),
   micromambaEnvs: path.join(os.homedir(), "debug", "micromamba-root", "envs"),
   bashProfile: path.join(os.homedir(), ".bash_profile"),
@@ -9621,8 +9627,8 @@ function getErrorMap() {
   return overrideErrorMap;
 }
 var makeIssue = (params) => {
-  const { data, path: path2, errorMaps, issueData } = params;
-  const fullPath = [...path2, ...issueData.path || []];
+  const { data, path: path3, errorMaps, issueData } = params;
+  const fullPath = [...path3, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -9720,10 +9726,10 @@ var errorUtil;
   errorUtil2.toString = (message) => typeof message === "string" ? message : message === null || message === void 0 ? void 0 : message.message;
 })(errorUtil || (errorUtil = {}));
 var ParseInputLazyPath = class {
-  constructor(parent, value, path2, key) {
+  constructor(parent, value, path3, key) {
     this.parent = parent;
     this.data = value;
-    this._path = path2;
+    this._path = path3;
     this._key = key;
   }
   get path() {
@@ -12542,7 +12548,7 @@ var pipelineType = ZodPipeline.create;
 // src/inputs.ts
 var core2 = process.env.MOCKING ? coreMocked : coreDefault2;
 var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
-var shellSchema = enumType(["bash", "cmd.exe", "dash", "fish", "posix", "powershell", "tcsh", "xonsh", "zsh"]);
+var shellSchema = enumType(["bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
 var parseOrUndefined = (input, schema) => {
   if (input === "") {
     return void 0;
@@ -12556,8 +12562,11 @@ var parseInputs = () => {
     condarc: parseOrUndefined(core2.getInput("condarc"), stringType()),
     environmentFile: parseOrUndefined(core2.getInput("environment-file"), stringType()),
     environmentName: parseOrUndefined(core2.getInput("environment-name"), stringType()),
-    extraSpecs: parseOrUndefined(core2.getInput("extra-specs") && JSON.parse(core2.getInput("extra-specs")), arrayType(stringType())) || [],
-    createArgs: parseOrUndefined(core2.getInput("create-args") && JSON.parse(core2.getInput("create-args")), arrayType(stringType())) || [],
+    extraSpecs: parseOrUndefined(
+      core2.getInput("extra-specs") && JSON.parse(core2.getInput("extra-specs")),
+      arrayType(stringType())
+    ),
+    createArgs: parseOrUndefined(core2.getInput("create-args"), stringType()),
     createEnvironment: parseOrUndefined(JSON.parse(core2.getInput("create-environment")), booleanType()),
     logLevel: logLevelSchema.parse(core2.getInput("log-level")),
     micromambaVersion: parseOrUndefined(
@@ -12591,6 +12600,7 @@ var validateInputs = (inputs) => {
 // src/shell-init.ts
 var fs2 = __toESM(require("fs/promises"));
 var os2 = __toESM(require("os"));
+var import_path = __toESM(require("path"));
 var coreDefault3 = __toESM(require_core());
 var core3 = process.env.MOCKING ? coreMocked : coreDefault3;
 var copyMambaInitBlockToBashProfile = () => {
@@ -12606,11 +12616,53 @@ var copyMambaInitBlockToBashProfile = () => {
 };
 var shellInit = (shell, inputs) => {
   core3.startGroup(`Initialize micromamba for ${shell}`);
-  const command = execute(micromambaCmd(`shell init -s ${shell}`, inputs.logLevel, inputs.condarcFile));
+  const command = execute(
+    micromambaCmd(`shell init -s ${shell} -p ${PATHS.micromambaRoot}`, inputs.logLevel, inputs.condarcFile)
+  );
   if (os2.platform() === "linux" && shell === "bash") {
     return command.then(copyMambaInitBlockToBashProfile).finally(core3.endGroup);
   }
   return command.finally(core3.endGroup);
+};
+var addEnvironmentToRcFile = (environmentName, rcFile) => {
+  core3.debug(`Adding \`micromamba activate ${environmentName}
+\` to ${rcFile}`);
+  return fs2.appendFile(rcFile, `micromamba activate ${environmentName}
+`);
+};
+var rcFileDict = {
+  bash: PATHS.bashProfile,
+  zsh: import_path.default.join(os2.homedir(), ".zshrc"),
+  fish: import_path.default.join(os2.homedir(), ".config", "fish", "config.fish"),
+  tcsh: import_path.default.join(os2.homedir(), ".tcshrc"),
+  xonsh: import_path.default.join(os2.homedir(), ".xonshrc"),
+  "cmd.exe": import_path.default.join(PATHS.micromambaRoot, "condabin", "mamba_hook.bat"),
+  powershell: import_path.default.join(os2.homedir(), "Documents", "WindowsPowershell", "profile.ps1"),
+  pwshWin: import_path.default.join(os2.homedir(), "Documents", "Powershell", "profile.ps1"),
+  pwshUnix: import_path.default.join(os2.homedir(), ".config", "powershell", "profile.ps1")
+};
+var addEnvironmentToPowershellProfile = (environmentName) => {
+  switch (os2.platform()) {
+    case "win32":
+      return Promise.all([
+        addEnvironmentToRcFile(environmentName, rcFileDict.powershell),
+        addEnvironmentToRcFile(environmentName, rcFileDict.pwshWin)
+      ]).then(() => Promise.resolve());
+    case "linux":
+    case "darwin":
+      return addEnvironmentToRcFile(environmentName, rcFileDict.pwshUnix);
+    default:
+      throw new Error(`Unsupported platform: ${os2.platform()}`);
+  }
+};
+var addEnvironmentToAutoActivate = (environmentName, shell) => {
+  core3.info(`Adding environment ${environmentName} to auto-activate ${shell} ...`);
+  if (shell === "powershell") {
+    return addEnvironmentToPowershellProfile(environmentName);
+  }
+  const rcFilePath = rcFileDict[shell];
+  core3.debug(`Adding \`micromamba activate ${environmentName}\` to ${rcFilePath}`);
+  return addEnvironmentToRcFile(environmentName, rcFilePath);
 };
 
 // src/main.ts
@@ -12628,8 +12680,11 @@ var downloadMicromamba = (url) => {
   return Promise.all([mkDir, downloadMicromamba2]).then(([, buffer]) => {
     core4.debug(`micromamba binary sha256: ${sha256(buffer)}`);
     return fs3.writeFile(PATHS.micromambaBin, buffer, { encoding: "binary", mode: 493 });
+  }).then(() => {
+    core4.info(`micromamba installed to ${PATHS.micromambaBin}`);
   }).catch((err) => {
     core4.error(`Error installing micromamba: ${err.message}`);
+    throw err;
   }).finally(core4.endGroup);
 };
 var generateCondarc = (inputs) => {
@@ -12644,7 +12699,77 @@ var generateCondarc = (inputs) => {
   core4.info("Adding conda-forge to condarc channels ...");
   return fs3.writeFile(PATHS.condarc, "channels:\n  - conda-forge");
 };
+var createEnvironment = (inputs) => {
+  core4.debug(`environmentFile: ${inputs.environmentFile}`);
+  core4.debug(`environmentName: ${inputs.environmentName}`);
+  core4.debug(`extraSpecs: ${inputs.extraSpecs}`);
+  core4.debug(`createArgs: ${inputs.createArgs}`);
+  core4.debug(`condarcFile: ${inputs.condarcFile}`);
+  let commandStr = `create -y -r ${PATHS.micromambaRoot}`;
+  if (inputs.environmentFile) {
+    commandStr += ` -f ${inputs.environmentFile}`;
+  }
+  if (inputs.environmentName) {
+    commandStr += ` -n ${inputs.environmentName}`;
+  }
+  if (inputs.extraSpecs) {
+    console.log(`EXTRASPECS ${inputs.extraSpecs}`);
+    commandStr += ` ${inputs.extraSpecs.join(" ")}`;
+  }
+  if (inputs.createArgs) {
+    commandStr += ` ${inputs.createArgs}`;
+  }
+  if (inputs.condarcFile) {
+    commandStr += ` --rc-file ${inputs.condarcFile}`;
+  }
+  return execute(micromambaCmd(commandStr, inputs.logLevel, inputs.condarcFile));
+};
+var determineEnvironmentName = (inputs) => {
+  core4.debug("Determining environment name from inputs.");
+  if (inputs.environmentName) {
+    core4.debug(`Determined environment name: ${inputs.environmentName}`);
+    return Promise.resolve(inputs.environmentName);
+  }
+  if (!inputs.environmentFile) {
+    core4.error("No environment name or file specified.");
+    throw new Error();
+  }
+  return fs3.readFile(inputs.environmentFile, "utf8").then((fileContents) => {
+    const environmentName = fileContents.toString().match(/name:\s*(.*)/)?.[1];
+    if (!environmentName) {
+      const errorMessage = `Could not determine environment name from file ${inputs.environmentFile}`;
+      core4.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+    core4.debug(`Determined environment name from file ${inputs.environmentFile}: ${environmentName}`);
+    return environmentName;
+  });
+};
+var installEnvironment = (inputs) => {
+  return determineEnvironmentName(inputs).then((environmentName) => {
+    core4.startGroup(`Install environment \`${environmentName}\``);
+    return createEnvironment(inputs).then((_exitCode) => environmentName);
+  }).then((environmentName) => {
+    return Promise.all(inputs.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)));
+  }).finally(core4.endGroup);
+};
+var generateInfo = (inputs) => {
+  core4.startGroup("micromamba info");
+  let command;
+  if (!inputs.createEnvironment) {
+    command = execute(micromambaCmd(`info -r ${PATHS.micromambaRoot}`));
+  } else {
+    command = determineEnvironmentName(inputs).then(
+      (environmentName) => execute(micromambaCmd(`info -r ${PATHS.micromambaRoot} -n ${environmentName}`))
+    );
+  }
+  return command.finally(core4.endGroup);
+};
 var run = async () => {
+  core4.debug(`process.env.HOME: ${process.env.HOME}`);
+  core4.debug(`os.homedir(): ${os3.homedir()}`);
+  core4.debug(`bashProfile ${PATHS.bashProfile}`);
+  core4.debug(core4.getInput("extra-specs"));
   const inputs = parseInputs();
   core4.debug(`Parsed inputs: ${JSON.stringify(inputs, null, 2)}`);
   validateInputs(inputs);
@@ -12652,6 +12777,10 @@ var run = async () => {
   await downloadMicromamba(url);
   await generateCondarc(inputs);
   await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs)));
+  if (inputs.createEnvironment) {
+    await installEnvironment(inputs);
+  }
+  await generateInfo(inputs);
 };
 run();
 /*! Bundled license information:

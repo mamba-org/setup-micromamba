@@ -9,7 +9,8 @@ module.exports = {
   rules: {
     'import/order': 'error',
     'no-use-before-define': 'off',
-    'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'n/no-callback-literal': 'off',
     '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
     '@typescript-eslint/no-use-before-define': 'error',
