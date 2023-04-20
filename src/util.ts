@@ -22,7 +22,7 @@ export const PATHS = {
   micromambaEnvs: path.join(os.homedir(), 'debug', 'micromamba-root', 'envs'),
   bashProfile: path.join(os.homedir(), '.bash_profile'),
   bashrc: path.join(os.homedir(), '.bashrc'),
-  condarc: path.join(os.homedir(), '.condarc')
+  condarc: path.join(os.homedir(), 'debug', 'micromamba-root', '.condarc')
 }
 
 const getMicromambaUrl = (arch: string, version: string) => {

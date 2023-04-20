@@ -16,6 +16,7 @@ export type Input = {
   micromambaVersion: string | undefined
   micromambaUrl: string | undefined
   initShell: ShellType[]
+  generateRunShell: boolean
   postDeinit: boolean
   cacheDownloads: boolean | undefined
   cacheDownloadsKey: string | undefined
@@ -59,6 +60,7 @@ export const parseInputs = (): Input => {
     initShell:
       parseOrUndefined(core.getInput('init-shell') && JSON.parse(core.getInput('init-shell')), z.array(shellSchema)) ||
       [],
+    generateRunShell: z.boolean().parse(JSON.parse(core.getInput('generate-run-shell'))),
     postDeinit: z.boolean().parse(JSON.parse(core.getInput('post-deinit'))),
     cacheDownloads: parseOrUndefined(JSON.parse(core.getInput('cache-downloads')), z.boolean()),
     cacheDownloadsKey: parseOrUndefined(core.getInput('cache-downloads-key'), z.string()),

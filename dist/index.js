@@ -9248,7 +9248,7 @@ var PATHS = {
   micromambaEnvs: path.join(os.homedir(), "debug", "micromamba-root", "envs"),
   bashProfile: path.join(os.homedir(), ".bash_profile"),
   bashrc: path.join(os.homedir(), ".bashrc"),
-  condarc: path.join(os.homedir(), ".condarc")
+  condarc: path.join(os.homedir(), "debug", "micromamba-root", ".condarc")
 };
 var getMicromambaUrl = (arch2, version2) => {
   if (version2 === "latest") {
@@ -12576,6 +12576,7 @@ var parseInputs = () => {
     micromambaUrl: parseOrUndefined(core2.getInput("micromamba-url"), stringType().url()),
     // cacheKey: parseOrUndefined(core.getInput('cache-key'), z.string()),
     initShell: parseOrUndefined(core2.getInput("init-shell") && JSON.parse(core2.getInput("init-shell")), arrayType(shellSchema)) || [],
+    generateRunShell: booleanType().parse(JSON.parse(core2.getInput("generate-run-shell"))),
     postDeinit: booleanType().parse(JSON.parse(core2.getInput("post-deinit"))),
     cacheDownloads: parseOrUndefined(JSON.parse(core2.getInput("cache-downloads")), booleanType()),
     cacheDownloadsKey: parseOrUndefined(core2.getInput("cache-downloads-key"), stringType()),
@@ -12692,12 +12693,14 @@ var generateCondarc = (inputs) => {
     core4.debug(`Using condarc file ${inputs.condarcFile} ...`);
     return fs3.access((0, import_untildify.default)(inputs.condarcFile), fs3.constants.F_OK);
   }
+  core4.debug(`Using ${PATHS.condarc} as condarc file.`);
+  inputs.condarcFile = PATHS.condarc;
   if (inputs.condarc) {
-    core4.info(`Writing condarc contents to ${PATHS.condarc} ...`);
-    return fs3.writeFile(PATHS.condarc, inputs.condarc);
+    core4.info(`Writing condarc contents to ${inputs.condarcFile} ...`);
+    return fs3.writeFile(inputs.condarcFile, inputs.condarc);
   }
   core4.info("Adding conda-forge to condarc channels ...");
-  return fs3.writeFile(PATHS.condarc, "channels:\n  - conda-forge");
+  return fs3.writeFile(inputs.condarcFile, "channels:\n  - conda-forge");
 };
 var createEnvironment = (inputs) => {
   core4.debug(`environmentFile: ${inputs.environmentFile}`);
@@ -12765,12 +12768,16 @@ var generateInfo = (inputs) => {
   }
   return command.finally(core4.endGroup);
 };
-var generateMicromambaCustomShell = (inputs) => {
-  if (os3.platform() === "win32") {
-    core4.info("Skipping micromamba custom shell on Windows");
+var generateMicromambaRunShell = (inputs) => {
+  if (!inputs.generateRunShell) {
+    core4.debug("Skipping micromamba run shell generation.");
     return Promise.resolve();
   }
-  core4.info("Generate micromamba custom shell");
+  if (os3.platform() === "win32") {
+    core4.info("Skipping micromamba run shell on Windows.");
+    return Promise.resolve();
+  }
+  core4.info("Generating micromamba run shell.");
   const micromambaShellFile = fs3.readFile("src/resources/micromamba-shell", { encoding: "utf8" });
   return Promise.all([micromambaShellFile, determineEnvironmentName(inputs)]).then(([fileContents, environmentName]) => {
     const file = fileContents.replace(/\$MAMBA_EXE/g, PATHS.micromambaBin).replace(/\$MAMBA_ROOT_PREFIX/g, PATHS.micromambaRoot).replace(/\$MAMBA_DEFAULT_ENV/g, environmentName);
@@ -12791,7 +12798,7 @@ var run = async () => {
   await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs)));
   if (inputs.createEnvironment) {
     await installEnvironment(inputs);
-    await generateMicromambaCustomShell(inputs);
+    await generateMicromambaRunShell(inputs);
   }
   await generateInfo(inputs);
 };

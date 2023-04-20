@@ -45,12 +45,14 @@ const generateCondarc = (inputs: Input) => {
     core.debug(`Using condarc file ${inputs.condarcFile} ...`)
     return fs.access(untildify(inputs.condarcFile), fs.constants.F_OK)
   }
+  core.debug(`Using ${PATHS.condarc} as condarc file.`)
+  inputs.condarcFile = PATHS.condarc
   if (inputs.condarc) {
-    core.info(`Writing condarc contents to ${PATHS.condarc} ...`)
-    return fs.writeFile(PATHS.condarc, inputs.condarc)
+    core.info(`Writing condarc contents to ${inputs.condarcFile} ...`)
+    return fs.writeFile(inputs.condarcFile, inputs.condarc)
   }
   core.info('Adding conda-forge to condarc channels ...')
-  return fs.writeFile(PATHS.condarc, 'channels:\n  - conda-forge')
+  return fs.writeFile(inputs.condarcFile, 'channels:\n  - conda-forge')
 }
 
 const createEnvironment = (inputs: Input) => {
@@ -128,12 +130,16 @@ const generateInfo = (inputs: Input) => {
   return command.finally(core.endGroup)
 }
 
-const generateMicromambaCustomShell = (inputs: Input) => {
-  if (os.platform() === 'win32') {
-    core.info('Skipping micromamba custom shell on Windows')
+const generateMicromambaRunShell = (inputs: Input) => {
+  if (!inputs.generateRunShell) {
+    core.debug('Skipping micromamba run shell generation.')
     return Promise.resolve()
   }
-  core.info('Generate micromamba custom shell')
+  if (os.platform() === 'win32') {
+    core.info('Skipping micromamba run shell on Windows.')
+    return Promise.resolve()
+  }
+  core.info('Generating micromamba run shell.')
   const micromambaShellFile = fs.readFile('src/resources/micromamba-shell', { encoding: 'utf8' })
   return Promise.all([micromambaShellFile, determineEnvironmentName(inputs)])
     .then(([fileContents, environmentName]) => {
@@ -162,7 +168,7 @@ const run = async () => {
   if (inputs.createEnvironment) {
     await installEnvironment(inputs)
     // TODO: delete micromamba-shell in post step
-    await generateMicromambaCustomShell(inputs)
+    await generateMicromambaRunShell(inputs)
   }
   await generateInfo(inputs)
 }
