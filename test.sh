@@ -24,6 +24,8 @@ export INPUT_CACHE_ENVIRONMENT_KEY=""
 
 if [ $DEBUG -eq 1 ]; then
   node --inspect-brk --enable-source-maps dist/index.js
+  node --inspect-brk --enable-source-maps dist/post.js
 else
   node --enable-source-maps dist/index.js
+  node --enable-source-maps dist/post.js
 fi

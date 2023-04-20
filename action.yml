@@ -1,10 +1,10 @@
 name: setup-micromamba
-description: 'Install micromamba package manager'
+description: 'Install the micromamba package manager'
 author: 'Pavel Zwerschke'
 # TODO branding
 # branding:
-#   icon: "chevrons-right"
-#   color: "green"
+#   icon: 'chevrons-right'
+#   color: 'green'
 inputs:
   condarc-file:
     description: >-
@@ -80,3 +80,4 @@ inputs:
 runs:
   using: 'node16'
   main: 'dist/index.js'
+  post: 'dist/post.js'
