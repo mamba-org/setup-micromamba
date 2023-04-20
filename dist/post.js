@@ -6684,8 +6684,10 @@ var removeRoot = () => {
 };
 var run = async () => {
   const inputs = parseInputs();
-  await removeMicromambaRunShell(inputs);
-  await uninstallEnvironment(inputs);
+  if (inputs.createEnvironment) {
+    await removeMicromambaRunShell(inputs);
+    await uninstallEnvironment(inputs);
+  }
   await removePackages();
   await Promise.all(inputs.initShell.map((shell) => shellDeinit(shell, inputs)));
   await removeRoot();
