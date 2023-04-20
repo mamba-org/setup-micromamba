@@ -14,7 +14,7 @@ const removeMicromambaRunShell = (inputs: Input) => {
     return Promise.resolve()
   }
   core.info('Removing micromamba run shell ...')
-  return fs.unlink(PATHS.micromambaRunShell)
+  return fs.rm(PATHS.micromambaRunShell)
 }
 
 const uninstallEnvironment = (inputs: Input) => {
@@ -22,20 +22,20 @@ const uninstallEnvironment = (inputs: Input) => {
     const envPath = path.join(PATHS.micromambaEnvs, environmentName)
     core.info(`Removing environment ${environmentName} ...`)
     core.debug(`Deleting ${envPath}`)
-    return fs.rmdir(envPath, { recursive: true })
+    return fs.rm(envPath, { recursive: true })
   })
 }
 
 const removePackages = () => {
   core.info('Removing packages ...')
   core.debug(`Deleting ${PATHS.micromambaPkgs}`)
-  return fs.rmdir(PATHS.micromambaPkgs, { recursive: true })
+  return fs.rm(PATHS.micromambaPkgs, { recursive: true })
 }
 
 const removeRoot = () => {
   core.info('Removing micromamba root ...')
   core.debug(`Deleting ${PATHS.micromambaRoot}`)
-  return fs.rmdir(PATHS.micromambaRoot, { recursive: true })
+  return fs.rm(PATHS.micromambaRoot, { recursive: true })
 }
 
 const run = async () => {

@@ -6662,25 +6662,25 @@ var removeMicromambaRunShell = (inputs) => {
     return Promise.resolve();
   }
   core4.info("Removing micromamba run shell ...");
-  return fs3.unlink(PATHS.micromambaRunShell);
+  return fs3.rm(PATHS.micromambaRunShell);
 };
 var uninstallEnvironment = (inputs) => {
   return determineEnvironmentName(inputs.environmentName, inputs.environmentFile).then((environmentName) => {
     const envPath = import_path2.default.join(PATHS.micromambaEnvs, environmentName);
     core4.info(`Removing environment ${environmentName} ...`);
     core4.debug(`Deleting ${envPath}`);
-    return fs3.rmdir(envPath, { recursive: true });
+    return fs3.rm(envPath, { recursive: true });
   });
 };
 var removePackages = () => {
   core4.info("Removing packages ...");
   core4.debug(`Deleting ${PATHS.micromambaPkgs}`);
-  return fs3.rmdir(PATHS.micromambaPkgs, { recursive: true });
+  return fs3.rm(PATHS.micromambaPkgs, { recursive: true });
 };
 var removeRoot = () => {
   core4.info("Removing micromamba root ...");
   core4.debug(`Deleting ${PATHS.micromambaRoot}`);
-  return fs3.rmdir(PATHS.micromambaRoot, { recursive: true });
+  return fs3.rm(PATHS.micromambaRoot, { recursive: true });
 };
 var run = async () => {
   const inputs = parseInputs();
