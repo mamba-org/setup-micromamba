@@ -99,11 +99,11 @@ var require_command = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.issue = exports.issueCommand = void 0;
-    var os3 = __importStar(require("os"));
+    var os4 = __importStar(require("os"));
     var utils_1 = require_utils();
     function issueCommand(command, properties, message) {
       const cmd = new Command(command, properties, message);
-      process.stdout.write(cmd.toString() + os3.EOL);
+      process.stdout.write(cmd.toString() + os4.EOL);
     }
     exports.issueCommand = issueCommand;
     function issue(name, message = "") {
@@ -520,7 +520,7 @@ var require_file_command = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
     var fs4 = __importStar(require("fs"));
-    var os3 = __importStar(require("os"));
+    var os4 = __importStar(require("os"));
     var uuid_1 = (init_esm_node(), __toCommonJS(esm_node_exports));
     var utils_1 = require_utils();
     function issueFileCommand(command, message) {
@@ -531,7 +531,7 @@ var require_file_command = __commonJS({
       if (!fs4.existsSync(filePath)) {
         throw new Error(`Missing file at path: ${filePath}`);
       }
-      fs4.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os3.EOL}`, {
+      fs4.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os4.EOL}`, {
         encoding: "utf8"
       });
     }
@@ -545,7 +545,7 @@ var require_file_command = __commonJS({
       if (convertedValue.includes(delimiter)) {
         throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
       }
-      return `${key}<<${delimiter}${os3.EOL}${convertedValue}${os3.EOL}${delimiter}`;
+      return `${key}<<${delimiter}${os4.EOL}${convertedValue}${os4.EOL}${delimiter}`;
     }
     exports.prepareKeyValueMessage = prepareKeyValueMessage;
   }
@@ -2034,7 +2034,7 @@ var require_core = __commonJS({
     var command_1 = require_command();
     var file_command_1 = require_file_command();
     var utils_1 = require_utils();
-    var os3 = __importStar(require("os"));
+    var os4 = __importStar(require("os"));
     var path4 = __importStar(require("path"));
     var oidc_utils_1 = require_oidc_utils();
     var ExitCode;
@@ -2102,7 +2102,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       if (filePath) {
         return file_command_1.issueFileCommand("OUTPUT", file_command_1.prepareKeyValueMessage(name, value));
       }
-      process.stdout.write(os3.EOL);
+      process.stdout.write(os4.EOL);
       command_1.issueCommand("set-output", { name }, utils_1.toCommandValue(value));
     }
     exports.setOutput = setOutput;
@@ -2136,7 +2136,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     }
     exports.notice = notice;
     function info(message) {
-      process.stdout.write(message + os3.EOL);
+      process.stdout.write(message + os4.EOL);
     }
     exports.info = info;
     function startGroup(name) {
@@ -2691,7 +2691,7 @@ var require_toolrunner = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.argStringToArray = exports.ToolRunner = void 0;
-    var os3 = __importStar(require("os"));
+    var os4 = __importStar(require("os"));
     var events = __importStar(require("events"));
     var child = __importStar(require("child_process"));
     var path4 = __importStar(require("path"));
@@ -2746,12 +2746,12 @@ var require_toolrunner = __commonJS({
       _processLineBuffer(data, strBuffer, onLine) {
         try {
           let s = strBuffer + data.toString();
-          let n = s.indexOf(os3.EOL);
+          let n = s.indexOf(os4.EOL);
           while (n > -1) {
             const line = s.substring(0, n);
             onLine(line);
-            s = s.substring(n + os3.EOL.length);
-            n = s.indexOf(os3.EOL);
+            s = s.substring(n + os4.EOL.length);
+            n = s.indexOf(os4.EOL);
           }
           return s;
         } catch (err) {
@@ -2920,7 +2920,7 @@ var require_toolrunner = __commonJS({
             }
             const optionsNonNull = this._cloneExecOptions(this.options);
             if (!optionsNonNull.silent && optionsNonNull.outStream) {
-              optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os3.EOL);
+              optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os4.EOL);
             }
             const state = new ExecState(optionsNonNull, this.toolPath);
             state.on("debug", (message) => {
@@ -3233,6 +3233,7 @@ var require_exec = __commonJS({
 
 // src/post.ts
 var fs3 = __toESM(require("fs/promises"));
+var os3 = __toESM(require("os"));
 var import_path2 = __toESM(require("path"));
 var coreDefault4 = __toESM(require_core());
 
@@ -6572,7 +6573,7 @@ var PATHS = {
   ),
   micromambaRoot: path.join(os.homedir(), "debug", "micromamba-root"),
   micromambaEnvs: path.join(os.homedir(), "debug", "micromamba-root", "envs"),
-  micromambaPkgs: path.join(os.homedir(), "debug", "micromamba-root", "envs"),
+  micromambaPkgs: path.join(os.homedir(), "debug", "micromamba-root", "pkgs"),
   bashProfile: path.join(os.homedir(), ".bash_profile"),
   bashrc: path.join(os.homedir(), ".bashrc"),
   condarc: path.join(os.homedir(), "debug", "micromamba-root", ".condarc"),
@@ -6658,7 +6659,7 @@ var rcFileDict = {
 // src/post.ts
 var core4 = process.env.MOCKING ? coreMocked : coreDefault4;
 var removeMicromambaRunShell = (inputs) => {
-  if (!inputs.generateRunShell) {
+  if (!inputs.generateRunShell || os3.platform() === "win32") {
     return Promise.resolve();
   }
   core4.info("Removing micromamba run shell ...");
@@ -6675,7 +6676,7 @@ var uninstallEnvironment = (inputs) => {
 var removePackages = () => {
   core4.info("Removing packages ...");
   core4.debug(`Deleting ${PATHS.micromambaPkgs}`);
-  return fs3.rm(PATHS.micromambaPkgs, { recursive: true });
+  return fs3.rm(PATHS.micromambaPkgs, { recursive: true, force: true });
 };
 var removeRoot = () => {
   core4.info("Removing micromamba root ...");

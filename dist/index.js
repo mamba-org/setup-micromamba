@@ -9247,7 +9247,7 @@ var PATHS = {
   ),
   micromambaRoot: path.join(os.homedir(), "debug", "micromamba-root"),
   micromambaEnvs: path.join(os.homedir(), "debug", "micromamba-root", "envs"),
-  micromambaPkgs: path.join(os.homedir(), "debug", "micromamba-root", "envs"),
+  micromambaPkgs: path.join(os.homedir(), "debug", "micromamba-root", "pkgs"),
   bashProfile: path.join(os.homedir(), ".bash_profile"),
   bashrc: path.join(os.homedir(), ".bashrc"),
   condarc: path.join(os.homedir(), "debug", "micromamba-root", ".condarc"),

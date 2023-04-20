@@ -1,4 +1,5 @@
 import * as fs from 'fs/promises'
+import * as os from 'os'
 import path from 'path'
 import * as coreDefault from '@actions/core'
 import { coreMocked } from './mocking'
@@ -10,7 +11,7 @@ import { shellDeinit } from './shell-init'
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
 const removeMicromambaRunShell = (inputs: Input) => {
-  if (!inputs.generateRunShell) {
+  if (!inputs.generateRunShell || os.platform() === 'win32') {
     return Promise.resolve()
   }
   core.info('Removing micromamba run shell ...')
@@ -29,7 +30,8 @@ const uninstallEnvironment = (inputs: Input) => {
 const removePackages = () => {
   core.info('Removing packages ...')
   core.debug(`Deleting ${PATHS.micromambaPkgs}`)
-  return fs.rm(PATHS.micromambaPkgs, { recursive: true })
+  // the folder might not exist if no packages were installed
+  return fs.rm(PATHS.micromambaPkgs, { recursive: true, force: true })
 }
 
 const removeRoot = () => {
