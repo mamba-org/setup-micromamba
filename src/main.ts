@@ -3,7 +3,7 @@ import * as os from 'os'
 import * as coreDefault from '@actions/core'
 import fetch from 'node-fetch'
 import untildify from 'untildify'
-import { PATHS, sha256, getMicromambaUrlFromInputs, micromambaCmd, execute } from './util'
+import { PATHS, sha256, getMicromambaUrlFromInputs, micromambaCmd, execute, determineEnvironmentName } from './util'
 import { coreMocked } from './mocking'
 import { parseInputs, validateInputs } from './inputs'
 import type { Input } from './inputs'
@@ -47,12 +47,16 @@ const generateCondarc = (inputs: Input) => {
   }
   core.debug(`Using ${PATHS.condarc} as condarc file.`)
   inputs.condarcFile = PATHS.condarc
+  const mkDir = fs.mkdir(PATHS.micromambaRoot, { recursive: true })
+  // if we don't put this into a variable, the compiler complains
+  const condarcFile = inputs.condarcFile
   if (inputs.condarc) {
     core.info(`Writing condarc contents to ${inputs.condarcFile} ...`)
-    return fs.writeFile(inputs.condarcFile, inputs.condarc)
+    const condarc = inputs.condarc
+    return mkDir.then(() => fs.writeFile(condarcFile, condarc))
   }
   core.info('Adding conda-forge to condarc channels ...')
-  return fs.writeFile(inputs.condarcFile, 'channels:\n  - conda-forge')
+  return mkDir.then(() => fs.writeFile(condarcFile, 'channels:\n  - conda-forge'))
 }
 
 const createEnvironment = (inputs: Input) => {
@@ -81,32 +85,8 @@ const createEnvironment = (inputs: Input) => {
   return execute(micromambaCmd(commandStr, inputs.logLevel, inputs.condarcFile))
 }
 
-const determineEnvironmentName = (inputs: Input) => {
-  core.debug('Determining environment name from inputs.')
-  if (inputs.environmentName) {
-    core.debug(`Determined environment name: ${inputs.environmentName}`)
-    return Promise.resolve(inputs.environmentName)
-  }
-  if (!inputs.environmentFile) {
-    // This should never happen, because validateInputs should have thrown an error
-    // TODO: make this prettier
-    core.error('No environment name or file specified.')
-    throw new Error()
-  }
-  return fs.readFile(inputs.environmentFile, 'utf8').then((fileContents) => {
-    const environmentName = fileContents.toString().match(/name:\s*(.*)/)?.[1]
-    if (!environmentName) {
-      const errorMessage = `Could not determine environment name from file ${inputs.environmentFile}`
-      core.error(errorMessage)
-      throw new Error(errorMessage)
-    }
-    core.debug(`Determined environment name from file ${inputs.environmentFile}: ${environmentName}`)
-    return environmentName
-  })
-}
-
 const installEnvironment = (inputs: Input) => {
-  return determineEnvironmentName(inputs)
+  return determineEnvironmentName(inputs.environmentName, inputs.environmentFile)
     .then((environmentName) => {
       core.startGroup(`Install environment \`${environmentName}\``)
       return createEnvironment(inputs).then((_exitCode) => environmentName)
@@ -123,7 +103,7 @@ const generateInfo = (inputs: Input) => {
   if (!inputs.createEnvironment) {
     command = execute(micromambaCmd(`info -r ${PATHS.micromambaRoot}`))
   } else {
-    command = determineEnvironmentName(inputs).then((environmentName) =>
+    command = determineEnvironmentName(inputs.environmentName, inputs.environmentFile).then((environmentName) =>
       execute(micromambaCmd(`info -r ${PATHS.micromambaRoot} -n ${environmentName}`))
     )
   }
@@ -147,7 +127,7 @@ const generateMicromambaRunShell = (inputs: Input) => {
         .replace(/\$MAMBA_EXE/g, PATHS.micromambaBin)
         .replace(/\$MAMBA_ROOT_PREFIX/g, PATHS.micromambaRoot)
         .replace(/\$MAMBA_DEFAULT_ENV/g, environmentName)
-      return fs.writeFile('/usr/local/bin/micromamba-shell', file, { encoding: 'utf8', mode: 0o755 })
+      return fs.writeFile(PATHS.micromambaRunShell, file, { encoding: 'utf8', mode: 0o755 })
     })
     .finally(core.endGroup)
 }
