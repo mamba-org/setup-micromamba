@@ -121,7 +121,7 @@ const generateMicromambaRunShell = (inputs: Input) => {
   }
   core.info('Generating micromamba run shell.')
   const micromambaShellFile = fs.readFile('src/resources/micromamba-shell', { encoding: 'utf8' })
-  return Promise.all([micromambaShellFile, determineEnvironmentName(inputs)])
+  return Promise.all([micromambaShellFile, determineEnvironmentName(inputs.environmentName, inputs.environmentFile)])
     .then(([fileContents, environmentName]) => {
       const file = fileContents
         .replace(/\$MAMBA_EXE/g, PATHS.micromambaBin)
@@ -147,7 +147,6 @@ const run = async () => {
   await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs)))
   if (inputs.createEnvironment) {
     await installEnvironment(inputs)
-    // TODO: delete micromamba-shell in post step
     await generateMicromambaRunShell(inputs)
   }
   await generateInfo(inputs)
