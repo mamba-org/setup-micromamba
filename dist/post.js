@@ -6538,6 +6538,7 @@ var inferOptions = (inputs) => {
   const createEnvironment = inputs.createEnvironment || inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
   const logLevel = inputs.logLevel || (core.isDebug() ? "debug" : "info");
   const options = {
+    ...inputs,
     createEnvironment,
     extraSpecs: inputs.extraSpecs || [],
     logLevel,
@@ -6547,8 +6548,7 @@ var inferOptions = (inputs) => {
     generateRunShell: inputs.generateRunShell !== void 0 ? inputs.generateRunShell : createEnvironment,
     cacheDownloads: inputs.cacheDownloads !== void 0 ? inputs.cacheDownloads : true,
     cacheEnvironment: inputs.cacheEnvironment !== void 0 ? inputs.cacheEnvironment : true,
-    postCleanup: inputs.postCleanup || "shell-init",
-    ...inputs
+    postCleanup: inputs.postCleanup || "shell-init"
   };
   return options;
 };

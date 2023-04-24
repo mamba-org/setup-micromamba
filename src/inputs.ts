@@ -76,6 +76,7 @@ const inferOptions = (inputs: Inputs): Options => {
     inputs.createEnvironment || inputs.environmentName !== undefined || inputs.environmentFile !== undefined
   const logLevel = inputs.logLevel || (core.isDebug() ? 'debug' : 'info')
   const options = {
+    ...inputs,
     createEnvironment,
     extraSpecs: inputs.extraSpecs || [],
     logLevel,
@@ -85,7 +86,6 @@ const inferOptions = (inputs: Inputs): Options => {
     cacheDownloads: inputs.cacheDownloads !== undefined ? inputs.cacheDownloads : true,
     cacheEnvironment: inputs.cacheEnvironment !== undefined ? inputs.cacheEnvironment : true,
     postCleanup: inputs.postCleanup || 'shell-init',
-    ...inputs
   }
   return options
 }

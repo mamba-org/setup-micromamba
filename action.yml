@@ -37,11 +37,9 @@ inputs:
     description: >-
       Log level for micromamba.
       One of `'trace'`, `'debug'`, `'info'`, `'warning'`, `'error'`, `'critical'`, `'off'`.
-    default: 'warning'
   micromamba-version:
     description: >-
       Version of micromamba to install.
-    default: 'latest'
   micromamba-url:
     description: >-
       URL to download micromamba from.
@@ -50,21 +48,18 @@ inputs:
       Which shells to initialize micromamba in.
       Array of `"bash"`, `"cmd.exe"`, `"powershell"`.
       Also supports other shells, but they are not tested.
-    default: '["bash"]'
   generate-run-shell:
     description: >-
       Whether to generate a custom shell script that allows to use it in the workflow file using `run: micromamba-shell {0}`
   cache-downloads:
     description: >-
       Whether to cache downloads or not.
-    default: 'true'
   cache-downloads-key:
     description: >-
       Cache key to use for caching.
   cache-environment:
     description: >-
       Whether to cache the environment or not.
-    default: 'true'
   cache-environment-key:
     description: >-
       Cache key to use for caching.
