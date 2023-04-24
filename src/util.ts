@@ -1,3 +1,4 @@
+import * as fs from 'fs/promises'
 import * as path from 'path'
 import * as os from 'os'
 import type { BinaryLike } from 'crypto'
@@ -20,9 +21,11 @@ export const PATHS = {
   ),
   micromambaRoot: path.join(os.homedir(), 'debug', 'micromamba-root'),
   micromambaEnvs: path.join(os.homedir(), 'debug', 'micromamba-root', 'envs'),
+  micromambaPkgs: path.join(os.homedir(), 'debug', 'micromamba-root', 'pkgs'),
   bashProfile: path.join(os.homedir(), '.bash_profile'),
   bashrc: path.join(os.homedir(), '.bashrc'),
-  condarc: path.join(os.homedir(), 'debug', 'micromamba-root', '.condarc')
+  condarc: path.join(os.homedir(), 'debug', 'micromamba-root', '.condarc'),
+  micromambaRunShell: '/usr/local/bin/micromamba-shell'
 }
 
 const getMicromambaUrl = (arch: string, version: string) => {
@@ -46,6 +49,30 @@ const getCondaArch = () => {
     throw new Error(`Unsupported platform: ${os.platform()}-${os.arch()}`)
   }
   return arch
+}
+
+export const determineEnvironmentName = (environmentName?: string, environmentFile?: string) => {
+  core.debug('Determining environment name from inputs.')
+  if (environmentName) {
+    core.debug(`Determined environment name: ${environmentName}`)
+    return Promise.resolve(environmentName)
+  }
+  if (!environmentFile) {
+    // This should never happen, because validateInputs should have thrown an error
+    // TODO: make this prettier
+    core.error('No environment name or file specified.')
+    throw new Error()
+  }
+  return fs.readFile(environmentFile, 'utf8').then((fileContents) => {
+    const environmentName = fileContents.toString().match(/name:\s*(.*)/)?.[1]
+    if (!environmentName) {
+      const errorMessage = `Could not determine environment name from file ${environmentFile}`
+      core.error(errorMessage)
+      throw new Error(errorMessage)
+    }
+    core.debug(`Determined environment name from file ${environmentFile}: ${environmentName}`)
+    return environmentName
+  })
 }
 
 export const mambaRegexBlock =

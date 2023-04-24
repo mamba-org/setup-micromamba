@@ -1,0 +1,59 @@
+name: Test post cleanup
+
+on:
+  pull_request:
+  push:
+    # branches:
+    #   - main
+
+jobs:
+  test-post-cleanup:
+    name: ${{ matrix.post-cleanup }}
+    strategy:
+      matrix:
+        include:
+          - post-cleanup: 'none'
+            mamba-init-block-exists: ''
+            env-exists: ''
+            root-exists: ''
+            binary-exists: ''
+          - post-cleanup: 'shell-init'
+            mamba-init-block-exists: '! '
+            env-exists: ''
+            root-exists: ''
+            binary-exists: ''
+          - post-cleanup: 'environment'
+            mamba-init-block-exists: '! '
+            env-exists: '! '
+            root-exists: ''
+            binary-exists: ''
+          - post-cleanup: 'all'
+            mamba-init-block-exists: '! '
+            env-exists: '! '
+            root-exists: '! '
+            binary-exists: '! '
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      # This is a fork of webiny/action-post-run. If webiny/action-post-run is updated, this should be updated as well.
+      - uses: lisanna-dettwyler/action-post-run@d053b9b43d788b87a409f6cdb3b6fc87c6c8a4fe
+        with:
+          run: |
+            set -euxo pipefail
+            ${{ matrix.mamba-init-block-exists }}grep -F "mamba initialize" ~/.bash_profile
+            ${{ matrix.mamba-init-block-exists }}grep -F "mamba initialize" ~/.bashrc
+            ${{ matrix.env-exists }}test -d ~/debug/micromamba-root/envs/env-name
+            ${{ matrix.root-exists }}test -d ~/debug/micromamba-root
+            ${{ matrix.binary-exists }}test -f ~/debug/micromamba-bin/micromamba
+      - uses: ./
+        with:
+          environment-file: 'test/environment.yml'
+          init-shell: '["bash"]'
+          post-cleanup: ${{ matrix.post-cleanup }}
+      - run: |
+          set -euxo pipefail
+          grep -F "mamba initialize" ~/.bash_profile
+          grep -F "mamba initialize" ~/.bashrc
+          test -d ~/debug/micromamba-root/envs/env-name
+          test -d ~/debug/micromamba-root
+          test -f ~/debug/micromamba-bin/micromamba

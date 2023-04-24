@@ -16,7 +16,7 @@ export INPUT_CREATE_ENVIRONMENT="true"
 export INPUT_CACHE_KEY=""
 export INPUT_INIT_SHELL="[\"bash\"]"
 export INPUT_GENERATE_RUN_SHELL="false"
-export INPUT_POST_DEINIT="true"
+export INPUT_POST_CLEANUP="none"
 export INPUT_CACHE_DOWNLOADS="false"
 export INPUT_CACHE_DOWNLOADS_KEY=""
 export INPUT_CACHE_ENVIRONMENT="false"
@@ -24,6 +24,8 @@ export INPUT_CACHE_ENVIRONMENT_KEY=""
 
 if [ $DEBUG -eq 1 ]; then
   node --inspect-brk --enable-source-maps dist/index.js
+  node --inspect-brk --enable-source-maps dist/post.js
 else
   node --enable-source-maps dist/index.js
+  node --enable-source-maps dist/post.js
 fi
