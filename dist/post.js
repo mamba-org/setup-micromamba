@@ -6590,7 +6590,6 @@ var getOptions = () => {
       unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)])
     ),
     micromambaUrl: parseOrUndefined(core.getInput("micromamba-url"), stringType().url()),
-    cacheKey: parseOrUndefined(core.getInput("cache-key"), stringType()),
     initShell: parseOrUndefinedJSON(core.getInput("init-shell"), arrayType(shellSchema)),
     generateRunShell: parseOrUndefinedJSON(core.getInput("generate-run-shell"), booleanType()),
     cacheDownloads: parseOrUndefinedJSON(core.getInput("cache-downloads"), booleanType()),

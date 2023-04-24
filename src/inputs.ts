@@ -4,7 +4,7 @@ import { coreMocked } from './mocking'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
-type Input = {
+type Inputs = {
   condarcFile?: string
   condarc?: string
   createEnvironment?: boolean
@@ -69,7 +69,7 @@ const parseOrUndefinedJSON = <T>(input: string, schema: z.ZodSchema<T>): T | und
   return schema.parse(JSON.parse(input))
 }
 
-const inferOptions = (inputs: Input): Options => {
+const inferOptions = (inputs: Inputs): Options => {
   const createEnvironment =
     inputs.createEnvironment || inputs.environmentName !== undefined || inputs.environmentFile !== undefined
   const logLevel = inputs.logLevel || (core.isDebug() ? 'debug' : 'info')
@@ -88,7 +88,7 @@ const inferOptions = (inputs: Input): Options => {
   return options
 }
 
-const validateInputs = (inputs: Input): void => {
+const validateInputs = (inputs: Inputs): void => {
   if (inputs.createEnvironment) {
     if (!inputs.environmentFile && !inputs.environmentName) {
       throw new Error('You must specify either an environment file or an environment name to create an environment.')
@@ -118,7 +118,7 @@ const assertOptions = (options: Options) => {
 }
 
 export const getOptions = () => {
-  const inputs = {
+  const inputs: Inputs = {
     condarcFile: parseOrUndefined(core.getInput('condarc-file'), z.string()),
     condarc: parseOrUndefined(core.getInput('condarc'), z.string()),
     environmentFile: parseOrUndefined(core.getInput('environment-file'), z.string()),
@@ -132,7 +132,6 @@ export const getOptions = () => {
       z.union([z.literal('latest'), z.string().regex(/^\d+\.\d+\.\d+-\d+$/)])
     ),
     micromambaUrl: parseOrUndefined(core.getInput('micromamba-url'), z.string().url()),
-    cacheKey: parseOrUndefined(core.getInput('cache-key'), z.string()),
     initShell: parseOrUndefinedJSON(core.getInput('init-shell'), z.array(shellSchema)),
     generateRunShell: parseOrUndefinedJSON(core.getInput('generate-run-shell'), z.boolean()),
     cacheDownloads: parseOrUndefinedJSON(core.getInput('cache-downloads'), z.boolean()),
