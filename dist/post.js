@@ -6520,13 +6520,15 @@ var core = process.env.MOCKING ? coreMocked : coreDefault;
 var postCleanupSchema = enumType(["none", "shell-init", "environment", "all"]);
 var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
 var shellSchema = enumType(["bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
-var parseOrUndefined = (input, schema) => {
+var parseOrUndefined = (key, schema) => {
+  const input = core.getInput(key);
   if (input === "") {
     return void 0;
   }
   return schema.parse(input);
 };
-var parseOrUndefinedJSON = (input, schema) => {
+var parseOrUndefinedJSON = (key, schema) => {
+  const input = core.getInput(key);
   if (input === "") {
     return void 0;
   }
@@ -6577,26 +6579,26 @@ var assertOptions = (options) => {
 };
 var getOptions = () => {
   const inputs = {
-    condarcFile: parseOrUndefined(core.getInput("condarc-file"), stringType()),
-    condarc: parseOrUndefined(core.getInput("condarc"), stringType()),
-    environmentFile: parseOrUndefined(core.getInput("environment-file"), stringType()),
-    environmentName: parseOrUndefined(core.getInput("environment-name"), stringType()),
-    extraSpecs: parseOrUndefinedJSON(core.getInput("extra-specs"), arrayType(stringType())),
-    createArgs: parseOrUndefined(core.getInput("create-args"), stringType()),
-    createEnvironment: parseOrUndefinedJSON(core.getInput("create-environment"), booleanType()),
-    logLevel: parseOrUndefined(core.getInput("log-level"), logLevelSchema),
+    condarcFile: parseOrUndefined("condarc-file", stringType()),
+    condarc: parseOrUndefined("condarc", stringType()),
+    environmentFile: parseOrUndefined("environment-file", stringType()),
+    environmentName: parseOrUndefined("environment-name", stringType()),
+    extraSpecs: parseOrUndefinedJSON("extra-specs", arrayType(stringType())),
+    createArgs: parseOrUndefined("create-args", stringType()),
+    createEnvironment: parseOrUndefinedJSON("create-environment", booleanType()),
+    logLevel: parseOrUndefined("log-level", logLevelSchema),
     micromambaVersion: parseOrUndefined(
-      core.getInput("micromamba-version"),
+      "micromamba-version",
       unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)])
     ),
-    micromambaUrl: parseOrUndefined(core.getInput("micromamba-url"), stringType().url()),
-    initShell: parseOrUndefinedJSON(core.getInput("init-shell"), arrayType(shellSchema)),
-    generateRunShell: parseOrUndefinedJSON(core.getInput("generate-run-shell"), booleanType()),
-    cacheDownloads: parseOrUndefinedJSON(core.getInput("cache-downloads"), booleanType()),
-    cacheDownloadsKey: parseOrUndefined(core.getInput("cache-downloads-key"), stringType()),
-    cacheEnvironment: parseOrUndefinedJSON(core.getInput("cache-environment"), booleanType()),
-    cacheEnvironmentKey: parseOrUndefined(core.getInput("cache-environment-key"), stringType()),
-    postCleanup: parseOrUndefined(core.getInput("post-cleanup"), postCleanupSchema)
+    micromambaUrl: parseOrUndefined("micromamba-url", stringType().url()),
+    initShell: parseOrUndefinedJSON("init-shell", arrayType(shellSchema)),
+    generateRunShell: parseOrUndefinedJSON("generate-run-shell", booleanType()),
+    cacheDownloads: parseOrUndefinedJSON("cache-downloads", booleanType()),
+    cacheDownloadsKey: parseOrUndefined("cache-downloads-key", stringType()),
+    cacheEnvironment: parseOrUndefinedJSON("cache-environment", booleanType()),
+    cacheEnvironmentKey: parseOrUndefined("cache-environment-key", stringType()),
+    postCleanup: parseOrUndefined("post-cleanup", postCleanupSchema)
   };
   core.debug(`Inputs: ${JSON.stringify(inputs)}`);
   validateInputs(inputs);
