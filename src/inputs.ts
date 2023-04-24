@@ -136,10 +136,19 @@ export const getOptions = () => {
       core.getInput('init-shell') && JSON.parse(core.getInput('init-shell')),
       z.array(shellSchema)
     ),
-    generateRunShell: parseOrUndefined(JSON.parse(core.getInput('generate-run-shell')), z.boolean()),
-    cacheDownloads: parseOrUndefined(JSON.parse(core.getInput('cache-downloads')), z.boolean()),
+    generateRunShell: parseOrUndefined(
+      core.getInput('init-shell') || JSON.parse(core.getInput('generate-run-shell')),
+      z.boolean()
+    ),
+    cacheDownloads: parseOrUndefined(
+      core.getInput('cache-downloads') || JSON.parse(core.getInput('cache-downloads')),
+      z.boolean()
+    ),
     cacheDownloadsKey: parseOrUndefined(core.getInput('cache-downloads-key'), z.string()),
-    cacheEnvironment: parseOrUndefined(JSON.parse(core.getInput('cache-environment')), z.boolean()),
+    cacheEnvironment: parseOrUndefined(
+      core.getInput('cache-environment') || JSON.parse(core.getInput('cache-environment')),
+      z.boolean()
+    ),
     cacheEnvironmentKey: parseOrUndefined(core.getInput('cache-environment-key'), z.string()),
     postCleanup: parseOrUndefined(core.getInput('post-cleanup'), postCleanupSchema)
   }

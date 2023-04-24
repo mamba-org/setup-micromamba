@@ -6596,10 +6596,19 @@ var getOptions = () => {
       core.getInput("init-shell") && JSON.parse(core.getInput("init-shell")),
       arrayType(shellSchema)
     ),
-    generateRunShell: parseOrUndefined(JSON.parse(core.getInput("generate-run-shell")), booleanType()),
-    cacheDownloads: parseOrUndefined(JSON.parse(core.getInput("cache-downloads")), booleanType()),
+    generateRunShell: parseOrUndefined(
+      core.getInput("init-shell") || JSON.parse(core.getInput("generate-run-shell")),
+      booleanType()
+    ),
+    cacheDownloads: parseOrUndefined(
+      core.getInput("cache-downloads") || JSON.parse(core.getInput("cache-downloads")),
+      booleanType()
+    ),
     cacheDownloadsKey: parseOrUndefined(core.getInput("cache-downloads-key"), stringType()),
-    cacheEnvironment: parseOrUndefined(JSON.parse(core.getInput("cache-environment")), booleanType()),
+    cacheEnvironment: parseOrUndefined(
+      core.getInput("cache-environment") || JSON.parse(core.getInput("cache-environment")),
+      booleanType()
+    ),
     cacheEnvironmentKey: parseOrUndefined(core.getInput("cache-environment-key"), stringType()),
     postCleanup: parseOrUndefined(core.getInput("post-cleanup"), postCleanupSchema)
   };
