@@ -4,23 +4,43 @@ import { coreMocked } from './mocking'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
-export type Input = {
-  condarcFile: string | undefined
-  condarc: string | undefined
-  environmentFile: string | undefined
-  environmentName: string | undefined
-  extraSpecs: string[] | undefined
-  createArgs: string | undefined
-  createEnvironment: boolean | undefined
+type Input = {
+  condarcFile?: string
+  condarc?: string
+  createEnvironment?: boolean
+  environmentFile?: string
+  environmentName?: string
+  extraSpecs?: string[]
+  createArgs?: string
+  logLevel?: LogLevelType
+  micromambaVersion?: string
+  micromambaUrl?: string
+  initShell?: ShellType[]
+  generateRunShell?: boolean
+  cacheDownloads?: boolean
+  cacheDownloadsKey?: string
+  cacheEnvironment?: boolean
+  cacheEnvironmentKey?: string
+  postCleanup?: PostCleanupType
+}
+
+export type Options = {
+  condarcFile?: string
+  condarc?: string
+  createEnvironment: boolean
+  environmentFile?: string
+  environmentName?: string
+  extraSpecs: string[]
+  createArgs?: string // TODO: is this needed?
   logLevel: LogLevelType
-  micromambaVersion: string | undefined
-  micromambaUrl: string | undefined
+  micromambaVersion: string
+  micromambaUrl?: string
   initShell: ShellType[]
   generateRunShell: boolean
-  cacheDownloads: boolean | undefined
-  cacheDownloadsKey: string | undefined
-  cacheEnvironment: boolean | undefined
-  cacheEnvironmentKey: string | undefined
+  cacheDownloads: boolean
+  cacheDownloadsKey?: string
+  cacheEnvironment: boolean
+  cacheEnvironmentKey?: string
   postCleanup: PostCleanupType
 }
 
@@ -41,49 +61,33 @@ const parseOrUndefined = <T>(input: string, schema: z.ZodSchema<T>): T | undefin
   return schema.parse(input)
 }
 
-export const parseInputs = (): Input => {
-  const inputs = {
-    // TODO: parseOrUndefined is not needed everywhere
-    condarcFile: parseOrUndefined(core.getInput('condarc-file'), z.string()),
-    condarc: parseOrUndefined(core.getInput('condarc'), z.string()),
-    environmentFile: parseOrUndefined(core.getInput('environment-file'), z.string()),
-    environmentName: parseOrUndefined(core.getInput('environment-name'), z.string()),
-    extraSpecs: parseOrUndefined(
-      core.getInput('extra-specs') && JSON.parse(core.getInput('extra-specs')),
-      z.array(z.string())
-    ),
-    createArgs: parseOrUndefined(core.getInput('create-args'), z.string()),
-    createEnvironment: parseOrUndefined(JSON.parse(core.getInput('create-environment')), z.boolean()),
-    logLevel: logLevelSchema.parse(core.getInput('log-level')),
-    micromambaVersion: parseOrUndefined(
-      core.getInput('micromamba-version'),
-      z.union([z.literal('latest'), z.string().regex(/^\d+\.\d+\.\d+-\d+$/)])
-    ),
-    micromambaUrl: parseOrUndefined(core.getInput('micromamba-url'), z.string().url()),
-    // cacheKey: parseOrUndefined(core.getInput('cache-key'), z.string()),
-    initShell:
-      parseOrUndefined(core.getInput('init-shell') && JSON.parse(core.getInput('init-shell')), z.array(shellSchema)) ||
-      [],
-    generateRunShell: z.boolean().parse(JSON.parse(core.getInput('generate-run-shell'))),
-    cacheDownloads: parseOrUndefined(JSON.parse(core.getInput('cache-downloads')), z.boolean()),
-    cacheDownloadsKey: parseOrUndefined(core.getInput('cache-downloads-key'), z.string()),
-    cacheEnvironment: parseOrUndefined(JSON.parse(core.getInput('cache-environment')), z.boolean()),
-    cacheEnvironmentKey: parseOrUndefined(core.getInput('cache-environment-key'), z.string()),
-    postCleanup: parseOrUndefined(core.getInput('post-cleanup'), postCleanupSchema) || 'all'
+const inferOptions = (inputs: Input): Options => {
+  const createEnvironment =
+    inputs.createEnvironment || inputs.environmentName !== undefined || inputs.environmentFile !== undefined
+  const logLevel = inputs.logLevel || (core.isDebug() ? 'debug' : 'info')
+  const options = {
+    createEnvironment,
+    extraSpecs: inputs.extraSpecs || [],
+    logLevel,
+    micromambaVersion: inputs.micromambaVersion || 'latest', // if micromambaUrl is set, this is ignored
+    initShell: inputs.initShell || ['bash'],
+    generateRunShell: inputs.generateRunShell !== undefined ? inputs.generateRunShell : createEnvironment,
+    cacheDownloads: inputs.cacheDownloads !== undefined ? inputs.cacheDownloads : true,
+    cacheEnvironment: inputs.cacheEnvironment !== undefined ? inputs.cacheEnvironment : true,
+    postCleanup: inputs.postCleanup || 'shell-init',
+    ...inputs
   }
-  return inputs
+  return options
 }
 
-export const validateInputs = (inputs: Input): void => {
+const validateInputs = (inputs: Input): void => {
   if (inputs.createEnvironment) {
-    if (!inputs.environmentFile && (!inputs.environmentName || !inputs.extraSpecs)) {
-      throw new Error(
-        'You must specify either an environment file or an environment name and extra specs to create an environment.'
-      )
+    if (!inputs.environmentFile && !inputs.environmentName) {
+      throw new Error('You must specify either an environment file or an environment name to create an environment.')
     }
   }
-  if (inputs.generateRunShell && !inputs.createEnvironment) {
-    throw new Error('You must create an environment to use generate-run-shell: true.')
+  if (inputs.generateRunShell && !(inputs.createEnvironment === false)) {
+    throw new Error('You must not create an environment to use generate-run-shell.')
   }
   if (!inputs.createEnvironment && inputs.postCleanup === 'environment') {
     throw new Error("You must create an environment to use post-cleanup: 'environment'.")
@@ -91,4 +95,58 @@ export const validateInputs = (inputs: Input): void => {
   if (inputs.condarcFile && inputs.condarc) {
     throw new Error('You must specify either a condarc file or a condarc string, not both.')
   }
+}
+
+const assertOptions = (options: Options) => {
+  const assert = (condition: boolean, message?: string) => {
+    if (!condition) {
+      throw new Error(message)
+    }
+  }
+  // generate-run-shell => create-env
+  assert(!options.generateRunShell || options.createEnvironment)
+  // create-env => env-file or env-name specified
+  assert(!options.createEnvironment || options.environmentFile !== undefined || options.environmentName !== undefined)
+}
+
+export const getOptions = () => {
+  const inputs = {
+    condarcFile: parseOrUndefined(core.getInput('condarc-file'), z.string()),
+    condarc: parseOrUndefined(core.getInput('condarc'), z.string()),
+    environmentFile: parseOrUndefined(core.getInput('environment-file'), z.string()),
+    environmentName: parseOrUndefined(core.getInput('environment-name'), z.string()),
+    extraSpecs: parseOrUndefined(
+      // either empty string or JSON array
+      core.getInput('extra-specs') && JSON.parse(core.getInput('extra-specs')),
+      z.array(z.string())
+    ),
+    createArgs: parseOrUndefined(core.getInput('create-args'), z.string()),
+    createEnvironment: parseOrUndefined(
+      core.getInput('create-environment') && JSON.parse(core.getInput('create-environment')),
+      z.boolean()
+    ),
+    logLevel: logLevelSchema.parse(core.getInput('log-level')),
+    micromambaVersion: parseOrUndefined(
+      core.getInput('micromamba-version'),
+      z.union([z.literal('latest'), z.string().regex(/^\d+\.\d+\.\d+-\d+$/)])
+    ),
+    micromambaUrl: parseOrUndefined(core.getInput('micromamba-url'), z.string().url()),
+    cacheKey: parseOrUndefined(core.getInput('cache-key'), z.string()),
+    initShell: parseOrUndefined(
+      core.getInput('init-shell') && JSON.parse(core.getInput('init-shell')),
+      z.array(shellSchema)
+    ),
+    generateRunShell: parseOrUndefined(JSON.parse(core.getInput('generate-run-shell')), z.boolean()),
+    cacheDownloads: parseOrUndefined(JSON.parse(core.getInput('cache-downloads')), z.boolean()),
+    cacheDownloadsKey: parseOrUndefined(core.getInput('cache-downloads-key'), z.string()),
+    cacheEnvironment: parseOrUndefined(JSON.parse(core.getInput('cache-environment')), z.boolean()),
+    cacheEnvironmentKey: parseOrUndefined(core.getInput('cache-environment-key'), z.string()),
+    postCleanup: parseOrUndefined(core.getInput('post-cleanup'), postCleanupSchema)
+  }
+  core.debug(`Inputs: ${JSON.stringify(inputs)}`)
+  validateInputs(inputs)
+  const options = inferOptions(inputs)
+  core.debug(`Inferred options: ${JSON.stringify(options)}`)
+  assertOptions(options)
+  return options
 }

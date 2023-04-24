@@ -9231,7 +9231,8 @@ var coreMocked = {
   // red "E"
   startGroup: (label) => console.group(`\x1B[47m\x1B[30m \u25BC \x1B[39m\x1B[49m ` + label),
   // white "▼"
-  endGroup: () => console.groupEnd()
+  endGroup: () => console.groupEnd(),
+  isDebug: () => true
 };
 
 // src/util.ts
@@ -9296,7 +9297,7 @@ var determineEnvironmentName = (environmentName, environmentFile) => {
   });
 };
 var mambaRegexBlock = /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/;
-var getMicromambaUrlFromInputs = (micromambaUrl, micromambaVersion) => {
+var getMicromambaUrlFromInputs = (micromambaVersion, micromambaUrl) => {
   if (micromambaUrl) {
     return micromambaUrl;
   }
@@ -12580,46 +12581,32 @@ var parseOrUndefined = (input, schema) => {
   }
   return schema.parse(input);
 };
-var parseInputs = () => {
-  const inputs = {
-    // TODO: parseOrUndefined is not needed everywhere
-    condarcFile: parseOrUndefined(core2.getInput("condarc-file"), stringType()),
-    condarc: parseOrUndefined(core2.getInput("condarc"), stringType()),
-    environmentFile: parseOrUndefined(core2.getInput("environment-file"), stringType()),
-    environmentName: parseOrUndefined(core2.getInput("environment-name"), stringType()),
-    extraSpecs: parseOrUndefined(
-      core2.getInput("extra-specs") && JSON.parse(core2.getInput("extra-specs")),
-      arrayType(stringType())
-    ),
-    createArgs: parseOrUndefined(core2.getInput("create-args"), stringType()),
-    createEnvironment: parseOrUndefined(JSON.parse(core2.getInput("create-environment")), booleanType()),
-    logLevel: logLevelSchema.parse(core2.getInput("log-level")),
-    micromambaVersion: parseOrUndefined(
-      core2.getInput("micromamba-version"),
-      unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)])
-    ),
-    micromambaUrl: parseOrUndefined(core2.getInput("micromamba-url"), stringType().url()),
-    // cacheKey: parseOrUndefined(core.getInput('cache-key'), z.string()),
-    initShell: parseOrUndefined(core2.getInput("init-shell") && JSON.parse(core2.getInput("init-shell")), arrayType(shellSchema)) || [],
-    generateRunShell: booleanType().parse(JSON.parse(core2.getInput("generate-run-shell"))),
-    cacheDownloads: parseOrUndefined(JSON.parse(core2.getInput("cache-downloads")), booleanType()),
-    cacheDownloadsKey: parseOrUndefined(core2.getInput("cache-downloads-key"), stringType()),
-    cacheEnvironment: parseOrUndefined(JSON.parse(core2.getInput("cache-environment")), booleanType()),
-    cacheEnvironmentKey: parseOrUndefined(core2.getInput("cache-environment-key"), stringType()),
-    postCleanup: parseOrUndefined(core2.getInput("post-cleanup"), postCleanupSchema) || "all"
+var inferOptions = (inputs) => {
+  const createEnvironment2 = inputs.createEnvironment || inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
+  const logLevel = inputs.logLevel || (core2.isDebug() ? "debug" : "info");
+  const options = {
+    createEnvironment: createEnvironment2,
+    extraSpecs: inputs.extraSpecs || [],
+    logLevel,
+    micromambaVersion: inputs.micromambaVersion || "latest",
+    // if micromambaUrl is set, this is ignored
+    initShell: inputs.initShell || ["bash"],
+    generateRunShell: inputs.generateRunShell !== void 0 ? inputs.generateRunShell : createEnvironment2,
+    cacheDownloads: inputs.cacheDownloads !== void 0 ? inputs.cacheDownloads : true,
+    cacheEnvironment: inputs.cacheEnvironment !== void 0 ? inputs.cacheEnvironment : true,
+    postCleanup: inputs.postCleanup || "shell-init",
+    ...inputs
   };
-  return inputs;
+  return options;
 };
 var validateInputs = (inputs) => {
   if (inputs.createEnvironment) {
-    if (!inputs.environmentFile && (!inputs.environmentName || !inputs.extraSpecs)) {
-      throw new Error(
-        "You must specify either an environment file or an environment name and extra specs to create an environment."
-      );
+    if (!inputs.environmentFile && !inputs.environmentName) {
+      throw new Error("You must specify either an environment file or an environment name to create an environment.");
     }
   }
-  if (inputs.generateRunShell && !inputs.createEnvironment) {
-    throw new Error("You must create an environment to use generate-run-shell: true.");
+  if (inputs.generateRunShell && !(inputs.createEnvironment === false)) {
+    throw new Error("You must not create an environment to use generate-run-shell.");
   }
   if (!inputs.createEnvironment && inputs.postCleanup === "environment") {
     throw new Error("You must create an environment to use post-cleanup: 'environment'.");
@@ -12627,6 +12614,56 @@ var validateInputs = (inputs) => {
   if (inputs.condarcFile && inputs.condarc) {
     throw new Error("You must specify either a condarc file or a condarc string, not both.");
   }
+};
+var assertOptions = (options) => {
+  const assert = (condition, message) => {
+    if (!condition) {
+      throw new Error(message);
+    }
+  };
+  assert(!options.generateRunShell || options.createEnvironment);
+  assert(!options.createEnvironment || options.environmentFile !== void 0 || options.environmentName !== void 0);
+};
+var getOptions = () => {
+  const inputs = {
+    condarcFile: parseOrUndefined(core2.getInput("condarc-file"), stringType()),
+    condarc: parseOrUndefined(core2.getInput("condarc"), stringType()),
+    environmentFile: parseOrUndefined(core2.getInput("environment-file"), stringType()),
+    environmentName: parseOrUndefined(core2.getInput("environment-name"), stringType()),
+    extraSpecs: parseOrUndefined(
+      // either empty string or JSON array
+      core2.getInput("extra-specs") && JSON.parse(core2.getInput("extra-specs")),
+      arrayType(stringType())
+    ),
+    createArgs: parseOrUndefined(core2.getInput("create-args"), stringType()),
+    createEnvironment: parseOrUndefined(
+      core2.getInput("create-environment") && JSON.parse(core2.getInput("create-environment")),
+      booleanType()
+    ),
+    logLevel: logLevelSchema.parse(core2.getInput("log-level")),
+    micromambaVersion: parseOrUndefined(
+      core2.getInput("micromamba-version"),
+      unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)])
+    ),
+    micromambaUrl: parseOrUndefined(core2.getInput("micromamba-url"), stringType().url()),
+    cacheKey: parseOrUndefined(core2.getInput("cache-key"), stringType()),
+    initShell: parseOrUndefined(
+      core2.getInput("init-shell") && JSON.parse(core2.getInput("init-shell")),
+      arrayType(shellSchema)
+    ),
+    generateRunShell: parseOrUndefined(JSON.parse(core2.getInput("generate-run-shell")), booleanType()),
+    cacheDownloads: parseOrUndefined(JSON.parse(core2.getInput("cache-downloads")), booleanType()),
+    cacheDownloadsKey: parseOrUndefined(core2.getInput("cache-downloads-key"), stringType()),
+    cacheEnvironment: parseOrUndefined(JSON.parse(core2.getInput("cache-environment")), booleanType()),
+    cacheEnvironmentKey: parseOrUndefined(core2.getInput("cache-environment-key"), stringType()),
+    postCleanup: parseOrUndefined(core2.getInput("post-cleanup"), postCleanupSchema)
+  };
+  core2.debug(`Inputs: ${JSON.stringify(inputs)}`);
+  validateInputs(inputs);
+  const options = inferOptions(inputs);
+  core2.debug(`Inferred options: ${JSON.stringify(options)}`);
+  assertOptions(options);
+  return options;
 };
 
 // src/shell-init.ts
@@ -12646,11 +12683,11 @@ var copyMambaInitBlockToBashProfile = () => {
     return fs3.appendFile(PATHS.bashProfile, matches[0]);
   });
 };
-var shellInit = (shell, inputs) => {
+var shellInit = (shell, options) => {
   core3.startGroup(`Initialize micromamba for ${shell}.`);
   const command = execute(
     // it should be -r instead of -p, see https://github.com/mamba-org/mamba/issues/2442
-    micromambaCmd(`shell init -s ${shell} -p ${PATHS.micromambaRoot}`, inputs.logLevel, inputs.condarcFile)
+    micromambaCmd(`shell init -s ${shell} -p ${PATHS.micromambaRoot}`, options.logLevel, options.condarcFile)
   );
   if (os2.platform() === "linux" && shell === "bash") {
     return command.then(copyMambaInitBlockToBashProfile).finally(core3.endGroup);
@@ -12720,70 +12757,70 @@ var downloadMicromamba = (url) => {
     throw err;
   }).finally(core4.endGroup);
 };
-var generateCondarc = (inputs) => {
-  if (inputs.condarcFile) {
-    core4.debug(`Using condarc file ${inputs.condarcFile} ...`);
-    return fs4.access((0, import_untildify.default)(inputs.condarcFile), fs4.constants.F_OK);
+var generateCondarc = (options) => {
+  if (options.condarcFile) {
+    core4.debug(`Using condarc file ${options.condarcFile} ...`);
+    return fs4.access((0, import_untildify.default)(options.condarcFile), fs4.constants.F_OK);
   }
   core4.debug(`Using ${PATHS.condarc} as condarc file.`);
-  inputs.condarcFile = PATHS.condarc;
+  options.condarcFile = PATHS.condarc;
   const mkDir = fs4.mkdir(PATHS.micromambaRoot, { recursive: true });
-  const condarcFile = inputs.condarcFile;
-  if (inputs.condarc) {
-    core4.info(`Writing condarc contents to ${inputs.condarcFile} ...`);
-    const condarc = inputs.condarc;
+  const condarcFile = options.condarcFile;
+  if (options.condarc) {
+    core4.info(`Writing condarc contents to ${options.condarcFile} ...`);
+    const condarc = options.condarc;
     return mkDir.then(() => fs4.writeFile(condarcFile, condarc));
   }
   core4.info("Adding conda-forge to condarc channels ...");
   return mkDir.then(() => fs4.writeFile(condarcFile, "channels:\n  - conda-forge"));
 };
-var createEnvironment = (inputs) => {
-  core4.debug(`environmentFile: ${inputs.environmentFile}`);
-  core4.debug(`environmentName: ${inputs.environmentName}`);
-  core4.debug(`extraSpecs: ${inputs.extraSpecs}`);
-  core4.debug(`createArgs: ${inputs.createArgs}`);
-  core4.debug(`condarcFile: ${inputs.condarcFile}`);
+var createEnvironment = (options) => {
+  core4.debug(`environmentFile: ${options.environmentFile}`);
+  core4.debug(`environmentName: ${options.environmentName}`);
+  core4.debug(`extraSpecs: ${options.extraSpecs}`);
+  core4.debug(`createArgs: ${options.createArgs}`);
+  core4.debug(`condarcFile: ${options.condarcFile}`);
   let commandStr = `create -y -r ${PATHS.micromambaRoot}`;
-  if (inputs.environmentFile) {
-    commandStr += ` -f ${inputs.environmentFile}`;
+  if (options.environmentFile) {
+    commandStr += ` -f ${options.environmentFile}`;
   }
-  if (inputs.environmentName) {
-    commandStr += ` -n ${inputs.environmentName}`;
+  if (options.environmentName) {
+    commandStr += ` -n ${options.environmentName}`;
   }
-  if (inputs.extraSpecs) {
-    console.log(`EXTRASPECS ${inputs.extraSpecs}`);
-    commandStr += ` ${inputs.extraSpecs.join(" ")}`;
+  if (options.extraSpecs) {
+    console.log(`EXTRASPECS ${options.extraSpecs}`);
+    commandStr += ` ${options.extraSpecs.join(" ")}`;
   }
-  if (inputs.createArgs) {
-    commandStr += ` ${inputs.createArgs}`;
+  if (options.createArgs) {
+    commandStr += ` ${options.createArgs}`;
   }
-  if (inputs.condarcFile) {
-    commandStr += ` --rc-file ${inputs.condarcFile}`;
+  if (options.condarcFile) {
+    commandStr += ` --rc-file ${options.condarcFile}`;
   }
-  return execute(micromambaCmd(commandStr, inputs.logLevel, inputs.condarcFile));
+  return execute(micromambaCmd(commandStr, options.logLevel, options.condarcFile));
 };
-var installEnvironment = (inputs) => {
-  return determineEnvironmentName(inputs.environmentName, inputs.environmentFile).then((environmentName) => {
+var installEnvironment = (options) => {
+  return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
     core4.startGroup(`Install environment \`${environmentName}\``);
-    return createEnvironment(inputs).then((_exitCode) => environmentName);
+    return createEnvironment(options).then((_exitCode) => environmentName);
   }).then((environmentName) => {
-    return Promise.all(inputs.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)));
+    return Promise.all(options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)));
   }).finally(core4.endGroup);
 };
-var generateInfo = (inputs) => {
+var generateInfo = (options) => {
   core4.startGroup("micromamba info");
   let command;
-  if (!inputs.createEnvironment) {
+  if (!options.createEnvironment) {
     command = execute(micromambaCmd(`info -r ${PATHS.micromambaRoot}`));
   } else {
-    command = determineEnvironmentName(inputs.environmentName, inputs.environmentFile).then(
+    command = determineEnvironmentName(options.environmentName, options.environmentFile).then(
       (environmentName) => execute(micromambaCmd(`info -r ${PATHS.micromambaRoot} -n ${environmentName}`))
     );
   }
   return command.finally(core4.endGroup);
 };
-var generateMicromambaRunShell = (inputs) => {
-  if (!inputs.generateRunShell) {
+var generateMicromambaRunShell = (options) => {
+  if (!options.generateRunShell) {
     core4.debug("Skipping micromamba run shell generation.");
     return Promise.resolve();
   }
@@ -12793,7 +12830,7 @@ var generateMicromambaRunShell = (inputs) => {
   }
   core4.info("Generating micromamba run shell.");
   const micromambaShellFile = fs4.readFile("src/resources/micromamba-shell", { encoding: "utf8" });
-  return Promise.all([micromambaShellFile, determineEnvironmentName(inputs.environmentName, inputs.environmentFile)]).then(([fileContents, environmentName]) => {
+  return Promise.all([micromambaShellFile, determineEnvironmentName(options.environmentName, options.environmentName)]).then(([fileContents, environmentName]) => {
     const file = fileContents.replace(/\$MAMBA_EXE/g, PATHS.micromambaBin).replace(/\$MAMBA_ROOT_PREFIX/g, PATHS.micromambaRoot).replace(/\$MAMBA_DEFAULT_ENV/g, environmentName);
     return fs4.writeFile(PATHS.micromambaRunShell, file, { encoding: "utf8", mode: 493 });
   }).finally(core4.endGroup);
@@ -12803,18 +12840,16 @@ var run = async () => {
   core4.debug(`os.homedir(): ${os3.homedir()}`);
   core4.debug(`bashProfile ${PATHS.bashProfile}`);
   core4.debug(core4.getInput("extra-specs"));
-  const inputs = parseInputs();
-  core4.debug(`Parsed inputs: ${JSON.stringify(inputs, null, 2)}`);
-  validateInputs(inputs);
-  const url = getMicromambaUrlFromInputs(inputs.micromambaUrl, inputs.micromambaVersion);
+  const options = getOptions();
+  const url = getMicromambaUrlFromInputs(options.micromambaVersion, options.micromambaUrl);
   await downloadMicromamba(url);
-  await generateCondarc(inputs);
-  await Promise.all(inputs.initShell.map((shell) => shellInit(shell, inputs)));
-  if (inputs.createEnvironment) {
-    await installEnvironment(inputs);
-    await generateMicromambaRunShell(inputs);
+  await generateCondarc(options);
+  await Promise.all(options.initShell.map((shell) => shellInit(shell, options)));
+  if (options.createEnvironment) {
+    await installEnvironment(options);
+    await generateMicromambaRunShell(options);
   }
-  await generateInfo(inputs);
+  await generateInfo(options);
 };
 run();
 /*! Bundled license information:

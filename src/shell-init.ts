@@ -4,7 +4,7 @@ import path from 'path'
 import * as coreDefault from '@actions/core'
 import { coreMocked } from './mocking'
 import { PATHS, execute, mambaRegexBlock, micromambaCmd } from './util'
-import type { Input, ShellType } from './inputs'
+import type { Options, ShellType } from './inputs'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -35,11 +35,11 @@ const removeMambaInitBlockFromBashProfile = () => {
   })
 }
 
-export const shellInit = (shell: string, inputs: Input) => {
+export const shellInit = (shell: string, options: Options) => {
   core.startGroup(`Initialize micromamba for ${shell}.`)
   const command = execute(
     // it should be -r instead of -p, see https://github.com/mamba-org/mamba/issues/2442
-    micromambaCmd(`shell init -s ${shell} -p ${PATHS.micromambaRoot}`, inputs.logLevel, inputs.condarcFile)
+    micromambaCmd(`shell init -s ${shell} -p ${PATHS.micromambaRoot}`, options.logLevel, options.condarcFile)
   )
   if (os.platform() === 'linux' && shell === 'bash') {
     return command.then(copyMambaInitBlockToBashProfile).finally(core.endGroup)
@@ -47,11 +47,11 @@ export const shellInit = (shell: string, inputs: Input) => {
   return command.finally(core.endGroup)
 }
 
-export const shellDeinit = (shell: string, inputs: Input) => {
+export const shellDeinit = (shell: string, options: Options) => {
   core.startGroup(`Deinitialize micromamba for ${shell}`)
   const command = execute(
     // it should be -r instead of -p, see https://github.com/mamba-org/mamba/issues/2442
-    micromambaCmd(`shell deinit -s ${shell} -p ${PATHS.micromambaRoot}`, inputs.logLevel, inputs.condarcFile)
+    micromambaCmd(`shell deinit -s ${shell} -p ${PATHS.micromambaRoot}`, options.logLevel, options.condarcFile)
   )
   if (os.platform() === 'linux' && shell === 'bash') {
     return command.then(removeMambaInitBlockFromBashProfile).finally(core.endGroup)

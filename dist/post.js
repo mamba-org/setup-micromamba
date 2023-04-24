@@ -3266,7 +3266,8 @@ var coreMocked = {
   // red "E"
   startGroup: (label) => console.group(`\x1B[47m\x1B[30m \u25BC \x1B[39m\x1B[49m ` + label),
   // white "▼"
-  endGroup: () => console.groupEnd()
+  endGroup: () => console.groupEnd(),
+  isDebug: () => true
 };
 
 // src/inputs.ts
@@ -6525,35 +6526,89 @@ var parseOrUndefined = (input, schema) => {
   }
   return schema.parse(input);
 };
-var parseInputs = () => {
+var inferOptions = (inputs) => {
+  const createEnvironment = inputs.createEnvironment || inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
+  const logLevel = inputs.logLevel || (core.isDebug() ? "debug" : "info");
+  const options = {
+    createEnvironment,
+    extraSpecs: inputs.extraSpecs || [],
+    logLevel,
+    micromambaVersion: inputs.micromambaVersion || "latest",
+    // if micromambaUrl is set, this is ignored
+    initShell: inputs.initShell || ["bash"],
+    generateRunShell: inputs.generateRunShell !== void 0 ? inputs.generateRunShell : createEnvironment,
+    cacheDownloads: inputs.cacheDownloads !== void 0 ? inputs.cacheDownloads : true,
+    cacheEnvironment: inputs.cacheEnvironment !== void 0 ? inputs.cacheEnvironment : true,
+    postCleanup: inputs.postCleanup || "shell-init",
+    ...inputs
+  };
+  return options;
+};
+var validateInputs = (inputs) => {
+  if (inputs.createEnvironment) {
+    if (!inputs.environmentFile && !inputs.environmentName) {
+      throw new Error("You must specify either an environment file or an environment name to create an environment.");
+    }
+  }
+  if (inputs.generateRunShell && !(inputs.createEnvironment === false)) {
+    throw new Error("You must not create an environment to use generate-run-shell.");
+  }
+  if (!inputs.createEnvironment && inputs.postCleanup === "environment") {
+    throw new Error("You must create an environment to use post-cleanup: 'environment'.");
+  }
+  if (inputs.condarcFile && inputs.condarc) {
+    throw new Error("You must specify either a condarc file or a condarc string, not both.");
+  }
+};
+var assertOptions = (options) => {
+  const assert = (condition, message) => {
+    if (!condition) {
+      throw new Error(message);
+    }
+  };
+  assert(!options.generateRunShell || options.createEnvironment);
+  assert(!options.createEnvironment || options.environmentFile !== void 0 || options.environmentName !== void 0);
+};
+var getOptions = () => {
   const inputs = {
-    // TODO: parseOrUndefined is not needed everywhere
     condarcFile: parseOrUndefined(core.getInput("condarc-file"), stringType()),
     condarc: parseOrUndefined(core.getInput("condarc"), stringType()),
     environmentFile: parseOrUndefined(core.getInput("environment-file"), stringType()),
     environmentName: parseOrUndefined(core.getInput("environment-name"), stringType()),
     extraSpecs: parseOrUndefined(
+      // either empty string or JSON array
       core.getInput("extra-specs") && JSON.parse(core.getInput("extra-specs")),
       arrayType(stringType())
     ),
     createArgs: parseOrUndefined(core.getInput("create-args"), stringType()),
-    createEnvironment: parseOrUndefined(JSON.parse(core.getInput("create-environment")), booleanType()),
+    createEnvironment: parseOrUndefined(
+      core.getInput("create-environment") && JSON.parse(core.getInput("create-environment")),
+      booleanType()
+    ),
     logLevel: logLevelSchema.parse(core.getInput("log-level")),
     micromambaVersion: parseOrUndefined(
       core.getInput("micromamba-version"),
       unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)])
     ),
     micromambaUrl: parseOrUndefined(core.getInput("micromamba-url"), stringType().url()),
-    // cacheKey: parseOrUndefined(core.getInput('cache-key'), z.string()),
-    initShell: parseOrUndefined(core.getInput("init-shell") && JSON.parse(core.getInput("init-shell")), arrayType(shellSchema)) || [],
-    generateRunShell: booleanType().parse(JSON.parse(core.getInput("generate-run-shell"))),
+    cacheKey: parseOrUndefined(core.getInput("cache-key"), stringType()),
+    initShell: parseOrUndefined(
+      core.getInput("init-shell") && JSON.parse(core.getInput("init-shell")),
+      arrayType(shellSchema)
+    ),
+    generateRunShell: parseOrUndefined(JSON.parse(core.getInput("generate-run-shell")), booleanType()),
     cacheDownloads: parseOrUndefined(JSON.parse(core.getInput("cache-downloads")), booleanType()),
     cacheDownloadsKey: parseOrUndefined(core.getInput("cache-downloads-key"), stringType()),
     cacheEnvironment: parseOrUndefined(JSON.parse(core.getInput("cache-environment")), booleanType()),
     cacheEnvironmentKey: parseOrUndefined(core.getInput("cache-environment-key"), stringType()),
-    postCleanup: parseOrUndefined(core.getInput("post-cleanup"), postCleanupSchema) || "all"
+    postCleanup: parseOrUndefined(core.getInput("post-cleanup"), postCleanupSchema)
   };
-  return inputs;
+  core.debug(`Inputs: ${JSON.stringify(inputs)}`);
+  validateInputs(inputs);
+  const options = inferOptions(inputs);
+  core.debug(`Inferred options: ${JSON.stringify(options)}`);
+  assertOptions(options);
+  return options;
 };
 
 // src/util.ts
@@ -6634,11 +6689,11 @@ var removeMambaInitBlockFromBashProfile = () => {
     return fs2.writeFile(PATHS.bashProfile, bashProfile.replace(mambaRegexBlock, ""));
   });
 };
-var shellDeinit = (shell, inputs) => {
+var shellDeinit = (shell, options) => {
   core3.startGroup(`Deinitialize micromamba for ${shell}`);
   const command = execute(
     // it should be -r instead of -p, see https://github.com/mamba-org/mamba/issues/2442
-    micromambaCmd(`shell deinit -s ${shell} -p ${PATHS.micromambaRoot}`, inputs.logLevel, inputs.condarcFile)
+    micromambaCmd(`shell deinit -s ${shell} -p ${PATHS.micromambaRoot}`, options.logLevel, options.condarcFile)
   );
   if (os2.platform() === "linux" && shell === "bash") {
     return command.then(removeMambaInitBlockFromBashProfile).finally(core3.endGroup);
@@ -6684,31 +6739,31 @@ var removeMicromambaBinary = () => {
   core4.debug(`Deleting ${PATHS.micromambaBin}`);
   return fs3.rm(PATHS.micromambaBin, { force: false });
 };
-var cleanup = (inputs) => {
-  const postCleanup = inputs.postCleanup;
+var cleanup = (options) => {
+  const postCleanup = options.postCleanup;
   switch (postCleanup) {
     case "none":
       return Promise.resolve();
     case "shell-init":
       return Promise.all([
-        removeMicromambaRunShell(inputs),
-        ...inputs.initShell.map((shell) => shellDeinit(shell, inputs))
+        removeMicromambaRunShell(options),
+        ...options.initShell.map((shell) => shellDeinit(shell, options))
       ]).then(() => Promise.resolve());
     case "environment":
       return Promise.all([
-        uninstallEnvironment(inputs),
-        removeMicromambaRunShell(inputs),
-        ...inputs.initShell.map((shell) => shellDeinit(shell, inputs))
+        uninstallEnvironment(options),
+        removeMicromambaRunShell(options),
+        ...options.initShell.map((shell) => shellDeinit(shell, options))
       ]).then(() => Promise.resolve());
     case "all":
-      return Promise.all(inputs.initShell.map((shell) => shellDeinit(shell, inputs))).then(() => Promise.all([removeRoot(), removeMicromambaRunShell(inputs), removeMicromambaBinary()])).then(() => Promise.resolve());
+      return Promise.all(options.initShell.map((shell) => shellDeinit(shell, options))).then(() => Promise.all([removeRoot(), removeMicromambaRunShell(options), removeMicromambaBinary()])).then(() => Promise.resolve());
     default:
       throw new Error(`Unknown post cleanup type: ${postCleanup}`);
   }
 };
 var run = async () => {
-  const inputs = parseInputs();
-  await cleanup(inputs);
+  const options = getOptions();
+  await cleanup(options);
 };
 run();
 //# sourceMappingURL=post.js.map

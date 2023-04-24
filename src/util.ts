@@ -78,10 +78,7 @@ export const determineEnvironmentName = (environmentName?: string, environmentFi
 export const mambaRegexBlock =
   /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/
 
-export const getMicromambaUrlFromInputs = (
-  micromambaUrl: string | undefined,
-  micromambaVersion: string | undefined
-) => {
+export const getMicromambaUrlFromInputs = (micromambaVersion: string, micromambaUrl?: string) => {
   if (micromambaUrl) {
     return micromambaUrl
   }
