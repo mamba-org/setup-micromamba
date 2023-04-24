@@ -61,6 +61,14 @@ const parseOrUndefined = <T>(input: string, schema: z.ZodSchema<T>): T | undefin
   return schema.parse(input)
 }
 
+const parseOrUndefinedJSON = <T>(input: string, schema: z.ZodSchema<T>): T | undefined => {
+  // GitHub actions sets empty inputs to the empty string, but we want undefined
+  if (input === '') {
+    return undefined
+  }
+  return schema.parse(JSON.parse(input))
+}
+
 const inferOptions = (inputs: Input): Options => {
   const createEnvironment =
     inputs.createEnvironment || inputs.environmentName !== undefined || inputs.environmentFile !== undefined
@@ -115,40 +123,21 @@ export const getOptions = () => {
     condarc: parseOrUndefined(core.getInput('condarc'), z.string()),
     environmentFile: parseOrUndefined(core.getInput('environment-file'), z.string()),
     environmentName: parseOrUndefined(core.getInput('environment-name'), z.string()),
-    extraSpecs: parseOrUndefined(
-      // either empty string or JSON array
-      core.getInput('extra-specs') && JSON.parse(core.getInput('extra-specs')),
-      z.array(z.string())
-    ),
+    extraSpecs: parseOrUndefinedJSON(core.getInput('extra-specs'), z.array(z.string())),
     createArgs: parseOrUndefined(core.getInput('create-args'), z.string()),
-    createEnvironment: parseOrUndefined(
-      core.getInput('create-environment') && JSON.parse(core.getInput('create-environment')),
-      z.boolean()
-    ),
-    logLevel: logLevelSchema.parse(core.getInput('log-level')),
+    createEnvironment: parseOrUndefinedJSON(core.getInput('create-environment'), z.boolean()),
+    logLevel: parseOrUndefined(core.getInput('log-level'), logLevelSchema),
     micromambaVersion: parseOrUndefined(
       core.getInput('micromamba-version'),
       z.union([z.literal('latest'), z.string().regex(/^\d+\.\d+\.\d+-\d+$/)])
     ),
     micromambaUrl: parseOrUndefined(core.getInput('micromamba-url'), z.string().url()),
     cacheKey: parseOrUndefined(core.getInput('cache-key'), z.string()),
-    initShell: parseOrUndefined(
-      core.getInput('init-shell') && JSON.parse(core.getInput('init-shell')),
-      z.array(shellSchema)
-    ),
-    generateRunShell: parseOrUndefined(
-      core.getInput('init-shell') || JSON.parse(core.getInput('generate-run-shell')),
-      z.boolean()
-    ),
-    cacheDownloads: parseOrUndefined(
-      core.getInput('cache-downloads') || JSON.parse(core.getInput('cache-downloads')),
-      z.boolean()
-    ),
+    initShell: parseOrUndefinedJSON(core.getInput('init-shell'), z.array(shellSchema)),
+    generateRunShell: parseOrUndefinedJSON(core.getInput('generate-run-shell'), z.boolean()),
+    cacheDownloads: parseOrUndefinedJSON(core.getInput('cache-downloads'), z.boolean()),
     cacheDownloadsKey: parseOrUndefined(core.getInput('cache-downloads-key'), z.string()),
-    cacheEnvironment: parseOrUndefined(
-      core.getInput('cache-environment') || JSON.parse(core.getInput('cache-environment')),
-      z.boolean()
-    ),
+    cacheEnvironment: parseOrUndefinedJSON(core.getInput('cache-environment'), z.boolean()),
     cacheEnvironmentKey: parseOrUndefined(core.getInput('cache-environment-key'), z.string()),
     postCleanup: parseOrUndefined(core.getInput('post-cleanup'), postCleanupSchema)
   }

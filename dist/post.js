@@ -6526,6 +6526,12 @@ var parseOrUndefined = (input, schema) => {
   }
   return schema.parse(input);
 };
+var parseOrUndefinedJSON = (input, schema) => {
+  if (input === "") {
+    return void 0;
+  }
+  return schema.parse(JSON.parse(input));
+};
 var inferOptions = (inputs) => {
   const createEnvironment = inputs.createEnvironment || inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
   const logLevel = inputs.logLevel || (core.isDebug() ? "debug" : "info");
@@ -6575,40 +6581,21 @@ var getOptions = () => {
     condarc: parseOrUndefined(core.getInput("condarc"), stringType()),
     environmentFile: parseOrUndefined(core.getInput("environment-file"), stringType()),
     environmentName: parseOrUndefined(core.getInput("environment-name"), stringType()),
-    extraSpecs: parseOrUndefined(
-      // either empty string or JSON array
-      core.getInput("extra-specs") && JSON.parse(core.getInput("extra-specs")),
-      arrayType(stringType())
-    ),
+    extraSpecs: parseOrUndefinedJSON(core.getInput("extra-specs"), arrayType(stringType())),
     createArgs: parseOrUndefined(core.getInput("create-args"), stringType()),
-    createEnvironment: parseOrUndefined(
-      core.getInput("create-environment") && JSON.parse(core.getInput("create-environment")),
-      booleanType()
-    ),
-    logLevel: logLevelSchema.parse(core.getInput("log-level")),
+    createEnvironment: parseOrUndefinedJSON(core.getInput("create-environment"), booleanType()),
+    logLevel: parseOrUndefined(core.getInput("log-level"), logLevelSchema),
     micromambaVersion: parseOrUndefined(
       core.getInput("micromamba-version"),
       unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)])
     ),
     micromambaUrl: parseOrUndefined(core.getInput("micromamba-url"), stringType().url()),
     cacheKey: parseOrUndefined(core.getInput("cache-key"), stringType()),
-    initShell: parseOrUndefined(
-      core.getInput("init-shell") && JSON.parse(core.getInput("init-shell")),
-      arrayType(shellSchema)
-    ),
-    generateRunShell: parseOrUndefined(
-      core.getInput("init-shell") || JSON.parse(core.getInput("generate-run-shell")),
-      booleanType()
-    ),
-    cacheDownloads: parseOrUndefined(
-      core.getInput("cache-downloads") || JSON.parse(core.getInput("cache-downloads")),
-      booleanType()
-    ),
+    initShell: parseOrUndefinedJSON(core.getInput("init-shell"), arrayType(shellSchema)),
+    generateRunShell: parseOrUndefinedJSON(core.getInput("generate-run-shell"), booleanType()),
+    cacheDownloads: parseOrUndefinedJSON(core.getInput("cache-downloads"), booleanType()),
     cacheDownloadsKey: parseOrUndefined(core.getInput("cache-downloads-key"), stringType()),
-    cacheEnvironment: parseOrUndefined(
-      core.getInput("cache-environment") || JSON.parse(core.getInput("cache-environment")),
-      booleanType()
-    ),
+    cacheEnvironment: parseOrUndefinedJSON(core.getInput("cache-environment"), booleanType()),
     cacheEnvironmentKey: parseOrUndefined(core.getInput("cache-environment-key"), stringType()),
     postCleanup: parseOrUndefined(core.getInput("post-cleanup"), postCleanupSchema)
   };
