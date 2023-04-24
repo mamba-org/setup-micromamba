@@ -6516,6 +6516,7 @@ var pipelineType = ZodPipeline.create;
 
 // src/inputs.ts
 var core = process.env.MOCKING ? coreMocked : coreDefault;
+var postCleanupSchema = enumType(["none", "shell-init", "environment", "all"]);
 var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
 var shellSchema = enumType(["bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
 var parseOrUndefined = (input, schema) => {
@@ -6546,11 +6547,11 @@ var parseInputs = () => {
     // cacheKey: parseOrUndefined(core.getInput('cache-key'), z.string()),
     initShell: parseOrUndefined(core.getInput("init-shell") && JSON.parse(core.getInput("init-shell")), arrayType(shellSchema)) || [],
     generateRunShell: booleanType().parse(JSON.parse(core.getInput("generate-run-shell"))),
-    postDeinit: booleanType().parse(JSON.parse(core.getInput("post-deinit"))),
     cacheDownloads: parseOrUndefined(JSON.parse(core.getInput("cache-downloads")), booleanType()),
     cacheDownloadsKey: parseOrUndefined(core.getInput("cache-downloads-key"), stringType()),
     cacheEnvironment: parseOrUndefined(JSON.parse(core.getInput("cache-environment")), booleanType()),
-    cacheEnvironmentKey: parseOrUndefined(core.getInput("cache-environment-key"), stringType())
+    cacheEnvironmentKey: parseOrUndefined(core.getInput("cache-environment-key"), stringType()),
+    postCleanup: parseOrUndefined(core.getInput("post-cleanup"), postCleanupSchema) || "all"
   };
   return inputs;
 };
@@ -6673,25 +6674,41 @@ var uninstallEnvironment = (inputs) => {
     return fs3.rm(envPath, { recursive: true });
   });
 };
-var removePackages = () => {
-  core4.info("Removing packages ...");
-  core4.debug(`Deleting ${PATHS.micromambaPkgs}`);
-  return fs3.rm(PATHS.micromambaPkgs, { recursive: true, force: true });
-};
 var removeRoot = () => {
   core4.info("Removing micromamba root ...");
   core4.debug(`Deleting ${PATHS.micromambaRoot}`);
   return fs3.rm(PATHS.micromambaRoot, { recursive: true });
 };
+var removeMicromambaBinary = () => {
+  core4.info("Removing micromamba binary ...");
+  core4.debug(`Deleting ${PATHS.micromambaBin}`);
+  return fs3.rm(PATHS.micromambaBin, { force: false });
+};
+var cleanup = (inputs) => {
+  const postCleanup = inputs.postCleanup;
+  switch (postCleanup) {
+    case "none":
+      return Promise.resolve();
+    case "shell-init":
+      return Promise.all([
+        removeMicromambaRunShell(inputs),
+        ...inputs.initShell.map((shell) => shellDeinit(shell, inputs))
+      ]).then(() => Promise.resolve());
+    case "environment":
+      return Promise.all([
+        uninstallEnvironment(inputs),
+        removeMicromambaRunShell(inputs),
+        ...inputs.initShell.map((shell) => shellDeinit(shell, inputs))
+      ]).then(() => Promise.resolve());
+    case "all":
+      return Promise.all(inputs.initShell.map((shell) => shellDeinit(shell, inputs))).then(() => Promise.all([removeRoot(), removeMicromambaRunShell(inputs), removeMicromambaBinary()])).then(() => Promise.resolve());
+    default:
+      throw new Error(`Unknown post cleanup type: ${postCleanup}`);
+  }
+};
 var run = async () => {
   const inputs = parseInputs();
-  if (inputs.createEnvironment) {
-    await removeMicromambaRunShell(inputs);
-    await uninstallEnvironment(inputs);
-  }
-  await removePackages();
-  await Promise.all(inputs.initShell.map((shell) => shellDeinit(shell, inputs)));
-  await removeRoot();
+  await cleanup(inputs);
 };
 run();
 //# sourceMappingURL=post.js.map

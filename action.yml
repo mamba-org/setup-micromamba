@@ -59,10 +59,6 @@ inputs:
     description: >-
       Whether to generate a custom shell script that allows to use it in the workflow file using `run: micromamba-shell {0}`
     default: 'true'
-  post-deinit:
-    description: >-
-      Whether to run `micromamba shell deinit` after the action or not.
-    default: 'true'
   cache-downloads:
     description: >-
       Whether to cache downloads or not.
@@ -77,6 +73,13 @@ inputs:
   cache-environment-key:
     description: >-
       Cache key to use for caching.
+  post-cleanup:
+    description: >-
+      Which kind of cleanup to do after the action.
+      `'none'` - do not cleanup anything.
+      `'shell-init'` - cleanup only the shell initialization scripts.
+      `'environment'` - cleanup the installed environment and shell initialization scripts.
+      `'all'` - cleanup everything including the whole micromamba root folder and the micromamba binary.
 runs:
   using: 'node16'
   main: 'dist/index.js'

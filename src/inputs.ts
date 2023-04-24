@@ -17,12 +17,15 @@ export type Input = {
   micromambaUrl: string | undefined
   initShell: ShellType[]
   generateRunShell: boolean
-  postDeinit: boolean
   cacheDownloads: boolean | undefined
   cacheDownloadsKey: string | undefined
   cacheEnvironment: boolean | undefined
   cacheEnvironmentKey: string | undefined
+  postCleanup: PostCleanupType
 }
+
+const postCleanupSchema = z.enum(['none', 'shell-init', 'environment', 'all'])
+export type PostCleanupType = z.infer<typeof postCleanupSchema>
 
 const logLevelSchema = z.enum(['off', 'critical', 'error', 'warning', 'info', 'debug', 'trace'])
 export type LogLevelType = z.infer<typeof logLevelSchema>
@@ -31,6 +34,7 @@ const shellSchema = z.enum(['bash', 'cmd.exe', 'fish', 'powershell', 'tcsh', 'xo
 export type ShellType = z.infer<typeof shellSchema>
 
 const parseOrUndefined = <T>(input: string, schema: z.ZodSchema<T>): T | undefined => {
+  // GitHub actions sets empty inputs to the empty string, but we want undefined
   if (input === '') {
     return undefined
   }
@@ -61,11 +65,11 @@ export const parseInputs = (): Input => {
       parseOrUndefined(core.getInput('init-shell') && JSON.parse(core.getInput('init-shell')), z.array(shellSchema)) ||
       [],
     generateRunShell: z.boolean().parse(JSON.parse(core.getInput('generate-run-shell'))),
-    postDeinit: z.boolean().parse(JSON.parse(core.getInput('post-deinit'))),
     cacheDownloads: parseOrUndefined(JSON.parse(core.getInput('cache-downloads')), z.boolean()),
     cacheDownloadsKey: parseOrUndefined(core.getInput('cache-downloads-key'), z.string()),
     cacheEnvironment: parseOrUndefined(JSON.parse(core.getInput('cache-environment')), z.boolean()),
-    cacheEnvironmentKey: parseOrUndefined(core.getInput('cache-environment-key'), z.string())
+    cacheEnvironmentKey: parseOrUndefined(core.getInput('cache-environment-key'), z.string()),
+    postCleanup: parseOrUndefined(core.getInput('post-cleanup'), postCleanupSchema) || 'all'
   }
   return inputs
 }
@@ -77,6 +81,12 @@ export const validateInputs = (inputs: Input): void => {
         'You must specify either an environment file or an environment name and extra specs to create an environment.'
       )
     }
+  }
+  if (inputs.generateRunShell && !inputs.createEnvironment) {
+    throw new Error('You must create an environment to use generate-run-shell: true.')
+  }
+  if (!inputs.createEnvironment && inputs.postCleanup === 'environment') {
+    throw new Error("You must create an environment to use post-cleanup: 'environment'.")
   }
   if (inputs.condarcFile && inputs.condarc) {
     throw new Error('You must specify either a condarc file or a condarc string, not both.')

@@ -12571,6 +12571,7 @@ var pipelineType = ZodPipeline.create;
 
 // src/inputs.ts
 var core2 = process.env.MOCKING ? coreMocked : coreDefault2;
+var postCleanupSchema = enumType(["none", "shell-init", "environment", "all"]);
 var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
 var shellSchema = enumType(["bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
 var parseOrUndefined = (input, schema) => {
@@ -12601,11 +12602,11 @@ var parseInputs = () => {
     // cacheKey: parseOrUndefined(core.getInput('cache-key'), z.string()),
     initShell: parseOrUndefined(core2.getInput("init-shell") && JSON.parse(core2.getInput("init-shell")), arrayType(shellSchema)) || [],
     generateRunShell: booleanType().parse(JSON.parse(core2.getInput("generate-run-shell"))),
-    postDeinit: booleanType().parse(JSON.parse(core2.getInput("post-deinit"))),
     cacheDownloads: parseOrUndefined(JSON.parse(core2.getInput("cache-downloads")), booleanType()),
     cacheDownloadsKey: parseOrUndefined(core2.getInput("cache-downloads-key"), stringType()),
     cacheEnvironment: parseOrUndefined(JSON.parse(core2.getInput("cache-environment")), booleanType()),
-    cacheEnvironmentKey: parseOrUndefined(core2.getInput("cache-environment-key"), stringType())
+    cacheEnvironmentKey: parseOrUndefined(core2.getInput("cache-environment-key"), stringType()),
+    postCleanup: parseOrUndefined(core2.getInput("post-cleanup"), postCleanupSchema) || "all"
   };
   return inputs;
 };
@@ -12616,6 +12617,12 @@ var validateInputs = (inputs) => {
         "You must specify either an environment file or an environment name and extra specs to create an environment."
       );
     }
+  }
+  if (inputs.generateRunShell && !inputs.createEnvironment) {
+    throw new Error("You must create an environment to use generate-run-shell: true.");
+  }
+  if (!inputs.createEnvironment && inputs.postCleanup === "environment") {
+    throw new Error("You must create an environment to use post-cleanup: 'environment'.");
   }
   if (inputs.condarcFile && inputs.condarc) {
     throw new Error("You must specify either a condarc file or a condarc string, not both.");
