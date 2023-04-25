@@ -24,6 +24,7 @@ export const coreMocked = {
   startGroup: (label: string) => console.group(`\u001B[47m\u001B[30m ▼ \u001B[39m\u001B[49m ` + label), // white "▼"
   endGroup: () => console.groupEnd(),
   isDebug: () => true,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveState: (name: string, value: any) => {
     // TODO: persist the state somewhere
     console.log(`::save-state name=${name}::${value}`)

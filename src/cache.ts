@@ -65,6 +65,25 @@ export const restoreCacheEnvironment = (environmentName: string) => {
   return restoreCache(cachePath, options.cacheEnvironmentKey)
 }
 
+// Inspired by https://github.com/conda-incubator/setup-miniconda/blob/7e642bb2e4ca56ff706818a0febf72bb226d348d/src/delete.ts#L13 (MIT license)
+const trimPkgsCacheFolder = (cacheFolder: string) => {
+  core.startGroup('Removing uncompressed packages to trim down cache folder...')
+  // delete all folders in pkgs that are not the cache folder
+  return fs
+    .readdir(cacheFolder)
+    .then((files) =>
+      Promise.all(
+        files
+          .filter((f) => f !== 'cache') // skip index cache
+          .map((f) => path.join(cacheFolder, f))
+          .map((f) => fs.lstat(f).then((stat) => ({ path: f, stat })))
+      )
+    )
+    .then((files) => files.filter((f) => f.stat.isDirectory()))
+    .then((dirs) => Promise.all(dirs.map((d) => fs.rm(d.path, { recursive: true, force: true }))))
+    .finally(() => core.endGroup())
+}
+
 export const saveCacheDownloads = () => {
   if (!options.cacheDownloadsKey) {
     return Promise.resolve()
@@ -87,23 +106,4 @@ export const restoreCacheDownloads = () => {
   }
   const cachePath = path.join(options.micromambaRootPath, 'pkgs')
   return restoreCache(cachePath, options.cacheDownloadsKey)
-}
-
-// Inspired by https://github.com/conda-incubator/setup-miniconda/blob/7e642bb2e4ca56ff706818a0febf72bb226d348d/src/delete.ts#L13 (MIT license)
-const trimPkgsCacheFolder = (cacheFolder: string) => {
-  core.startGroup('Removing uncompressed packages to trim down cache folder...')
-  // delete all folders in pkgs that are not the cache folder
-  return fs
-    .readdir(cacheFolder)
-    .then((files) =>
-      Promise.all(
-        files
-          .filter((f) => f !== 'cache') // skip index cache
-          .map((f) => path.join(cacheFolder, f))
-          .map((f) => fs.lstat(f).then((stat) => ({ path: f, stat })))
-      )
-    )
-    .then((files) => files.filter((f) => f.stat.isDirectory()))
-    .then((dirs) => Promise.all(dirs.map((d) => fs.rm(d.path, { recursive: true, force: true }))))
-    .finally(() => core.endGroup())
 }

@@ -57824,6 +57824,7 @@ var coreMocked = {
   // white "▼"
   endGroup: () => console.groupEnd(),
   isDebug: () => true,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveState: (name, value) => {
     console.log(`::save-state name=${name}::${value}`);
   },
@@ -61587,6 +61588,14 @@ var saveCache2 = (cachePath, cacheKey) => {
     core4.error(`Error saving cache: ${err.message}`);
   });
 };
+var trimPkgsCacheFolder = (cacheFolder) => {
+  core4.startGroup("Removing uncompressed packages to trim down cache folder...");
+  return fs4.readdir(cacheFolder).then(
+    (files) => Promise.all(
+      files.filter((f) => f !== "cache").map((f) => import_path2.default.join(cacheFolder, f)).map((f) => fs4.lstat(f).then((stat2) => ({ path: f, stat: stat2 })))
+    )
+  ).then((files) => files.filter((f) => f.stat.isDirectory())).then((dirs) => Promise.all(dirs.map((d) => fs4.rm(d.path, { recursive: true, force: true })))).finally(() => core4.endGroup());
+};
 var saveCacheDownloads = () => {
   if (!options.cacheDownloadsKey) {
     return Promise.resolve();
@@ -61595,14 +61604,6 @@ var saveCacheDownloads = () => {
   core4.info(`Caching downloads in \`${cachePath}\` ...`);
   const cacheDownloadsKey = options.cacheDownloadsKey;
   return trimPkgsCacheFolder(cachePath).then(() => saveCache2(cachePath, cacheDownloadsKey));
-};
-var trimPkgsCacheFolder = (cacheFolder) => {
-  core4.startGroup("Removing uncompressed packages to trim down cache folder...");
-  return fs4.readdir(cacheFolder).then(
-    (files) => Promise.all(
-      files.filter((f) => f !== "cache").map((f) => import_path2.default.join(cacheFolder, f)).map((f) => fs4.lstat(f).then((stat2) => ({ path: f, stat: stat2 })))
-    )
-  ).then((files) => files.filter((f) => f.stat.isDirectory())).then((dirs) => Promise.all(dirs.map((d) => fs4.rm(d.path, { recursive: true, force: true })))).finally(() => core4.endGroup());
 };
 
 // src/post.ts

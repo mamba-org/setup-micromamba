@@ -63819,6 +63819,7 @@ var coreMocked = {
   // white "▼"
   endGroup: () => console.groupEnd(),
   isDebug: () => true,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveState: (name, value) => {
     console.log(`::save-state name=${name}::${value}`);
   },
