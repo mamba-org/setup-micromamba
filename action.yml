@@ -9,15 +9,12 @@ inputs:
   condarc-file:
     description: >-
       Path to a condarc file to use
-    default: ''
   condarc:
     description: >-
       Contents of a condarc file to use.
-    default: ''
   environment-file:
     description: >-
       Path to the `environment.yml` or `.lock` file for the environment.
-    default: 'environment.yml'
   environment-name:
     description: >-
       Name of the environment to create. Ovverrides the name in the environment file.
@@ -36,16 +33,13 @@ inputs:
   create-environment:
     description: >-
       Whether to create a micromamba environment. If `false`, the action will only install micromamba.
-    default: 'true'
   log-level:
     description: >-
       Log level for micromamba.
       One of `'trace'`, `'debug'`, `'info'`, `'warning'`, `'error'`, `'critical'`, `'off'`.
-    default: 'warning'
   micromamba-version:
     description: >-
       Version of micromamba to install.
-    default: 'latest'
   micromamba-url:
     description: >-
       URL to download micromamba from.
@@ -54,22 +48,18 @@ inputs:
       Which shells to initialize micromamba in.
       Array of `"bash"`, `"cmd.exe"`, `"powershell"`.
       Also supports other shells, but they are not tested.
-    default: '["bash"]'
   generate-run-shell:
     description: >-
       Whether to generate a custom shell script that allows to use it in the workflow file using `run: micromamba-shell {0}`
-    default: 'true'
   cache-downloads:
     description: >-
       Whether to cache downloads or not.
-    default: 'true'
   cache-downloads-key:
     description: >-
       Cache key to use for caching.
   cache-environment:
     description: >-
       Whether to cache the environment or not.
-    default: 'true'
   cache-environment-key:
     description: >-
       Cache key to use for caching.

@@ -53,6 +53,8 @@ const getCondaArch = () => {
 
 export const determineEnvironmentName = (environmentName?: string, environmentFile?: string) => {
   core.debug('Determining environment name from inputs.')
+  core.debug(`environmentName: ${environmentName}`)
+  core.debug(`environmentFile: ${environmentFile}`)
   if (environmentName) {
     core.debug(`Determined environment name: ${environmentName}`)
     return Promise.resolve(environmentName)
@@ -78,10 +80,7 @@ export const determineEnvironmentName = (environmentName?: string, environmentFi
 export const mambaRegexBlock =
   /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/
 
-export const getMicromambaUrlFromInputs = (
-  micromambaUrl: string | undefined,
-  micromambaVersion: string | undefined
-) => {
+export const getMicromambaUrlFromInputs = (micromambaVersion: string, micromambaUrl?: string) => {
   if (micromambaUrl) {
     return micromambaUrl
   }
