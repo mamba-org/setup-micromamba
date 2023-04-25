@@ -120,7 +120,7 @@ export const saveCacheDownloads = () => {
   return trimPkgsCacheFolder(cachePath)
     .then(() => {
       core.startGroup(`Saving cache for \`${cachePath}\` ...`)
-      saveCache(cachePath, cacheDownloadsKey)
+      return saveCache(cachePath, cacheDownloadsKey)
     })
     .finally(core.endGroup)
 }
