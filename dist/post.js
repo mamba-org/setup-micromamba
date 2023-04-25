@@ -61590,13 +61590,15 @@ var saveCache2 = (cachePath, cacheKey) => {
 };
 var trimPkgsCacheFolder = (cacheFolder) => {
   core4.startGroup("Removing uncompressed packages to trim down cache folder...");
-  return fs4.readdir(cacheFolder).then(
-    (files) => Promise.all(
+  return fs4.readdir(cacheFolder).then((files) => {
+    core4.debug(`Files in \`${cacheFolder}\`: ${files}`);
+    return Promise.all(
       files.filter((f) => f !== "cache").map((f) => import_path2.default.join(cacheFolder, f)).map((f) => fs4.lstat(f).then((stat2) => ({ path: f, stat: stat2 })))
-    )
-  ).then((files) => files.filter((f) => f.stat.isDirectory())).then((dirs) => Promise.all(dirs.map((d) => fs4.rm(d.path, { recursive: true, force: true })))).finally(() => core4.endGroup());
+    );
+  }).then((files) => files.filter((f) => f.stat.isDirectory())).then((dirs) => Promise.all(dirs.map((d) => fs4.rm(d.path, { recursive: true, force: true })))).finally(() => core4.endGroup());
 };
 var saveCacheDownloads = () => {
+  core4.debug(`Cache downloads key: ${options.cacheDownloadsKey}`);
   if (!options.cacheDownloadsKey) {
     return Promise.resolve();
   }

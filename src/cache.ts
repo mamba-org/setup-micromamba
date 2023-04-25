@@ -34,11 +34,15 @@ const generateKey = (prefix: string) => {
   const envName = options.environmentName ? `-${options.environmentName}` : ''
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : ''
   if (options.environmentFile) {
-    return fs
-      .readFile(options.environmentFile, 'utf-8')
-      .then((content) => `${prefix}${envName}${createArgs}-file-${sha256(content)}`)
+    return fs.readFile(options.environmentFile, 'utf-8').then((content) => {
+      const key = `${prefix}${envName}${createArgs}-file-${sha256(content)}`
+      core.debug(`Generated key \`${key}\`.`)
+      return key
+    })
   }
-  return Promise.resolve(`${prefix}${envName}${createArgs}`)
+  const key = `${prefix}${envName}${createArgs}`
+  core.debug(`Generated key \`${key}\`.`)
+  return Promise.resolve(key)
 }
 
 export const saveCacheEnvironment = (environmentName: string) => {
@@ -71,20 +75,22 @@ const trimPkgsCacheFolder = (cacheFolder: string) => {
   // delete all folders in pkgs that are not the cache folder
   return fs
     .readdir(cacheFolder)
-    .then((files) =>
-      Promise.all(
+    .then((files) => {
+      core.debug(`Files in \`${cacheFolder}\`: ${files}`)
+      return Promise.all(
         files
           .filter((f) => f !== 'cache') // skip index cache
           .map((f) => path.join(cacheFolder, f))
           .map((f) => fs.lstat(f).then((stat) => ({ path: f, stat })))
       )
-    )
+    })
     .then((files) => files.filter((f) => f.stat.isDirectory()))
     .then((dirs) => Promise.all(dirs.map((d) => fs.rm(d.path, { recursive: true, force: true }))))
     .finally(() => core.endGroup())
 }
 
 export const saveCacheDownloads = () => {
+  core.debug(`Cache downloads key: ${options.cacheDownloadsKey}`)
   if (!options.cacheDownloadsKey) {
     return Promise.resolve()
   }
@@ -101,6 +107,7 @@ export const saveCacheDownloads = () => {
  * @returns string returns the key for the cache hit, otherwise returns undefined
  */
 export const restoreCacheDownloads = () => {
+  core.debug(`Cache downloads key: ${options.cacheDownloadsKey}`)
   if (!options.cacheDownloadsKey) {
     return Promise.resolve(undefined)
   }

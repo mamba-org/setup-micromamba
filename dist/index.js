@@ -67659,9 +67659,15 @@ var generateKey = (prefix2) => {
   const envName = options.environmentName ? `-${options.environmentName}` : "";
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : "";
   if (options.environmentFile) {
-    return fs5.readFile(options.environmentFile, "utf-8").then((content) => `${prefix2}${envName}${createArgs}-file-${sha256(content)}`);
+    return fs5.readFile(options.environmentFile, "utf-8").then((content) => {
+      const key2 = `${prefix2}${envName}${createArgs}-file-${sha256(content)}`;
+      core4.debug(`Generated key \`${key2}\`.`);
+      return key2;
+    });
   }
-  return Promise.resolve(`${prefix2}${envName}${createArgs}`);
+  const key = `${prefix2}${envName}${createArgs}`;
+  core4.debug(`Generated key \`${key}\`.`);
+  return Promise.resolve(key);
 };
 var saveCacheEnvironment = (environmentName) => {
   if (!options.cacheEnvironmentKey) {
@@ -67680,6 +67686,7 @@ var restoreCacheEnvironment = (environmentName) => {
   return restoreCache2(cachePath, options.cacheEnvironmentKey);
 };
 var restoreCacheDownloads = () => {
+  core4.debug(`Cache downloads key: ${options.cacheDownloadsKey}`);
   if (!options.cacheDownloadsKey) {
     return Promise.resolve(void 0);
   }
