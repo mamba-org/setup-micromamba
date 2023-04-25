@@ -2,12 +2,14 @@ import * as fs from 'fs/promises'
 import * as os from 'os'
 import path from 'path'
 import * as coreDefault from '@actions/core'
+import * as io from '@actions/io'
 import fetch from 'node-fetch'
 import untildify from 'untildify'
 import { sha256, getMicromambaUrl, micromambaCmd, execute, determineEnvironmentName } from './util'
 import { coreMocked } from './mocking'
 import { PATHS, options } from './options'
 import { addEnvironmentToAutoActivate, shellInit } from './shell-init'
+import { restoreCacheDownloads, restoreCacheEnvironment, saveCacheEnvironment } from './cache'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -81,14 +83,29 @@ const createEnvironment = () => {
 
 const installEnvironment = () => {
   return determineEnvironmentName(options.environmentName, options.environmentFile)
-    .then((environmentName) => {
+    .then((environmentName) =>
+      Promise.all([Promise.resolve(environmentName), restoreCacheEnvironment(environmentName)])
+    )
+    .then(([environmentName, cacheKey]) => {
+      if (cacheKey) {
+        // cache hit, no need to install and save cache
+        return Promise.resolve(environmentName)
+      }
+      // cache miss, install and save cache
       core.startGroup(`Install environment \`${environmentName}\``)
-      return createEnvironment().then((_exitCode) => environmentName)
+      return createEnvironment()
+        .then((_exitCode) => {
+          core.endGroup()
+          return environmentName
+        })
+        .then((environmentName) =>
+          // cache can already be saved here and not in post action since the environment is not changing anymore
+          saveCacheEnvironment(environmentName).then(() => environmentName)
+        )
     })
-    .then((environmentName) => {
-      return Promise.all(options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)))
-    })
-    .finally(core.endGroup)
+    .then((environmentName) =>
+      Promise.all(options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)))
+    )
 }
 
 const generateInfo = () => {
@@ -131,10 +148,17 @@ const run = async () => {
   core.debug(`os.homedir(): ${os.homedir()}`)
   core.debug(`bashProfile ${PATHS.bashProfile}`)
 
-  const url = getMicromambaUrl(options.micromambaSource)
-  await downloadMicromamba(url)
+  if (process.platform === 'win32') {
+    // Work around bug in Mamba: https://github.com/mamba-org/mamba/issues/1779
+    // This prevents using provision-with-micromamba without bash
+    core.addPath(path.dirname(await io.which('cygpath', true)))
+  }
+
+  await downloadMicromamba(getMicromambaUrl(options.micromambaSource))
   await generateCondarc()
   await Promise.all(options.initShell.map((shell) => shellInit(shell)))
+  const cacheDownloadsKey = await restoreCacheDownloads()
+  core.saveState('cacheDownloadsCacheHit', cacheDownloadsKey !== undefined)
   if (options.createEnvironment) {
     await installEnvironment()
     await generateMicromambaRunShell()

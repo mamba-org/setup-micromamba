@@ -19,7 +19,7 @@ const getMicromambaUrlFromVersion = (arch: string, version: string) => {
   return `https://github.com/mamba-org/micromamba-releases/releases/download/${version}/micromamba-${arch}`
 }
 
-const getCondaArch = () => {
+export const getCondaArch = () => {
   const archDict: Record<string, string> = {
     'darwin-x64': 'osx-64',
     'darwin-arm64': 'osx-arm64',
@@ -76,6 +76,10 @@ export const getMicromambaUrl = (micromambaSource: MicromambaSourceType) => {
 
 export const sha256 = (s: BinaryLike) => {
   return createHash('sha256').update(s).digest('hex')
+}
+
+export const sha256Short = (s: BinaryLike) => {
+  return sha256(s).slice(0, 7)
 }
 
 export const micromambaCmd = (command: string, logLevel?: LogLevelType, condarcFile?: string) => {

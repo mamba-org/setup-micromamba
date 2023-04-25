@@ -1,0 +1,84 @@
+name: Test caching
+
+on:
+  push
+
+defaults:
+  run:
+    shell: bash -el {0}
+
+jobs:
+  test-download1:
+    name: Test download cache 1/2
+    timeout-minutes: 10
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          environment-file: test/environment.yml
+          cache-downloads-key: download-key-${{ github.sha }}-${{ github.run_attempt }}
+      - name: test environment name
+        run: |
+          python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
+
+  test-download2:
+    name: Test download cache 2/2
+    timeout-minutes: 10
+    needs: [test-download1]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          environment-file: test/environment.yml
+          cache-downloads-key: download-key-${{ github.sha }}-${{ github.run_attempt }}
+      - name: test environment name
+        run: |
+          python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
+
+  test-env1:
+    name: Test env cache 1/2
+    timeout-minutes: 10
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          environment-file: test/environment.yml
+          cache-environment-key: env-key-${{ github.sha }}-${{ github.run_attempt }}
+      - name: test environment name
+        run: |
+          python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
+
+  test-env2:
+    name: Test env cache 2/2
+    timeout-minutes: 10
+    needs: [test-env1]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          environment-file: test/environment.yml
+          cache-environment-key: env-key-${{ github.sha }}-${{ github.run_attempt }}
+      - name: test environment name
+        run: |
+          python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
+
