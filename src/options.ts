@@ -1,11 +1,29 @@
+import * as path from 'path'
+import * as os from 'os'
 import * as coreDefault from '@actions/core'
 import * as z from 'zod'
 import { left, right } from 'fp-ts/lib/Either'
 import type { Either } from 'fp-ts/lib/Either'
+import untildify from 'untildify'
 import { coreMocked } from './mocking'
-import { PATHS } from './util'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
+
+export const PATHS = {
+  // TODO fix paths
+  micromambaBin: path.join(
+    os.homedir(),
+    'debug',
+    'micromamba-bin',
+    `micromamba${os.platform() === 'win32' ? '.exe' : ''}`
+  ),
+  micromambaRoot: path.join(os.homedir(), 'debug', 'micromamba-root'),
+  // use a different path than ~/.condarc to avoid messing up the user's condarc
+  condarc: path.join(os.homedir(), 'debug', 'micromamba-root', '.condarc'),
+  micromambaRunShell: '/usr/local/bin/micromamba-shell',
+  bashProfile: path.join(os.homedir(), '.bash_profile'),
+  bashrc: path.join(os.homedir(), '.bashrc')
+}
 
 type Inputs = Readonly<{
   condarcFile?: string
@@ -23,6 +41,8 @@ type Inputs = Readonly<{
   cacheEnvironment?: boolean
   cacheEnvironmentKey?: string
   postCleanup?: PostCleanupType
+  micromambaRootPath?: string
+  micromambaBinPath?: string
 }>
 
 export type Options = Readonly<{
@@ -42,6 +62,8 @@ export type Options = Readonly<{
   cacheEnvironment: boolean
   cacheEnvironmentKey?: string
   postCleanup: PostCleanupType
+  micromambaRootPath: string
+  micromambaBinPath: string
 }>
 
 const postCleanupSchema = z.enum(['none', 'shell-init', 'environment', 'all'])
@@ -94,7 +116,9 @@ const inferOptions = (inputs: Inputs): Options => {
     generateRunShell: inputs.generateRunShell !== undefined ? inputs.generateRunShell : createEnvironment,
     cacheDownloads: inputs.cacheDownloads !== undefined ? inputs.cacheDownloads : true,
     cacheEnvironment: inputs.cacheEnvironment !== undefined ? inputs.cacheEnvironment : true,
-    postCleanup: inputs.postCleanup || 'shell-init'
+    postCleanup: inputs.postCleanup || 'shell-init',
+    micromambaRootPath: inputs.micromambaRootPath ? untildify(inputs.micromambaRootPath) : PATHS.micromambaRoot,
+    micromambaBinPath: inputs.micromambaBinPath ? untildify(inputs.micromambaBinPath) : PATHS.micromambaBin
   }
 }
 
@@ -125,7 +149,7 @@ const assertOptions = (options: Options) => {
   assert(!options.createEnvironment || options.environmentFile !== undefined || options.environmentName !== undefined)
 }
 
-export const getOptions = () => {
+const getOptions = () => {
   const inputs: Inputs = {
     condarcFile: parseOrUndefined('condarc-file', z.string()),
     condarc: parseOrUndefined('condarc', z.string()),
@@ -144,7 +168,9 @@ export const getOptions = () => {
     cacheDownloadsKey: parseOrUndefined('cache-downloads-key', z.string()),
     cacheEnvironment: parseOrUndefinedJSON('cache-environment', z.boolean()),
     cacheEnvironmentKey: parseOrUndefined('cache-environment-key', z.string()),
-    postCleanup: parseOrUndefined('post-cleanup', postCleanupSchema)
+    postCleanup: parseOrUndefined('post-cleanup', postCleanupSchema),
+    micromambaRootPath: parseOrUndefined('micromamba-root-path', z.string()),
+    micromambaBinPath: parseOrUndefined('micromamba-binary-path', z.string())
   }
   core.debug(`Inputs: ${JSON.stringify(inputs)}`)
   validateInputs(inputs)
@@ -153,3 +179,5 @@ export const getOptions = () => {
   assertOptions(options)
   return options
 }
+
+export const options = getOptions()

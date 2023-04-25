@@ -3,8 +3,9 @@ import * as os from 'os'
 import path from 'path'
 import * as coreDefault from '@actions/core'
 import { coreMocked } from './mocking'
-import { PATHS, execute, mambaRegexBlock, micromambaCmd } from './util'
-import type { Options, ShellType } from './inputs'
+import { execute, mambaRegexBlock, micromambaCmd } from './util'
+import { PATHS, options } from './options'
+import type { ShellType } from './options'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -35,11 +36,11 @@ const removeMambaInitBlockFromBashProfile = () => {
   })
 }
 
-export const shellInit = (shell: string, options: Options) => {
+export const shellInit = (shell: string) => {
   core.startGroup(`Initialize micromamba for ${shell}.`)
   const command = execute(
     // it should be -r instead of -p, see https://github.com/mamba-org/mamba/issues/2442
-    micromambaCmd(`shell init -s ${shell} -p ${PATHS.micromambaRoot}`, options.logLevel, options.condarcFile)
+    micromambaCmd(`shell init -s ${shell} -p ${options.micromambaRootPath}`, options.logLevel, options.condarcFile)
   )
   if (os.platform() === 'linux' && shell === 'bash') {
     return command.then(copyMambaInitBlockToBashProfile).finally(core.endGroup)
@@ -47,11 +48,11 @@ export const shellInit = (shell: string, options: Options) => {
   return command.finally(core.endGroup)
 }
 
-export const shellDeinit = (shell: string, options: Options) => {
+export const shellDeinit = (shell: string) => {
   core.startGroup(`Deinitialize micromamba for ${shell}`)
   const command = execute(
     // it should be -r instead of -p, see https://github.com/mamba-org/mamba/issues/2442
-    micromambaCmd(`shell deinit -s ${shell} -p ${PATHS.micromambaRoot}`, options.logLevel, options.condarcFile)
+    micromambaCmd(`shell deinit -s ${shell} -p ${options.micromambaRootPath}`, options.logLevel, options.condarcFile)
   )
   if (os.platform() === 'linux' && shell === 'bash') {
     return command.then(removeMambaInitBlockFromBashProfile).finally(core.endGroup)
@@ -70,7 +71,7 @@ const rcFileDict = {
   fish: path.join(os.homedir(), '.config', 'fish', 'config.fish'),
   tcsh: path.join(os.homedir(), '.tcshrc'),
   xonsh: path.join(os.homedir(), '.xonshrc'),
-  'cmd.exe': path.join(PATHS.micromambaRoot, 'condabin', 'mamba_hook.bat'),
+  'cmd.exe': path.join(options.micromambaRootPath, 'condabin', 'mamba_hook.bat'),
   powershell: path.join(os.homedir(), 'Documents', 'WindowsPowershell', 'profile.ps1'),
   pwshWin: path.join(os.homedir(), 'Documents', 'Powershell', 'profile.ps1'),
   pwshUnix: path.join(os.homedir(), '.config', 'powershell', 'profile.ps1')

@@ -117,11 +117,11 @@ var require_command = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.issue = exports.issueCommand = void 0;
-    var os4 = __importStar(require("os"));
+    var os5 = __importStar(require("os"));
     var utils_1 = require_utils();
     function issueCommand(command, properties, message) {
       const cmd = new Command(command, properties, message);
-      process.stdout.write(cmd.toString() + os4.EOL);
+      process.stdout.write(cmd.toString() + os5.EOL);
     }
     exports.issueCommand = issueCommand;
     function issue(name, message = "") {
@@ -228,14 +228,14 @@ var init_stringify = __esm({
 });
 
 // node_modules/.pnpm/uuid@8.3.2/node_modules/uuid/dist/esm-node/v1.js
-function v1(options, buf, offset) {
+function v1(options2, buf, offset) {
   let i2 = buf && offset || 0;
   const b = buf || new Array(16);
-  options = options || {};
-  let node = options.node || _nodeId;
-  let clockseq = options.clockseq !== void 0 ? options.clockseq : _clockseq;
+  options2 = options2 || {};
+  let node = options2.node || _nodeId;
+  let clockseq = options2.clockseq !== void 0 ? options2.clockseq : _clockseq;
   if (node == null || clockseq == null) {
-    const seedBytes = options.random || (options.rng || rng)();
+    const seedBytes = options2.random || (options2.rng || rng)();
     if (node == null) {
       node = _nodeId = [seedBytes[0] | 1, seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]];
     }
@@ -243,13 +243,13 @@ function v1(options, buf, offset) {
       clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 16383;
     }
   }
-  let msecs = options.msecs !== void 0 ? options.msecs : Date.now();
-  let nsecs = options.nsecs !== void 0 ? options.nsecs : _lastNSecs + 1;
+  let msecs = options2.msecs !== void 0 ? options2.msecs : Date.now();
+  let nsecs = options2.nsecs !== void 0 ? options2.nsecs : _lastNSecs + 1;
   const dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 1e4;
-  if (dt < 0 && options.clockseq === void 0) {
+  if (dt < 0 && options2.clockseq === void 0) {
     clockseq = clockseq + 1 & 16383;
   }
-  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === void 0) {
+  if ((dt < 0 || msecs > _lastMSecs) && options2.nsecs === void 0) {
     nsecs = 0;
   }
   if (nsecs >= 1e4) {
@@ -402,9 +402,9 @@ var init_v3 = __esm({
 });
 
 // node_modules/.pnpm/uuid@8.3.2/node_modules/uuid/dist/esm-node/v4.js
-function v4(options, buf, offset) {
-  options = options || {};
-  const rnds = options.random || (options.rng || rng)();
+function v4(options2, buf, offset) {
+  options2 = options2 || {};
+  const rnds = options2.random || (options2.rng || rng)();
   rnds[6] = rnds[6] & 15 | 64;
   rnds[8] = rnds[8] & 63 | 128;
   if (buf) {
@@ -538,7 +538,7 @@ var require_file_command = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
     var fs5 = __importStar(require("fs"));
-    var os4 = __importStar(require("os"));
+    var os5 = __importStar(require("os"));
     var uuid_1 = (init_esm_node(), __toCommonJS(esm_node_exports));
     var utils_1 = require_utils();
     function issueFileCommand(command, message) {
@@ -549,7 +549,7 @@ var require_file_command = __commonJS({
       if (!fs5.existsSync(filePath)) {
         throw new Error(`Missing file at path: ${filePath}`);
       }
-      fs5.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os4.EOL}`, {
+      fs5.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os5.EOL}`, {
         encoding: "utf8"
       });
     }
@@ -563,7 +563,7 @@ var require_file_command = __commonJS({
       if (convertedValue.includes(delimiter)) {
         throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
       }
-      return `${key}<<${delimiter}${os4.EOL}${convertedValue}${os4.EOL}${delimiter}`;
+      return `${key}<<${delimiter}${os5.EOL}${convertedValue}${os5.EOL}${delimiter}`;
     }
     exports.prepareKeyValueMessage = prepareKeyValueMessage;
   }
@@ -640,42 +640,42 @@ var require_tunnel = __commonJS({
     exports.httpsOverHttp = httpsOverHttp;
     exports.httpOverHttps = httpOverHttps;
     exports.httpsOverHttps = httpsOverHttps;
-    function httpOverHttp(options) {
-      var agent = new TunnelingAgent(options);
+    function httpOverHttp(options2) {
+      var agent = new TunnelingAgent(options2);
       agent.request = http3.request;
       return agent;
     }
-    function httpsOverHttp(options) {
-      var agent = new TunnelingAgent(options);
+    function httpsOverHttp(options2) {
+      var agent = new TunnelingAgent(options2);
       agent.request = http3.request;
       agent.createSocket = createSecureSocket;
       agent.defaultPort = 443;
       return agent;
     }
-    function httpOverHttps(options) {
-      var agent = new TunnelingAgent(options);
+    function httpOverHttps(options2) {
+      var agent = new TunnelingAgent(options2);
       agent.request = https2.request;
       return agent;
     }
-    function httpsOverHttps(options) {
-      var agent = new TunnelingAgent(options);
+    function httpsOverHttps(options2) {
+      var agent = new TunnelingAgent(options2);
       agent.request = https2.request;
       agent.createSocket = createSecureSocket;
       agent.defaultPort = 443;
       return agent;
     }
-    function TunnelingAgent(options) {
+    function TunnelingAgent(options2) {
       var self2 = this;
-      self2.options = options || {};
+      self2.options = options2 || {};
       self2.proxyOptions = self2.options.proxy || {};
       self2.maxSockets = self2.options.maxSockets || http3.Agent.defaultMaxSockets;
       self2.requests = [];
       self2.sockets = [];
       self2.on("free", function onFree(socket, host, port, localAddress) {
-        var options2 = toOptions(host, port, localAddress);
+        var options3 = toOptions(host, port, localAddress);
         for (var i2 = 0, len = self2.requests.length; i2 < len; ++i2) {
           var pending = self2.requests[i2];
-          if (pending.host === options2.host && pending.port === options2.port) {
+          if (pending.host === options3.host && pending.port === options3.port) {
             self2.requests.splice(i2, 1);
             pending.request.onSocket(socket);
             return;
@@ -688,18 +688,18 @@ var require_tunnel = __commonJS({
     util2.inherits(TunnelingAgent, events.EventEmitter);
     TunnelingAgent.prototype.addRequest = function addRequest(req, host, port, localAddress) {
       var self2 = this;
-      var options = mergeOptions({ request: req }, self2.options, toOptions(host, port, localAddress));
+      var options2 = mergeOptions({ request: req }, self2.options, toOptions(host, port, localAddress));
       if (self2.sockets.length >= this.maxSockets) {
-        self2.requests.push(options);
+        self2.requests.push(options2);
         return;
       }
-      self2.createSocket(options, function(socket) {
+      self2.createSocket(options2, function(socket) {
         socket.on("free", onFree);
         socket.on("close", onCloseOrRemove);
         socket.on("agentRemove", onCloseOrRemove);
         req.onSocket(socket);
         function onFree() {
-          self2.emit("free", socket, options);
+          self2.emit("free", socket, options2);
         }
         function onCloseOrRemove(err) {
           self2.removeSocket(socket);
@@ -709,20 +709,20 @@ var require_tunnel = __commonJS({
         }
       });
     };
-    TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
+    TunnelingAgent.prototype.createSocket = function createSocket(options2, cb) {
       var self2 = this;
       var placeholder = {};
       self2.sockets.push(placeholder);
       var connectOptions = mergeOptions({}, self2.proxyOptions, {
         method: "CONNECT",
-        path: options.host + ":" + options.port,
+        path: options2.host + ":" + options2.port,
         agent: false,
         headers: {
-          host: options.host + ":" + options.port
+          host: options2.host + ":" + options2.port
         }
       });
-      if (options.localAddress) {
-        connectOptions.localAddress = options.localAddress;
+      if (options2.localAddress) {
+        connectOptions.localAddress = options2.localAddress;
       }
       if (connectOptions.proxyAuth) {
         connectOptions.headers = connectOptions.headers || {};
@@ -755,7 +755,7 @@ var require_tunnel = __commonJS({
           socket.destroy();
           var error = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
           error.code = "ECONNRESET";
-          options.request.emit("error", error);
+          options2.request.emit("error", error);
           self2.removeSocket(placeholder);
           return;
         }
@@ -764,7 +764,7 @@ var require_tunnel = __commonJS({
           socket.destroy();
           var error = new Error("got illegal response body from proxy");
           error.code = "ECONNRESET";
-          options.request.emit("error", error);
+          options2.request.emit("error", error);
           self2.removeSocket(placeholder);
           return;
         }
@@ -781,7 +781,7 @@ var require_tunnel = __commonJS({
         );
         var error = new Error("tunneling socket could not be established, cause=" + cause.message);
         error.code = "ECONNRESET";
-        options.request.emit("error", error);
+        options2.request.emit("error", error);
         self2.removeSocket(placeholder);
       }
     };
@@ -798,13 +798,13 @@ var require_tunnel = __commonJS({
         });
       }
     };
-    function createSecureSocket(options, cb) {
+    function createSecureSocket(options2, cb) {
       var self2 = this;
-      TunnelingAgent.prototype.createSocket.call(self2, options, function(socket) {
-        var hostHeader = options.request.getHeader("host");
+      TunnelingAgent.prototype.createSocket.call(self2, options2, function(socket) {
+        var hostHeader = options2.request.getHeader("host");
         var tlsOptions = mergeOptions({}, self2.options, {
           socket,
-          servername: hostHeader ? hostHeader.replace(/:.*$/, "") : options.host
+          servername: hostHeader ? hostHeader.replace(/:.*$/, "") : options2.host
         });
         var secureSocket = tls.connect(0, tlsOptions);
         self2.sockets[self2.sockets.indexOf(socket)] = secureSocket;
@@ -1361,8 +1361,8 @@ var require_lib = __commonJS({
           this._proxyAgent = agent;
         }
         if (this._keepAlive && !agent) {
-          const options = { keepAlive: this._keepAlive, maxSockets };
-          agent = usingSsl ? new https2.Agent(options) : new http3.Agent(options);
+          const options2 = { keepAlive: this._keepAlive, maxSockets };
+          agent = usingSsl ? new https2.Agent(options2) : new http3.Agent(options2);
           this._agent = agent;
         }
         if (!agent) {
@@ -1382,7 +1382,7 @@ var require_lib = __commonJS({
           return new Promise((resolve) => setTimeout(() => resolve(), ms));
         });
       }
-      _processResponse(res, options) {
+      _processResponse(res, options2) {
         return __awaiter(this, void 0, void 0, function* () {
           return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             const statusCode = res.message.statusCode || 0;
@@ -1408,7 +1408,7 @@ var require_lib = __commonJS({
             try {
               contents = yield res.readBody();
               if (contents && contents.length > 0) {
-                if (options && options.deserializeDates) {
+                if (options2 && options2.deserializeDates) {
                   obj = JSON.parse(contents, dateTimeDeserializer);
                 } else {
                   obj = JSON.parse(contents);
@@ -1480,11 +1480,11 @@ var require_auth = __commonJS({
         this.username = username;
         this.password = password;
       }
-      prepareRequest(options) {
-        if (!options.headers) {
+      prepareRequest(options2) {
+        if (!options2.headers) {
           throw Error("The request has no headers");
         }
-        options.headers["Authorization"] = `Basic ${Buffer.from(`${this.username}:${this.password}`).toString("base64")}`;
+        options2.headers["Authorization"] = `Basic ${Buffer.from(`${this.username}:${this.password}`).toString("base64")}`;
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -1503,11 +1503,11 @@ var require_auth = __commonJS({
       }
       // currently implements pre-authorization
       // TODO: support preAuth = false where it hooks on 401
-      prepareRequest(options) {
-        if (!options.headers) {
+      prepareRequest(options2) {
+        if (!options2.headers) {
           throw Error("The request has no headers");
         }
-        options.headers["Authorization"] = `Bearer ${this.token}`;
+        options2.headers["Authorization"] = `Bearer ${this.token}`;
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -1526,11 +1526,11 @@ var require_auth = __commonJS({
       }
       // currently implements pre-authorization
       // TODO: support preAuth = false where it hooks on 401
-      prepareRequest(options) {
-        if (!options.headers) {
+      prepareRequest(options2) {
+        if (!options2.headers) {
           throw Error("The request has no headers");
         }
-        options.headers["Authorization"] = `Basic ${Buffer.from(`PAT:${this.token}`).toString("base64")}`;
+        options2.headers["Authorization"] = `Basic ${Buffer.from(`PAT:${this.token}`).toString("base64")}`;
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -1733,9 +1733,9 @@ var require_summary = __commonJS({
        *
        * @returns {Promise<Summary>} summary instance
        */
-      write(options) {
+      write(options2) {
         return __awaiter(this, void 0, void 0, function* () {
-          const overwrite = !!(options === null || options === void 0 ? void 0 : options.overwrite);
+          const overwrite = !!(options2 === null || options2 === void 0 ? void 0 : options2.overwrite);
           const filePath = yield this.filePath();
           const writeFunc = overwrite ? writeFile3 : appendFile2;
           yield writeFunc(filePath, this._buffer, { encoding: "utf8" });
@@ -1868,8 +1868,8 @@ var require_summary = __commonJS({
        *
        * @returns {Summary} summary instance
        */
-      addImage(src, alt, options) {
-        const { width, height } = options || {};
+      addImage(src, alt, options2) {
+        const { width, height } = options2 || {};
         const attrs = Object.assign(Object.assign({}, width && { width }), height && { height });
         const element = this.wrap("img", null, Object.assign({ src, alt }, attrs));
         return this.addRaw(element).addEOL();
@@ -2052,7 +2052,7 @@ var require_core = __commonJS({
     var command_1 = require_command();
     var file_command_1 = require_file_command();
     var utils_1 = require_utils();
-    var os4 = __importStar(require("os"));
+    var os5 = __importStar(require("os"));
     var path4 = __importStar(require("path"));
     var oidc_utils_1 = require_oidc_utils();
     var ExitCode;
@@ -2084,29 +2084,29 @@ var require_core = __commonJS({
       process.env["PATH"] = `${inputPath}${path4.delimiter}${process.env["PATH"]}`;
     }
     exports.addPath = addPath;
-    function getInput(name, options) {
+    function getInput(name, options2) {
       const val = process.env[`INPUT_${name.replace(/ /g, "_").toUpperCase()}`] || "";
-      if (options && options.required && !val) {
+      if (options2 && options2.required && !val) {
         throw new Error(`Input required and not supplied: ${name}`);
       }
-      if (options && options.trimWhitespace === false) {
+      if (options2 && options2.trimWhitespace === false) {
         return val;
       }
       return val.trim();
     }
     exports.getInput = getInput;
-    function getMultilineInput(name, options) {
-      const inputs = getInput(name, options).split("\n").filter((x2) => x2 !== "");
-      if (options && options.trimWhitespace === false) {
+    function getMultilineInput(name, options2) {
+      const inputs = getInput(name, options2).split("\n").filter((x2) => x2 !== "");
+      if (options2 && options2.trimWhitespace === false) {
         return inputs;
       }
       return inputs.map((input) => input.trim());
     }
     exports.getMultilineInput = getMultilineInput;
-    function getBooleanInput(name, options) {
+    function getBooleanInput(name, options2) {
       const trueValue = ["true", "True", "TRUE"];
       const falseValue = ["false", "False", "FALSE"];
-      const val = getInput(name, options);
+      const val = getInput(name, options2);
       if (trueValue.includes(val))
         return true;
       if (falseValue.includes(val))
@@ -2120,7 +2120,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       if (filePath) {
         return file_command_1.issueFileCommand("OUTPUT", file_command_1.prepareKeyValueMessage(name, value));
       }
-      process.stdout.write(os4.EOL);
+      process.stdout.write(os5.EOL);
       command_1.issueCommand("set-output", { name }, utils_1.toCommandValue(value));
     }
     exports.setOutput = setOutput;
@@ -2154,7 +2154,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     }
     exports.notice = notice;
     function info(message) {
-      process.stdout.write(message + os4.EOL);
+      process.stdout.write(message + os5.EOL);
     }
     exports.info = info;
     function startGroup(name) {
@@ -5292,9 +5292,9 @@ var require_ponyfill_es2018 = __commonJS({
         }
         return type;
       }
-      function convertReaderOptions(options, context) {
-        assertDictionary(options, context);
-        const mode = options === null || options === void 0 ? void 0 : options.mode;
+      function convertReaderOptions(options2, context) {
+        assertDictionary(options2, context);
+        const mode = options2 === null || options2 === void 0 ? void 0 : options2.mode;
         return {
           mode: mode === void 0 ? void 0 : convertReadableStreamReaderMode(mode, `${context} has member 'mode' that`)
         };
@@ -5306,17 +5306,17 @@ var require_ponyfill_es2018 = __commonJS({
         }
         return mode;
       }
-      function convertIteratorOptions(options, context) {
-        assertDictionary(options, context);
-        const preventCancel = options === null || options === void 0 ? void 0 : options.preventCancel;
+      function convertIteratorOptions(options2, context) {
+        assertDictionary(options2, context);
+        const preventCancel = options2 === null || options2 === void 0 ? void 0 : options2.preventCancel;
         return { preventCancel: Boolean(preventCancel) };
       }
-      function convertPipeOptions(options, context) {
-        assertDictionary(options, context);
-        const preventAbort = options === null || options === void 0 ? void 0 : options.preventAbort;
-        const preventCancel = options === null || options === void 0 ? void 0 : options.preventCancel;
-        const preventClose = options === null || options === void 0 ? void 0 : options.preventClose;
-        const signal = options === null || options === void 0 ? void 0 : options.signal;
+      function convertPipeOptions(options2, context) {
+        assertDictionary(options2, context);
+        const preventAbort = options2 === null || options2 === void 0 ? void 0 : options2.preventAbort;
+        const preventCancel = options2 === null || options2 === void 0 ? void 0 : options2.preventCancel;
+        const preventClose = options2 === null || options2 === void 0 ? void 0 : options2.preventClose;
+        const signal = options2 === null || options2 === void 0 ? void 0 : options2.signal;
         if (signal !== void 0) {
           assertAbortSignal(signal, `${context} has member 'signal' that`);
         }
@@ -5392,8 +5392,8 @@ var require_ponyfill_es2018 = __commonJS({
           if (!IsReadableStream(this)) {
             throw streamBrandCheckException$1("getReader");
           }
-          const options = convertReaderOptions(rawOptions, "First parameter");
-          if (options.mode === void 0) {
+          const options2 = convertReaderOptions(rawOptions, "First parameter");
+          if (options2.mode === void 0) {
             return AcquireReadableStreamDefaultReader(this);
           }
           return AcquireReadableStreamBYOBReader(this);
@@ -5404,14 +5404,14 @@ var require_ponyfill_es2018 = __commonJS({
           }
           assertRequiredArgument(rawTransform, 1, "pipeThrough");
           const transform = convertReadableWritablePair(rawTransform, "First parameter");
-          const options = convertPipeOptions(rawOptions, "Second parameter");
+          const options2 = convertPipeOptions(rawOptions, "Second parameter");
           if (IsReadableStreamLocked(this)) {
             throw new TypeError("ReadableStream.prototype.pipeThrough cannot be used on a locked ReadableStream");
           }
           if (IsWritableStreamLocked(transform.writable)) {
             throw new TypeError("ReadableStream.prototype.pipeThrough cannot be used on a locked WritableStream");
           }
-          const promise = ReadableStreamPipeTo(this, transform.writable, options.preventClose, options.preventAbort, options.preventCancel, options.signal);
+          const promise = ReadableStreamPipeTo(this, transform.writable, options2.preventClose, options2.preventAbort, options2.preventCancel, options2.signal);
           setPromiseIsHandledToTrue(promise);
           return transform.readable;
         }
@@ -5425,9 +5425,9 @@ var require_ponyfill_es2018 = __commonJS({
           if (!IsWritableStream(destination)) {
             return promiseRejectedWith(new TypeError(`ReadableStream.prototype.pipeTo's first argument must be a WritableStream`));
           }
-          let options;
+          let options2;
           try {
-            options = convertPipeOptions(rawOptions, "Second parameter");
+            options2 = convertPipeOptions(rawOptions, "Second parameter");
           } catch (e2) {
             return promiseRejectedWith(e2);
           }
@@ -5437,7 +5437,7 @@ var require_ponyfill_es2018 = __commonJS({
           if (IsWritableStreamLocked(destination)) {
             return promiseRejectedWith(new TypeError("ReadableStream.prototype.pipeTo cannot be used on a locked WritableStream"));
           }
-          return ReadableStreamPipeTo(this, destination, options.preventClose, options.preventAbort, options.preventCancel, options.signal);
+          return ReadableStreamPipeTo(this, destination, options2.preventClose, options2.preventAbort, options2.preventCancel, options2.signal);
         }
         /**
          * Tees this readable stream, returning a two-element array containing the two resulting branches as
@@ -5461,8 +5461,8 @@ var require_ponyfill_es2018 = __commonJS({
           if (!IsReadableStream(this)) {
             throw streamBrandCheckException$1("values");
           }
-          const options = convertIteratorOptions(rawOptions, "First parameter");
-          return AcquireReadableStreamAsyncIterator(this, options.preventCancel);
+          const options2 = convertIteratorOptions(rawOptions, "First parameter");
+          return AcquireReadableStreamAsyncIterator(this, options2.preventCancel);
         }
       }
       Object.defineProperties(ReadableStream2.prototype, {
@@ -5597,10 +5597,10 @@ var require_ponyfill_es2018 = __commonJS({
       } catch (_a4) {
       }
       class ByteLengthQueuingStrategy {
-        constructor(options) {
-          assertRequiredArgument(options, 1, "ByteLengthQueuingStrategy");
-          options = convertQueuingStrategyInit(options, "First parameter");
-          this._byteLengthQueuingStrategyHighWaterMark = options.highWaterMark;
+        constructor(options2) {
+          assertRequiredArgument(options2, 1, "ByteLengthQueuingStrategy");
+          options2 = convertQueuingStrategyInit(options2, "First parameter");
+          this._byteLengthQueuingStrategyHighWaterMark = options2.highWaterMark;
         }
         /**
          * Returns the high water mark provided to the constructor.
@@ -5654,10 +5654,10 @@ var require_ponyfill_es2018 = __commonJS({
       } catch (_a4) {
       }
       class CountQueuingStrategy {
-        constructor(options) {
-          assertRequiredArgument(options, 1, "CountQueuingStrategy");
-          options = convertQueuingStrategyInit(options, "First parameter");
-          this._countQueuingStrategyHighWaterMark = options.highWaterMark;
+        constructor(options2) {
+          assertRequiredArgument(options2, 1, "CountQueuingStrategy");
+          options2 = convertQueuingStrategyInit(options2, "First parameter");
+          this._countQueuingStrategyHighWaterMark = options2.highWaterMark;
         }
         /**
          * Returns the high water mark provided to the constructor.
@@ -6126,7 +6126,7 @@ var init_fetch_blob = __esm({
        * @param {*} blobParts
        * @param {{ type?: string, endings?: string }} [options]
        */
-      constructor(blobParts = [], options = {}) {
+      constructor(blobParts = [], options2 = {}) {
         /** @type {Array.<(Blob|Uint8Array)>} */
         __privateAdd(this, _parts, []);
         __privateAdd(this, _type, "");
@@ -6138,11 +6138,11 @@ var init_fetch_blob = __esm({
         if (typeof blobParts[Symbol.iterator] !== "function") {
           throw new TypeError("Failed to construct 'Blob': The object must have a callable @@iterator property.");
         }
-        if (typeof options !== "object" && typeof options !== "function") {
+        if (typeof options2 !== "object" && typeof options2 !== "function") {
           throw new TypeError("Failed to construct 'Blob': parameter 2 cannot convert to dictionary.");
         }
-        if (options === null)
-          options = {};
+        if (options2 === null)
+          options2 = {};
         const encoder = new TextEncoder();
         for (const element of blobParts) {
           let part;
@@ -6158,8 +6158,8 @@ var init_fetch_blob = __esm({
           __privateSet(this, _size, __privateGet(this, _size) + (ArrayBuffer.isView(part) ? part.byteLength : part.size));
           __privateGet(this, _parts).push(part);
         }
-        __privateSet(this, _endings, `${options.endings === void 0 ? "transparent" : options.endings}`);
-        const type = options.type === void 0 ? "" : String(options.type);
+        __privateSet(this, _endings, `${options2.endings === void 0 ? "transparent" : options2.endings}`);
+        const type = options2.type === void 0 ? "" : String(options2.type);
         __privateSet(this, _type, /^[\x20-\x7E]*$/.test(type) ? type : "");
       }
       /**
@@ -6294,16 +6294,16 @@ var init_file = __esm({
        * @param {{lastModified?: number, type?: string}} options
        */
       // @ts-ignore
-      constructor(fileBits, fileName, options = {}) {
+      constructor(fileBits, fileName, options2 = {}) {
         if (arguments.length < 2) {
           throw new TypeError(`Failed to construct 'File': 2 arguments required, but only ${arguments.length} present.`);
         }
-        super(fileBits, options);
+        super(fileBits, options2);
         __privateAdd(this, _lastModified, 0);
         __privateAdd(this, _name, "");
-        if (options === null)
-          options = {};
-        const lastModified = options.lastModified === void 0 ? Date.now() : Number(options.lastModified);
+        if (options2 === null)
+          options2 = {};
+        const lastModified = options2.lastModified === void 0 ? Date.now() : Number(options2.lastModified);
         if (!Number.isNaN(lastModified)) {
           __privateSet(this, _lastModified, lastModified);
         }
@@ -6456,13 +6456,13 @@ var init_from = __esm({
     init_fetch_blob();
     ({ stat } = import_node_fs.promises);
     _BlobDataItem = class {
-      constructor(options) {
+      constructor(options2) {
         __privateAdd(this, _path, void 0);
         __privateAdd(this, _start, void 0);
-        __privateSet(this, _path, options.path);
-        __privateSet(this, _start, options.start);
-        this.size = options.size;
-        this.lastModified = options.lastModified;
+        __privateSet(this, _path, options2.path);
+        __privateSet(this, _start, options2.start);
+        this.size = options2.size;
+        this.lastModified = options2.lastModified;
       }
       /**
        * Slicing arguments is first validated and formatted
@@ -6859,8 +6859,8 @@ var init_multipart_parser = __esm({
 var require_untildify = __commonJS({
   "node_modules/.pnpm/untildify@4.0.0/node_modules/untildify/index.js"(exports, module2) {
     "use strict";
-    var os4 = require("os");
-    var homeDirectory = os4.homedir();
+    var os5 = require("os");
+    var homeDirectory = os5.homedir();
     module2.exports = (pathWithTilde) => {
       if (typeof pathWithTilde !== "string") {
         throw new TypeError(`Expected a string, got ${typeof pathWithTilde}`);
@@ -7112,9 +7112,9 @@ var require_io = __commonJS({
     var assert_1 = require("assert");
     var path4 = __importStar(require("path"));
     var ioUtil = __importStar(require_io_util());
-    function cp(source, dest, options = {}) {
+    function cp(source, dest, options2 = {}) {
       return __awaiter(this, void 0, void 0, function* () {
-        const { force, recursive, copySourceDirectory } = readCopyOptions(options);
+        const { force, recursive, copySourceDirectory } = readCopyOptions(options2);
         const destStat = (yield ioUtil.exists(dest)) ? yield ioUtil.stat(dest) : null;
         if (destStat && destStat.isFile() && !force) {
           return;
@@ -7139,7 +7139,7 @@ var require_io = __commonJS({
       });
     }
     exports.cp = cp;
-    function mv(source, dest, options = {}) {
+    function mv(source, dest, options2 = {}) {
       return __awaiter(this, void 0, void 0, function* () {
         if (yield ioUtil.exists(dest)) {
           let destExists = true;
@@ -7148,7 +7148,7 @@ var require_io = __commonJS({
             destExists = yield ioUtil.exists(dest);
           }
           if (destExists) {
-            if (options.force == null || options.force) {
+            if (options2.force == null || options2.force) {
               yield rmRF(dest);
             } else {
               throw new Error("Destination already exists");
@@ -7253,10 +7253,10 @@ var require_io = __commonJS({
       });
     }
     exports.findInPath = findInPath;
-    function readCopyOptions(options) {
-      const force = options.force == null ? true : options.force;
-      const recursive = Boolean(options.recursive);
-      const copySourceDirectory = options.copySourceDirectory == null ? true : Boolean(options.copySourceDirectory);
+    function readCopyOptions(options2) {
+      const force = options2.force == null ? true : options2.force;
+      const recursive = Boolean(options2.recursive);
+      const copySourceDirectory = options2.copySourceDirectory == null ? true : Boolean(options2.copySourceDirectory);
       return { force, recursive, copySourceDirectory };
     }
     function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
@@ -7362,7 +7362,7 @@ var require_toolrunner = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.argStringToArray = exports.ToolRunner = void 0;
-    var os4 = __importStar(require("os"));
+    var os5 = __importStar(require("os"));
     var events = __importStar(require("events"));
     var child = __importStar(require("child_process"));
     var path4 = __importStar(require("path"));
@@ -7371,23 +7371,23 @@ var require_toolrunner = __commonJS({
     var timers_1 = require("timers");
     var IS_WINDOWS = process.platform === "win32";
     var ToolRunner = class extends events.EventEmitter {
-      constructor(toolPath, args, options) {
+      constructor(toolPath, args, options2) {
         super();
         if (!toolPath) {
           throw new Error("Parameter 'toolPath' cannot be null or empty.");
         }
         this.toolPath = toolPath;
         this.args = args || [];
-        this.options = options || {};
+        this.options = options2 || {};
       }
       _debug(message) {
         if (this.options.listeners && this.options.listeners.debug) {
           this.options.listeners.debug(message);
         }
       }
-      _getCommandString(options, noPrefix) {
+      _getCommandString(options2, noPrefix) {
         const toolPath = this._getSpawnFileName();
-        const args = this._getSpawnArgs(options);
+        const args = this._getSpawnArgs(options2);
         let cmd = noPrefix ? "" : "[command]";
         if (IS_WINDOWS) {
           if (this._isCmdFile()) {
@@ -7395,7 +7395,7 @@ var require_toolrunner = __commonJS({
             for (const a of args) {
               cmd += ` ${a}`;
             }
-          } else if (options.windowsVerbatimArguments) {
+          } else if (options2.windowsVerbatimArguments) {
             cmd += `"${toolPath}"`;
             for (const a of args) {
               cmd += ` ${a}`;
@@ -7417,12 +7417,12 @@ var require_toolrunner = __commonJS({
       _processLineBuffer(data, strBuffer, onLine) {
         try {
           let s2 = strBuffer + data.toString();
-          let n = s2.indexOf(os4.EOL);
+          let n = s2.indexOf(os5.EOL);
           while (n > -1) {
             const line = s2.substring(0, n);
             onLine(line);
-            s2 = s2.substring(n + os4.EOL.length);
-            n = s2.indexOf(os4.EOL);
+            s2 = s2.substring(n + os5.EOL.length);
+            n = s2.indexOf(os5.EOL);
           }
           return s2;
         } catch (err) {
@@ -7438,13 +7438,13 @@ var require_toolrunner = __commonJS({
         }
         return this.toolPath;
       }
-      _getSpawnArgs(options) {
+      _getSpawnArgs(options2) {
         if (IS_WINDOWS) {
           if (this._isCmdFile()) {
             let argline = `/D /S /C "${this._windowsQuoteCmdArg(this.toolPath)}`;
             for (const a of this.args) {
               argline += " ";
-              argline += options.windowsVerbatimArguments ? a : this._windowsQuoteCmdArg(a);
+              argline += options2.windowsVerbatimArguments ? a : this._windowsQuoteCmdArg(a);
             }
             argline += '"';
             return [argline];
@@ -7542,28 +7542,28 @@ var require_toolrunner = __commonJS({
         reverse += '"';
         return reverse.split("").reverse().join("");
       }
-      _cloneExecOptions(options) {
-        options = options || {};
+      _cloneExecOptions(options2) {
+        options2 = options2 || {};
         const result = {
-          cwd: options.cwd || process.cwd(),
-          env: options.env || process.env,
-          silent: options.silent || false,
-          windowsVerbatimArguments: options.windowsVerbatimArguments || false,
-          failOnStdErr: options.failOnStdErr || false,
-          ignoreReturnCode: options.ignoreReturnCode || false,
-          delay: options.delay || 1e4
+          cwd: options2.cwd || process.cwd(),
+          env: options2.env || process.env,
+          silent: options2.silent || false,
+          windowsVerbatimArguments: options2.windowsVerbatimArguments || false,
+          failOnStdErr: options2.failOnStdErr || false,
+          ignoreReturnCode: options2.ignoreReturnCode || false,
+          delay: options2.delay || 1e4
         };
-        result.outStream = options.outStream || process.stdout;
-        result.errStream = options.errStream || process.stderr;
+        result.outStream = options2.outStream || process.stdout;
+        result.errStream = options2.errStream || process.stderr;
         return result;
       }
-      _getSpawnOptions(options, toolPath) {
-        options = options || {};
+      _getSpawnOptions(options2, toolPath) {
+        options2 = options2 || {};
         const result = {};
-        result.cwd = options.cwd;
-        result.env = options.env;
-        result["windowsVerbatimArguments"] = options.windowsVerbatimArguments || this._isCmdFile();
-        if (options.windowsVerbatimArguments) {
+        result.cwd = options2.cwd;
+        result.env = options2.env;
+        result["windowsVerbatimArguments"] = options2.windowsVerbatimArguments || this._isCmdFile();
+        if (options2.windowsVerbatimArguments) {
           result.argv0 = `"${toolPath}"`;
         }
         return result;
@@ -7591,7 +7591,7 @@ var require_toolrunner = __commonJS({
             }
             const optionsNonNull = this._cloneExecOptions(this.options);
             if (!optionsNonNull.silent && optionsNonNull.outStream) {
-              optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os4.EOL);
+              optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os5.EOL);
             }
             const state = new ExecState(optionsNonNull, this.toolPath);
             state.on("debug", (message) => {
@@ -7726,7 +7726,7 @@ var require_toolrunner = __commonJS({
     }
     exports.argStringToArray = argStringToArray;
     var ExecState = class extends events.EventEmitter {
-      constructor(options, toolPath) {
+      constructor(options2, toolPath) {
         super();
         this.processClosed = false;
         this.processError = "";
@@ -7739,10 +7739,10 @@ var require_toolrunner = __commonJS({
         if (!toolPath) {
           throw new Error("toolPath must not be empty");
         }
-        this.options = options;
+        this.options = options2;
         this.toolPath = toolPath;
-        if (options.delay) {
-          this.delay = options.delay;
+        if (options2.delay) {
+          this.delay = options2.delay;
         }
       }
       CheckComplete() {
@@ -7853,7 +7853,7 @@ var require_exec = __commonJS({
     exports.getExecOutput = exports.exec = void 0;
     var string_decoder_1 = require("string_decoder");
     var tr = __importStar(require_toolrunner());
-    function exec2(commandLine, args, options) {
+    function exec2(commandLine, args, options2) {
       return __awaiter(this, void 0, void 0, function* () {
         const commandArgs = tr.argStringToArray(commandLine);
         if (commandArgs.length === 0) {
@@ -7861,20 +7861,20 @@ var require_exec = __commonJS({
         }
         const toolPath = commandArgs[0];
         args = commandArgs.slice(1).concat(args || []);
-        const runner = new tr.ToolRunner(toolPath, args, options);
+        const runner = new tr.ToolRunner(toolPath, args, options2);
         return runner.exec();
       });
     }
     exports.exec = exec2;
-    function getExecOutput(commandLine, args, options) {
+    function getExecOutput(commandLine, args, options2) {
       var _a4, _b;
       return __awaiter(this, void 0, void 0, function* () {
         let stdout = "";
         let stderr = "";
         const stdoutDecoder = new string_decoder_1.StringDecoder("utf8");
         const stderrDecoder = new string_decoder_1.StringDecoder("utf8");
-        const originalStdoutListener = (_a4 = options === null || options === void 0 ? void 0 : options.listeners) === null || _a4 === void 0 ? void 0 : _a4.stdout;
-        const originalStdErrListener = (_b = options === null || options === void 0 ? void 0 : options.listeners) === null || _b === void 0 ? void 0 : _b.stderr;
+        const originalStdoutListener = (_a4 = options2 === null || options2 === void 0 ? void 0 : options2.listeners) === null || _a4 === void 0 ? void 0 : _a4.stdout;
+        const originalStdErrListener = (_b = options2 === null || options2 === void 0 ? void 0 : options2.listeners) === null || _b === void 0 ? void 0 : _b.stderr;
         const stdErrListener = (data) => {
           stderr += stderrDecoder.write(data);
           if (originalStdErrListener) {
@@ -7887,8 +7887,8 @@ var require_exec = __commonJS({
             originalStdoutListener(data);
           }
         };
-        const listeners = Object.assign(Object.assign({}, options === null || options === void 0 ? void 0 : options.listeners), { stdout: stdOutListener, stderr: stdErrListener });
-        const exitCode = yield exec2(commandLine, args, Object.assign(Object.assign({}, options), { listeners }));
+        const listeners = Object.assign(Object.assign({}, options2 === null || options2 === void 0 ? void 0 : options2.listeners), { stdout: stdOutListener, stderr: stdErrListener });
+        const exitCode = yield exec2(commandLine, args, Object.assign(Object.assign({}, options2), { listeners }));
         stdout += stdoutDecoder.end();
         stderr += stderrDecoder.end();
         return {
@@ -9510,7 +9510,7 @@ var require_Either = __commonJS({
 
 // src/main.ts
 var fs4 = __toESM(require("fs/promises"));
-var os3 = __toESM(require("os"));
+var os4 = __toESM(require("os"));
 var import_path2 = __toESM(require("path"));
 var coreDefault4 = __toESM(require_core());
 
@@ -10060,10 +10060,10 @@ var isRedirect = (code) => {
 // node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/response.js
 var INTERNALS2 = Symbol("Response internals");
 var Response = class extends Body {
-  constructor(body = null, options = {}) {
-    super(body, options);
-    const status = options.status != null ? options.status : 200;
-    const headers = new Headers(options.headers);
+  constructor(body = null, options2 = {}) {
+    super(body, options2);
+    const status = options2.status != null ? options2.status : 200;
+    const headers = new Headers(options2.headers);
     if (body !== null && !headers.has("Content-Type")) {
       const contentType = extractContentType(body, this);
       if (contentType) {
@@ -10072,12 +10072,12 @@ var Response = class extends Body {
     }
     this[INTERNALS2] = {
       type: "default",
-      url: options.url,
+      url: options2.url,
       status,
-      statusText: options.statusText || "",
+      statusText: options2.statusText || "",
       headers,
-      counter: options.counter,
-      highWaterMark: options.highWaterMark
+      counter: options2.counter,
+      highWaterMark: options2.highWaterMark
     };
   }
   get type() {
@@ -10509,7 +10509,7 @@ var getNodeRequestOptions = (request) => {
     headers.set("Connection", "close");
   }
   const search = getSearch(parsedURL);
-  const options = {
+  const options2 = {
     // Overwrite search to retain trailing ? (issue #776)
     path: parsedURL.pathname + search,
     // The following options are not expressed in the URL
@@ -10521,7 +10521,7 @@ var getNodeRequestOptions = (request) => {
   return {
     /** @type {URL} */
     parsedURL,
-    options
+    options: options2
   };
 };
 
@@ -10539,7 +10539,7 @@ var supportedSchemas = /* @__PURE__ */ new Set(["data:", "http:", "https:"]);
 async function fetch(url, options_) {
   return new Promise((resolve, reject) => {
     const request = new Request(url, options_);
-    const { parsedURL, options } = getNodeRequestOptions(request);
+    const { parsedURL, options: options2 } = getNodeRequestOptions(request);
     if (!supportedSchemas.has(parsedURL.protocol)) {
       throw new TypeError(`node-fetch cannot load ${url}. URL scheme "${parsedURL.protocol.replace(/:$/, "")}" is not supported.`);
     }
@@ -10571,7 +10571,7 @@ async function fetch(url, options_) {
       abort();
       finalize();
     };
-    const request_ = send(parsedURL.toString(), options);
+    const request_ = send(parsedURL.toString(), options2);
     if (signal) {
       signal.addEventListener("abort", abortAndFinalize);
     }
@@ -10799,14 +10799,13 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 }
 
 // src/main.ts
-var import_untildify = __toESM(require_untildify());
+var import_untildify2 = __toESM(require_untildify());
 
 // src/util.ts
 var fs2 = __toESM(require("fs/promises"));
-var path = __toESM(require("path"));
-var os = __toESM(require("os"));
+var os2 = __toESM(require("os"));
 var import_crypto4 = require("crypto");
-var coreDefault = __toESM(require_core());
+var coreDefault2 = __toESM(require_core());
 var import_exec = __toESM(require_exec());
 
 // node_modules/.pnpm/fp-ts@2.14.0/node_modules/fp-ts/es6/function.js
@@ -10887,97 +10886,10 @@ var coreMocked = {
   isDebug: () => true
 };
 
-// src/util.ts
-var core = process.env.MOCKING ? coreMocked : coreDefault;
-var PATHS = {
-  // TODO fix paths
-  micromambaBin: path.join(
-    os.homedir(),
-    "debug",
-    "micromamba-bin",
-    `micromamba${os.platform() === "win32" ? ".exe" : ""}`
-  ),
-  micromambaRoot: path.join(os.homedir(), "debug", "micromamba-root"),
-  // use a different path than ~/.condarc to avoid messing up the user's condarc
-  condarc: path.join(os.homedir(), "debug", "micromamba-root", ".condarc"),
-  micromambaRunShell: "/usr/local/bin/micromamba-shell",
-  bashProfile: path.join(os.homedir(), ".bash_profile"),
-  bashrc: path.join(os.homedir(), ".bashrc")
-};
-var getMicromambaUrlFromVersion = (arch2, version2) => {
-  if (version2 === "latest") {
-    return `https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-${arch2}`;
-  }
-  return `https://github.com/mamba-org/micromamba-releases/releases/download/${version2}/micromamba-${arch2}`;
-};
-var getCondaArch = () => {
-  const archDict = {
-    "darwin-x64": "osx-64",
-    "darwin-arm64": "osx-arm64",
-    "linux-x64": "linux-64",
-    "linux-arm64": "linux-aarch64",
-    "linux-ppc64": "linux-ppc64le",
-    "win32-x64": "win-64"
-  };
-  const arch2 = archDict[`${os.platform()}-${os.arch()}`];
-  if (!arch2) {
-    throw new Error(`Unsupported platform: ${os.platform()}-${os.arch()}`);
-  }
-  return arch2;
-};
-var determineEnvironmentName = (environmentName, environmentFile) => {
-  core.debug("Determining environment name from inputs.");
-  core.debug(`environmentName: ${environmentName}`);
-  core.debug(`environmentFile: ${environmentFile}`);
-  if (environmentName) {
-    core.debug(`Determined environment name: ${environmentName}`);
-    return Promise.resolve(environmentName);
-  }
-  if (!environmentFile) {
-    core.error("No environment name or file specified.");
-    throw new Error();
-  }
-  return fs2.readFile(environmentFile, "utf8").then((fileContents) => {
-    const environmentName2 = fileContents.toString().match(/name:\s*(.*)/)?.[1];
-    if (!environmentName2) {
-      const errorMessage = `Could not determine environment name from file ${environmentFile}`;
-      core.error(errorMessage);
-      throw new Error(errorMessage);
-    }
-    core.debug(`Determined environment name from file ${environmentFile}: ${environmentName2}`);
-    return environmentName2;
-  });
-};
-var mambaRegexBlock = /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/;
-var getMicromambaUrl = (micromambaSource) => {
-  return pipe(
-    micromambaSource,
-    match(
-      (version2) => getMicromambaUrlFromVersion(getCondaArch(), version2),
-      (url) => url
-    )
-  );
-};
-var sha256 = (s2) => {
-  return (0, import_crypto4.createHash)("sha256").update(s2).digest("hex");
-};
-var micromambaCmd = (command, logLevel, condarcFile) => {
-  let commandArray = [PATHS.micromambaBin].concat(command.split(" "));
-  if (logLevel) {
-    commandArray = commandArray.concat(["--log-level", logLevel]);
-  }
-  if (condarcFile) {
-    commandArray = commandArray.concat(["--rc-file", condarcFile]);
-  }
-  return commandArray;
-};
-var execute = (cmd) => {
-  core.debug(`Executing: ${cmd.join(" ")}`);
-  return (0, import_exec.exec)(cmd[0], cmd.slice(1));
-};
-
-// src/inputs.ts
-var coreDefault2 = __toESM(require_core());
+// src/options.ts
+var path = __toESM(require("path"));
+var os = __toESM(require("os"));
+var coreDefault = __toESM(require_core());
 
 // node_modules/.pnpm/zod@3.20.6/node_modules/zod/lib/index.mjs
 var util;
@@ -11917,21 +11829,21 @@ var ZodString = class extends ZodType {
   cuid2(message) {
     return this._addCheck({ kind: "cuid2", ...errorUtil.errToObj(message) });
   }
-  datetime(options) {
+  datetime(options2) {
     var _a4;
-    if (typeof options === "string") {
+    if (typeof options2 === "string") {
       return this._addCheck({
         kind: "datetime",
         precision: null,
         offset: false,
-        message: options
+        message: options2
       });
     }
     return this._addCheck({
       kind: "datetime",
-      precision: typeof (options === null || options === void 0 ? void 0 : options.precision) === "undefined" ? null : options === null || options === void 0 ? void 0 : options.precision,
-      offset: (_a4 = options === null || options === void 0 ? void 0 : options.offset) !== null && _a4 !== void 0 ? _a4 : false,
-      ...errorUtil.errToObj(options === null || options === void 0 ? void 0 : options.message)
+      precision: typeof (options2 === null || options2 === void 0 ? void 0 : options2.precision) === "undefined" ? null : options2 === null || options2 === void 0 ? void 0 : options2.precision,
+      offset: (_a4 = options2 === null || options2 === void 0 ? void 0 : options2.offset) !== null && _a4 !== void 0 ? _a4 : false,
+      ...errorUtil.errToObj(options2 === null || options2 === void 0 ? void 0 : options2.message)
     });
   }
   regex(regex, message) {
@@ -13010,7 +12922,7 @@ ZodObject.lazycreate = (shape, params) => {
 var ZodUnion = class extends ZodType {
   _parse(input) {
     const { ctx } = this._processInputParams(input);
-    const options = this._def.options;
+    const options2 = this._def.options;
     function handleResults(results) {
       for (const result of results) {
         if (result.result.status === "valid") {
@@ -13031,7 +12943,7 @@ var ZodUnion = class extends ZodType {
       return INVALID;
     }
     if (ctx.common.async) {
-      return Promise.all(options.map(async (option) => {
+      return Promise.all(options2.map(async (option) => {
         const childCtx = {
           ...ctx,
           common: {
@@ -13052,7 +12964,7 @@ var ZodUnion = class extends ZodType {
     } else {
       let dirty = void 0;
       const issues = [];
-      for (const option of options) {
+      for (const option of options2) {
         const childCtx = {
           ...ctx,
           common: {
@@ -13172,9 +13084,9 @@ var ZodDiscriminatedUnion = class extends ZodType {
    * @param types an array of object schemas
    * @param params
    */
-  static create(discriminator, options, params) {
+  static create(discriminator, options2, params) {
     const optionsMap = /* @__PURE__ */ new Map();
-    for (const type of options) {
+    for (const type of options2) {
       const discriminatorValues = getDiscriminator(type.shape[discriminator]);
       if (!discriminatorValues) {
         throw new Error(`A discriminator value for key \`${discriminator}\` could not be extracted from all schema options`);
@@ -13189,7 +13101,7 @@ var ZodDiscriminatedUnion = class extends ZodType {
     return new ZodDiscriminatedUnion({
       typeName: ZodFirstPartyTypeKind.ZodDiscriminatedUnion,
       discriminator,
-      options,
+      options: options2,
       optionsMap,
       ...processCreateParams(params)
     });
@@ -14221,21 +14133,37 @@ var nullableType = ZodNullable.create;
 var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
-// src/inputs.ts
-var import_Either2 = __toESM(require_Either());
-var core2 = process.env.MOCKING ? coreMocked : coreDefault2;
+// src/options.ts
+var import_Either = __toESM(require_Either());
+var import_untildify = __toESM(require_untildify());
+var core = process.env.MOCKING ? coreMocked : coreDefault;
+var PATHS = {
+  // TODO fix paths
+  micromambaBin: path.join(
+    os.homedir(),
+    "debug",
+    "micromamba-bin",
+    `micromamba${os.platform() === "win32" ? ".exe" : ""}`
+  ),
+  micromambaRoot: path.join(os.homedir(), "debug", "micromamba-root"),
+  // use a different path than ~/.condarc to avoid messing up the user's condarc
+  condarc: path.join(os.homedir(), "debug", "micromamba-root", ".condarc"),
+  micromambaRunShell: "/usr/local/bin/micromamba-shell",
+  bashProfile: path.join(os.homedir(), ".bash_profile"),
+  bashrc: path.join(os.homedir(), ".bashrc")
+};
 var postCleanupSchema = enumType(["none", "shell-init", "environment", "all"]);
 var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
 var shellSchema = enumType(["bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
 var parseOrUndefined = (key, schema) => {
-  const input = core2.getInput(key);
+  const input = core.getInput(key);
   if (input === "") {
     return void 0;
   }
   return schema.parse(input);
 };
 var parseOrUndefinedJSON = (key, schema) => {
-  const input = core2.getInput(key);
+  const input = core.getInput(key);
   if (input === "") {
     return void 0;
   }
@@ -14243,8 +14171,8 @@ var parseOrUndefinedJSON = (key, schema) => {
 };
 var inferOptions = (inputs) => {
   const createEnvironment2 = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
-  const logLevel = inputs.logLevel || (core2.isDebug() ? "debug" : "info");
-  const micromambaSource = inputs.micromambaUrl ? (0, import_Either2.right)(inputs.micromambaUrl) : (0, import_Either2.left)(inputs.micromambaVersion || "latest");
+  const logLevel = inputs.logLevel || (core.isDebug() ? "debug" : "info");
+  const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
   return {
     ...inputs,
@@ -14258,7 +14186,9 @@ var inferOptions = (inputs) => {
     generateRunShell: inputs.generateRunShell !== void 0 ? inputs.generateRunShell : createEnvironment2,
     cacheDownloads: inputs.cacheDownloads !== void 0 ? inputs.cacheDownloads : true,
     cacheEnvironment: inputs.cacheEnvironment !== void 0 ? inputs.cacheEnvironment : true,
-    postCleanup: inputs.postCleanup || "shell-init"
+    postCleanup: inputs.postCleanup || "shell-init",
+    micromambaRootPath: inputs.micromambaRootPath ? (0, import_untildify.default)(inputs.micromambaRootPath) : PATHS.micromambaRoot,
+    micromambaBinPath: inputs.micromambaBinPath ? (0, import_untildify.default)(inputs.micromambaBinPath) : PATHS.micromambaBin
   };
 };
 var validateInputs = (inputs) => {
@@ -14275,14 +14205,14 @@ var validateInputs = (inputs) => {
     throw new Error("You must specify either a condarc file or a condarc string, not both.");
   }
 };
-var assertOptions = (options) => {
+var assertOptions = (options2) => {
   const assert = (condition, message) => {
     if (!condition) {
       throw new Error(message);
     }
   };
-  assert(!options.generateRunShell || options.createEnvironment);
-  assert(!options.createEnvironment || options.environmentFile !== void 0 || options.environmentName !== void 0);
+  assert(!options2.generateRunShell || options2.createEnvironment);
+  assert(!options2.createEnvironment || options2.environmentFile !== void 0 || options2.environmentName !== void 0);
 };
 var getOptions = () => {
   const inputs = {
@@ -14303,19 +14233,96 @@ var getOptions = () => {
     cacheDownloadsKey: parseOrUndefined("cache-downloads-key", stringType()),
     cacheEnvironment: parseOrUndefinedJSON("cache-environment", booleanType()),
     cacheEnvironmentKey: parseOrUndefined("cache-environment-key", stringType()),
-    postCleanup: parseOrUndefined("post-cleanup", postCleanupSchema)
+    postCleanup: parseOrUndefined("post-cleanup", postCleanupSchema),
+    micromambaRootPath: parseOrUndefined("micromamba-root-path", stringType()),
+    micromambaBinPath: parseOrUndefined("micromamba-binary-path", stringType())
   };
-  core2.debug(`Inputs: ${JSON.stringify(inputs)}`);
+  core.debug(`Inputs: ${JSON.stringify(inputs)}`);
   validateInputs(inputs);
-  const options = inferOptions(inputs);
-  core2.debug(`Inferred options: ${JSON.stringify(options)}`);
-  assertOptions(options);
-  return options;
+  const options2 = inferOptions(inputs);
+  core.debug(`Inferred options: ${JSON.stringify(options2)}`);
+  assertOptions(options2);
+  return options2;
+};
+var options = getOptions();
+
+// src/util.ts
+var core2 = process.env.MOCKING ? coreMocked : coreDefault2;
+var getMicromambaUrlFromVersion = (arch2, version2) => {
+  if (version2 === "latest") {
+    return `https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-${arch2}`;
+  }
+  return `https://github.com/mamba-org/micromamba-releases/releases/download/${version2}/micromamba-${arch2}`;
+};
+var getCondaArch = () => {
+  const archDict = {
+    "darwin-x64": "osx-64",
+    "darwin-arm64": "osx-arm64",
+    "linux-x64": "linux-64",
+    "linux-arm64": "linux-aarch64",
+    "linux-ppc64": "linux-ppc64le",
+    "win32-x64": "win-64"
+  };
+  const arch2 = archDict[`${os2.platform()}-${os2.arch()}`];
+  if (!arch2) {
+    throw new Error(`Unsupported platform: ${os2.platform()}-${os2.arch()}`);
+  }
+  return arch2;
+};
+var determineEnvironmentName = (environmentName, environmentFile) => {
+  core2.debug("Determining environment name from inputs.");
+  core2.debug(`environmentName: ${environmentName}`);
+  core2.debug(`environmentFile: ${environmentFile}`);
+  if (environmentName) {
+    core2.debug(`Determined environment name: ${environmentName}`);
+    return Promise.resolve(environmentName);
+  }
+  if (!environmentFile) {
+    core2.error("No environment name or file specified.");
+    throw new Error();
+  }
+  return fs2.readFile(environmentFile, "utf8").then((fileContents) => {
+    const environmentName2 = fileContents.toString().match(/name:\s*(.*)/)?.[1];
+    if (!environmentName2) {
+      const errorMessage = `Could not determine environment name from file ${environmentFile}`;
+      core2.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+    core2.debug(`Determined environment name from file ${environmentFile}: ${environmentName2}`);
+    return environmentName2;
+  });
+};
+var mambaRegexBlock = /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/;
+var getMicromambaUrl = (micromambaSource) => {
+  return pipe(
+    micromambaSource,
+    match(
+      (version2) => getMicromambaUrlFromVersion(getCondaArch(), version2),
+      (url) => url
+    )
+  );
+};
+var sha256 = (s2) => {
+  return (0, import_crypto4.createHash)("sha256").update(s2).digest("hex");
+};
+var micromambaCmd = (command, logLevel, condarcFile) => {
+  let commandArray = [options.micromambaBinPath].concat(command.split(" "));
+  if (logLevel) {
+    commandArray = commandArray.concat(["--log-level", logLevel]);
+  }
+  if (condarcFile) {
+    commandArray = commandArray.concat(["--rc-file", condarcFile]);
+  }
+  return commandArray;
+};
+var execute = (cmd) => {
+  core2.debug(`Executing: ${cmd.join(" ")}`);
+  return (0, import_exec.exec)(cmd[0], cmd.slice(1));
 };
 
 // src/shell-init.ts
 var fs3 = __toESM(require("fs/promises"));
-var os2 = __toESM(require("os"));
+var os3 = __toESM(require("os"));
 var import_path = __toESM(require("path"));
 var coreDefault3 = __toESM(require_core());
 var core3 = process.env.MOCKING ? coreMocked : coreDefault3;
@@ -14330,13 +14337,13 @@ var copyMambaInitBlockToBashProfile = () => {
     return fs3.appendFile(PATHS.bashProfile, matches[0]);
   });
 };
-var shellInit = (shell, options) => {
+var shellInit = (shell) => {
   core3.startGroup(`Initialize micromamba for ${shell}.`);
   const command = execute(
     // it should be -r instead of -p, see https://github.com/mamba-org/mamba/issues/2442
-    micromambaCmd(`shell init -s ${shell} -p ${PATHS.micromambaRoot}`, options.logLevel, options.condarcFile)
+    micromambaCmd(`shell init -s ${shell} -p ${options.micromambaRootPath}`, options.logLevel, options.condarcFile)
   );
-  if (os2.platform() === "linux" && shell === "bash") {
+  if (os3.platform() === "linux" && shell === "bash") {
     return command.then(copyMambaInitBlockToBashProfile).finally(core3.endGroup);
   }
   return command.finally(core3.endGroup);
@@ -14349,17 +14356,17 @@ var addEnvironmentToRcFile = (environmentName, rcFile) => {
 };
 var rcFileDict = {
   bash: PATHS.bashProfile,
-  zsh: import_path.default.join(os2.homedir(), ".zshrc"),
-  fish: import_path.default.join(os2.homedir(), ".config", "fish", "config.fish"),
-  tcsh: import_path.default.join(os2.homedir(), ".tcshrc"),
-  xonsh: import_path.default.join(os2.homedir(), ".xonshrc"),
-  "cmd.exe": import_path.default.join(PATHS.micromambaRoot, "condabin", "mamba_hook.bat"),
-  powershell: import_path.default.join(os2.homedir(), "Documents", "WindowsPowershell", "profile.ps1"),
-  pwshWin: import_path.default.join(os2.homedir(), "Documents", "Powershell", "profile.ps1"),
-  pwshUnix: import_path.default.join(os2.homedir(), ".config", "powershell", "profile.ps1")
+  zsh: import_path.default.join(os3.homedir(), ".zshrc"),
+  fish: import_path.default.join(os3.homedir(), ".config", "fish", "config.fish"),
+  tcsh: import_path.default.join(os3.homedir(), ".tcshrc"),
+  xonsh: import_path.default.join(os3.homedir(), ".xonshrc"),
+  "cmd.exe": import_path.default.join(options.micromambaRootPath, "condabin", "mamba_hook.bat"),
+  powershell: import_path.default.join(os3.homedir(), "Documents", "WindowsPowershell", "profile.ps1"),
+  pwshWin: import_path.default.join(os3.homedir(), "Documents", "Powershell", "profile.ps1"),
+  pwshUnix: import_path.default.join(os3.homedir(), ".config", "powershell", "profile.ps1")
 };
 var addEnvironmentToPowershellProfile = (environmentName) => {
-  switch (os2.platform()) {
+  switch (os3.platform()) {
     case "win32":
       return Promise.all([
         addEnvironmentToRcFile(environmentName, rcFileDict.powershell),
@@ -14369,7 +14376,7 @@ var addEnvironmentToPowershellProfile = (environmentName) => {
     case "darwin":
       return addEnvironmentToRcFile(environmentName, rcFileDict.pwshUnix);
     default:
-      throw new Error(`Unsupported platform: ${os2.platform()}`);
+      throw new Error(`Unsupported platform: ${os3.platform()}`);
   }
 };
 var addEnvironmentToAutoActivate = (environmentName, shell) => {
@@ -14387,7 +14394,7 @@ var core4 = process.env.MOCKING ? coreMocked : coreDefault4;
 var downloadMicromamba = (url) => {
   core4.startGroup("Install micromamba");
   core4.debug(`Downloading micromamba from ${url} ...`);
-  const mkDir = fs4.mkdir(import_path2.default.dirname(PATHS.micromambaBin), { recursive: true });
+  const mkDir = fs4.mkdir(import_path2.default.dirname(options.micromambaBinPath), { recursive: true });
   const downloadMicromamba2 = fetch(url).then((res) => {
     if (!res.ok) {
       throw new Error(`Download failed: ${res.statusText}`);
@@ -14396,18 +14403,18 @@ var downloadMicromamba = (url) => {
   }).then((arrayBuffer) => Buffer.from(arrayBuffer));
   return Promise.all([mkDir, downloadMicromamba2]).then(([, buffer]) => {
     core4.debug(`micromamba binary sha256: ${sha256(buffer)}`);
-    return fs4.writeFile(PATHS.micromambaBin, buffer, { encoding: "binary", mode: 493 });
+    return fs4.writeFile(options.micromambaBinPath, buffer, { encoding: "binary", mode: 493 });
   }).then(() => {
-    core4.info(`micromamba installed to ${PATHS.micromambaBin}`);
+    core4.info(`micromamba installed to ${options.micromambaBinPath}`);
   }).catch((err) => {
     core4.error(`Error installing micromamba: ${err.message}`);
     throw err;
   }).finally(core4.endGroup);
 };
-var generateCondarc = (options) => {
+var generateCondarc = () => {
   if (!options.writeToCondarc) {
     core4.debug(`Using condarc file ${options.condarcFile} ...`);
-    return fs4.access((0, import_untildify.default)(options.condarcFile), fs4.constants.R_OK);
+    return fs4.access((0, import_untildify2.default)(options.condarcFile), fs4.constants.R_OK);
   }
   core4.debug(`Using ${options.condarcFile} as condarc file.`);
   const mkDir = fs4.mkdir(import_path2.default.dirname(options.condarcFile), { recursive: true });
@@ -14419,12 +14426,12 @@ var generateCondarc = (options) => {
   core4.info("Adding conda-forge to condarc channels ...");
   return mkDir.then(() => fs4.writeFile(options.condarcFile, "channels:\n  - conda-forge"));
 };
-var createEnvironment = (options) => {
+var createEnvironment = () => {
   core4.debug(`environmentFile: ${options.environmentFile}`);
   core4.debug(`environmentName: ${options.environmentName}`);
   core4.debug(`createArgs: ${options.createArgs}`);
   core4.debug(`condarcFile: ${options.condarcFile}`);
-  let commandStr = `create -y -r ${PATHS.micromambaRoot}`;
+  let commandStr = `create -y -r ${options.micromambaRootPath}`;
   if (options.environmentFile) {
     commandStr += ` -f ${options.environmentFile}`;
   }
@@ -14439,56 +14446,55 @@ var createEnvironment = (options) => {
   }
   return execute(micromambaCmd(commandStr, options.logLevel, options.condarcFile));
 };
-var installEnvironment = (options) => {
+var installEnvironment = () => {
   return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
     core4.startGroup(`Install environment \`${environmentName}\``);
-    return createEnvironment(options).then((_exitCode) => environmentName);
+    return createEnvironment().then((_exitCode) => environmentName);
   }).then((environmentName) => {
     return Promise.all(options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)));
   }).finally(core4.endGroup);
 };
-var generateInfo = (options) => {
+var generateInfo = () => {
   core4.startGroup("micromamba info");
   let command;
   if (!options.createEnvironment) {
-    command = execute(micromambaCmd(`info -r ${PATHS.micromambaRoot}`));
+    command = execute(micromambaCmd(`info -r ${options.micromambaRootPath}`));
   } else {
     command = determineEnvironmentName(options.environmentName, options.environmentFile).then(
-      (environmentName) => execute(micromambaCmd(`info -r ${PATHS.micromambaRoot} -n ${environmentName}`))
+      (environmentName) => execute(micromambaCmd(`info -r ${options.micromambaRootPath} -n ${environmentName}`))
     );
   }
   return command.finally(core4.endGroup);
 };
-var generateMicromambaRunShell = (options) => {
+var generateMicromambaRunShell = () => {
   if (!options.generateRunShell) {
     core4.debug("Skipping micromamba run shell generation.");
     return Promise.resolve();
   }
-  if (os3.platform() === "win32") {
+  if (os4.platform() === "win32") {
     core4.info("Skipping micromamba run shell on Windows.");
     return Promise.resolve();
   }
   core4.info("Generating micromamba run shell.");
   const micromambaShellFile = fs4.readFile("src/resources/micromamba-shell", { encoding: "utf8" });
   return Promise.all([micromambaShellFile, determineEnvironmentName(options.environmentName, options.environmentFile)]).then(([fileContents, environmentName]) => {
-    const file = fileContents.replace(/\$MAMBA_EXE/g, PATHS.micromambaBin).replace(/\$MAMBA_ROOT_PREFIX/g, PATHS.micromambaRoot).replace(/\$MAMBA_DEFAULT_ENV/g, environmentName);
+    const file = fileContents.replace(/\$MAMBA_EXE/g, options.micromambaBinPath).replace(/\$MAMBA_ROOT_PREFIX/g, options.micromambaRootPath).replace(/\$MAMBA_DEFAULT_ENV/g, environmentName);
     return fs4.writeFile(PATHS.micromambaRunShell, file, { encoding: "utf8", mode: 493 });
   }).finally(core4.endGroup);
 };
 var run = async () => {
   core4.debug(`process.env.HOME: ${process.env.HOME}`);
-  core4.debug(`os.homedir(): ${os3.homedir()}`);
+  core4.debug(`os.homedir(): ${os4.homedir()}`);
   core4.debug(`bashProfile ${PATHS.bashProfile}`);
-  const options = getOptions();
   const url = getMicromambaUrl(options.micromambaSource);
   await downloadMicromamba(url);
-  await generateCondarc(options);
-  await Promise.all(options.initShell.map((shell) => shellInit(shell, options)));
+  await generateCondarc();
+  await Promise.all(options.initShell.map((shell) => shellInit(shell)));
   if (options.createEnvironment) {
-    await installEnvironment(options);
-    await generateMicromambaRunShell(options);
+    await installEnvironment();
+    await generateMicromambaRunShell();
   }
-  await generateInfo(options);
+  await generateInfo();
 };
 run();
 /*! Bundled license information:
