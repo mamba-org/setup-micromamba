@@ -18,9 +18,9 @@ const removeMicromambaRunShell = (inputs: Options) => {
   return fs.rm(PATHS.micromambaRunShell)
 }
 
-const uninstallEnvironment = (inputs: Options) => {
-  return determineEnvironmentName(inputs.environmentName, inputs.environmentFile).then((environmentName) => {
-    const envPath = path.join(PATHS.micromambaEnvs, environmentName)
+const uninstallEnvironment = (options: Options) => {
+  return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
+    const envPath = path.join(PATHS.micromambaRoot, 'envs', environmentName)
     core.info(`Removing environment ${environmentName} ...`)
     core.debug(`Deleting ${envPath}`)
     return fs.rm(envPath, { recursive: true })

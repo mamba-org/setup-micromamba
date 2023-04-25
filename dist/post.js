@@ -4877,7 +4877,7 @@ var coreMocked = {
 };
 
 // src/inputs.ts
-var coreDefault = __toESM(require_core());
+var coreDefault2 = __toESM(require_core());
 
 // node_modules/.pnpm/zod@3.20.6/node_modules/zod/lib/index.mjs
 var util;
@@ -8123,19 +8123,82 @@ var pipelineType = ZodPipeline.create;
 
 // src/inputs.ts
 var import_Either = __toESM(require_Either());
+
+// src/util.ts
+var fs = __toESM(require("fs/promises"));
+var path = __toESM(require("path"));
+var os = __toESM(require("os"));
+var coreDefault = __toESM(require_core());
+var import_exec = __toESM(require_exec());
 var core = process.env.MOCKING ? coreMocked : coreDefault;
+var PATHS = {
+  // TODO fix paths
+  micromambaBin: path.join(
+    os.homedir(),
+    "debug",
+    "micromamba-bin",
+    `micromamba${os.platform() === "win32" ? ".exe" : ""}`
+  ),
+  micromambaRoot: path.join(os.homedir(), "debug", "micromamba-root"),
+  // use a different path than ~/.condarc to avoid messing up the user's condarc
+  condarc: path.join(os.homedir(), "debug", "micromamba-root", ".condarc"),
+  micromambaRunShell: "/usr/local/bin/micromamba-shell",
+  bashProfile: path.join(os.homedir(), ".bash_profile"),
+  bashrc: path.join(os.homedir(), ".bashrc")
+};
+var determineEnvironmentName = (environmentName, environmentFile) => {
+  core.debug("Determining environment name from inputs.");
+  core.debug(`environmentName: ${environmentName}`);
+  core.debug(`environmentFile: ${environmentFile}`);
+  if (environmentName) {
+    core.debug(`Determined environment name: ${environmentName}`);
+    return Promise.resolve(environmentName);
+  }
+  if (!environmentFile) {
+    core.error("No environment name or file specified.");
+    throw new Error();
+  }
+  return fs.readFile(environmentFile, "utf8").then((fileContents) => {
+    const environmentName2 = fileContents.toString().match(/name:\s*(.*)/)?.[1];
+    if (!environmentName2) {
+      const errorMessage = `Could not determine environment name from file ${environmentFile}`;
+      core.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+    core.debug(`Determined environment name from file ${environmentFile}: ${environmentName2}`);
+    return environmentName2;
+  });
+};
+var mambaRegexBlock = /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/;
+var micromambaCmd = (command, logLevel, condarcFile) => {
+  let commandArray = [PATHS.micromambaBin].concat(command.split(" "));
+  if (logLevel) {
+    commandArray = commandArray.concat(["--log-level", logLevel]);
+  }
+  if (condarcFile) {
+    commandArray = commandArray.concat(["--rc-file", condarcFile]);
+  }
+  return commandArray;
+};
+var execute = (cmd) => {
+  core.debug(`Executing: ${cmd.join(" ")}`);
+  return (0, import_exec.exec)(cmd[0], cmd.slice(1));
+};
+
+// src/inputs.ts
+var core2 = process.env.MOCKING ? coreMocked : coreDefault2;
 var postCleanupSchema = enumType(["none", "shell-init", "environment", "all"]);
 var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
 var shellSchema = enumType(["bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
 var parseOrUndefined = (key, schema) => {
-  const input = core.getInput(key);
+  const input = core2.getInput(key);
   if (input === "") {
     return void 0;
   }
   return schema.parse(input);
 };
 var parseOrUndefinedJSON = (key, schema) => {
-  const input = core.getInput(key);
+  const input = core2.getInput(key);
   if (input === "") {
     return void 0;
   }
@@ -8143,10 +8206,13 @@ var parseOrUndefinedJSON = (key, schema) => {
 };
 var inferOptions = (inputs) => {
   const createEnvironment = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
-  const logLevel = inputs.logLevel || (core.isDebug() ? "debug" : "info");
+  const logLevel = inputs.logLevel || (core2.isDebug() ? "debug" : "info");
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
-  const options = {
+  const writeToCondarc = inputs.condarcFile === void 0;
+  return {
     ...inputs,
+    writeToCondarc,
+    condarcFile: inputs.condarcFile || PATHS.condarc,
     createEnvironment,
     createArgs: inputs.createArgs || [],
     logLevel,
@@ -8157,7 +8223,6 @@ var inferOptions = (inputs) => {
     cacheEnvironment: inputs.cacheEnvironment !== void 0 ? inputs.cacheEnvironment : true,
     postCleanup: inputs.postCleanup || "shell-init"
   };
-  return options;
 };
 var validateInputs = (inputs) => {
   if (inputs.micromambaUrl && inputs.micromambaVersion) {
@@ -8203,75 +8268,12 @@ var getOptions = () => {
     cacheEnvironmentKey: parseOrUndefined("cache-environment-key", stringType()),
     postCleanup: parseOrUndefined("post-cleanup", postCleanupSchema)
   };
-  core.debug(`Inputs: ${JSON.stringify(inputs)}`);
+  core2.debug(`Inputs: ${JSON.stringify(inputs)}`);
   validateInputs(inputs);
   const options = inferOptions(inputs);
-  core.debug(`Inferred options: ${JSON.stringify(options)}`);
+  core2.debug(`Inferred options: ${JSON.stringify(options)}`);
   assertOptions(options);
   return options;
-};
-
-// src/util.ts
-var fs = __toESM(require("fs/promises"));
-var path = __toESM(require("path"));
-var os = __toESM(require("os"));
-var coreDefault2 = __toESM(require_core());
-var import_exec = __toESM(require_exec());
-var core2 = process.env.MOCKING ? coreMocked : coreDefault2;
-var PATHS = {
-  // TODO fix paths
-  micromambaBinFolder: path.join(os.homedir(), "debug", "micromamba-bin"),
-  micromambaBin: path.join(
-    os.homedir(),
-    "debug",
-    "micromamba-bin",
-    `micromamba${os.platform() === "win32" ? ".exe" : ""}`
-  ),
-  micromambaRoot: path.join(os.homedir(), "debug", "micromamba-root"),
-  micromambaEnvs: path.join(os.homedir(), "debug", "micromamba-root", "envs"),
-  micromambaPkgs: path.join(os.homedir(), "debug", "micromamba-root", "pkgs"),
-  bashProfile: path.join(os.homedir(), ".bash_profile"),
-  bashrc: path.join(os.homedir(), ".bashrc"),
-  condarc: path.join(os.homedir(), "debug", "micromamba-root", ".condarc"),
-  micromambaRunShell: "/usr/local/bin/micromamba-shell"
-};
-var determineEnvironmentName = (environmentName, environmentFile) => {
-  core2.debug("Determining environment name from inputs.");
-  core2.debug(`environmentName: ${environmentName}`);
-  core2.debug(`environmentFile: ${environmentFile}`);
-  if (environmentName) {
-    core2.debug(`Determined environment name: ${environmentName}`);
-    return Promise.resolve(environmentName);
-  }
-  if (!environmentFile) {
-    core2.error("No environment name or file specified.");
-    throw new Error();
-  }
-  return fs.readFile(environmentFile, "utf8").then((fileContents) => {
-    const environmentName2 = fileContents.toString().match(/name:\s*(.*)/)?.[1];
-    if (!environmentName2) {
-      const errorMessage = `Could not determine environment name from file ${environmentFile}`;
-      core2.error(errorMessage);
-      throw new Error(errorMessage);
-    }
-    core2.debug(`Determined environment name from file ${environmentFile}: ${environmentName2}`);
-    return environmentName2;
-  });
-};
-var mambaRegexBlock = /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/;
-var micromambaCmd = (command, logLevel, condarcFile) => {
-  let commandArray = [PATHS.micromambaBin].concat(command.split(" "));
-  if (logLevel) {
-    commandArray = commandArray.concat(["--log-level", logLevel]);
-  }
-  if (condarcFile) {
-    commandArray = commandArray.concat(["--rc-file", condarcFile]);
-  }
-  return commandArray;
-};
-var execute = (cmd) => {
-  core2.debug(`Executing: ${cmd.join(" ")}`);
-  return (0, import_exec.exec)(cmd[0], cmd.slice(1));
 };
 
 // src/shell-init.ts
@@ -8323,9 +8325,9 @@ var removeMicromambaRunShell = (inputs) => {
   core4.info("Removing micromamba run shell ...");
   return fs3.rm(PATHS.micromambaRunShell);
 };
-var uninstallEnvironment = (inputs) => {
-  return determineEnvironmentName(inputs.environmentName, inputs.environmentFile).then((environmentName) => {
-    const envPath = import_path2.default.join(PATHS.micromambaEnvs, environmentName);
+var uninstallEnvironment = (options) => {
+  return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
+    const envPath = import_path2.default.join(PATHS.micromambaRoot, "envs", environmentName);
     core4.info(`Removing environment ${environmentName} ...`);
     core4.debug(`Deleting ${envPath}`);
     return fs3.rm(envPath, { recursive: true });

@@ -1972,7 +1972,7 @@ var require_path_utils = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.toPlatformPath = exports.toWin32Path = exports.toPosixPath = void 0;
-    var path3 = __importStar(require("path"));
+    var path4 = __importStar(require("path"));
     function toPosixPath(pth) {
       return pth.replace(/[\\]/g, "/");
     }
@@ -1982,7 +1982,7 @@ var require_path_utils = __commonJS({
     }
     exports.toWin32Path = toWin32Path;
     function toPlatformPath(pth) {
-      return pth.replace(/[/\\]/g, path3.sep);
+      return pth.replace(/[/\\]/g, path4.sep);
     }
     exports.toPlatformPath = toPlatformPath;
   }
@@ -2053,7 +2053,7 @@ var require_core = __commonJS({
     var file_command_1 = require_file_command();
     var utils_1 = require_utils();
     var os4 = __importStar(require("os"));
-    var path3 = __importStar(require("path"));
+    var path4 = __importStar(require("path"));
     var oidc_utils_1 = require_oidc_utils();
     var ExitCode;
     (function(ExitCode2) {
@@ -2081,7 +2081,7 @@ var require_core = __commonJS({
       } else {
         command_1.issueCommand("add-path", {}, inputPath);
       }
-      process.env["PATH"] = `${inputPath}${path3.delimiter}${process.env["PATH"]}`;
+      process.env["PATH"] = `${inputPath}${path4.delimiter}${process.env["PATH"]}`;
     }
     exports.addPath = addPath;
     function getInput(name, options) {
@@ -6933,7 +6933,7 @@ var require_io_util = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
     var fs5 = __importStar(require("fs"));
-    var path3 = __importStar(require("path"));
+    var path4 = __importStar(require("path"));
     _a4 = fs5.promises, exports.chmod = _a4.chmod, exports.copyFile = _a4.copyFile, exports.lstat = _a4.lstat, exports.mkdir = _a4.mkdir, exports.open = _a4.open, exports.readdir = _a4.readdir, exports.readlink = _a4.readlink, exports.rename = _a4.rename, exports.rm = _a4.rm, exports.rmdir = _a4.rmdir, exports.stat = _a4.stat, exports.symlink = _a4.symlink, exports.unlink = _a4.unlink;
     exports.IS_WINDOWS = process.platform === "win32";
     exports.UV_FS_O_EXLOCK = 268435456;
@@ -6982,7 +6982,7 @@ var require_io_util = __commonJS({
         }
         if (stats && stats.isFile()) {
           if (exports.IS_WINDOWS) {
-            const upperExt = path3.extname(filePath).toUpperCase();
+            const upperExt = path4.extname(filePath).toUpperCase();
             if (extensions.some((validExt) => validExt.toUpperCase() === upperExt)) {
               return filePath;
             }
@@ -7006,11 +7006,11 @@ var require_io_util = __commonJS({
           if (stats && stats.isFile()) {
             if (exports.IS_WINDOWS) {
               try {
-                const directory = path3.dirname(filePath);
-                const upperName = path3.basename(filePath).toUpperCase();
+                const directory = path4.dirname(filePath);
+                const upperName = path4.basename(filePath).toUpperCase();
                 for (const actualName of yield exports.readdir(directory)) {
                   if (upperName === actualName.toUpperCase()) {
-                    filePath = path3.join(directory, actualName);
+                    filePath = path4.join(directory, actualName);
                     break;
                   }
                 }
@@ -7110,7 +7110,7 @@ var require_io = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.findInPath = exports.which = exports.mkdirP = exports.rmRF = exports.mv = exports.cp = void 0;
     var assert_1 = require("assert");
-    var path3 = __importStar(require("path"));
+    var path4 = __importStar(require("path"));
     var ioUtil = __importStar(require_io_util());
     function cp(source, dest, options = {}) {
       return __awaiter(this, void 0, void 0, function* () {
@@ -7119,7 +7119,7 @@ var require_io = __commonJS({
         if (destStat && destStat.isFile() && !force) {
           return;
         }
-        const newDest = destStat && destStat.isDirectory() && copySourceDirectory ? path3.join(dest, path3.basename(source)) : dest;
+        const newDest = destStat && destStat.isDirectory() && copySourceDirectory ? path4.join(dest, path4.basename(source)) : dest;
         if (!(yield ioUtil.exists(source))) {
           throw new Error(`no such file or directory: ${source}`);
         }
@@ -7131,7 +7131,7 @@ var require_io = __commonJS({
             yield cpDirRecursive(source, newDest, 0, force);
           }
         } else {
-          if (path3.relative(source, newDest) === "") {
+          if (path4.relative(source, newDest) === "") {
             throw new Error(`'${newDest}' and '${source}' are the same file`);
           }
           yield copyFile(source, newDest, force);
@@ -7144,7 +7144,7 @@ var require_io = __commonJS({
         if (yield ioUtil.exists(dest)) {
           let destExists = true;
           if (yield ioUtil.isDirectory(dest)) {
-            dest = path3.join(dest, path3.basename(source));
+            dest = path4.join(dest, path4.basename(source));
             destExists = yield ioUtil.exists(dest);
           }
           if (destExists) {
@@ -7155,7 +7155,7 @@ var require_io = __commonJS({
             }
           }
         }
-        yield mkdirP(path3.dirname(dest));
+        yield mkdirP(path4.dirname(dest));
         yield ioUtil.rename(source, dest);
       });
     }
@@ -7218,7 +7218,7 @@ var require_io = __commonJS({
         }
         const extensions = [];
         if (ioUtil.IS_WINDOWS && process.env["PATHEXT"]) {
-          for (const extension of process.env["PATHEXT"].split(path3.delimiter)) {
+          for (const extension of process.env["PATHEXT"].split(path4.delimiter)) {
             if (extension) {
               extensions.push(extension);
             }
@@ -7231,12 +7231,12 @@ var require_io = __commonJS({
           }
           return [];
         }
-        if (tool.includes(path3.sep)) {
+        if (tool.includes(path4.sep)) {
           return [];
         }
         const directories = [];
         if (process.env.PATH) {
-          for (const p of process.env.PATH.split(path3.delimiter)) {
+          for (const p of process.env.PATH.split(path4.delimiter)) {
             if (p) {
               directories.push(p);
             }
@@ -7244,7 +7244,7 @@ var require_io = __commonJS({
         }
         const matches = [];
         for (const directory of directories) {
-          const filePath = yield ioUtil.tryGetExecutablePath(path3.join(directory, tool), extensions);
+          const filePath = yield ioUtil.tryGetExecutablePath(path4.join(directory, tool), extensions);
           if (filePath) {
             matches.push(filePath);
           }
@@ -7365,7 +7365,7 @@ var require_toolrunner = __commonJS({
     var os4 = __importStar(require("os"));
     var events = __importStar(require("events"));
     var child = __importStar(require("child_process"));
-    var path3 = __importStar(require("path"));
+    var path4 = __importStar(require("path"));
     var io = __importStar(require_io());
     var ioUtil = __importStar(require_io_util());
     var timers_1 = require("timers");
@@ -7580,7 +7580,7 @@ var require_toolrunner = __commonJS({
       exec() {
         return __awaiter(this, void 0, void 0, function* () {
           if (!ioUtil.isRooted(this.toolPath) && (this.toolPath.includes("/") || IS_WINDOWS && this.toolPath.includes("\\"))) {
-            this.toolPath = path3.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
+            this.toolPath = path4.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
           }
           this.toolPath = yield io.which(this.toolPath, true);
           return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
@@ -9511,6 +9511,7 @@ var require_Either = __commonJS({
 // src/main.ts
 var fs4 = __toESM(require("fs/promises"));
 var os3 = __toESM(require("os"));
+var import_path2 = __toESM(require("path"));
 var coreDefault4 = __toESM(require_core());
 
 // node_modules/.pnpm/node-fetch@3.3.0/node_modules/node-fetch/src/index.js
@@ -10890,7 +10891,6 @@ var coreMocked = {
 var core = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
   // TODO fix paths
-  micromambaBinFolder: path.join(os.homedir(), "debug", "micromamba-bin"),
   micromambaBin: path.join(
     os.homedir(),
     "debug",
@@ -10898,12 +10898,11 @@ var PATHS = {
     `micromamba${os.platform() === "win32" ? ".exe" : ""}`
   ),
   micromambaRoot: path.join(os.homedir(), "debug", "micromamba-root"),
-  micromambaEnvs: path.join(os.homedir(), "debug", "micromamba-root", "envs"),
-  micromambaPkgs: path.join(os.homedir(), "debug", "micromamba-root", "pkgs"),
-  bashProfile: path.join(os.homedir(), ".bash_profile"),
-  bashrc: path.join(os.homedir(), ".bashrc"),
+  // use a different path than ~/.condarc to avoid messing up the user's condarc
   condarc: path.join(os.homedir(), "debug", "micromamba-root", ".condarc"),
-  micromambaRunShell: "/usr/local/bin/micromamba-shell"
+  micromambaRunShell: "/usr/local/bin/micromamba-shell",
+  bashProfile: path.join(os.homedir(), ".bash_profile"),
+  bashrc: path.join(os.homedir(), ".bashrc")
 };
 var getMicromambaUrlFromVersion = (arch2, version2) => {
   if (version2 === "latest") {
@@ -11304,8 +11303,8 @@ function getErrorMap() {
   return overrideErrorMap;
 }
 var makeIssue = (params) => {
-  const { data, path: path3, errorMaps, issueData } = params;
-  const fullPath = [...path3, ...issueData.path || []];
+  const { data, path: path4, errorMaps, issueData } = params;
+  const fullPath = [...path4, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -11403,10 +11402,10 @@ var errorUtil;
   errorUtil2.toString = (message) => typeof message === "string" ? message : message === null || message === void 0 ? void 0 : message.message;
 })(errorUtil || (errorUtil = {}));
 var ParseInputLazyPath = class {
-  constructor(parent, value, path3, key) {
+  constructor(parent, value, path4, key) {
     this.parent = parent;
     this.data = value;
-    this._path = path3;
+    this._path = path4;
     this._key = key;
   }
   get path() {
@@ -14246,8 +14245,11 @@ var inferOptions = (inputs) => {
   const createEnvironment2 = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
   const logLevel = inputs.logLevel || (core2.isDebug() ? "debug" : "info");
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either2.right)(inputs.micromambaUrl) : (0, import_Either2.left)(inputs.micromambaVersion || "latest");
-  const options = {
+  const writeToCondarc = inputs.condarcFile === void 0;
+  return {
     ...inputs,
+    writeToCondarc,
+    condarcFile: inputs.condarcFile || PATHS.condarc,
     createEnvironment: createEnvironment2,
     createArgs: inputs.createArgs || [],
     logLevel,
@@ -14258,7 +14260,6 @@ var inferOptions = (inputs) => {
     cacheEnvironment: inputs.cacheEnvironment !== void 0 ? inputs.cacheEnvironment : true,
     postCleanup: inputs.postCleanup || "shell-init"
   };
-  return options;
 };
 var validateInputs = (inputs) => {
   if (inputs.micromambaUrl && inputs.micromambaVersion) {
@@ -14386,7 +14387,7 @@ var core4 = process.env.MOCKING ? coreMocked : coreDefault4;
 var downloadMicromamba = (url) => {
   core4.startGroup("Install micromamba");
   core4.debug(`Downloading micromamba from ${url} ...`);
-  const mkDir = fs4.mkdir(PATHS.micromambaBinFolder, { recursive: true });
+  const mkDir = fs4.mkdir(import_path2.default.dirname(PATHS.micromambaBin), { recursive: true });
   const downloadMicromamba2 = fetch(url).then((res) => {
     if (!res.ok) {
       throw new Error(`Download failed: ${res.statusText}`);
@@ -14404,21 +14405,19 @@ var downloadMicromamba = (url) => {
   }).finally(core4.endGroup);
 };
 var generateCondarc = (options) => {
-  if (options.condarcFile) {
+  if (!options.writeToCondarc) {
     core4.debug(`Using condarc file ${options.condarcFile} ...`);
-    return fs4.access((0, import_untildify.default)(options.condarcFile), fs4.constants.F_OK);
+    return fs4.access((0, import_untildify.default)(options.condarcFile), fs4.constants.R_OK);
   }
-  core4.debug(`Using ${PATHS.condarc} as condarc file.`);
-  options.condarcFile = PATHS.condarc;
-  const mkDir = fs4.mkdir(PATHS.micromambaRoot, { recursive: true });
-  const condarcFile = options.condarcFile;
+  core4.debug(`Using ${options.condarcFile} as condarc file.`);
+  const mkDir = fs4.mkdir(import_path2.default.dirname(options.condarcFile), { recursive: true });
   if (options.condarc) {
     core4.info(`Writing condarc contents to ${options.condarcFile} ...`);
     const condarc = options.condarc;
-    return mkDir.then(() => fs4.writeFile(condarcFile, condarc));
+    return mkDir.then(() => fs4.writeFile(options.condarcFile, condarc));
   }
   core4.info("Adding conda-forge to condarc channels ...");
-  return mkDir.then(() => fs4.writeFile(condarcFile, "channels:\n  - conda-forge"));
+  return mkDir.then(() => fs4.writeFile(options.condarcFile, "channels:\n  - conda-forge"));
 };
 var createEnvironment = (options) => {
   core4.debug(`environmentFile: ${options.environmentFile}`);
