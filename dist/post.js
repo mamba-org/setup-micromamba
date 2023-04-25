@@ -61635,9 +61635,11 @@ var saveCacheDownloads = () => {
     return Promise.resolve();
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "pkgs");
-  core4.startGroup(`Caching downloads in \`${cachePath}\` ...`);
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey);
-  return trimPkgsCacheFolder(cachePath).then(() => saveCache2(cachePath, cacheDownloadsKey)).finally(core4.endGroup);
+  return trimPkgsCacheFolder(cachePath).then(() => {
+    core4.startGroup(`Saving cache for \`${cachePath}\` ...`);
+    saveCache2(cachePath, cacheDownloadsKey);
+  }).finally(core4.endGroup);
 };
 
 // src/post.ts

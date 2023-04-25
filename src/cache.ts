@@ -116,10 +116,12 @@ export const saveCacheDownloads = () => {
     return Promise.resolve()
   }
   const cachePath = path.join(options.micromambaRootPath, 'pkgs')
-  core.startGroup(`Caching downloads in \`${cachePath}\` ...`)
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey)
   return trimPkgsCacheFolder(cachePath)
-    .then(() => saveCache(cachePath, cacheDownloadsKey))
+    .then(() => {
+      core.startGroup(`Saving cache for \`${cachePath}\` ...`)
+      saveCache(cachePath, cacheDownloadsKey)
+    })
     .finally(core.endGroup)
 }
 
@@ -135,5 +137,6 @@ export const restoreCacheDownloads = () => {
   }
   const cachePath = path.join(options.micromambaRootPath, 'pkgs')
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey)
+  core.startGroup(`Restoring downloads from \`${cachePath}\` ...`)
   return restoreCache(cachePath, cacheDownloadsKey).finally(core.endGroup)
 }

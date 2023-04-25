@@ -67704,6 +67704,7 @@ var restoreCacheDownloads = () => {
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "pkgs");
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey);
+  core4.startGroup(`Restoring downloads from \`${cachePath}\` ...`);
   return restoreCache2(cachePath, cacheDownloadsKey).finally(core4.endGroup);
 };
 
