@@ -12,7 +12,9 @@ jobs:
         with:
           environment-name: test
           extra-specs: '["python", "cython"]'
-          environment-file: ''
+      - run: |
+          micromamba info | grep -q "environment : test"
+        shell: bash -el {0}
 
   environment-file:
     runs-on: ubuntu-latest
@@ -21,6 +23,9 @@ jobs:
       - uses: ./
         with:
           environment-file: 'test/environment.yml'
+      - run: |
+          micromamba info | grep -q "environment : env-name"
+        shell: bash -el {0}
 
   create-environment-false:
     runs-on: ubuntu-latest
@@ -29,6 +34,9 @@ jobs:
       - uses: ./
         with:
           create-environment: false
+      - run: |
+          micromamba info | grep -q "environment : None (not found)"
+        shell: bash -el {0}
 
   micromamba-old-version:
     runs-on: ubuntu-latest
@@ -38,9 +46,7 @@ jobs:
         with:
           micromamba-version: 1.2.0-1
           environment-file: 'test/environment.yml'
-      - run: |
-          micromamba --version
-          micromamba info
+      - run: test "$(micromamba --version)" = 1.2.0
         shell: bash -el {0}
   
   micromamba-shell:
@@ -72,6 +78,7 @@ jobs:
       - name: micromamba info (cmd.exe)
         run: micromamba info
         shell: cmd /C CALL {0}
+      # TODO: cmd equivalent of `micromamba info | grep -q "environment : env-name"`
 
   powershell:
     strategy:
@@ -91,3 +98,4 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: micromamba info
         shell: powershell
+      # TODO: powershell equivalent of `micromamba info | grep -q "environment : env-name"`
