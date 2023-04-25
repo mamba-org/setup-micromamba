@@ -14391,10 +14391,10 @@ var addEnvironmentToAutoActivate = (environmentName, shell) => {
 
 // src/main.ts
 var core4 = process.env.MOCKING ? coreMocked : coreDefault4;
-var downloadMicromamba = (url, micromambaBinPath) => {
+var downloadMicromamba = (url) => {
   core4.startGroup("Install micromamba");
   core4.debug(`Downloading micromamba from ${url} ...`);
-  const mkDir = fs4.mkdir(import_path2.default.dirname(micromambaBinPath), { recursive: true });
+  const mkDir = fs4.mkdir(import_path2.default.dirname(options.micromambaBinPath), { recursive: true });
   const downloadMicromamba2 = fetch(url).then((res) => {
     if (!res.ok) {
       throw new Error(`Download failed: ${res.statusText}`);
@@ -14403,9 +14403,9 @@ var downloadMicromamba = (url, micromambaBinPath) => {
   }).then((arrayBuffer) => Buffer.from(arrayBuffer));
   return Promise.all([mkDir, downloadMicromamba2]).then(([, buffer]) => {
     core4.debug(`micromamba binary sha256: ${sha256(buffer)}`);
-    return fs4.writeFile(micromambaBinPath, buffer, { encoding: "binary", mode: 493 });
+    return fs4.writeFile(options.micromambaBinPath, buffer, { encoding: "binary", mode: 493 });
   }).then(() => {
-    core4.info(`micromamba installed to ${micromambaBinPath}`);
+    core4.info(`micromamba installed to ${options.micromambaBinPath}`);
   }).catch((err) => {
     core4.error(`Error installing micromamba: ${err.message}`);
     throw err;
@@ -14487,7 +14487,7 @@ var run = async () => {
   core4.debug(`os.homedir(): ${os4.homedir()}`);
   core4.debug(`bashProfile ${PATHS.bashProfile}`);
   const url = getMicromambaUrl(options.micromambaSource);
-  await downloadMicromamba(url, options.micromambaBinPath);
+  await downloadMicromamba(url);
   await generateCondarc();
   await Promise.all(options.initShell.map((shell) => shellInit(shell)));
   if (options.createEnvironment) {

@@ -11,11 +11,11 @@ import { addEnvironmentToAutoActivate, shellInit } from './shell-init'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
-const downloadMicromamba = (url: string, micromambaBinPath: string) => {
+const downloadMicromamba = (url: string) => {
   core.startGroup('Install micromamba')
   core.debug(`Downloading micromamba from ${url} ...`)
 
-  const mkDir = fs.mkdir(path.dirname(micromambaBinPath), { recursive: true })
+  const mkDir = fs.mkdir(path.dirname(options.micromambaBinPath), { recursive: true })
   const downloadMicromamba = fetch(url)
     .then((res) => {
       if (!res.ok) {
@@ -28,10 +28,10 @@ const downloadMicromamba = (url: string, micromambaBinPath: string) => {
   return Promise.all([mkDir, downloadMicromamba])
     .then(([, buffer]) => {
       core.debug(`micromamba binary sha256: ${sha256(buffer)}`)
-      return fs.writeFile(micromambaBinPath, buffer, { encoding: 'binary', mode: 0o755 })
+      return fs.writeFile(options.micromambaBinPath, buffer, { encoding: 'binary', mode: 0o755 })
     })
     .then(() => {
-      core.info(`micromamba installed to ${micromambaBinPath}`)
+      core.info(`micromamba installed to ${options.micromambaBinPath}`)
     })
     .catch((err) => {
       core.error(`Error installing micromamba: ${err.message}`)
@@ -132,7 +132,7 @@ const run = async () => {
   core.debug(`bashProfile ${PATHS.bashProfile}`)
 
   const url = getMicromambaUrl(options.micromambaSource)
-  await downloadMicromamba(url, options.micromambaBinPath)
+  await downloadMicromamba(url)
   await generateCondarc()
   await Promise.all(options.initShell.map((shell) => shellInit(shell)))
   if (options.createEnvironment) {
