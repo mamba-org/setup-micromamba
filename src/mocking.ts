@@ -23,5 +23,12 @@ export const coreMocked = {
   error: (msg: string) => console.error(`\u001B[41m\u001B[37m E \u001B[39m\u001B[49m ` + msg), // red "E"
   startGroup: (label: string) => console.group(`\u001B[47m\u001B[30m ▼ \u001B[39m\u001B[49m ` + label), // white "▼"
   endGroup: () => console.groupEnd(),
-  isDebug: () => true
+  isDebug: () => true,
+  saveState: (name: string, value: any) => {
+    // TODO: persist the state somewhere
+    console.log(`::save-state name=${name}::${value}`)
+  },
+  getState: (name: string) => {
+    return process.env[`STATE_${name.replace(/-/g, '_').toUpperCase()}`] || ''
+  }
 }

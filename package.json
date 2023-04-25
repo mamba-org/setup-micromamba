@@ -22,6 +22,7 @@
   "author": "Pavel Zwerschke <pavel.zwerschke@quantco.com>",
   "license": "MIT",
   "dependencies": {
+    "@actions/cache": "^3.2.1",
     "@actions/core": "^1.10.0",
     "@actions/exec": "^1.1.1",
     "fp-ts": "^2.14.0",

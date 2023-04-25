@@ -57,10 +57,8 @@ export type Options = Readonly<{
   micromambaSource: MicromambaSourceType
   initShell: ShellType[]
   generateRunShell: boolean
-  cacheDownloads: boolean
-  cacheDownloadsKey?: string
-  cacheEnvironment: boolean
-  cacheEnvironmentKey?: string
+  cacheDownloadsKey?: string // undefined if cacheDownloads is false
+  cacheEnvironmentKey?: string // undefined if cacheEnvironment is false
   postCleanup: PostCleanupType
   micromambaRootPath: string
   micromambaBinPath: string
@@ -114,8 +112,8 @@ const inferOptions = (inputs: Inputs): Options => {
     micromambaSource,
     initShell: inputs.initShell || ['bash'],
     generateRunShell: inputs.generateRunShell !== undefined ? inputs.generateRunShell : createEnvironment,
-    cacheDownloads: inputs.cacheDownloads !== undefined ? inputs.cacheDownloads : true,
-    cacheEnvironment: inputs.cacheEnvironment !== undefined ? inputs.cacheEnvironment : true,
+    cacheEnvironmentKey: inputs.cacheEnvironmentKey || (inputs.cacheEnvironment ? `micromamba-environment-` : undefined),
+    cacheDownloadsKey: inputs.cacheDownloadsKey || (inputs.cacheDownloads ? `micromamba-downloads-` : undefined),
     postCleanup: inputs.postCleanup || 'shell-init',
     micromambaRootPath: inputs.micromambaRootPath ? untildify(inputs.micromambaRootPath) : PATHS.micromambaRoot,
     micromambaBinPath: inputs.micromambaBinPath ? untildify(inputs.micromambaBinPath) : PATHS.micromambaBin
@@ -123,17 +121,27 @@ const inferOptions = (inputs: Inputs): Options => {
 }
 
 const validateInputs = (inputs: Inputs): void => {
+  const createEnvironment = inputs.environmentName !== undefined || inputs.environmentFile !== undefined
   if (inputs.micromambaUrl && inputs.micromambaVersion) {
     throw new Error('You must specify either a micromamba URL or a micromamba version, not both.')
   }
-  if (inputs.generateRunShell && !inputs.environmentName && !inputs.environmentFile) {
+  if (inputs.generateRunShell && !createEnvironment) {
     throw new Error("You must create an environment to use 'generate-run-shell'.")
   }
-  if (inputs.postCleanup === 'environment' && !inputs.environmentName && !inputs.environmentFile) {
+  if (inputs.postCleanup === 'environment' && !createEnvironment) {
     throw new Error("You must create an environment to use post-cleanup: 'environment'.")
   }
   if (inputs.condarcFile && inputs.condarc) {
     throw new Error('You must specify either a condarc file or a condarc string, not both.')
+  }
+  if ((inputs.cacheEnvironment || inputs.cacheEnvironmentKey) && !createEnvironment) {
+    throw new Error("You must create an environment to use 'cache-environment'.")
+  }
+  if (inputs.cacheEnvironment === false && inputs.cacheEnvironmentKey) {
+    throw new Error("You must enable 'cache-environment' to use 'cache-environment-key'.")
+  }
+  if (inputs.cacheDownloads === false && inputs.cacheDownloadsKey) {
+    throw new Error("You must enable 'cache-downloads' to use 'cache-downloads-key'.")
   }
 }
 

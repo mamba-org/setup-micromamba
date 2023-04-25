@@ -78,6 +78,10 @@ export const sha256 = (s: BinaryLike) => {
   return createHash('sha256').update(s).digest('hex')
 }
 
+export const sha256Short = (s: BinaryLike) => {
+  return sha256(s).slice(0, 7)
+}
+
 export const micromambaCmd = (command: string, logLevel?: LogLevelType, condarcFile?: string) => {
   let commandArray = [options.micromambaBinPath].concat(command.split(' '))
   if (logLevel) {

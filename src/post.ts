@@ -6,6 +6,7 @@ import { coreMocked } from './mocking'
 import { PATHS, options } from './options'
 import { determineEnvironmentName } from './util'
 import { shellDeinit } from './shell-init'
+import { saveCacheDownloads } from './cache'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -65,7 +66,10 @@ const cleanup = () => {
 }
 
 const run = async () => {
-  // TODO: cache handling
+  const cacheDownloadsCacheHit = JSON.parse(core.getState('cacheDownloadsCacheHit'))
+  if (!cacheDownloadsCacheHit) {
+    await saveCacheDownloads()
+  }
   await cleanup()
 }
 

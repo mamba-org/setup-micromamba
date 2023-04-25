@@ -8,6 +8,7 @@ import { sha256, getMicromambaUrl, micromambaCmd, execute, determineEnvironmentN
 import { coreMocked } from './mocking'
 import { PATHS, options } from './options'
 import { addEnvironmentToAutoActivate, shellInit } from './shell-init'
+import { restoreCacheDownloads, restoreCacheEnvironment, saveCacheEnvironment } from './cache'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -81,13 +82,25 @@ const createEnvironment = () => {
 
 const installEnvironment = () => {
   return determineEnvironmentName(options.environmentName, options.environmentFile)
-    .then((environmentName) => {
+    .then((environmentName) => Promise.all([
+      Promise.resolve(environmentName), restoreCacheEnvironment(environmentName)
+    ]))
+    .then(([environmentName, cacheKey]) => {
+      if (cacheKey) {
+        // cache hit, no need to install and save cache
+        return Promise.resolve(environmentName)
+      }
+      // cache miss, install and save cache
       core.startGroup(`Install environment \`${environmentName}\``)
       return createEnvironment().then((_exitCode) => environmentName)
+        .then((environmentName) =>
+          // cache can already be saved here and not in post action since the environment is not changing anymore
+          saveCacheEnvironment(environmentName).then(() => environmentName)
+        )
     })
-    .then((environmentName) => {
-      return Promise.all(options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)))
-    })
+    .then((environmentName) => Promise.all(
+      options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell))
+    ))
     .finally(core.endGroup)
 }
 
@@ -131,10 +144,11 @@ const run = async () => {
   core.debug(`os.homedir(): ${os.homedir()}`)
   core.debug(`bashProfile ${PATHS.bashProfile}`)
 
-  const url = getMicromambaUrl(options.micromambaSource)
-  await downloadMicromamba(url)
+  await downloadMicromamba(getMicromambaUrl(options.micromambaSource))
   await generateCondarc()
   await Promise.all(options.initShell.map((shell) => shellInit(shell)))
+  const cacheDownloadsKey = await restoreCacheDownloads()
+  core.saveState('cacheDownloadsCacheHit', cacheDownloadsKey !== undefined)
   if (options.createEnvironment) {
     await installEnvironment()
     await generateMicromambaRunShell()
