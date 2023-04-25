@@ -6878,437 +6878,6 @@ var require_untildify = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io-util.js
-var require_io_util = __commonJS({
-  "node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io-util.js"(exports) {
-    "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m2, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      Object.defineProperty(o, k2, { enumerable: true, get: function() {
-        return m2[k];
-      } });
-    } : function(o, m2, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      o[k2] = m2[k];
-    });
-    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o, v) {
-      Object.defineProperty(o, "default", { enumerable: true, value: v });
-    } : function(o, v) {
-      o["default"] = v;
-    });
-    var __importStar = exports && exports.__importStar || function(mod) {
-      if (mod && mod.__esModule)
-        return mod;
-      var result = {};
-      if (mod != null) {
-        for (var k in mod)
-          if (k !== "default" && Object.hasOwnProperty.call(mod, k))
-            __createBinding(result, mod, k);
-      }
-      __setModuleDefault(result, mod);
-      return result;
-    };
-    var __awaiter = exports && exports.__awaiter || function(thisArg, _arguments, P, generator) {
-      function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve) {
-          resolve(value);
-        });
-      }
-      return new (P || (P = Promise))(function(resolve, reject) {
-        function fulfilled(value) {
-          try {
-            step(generator.next(value));
-          } catch (e2) {
-            reject(e2);
-          }
-        }
-        function rejected(value) {
-          try {
-            step(generator["throw"](value));
-          } catch (e2) {
-            reject(e2);
-          }
-        }
-        function step(result) {
-          result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
-        }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-      });
-    };
-    var _a4;
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
-    var fs7 = __importStar(require("fs"));
-    var path5 = __importStar(require("path"));
-    _a4 = fs7.promises, exports.chmod = _a4.chmod, exports.copyFile = _a4.copyFile, exports.lstat = _a4.lstat, exports.mkdir = _a4.mkdir, exports.open = _a4.open, exports.readdir = _a4.readdir, exports.readlink = _a4.readlink, exports.rename = _a4.rename, exports.rm = _a4.rm, exports.rmdir = _a4.rmdir, exports.stat = _a4.stat, exports.symlink = _a4.symlink, exports.unlink = _a4.unlink;
-    exports.IS_WINDOWS = process.platform === "win32";
-    exports.UV_FS_O_EXLOCK = 268435456;
-    exports.READONLY = fs7.constants.O_RDONLY;
-    function exists(fsPath) {
-      return __awaiter(this, void 0, void 0, function* () {
-        try {
-          yield exports.stat(fsPath);
-        } catch (err) {
-          if (err.code === "ENOENT") {
-            return false;
-          }
-          throw err;
-        }
-        return true;
-      });
-    }
-    exports.exists = exists;
-    function isDirectory(fsPath, useStat = false) {
-      return __awaiter(this, void 0, void 0, function* () {
-        const stats = useStat ? yield exports.stat(fsPath) : yield exports.lstat(fsPath);
-        return stats.isDirectory();
-      });
-    }
-    exports.isDirectory = isDirectory;
-    function isRooted(p) {
-      p = normalizeSeparators(p);
-      if (!p) {
-        throw new Error('isRooted() parameter "p" cannot be empty');
-      }
-      if (exports.IS_WINDOWS) {
-        return p.startsWith("\\") || /^[A-Z]:/i.test(p);
-      }
-      return p.startsWith("/");
-    }
-    exports.isRooted = isRooted;
-    function tryGetExecutablePath(filePath, extensions) {
-      return __awaiter(this, void 0, void 0, function* () {
-        let stats = void 0;
-        try {
-          stats = yield exports.stat(filePath);
-        } catch (err) {
-          if (err.code !== "ENOENT") {
-            console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
-          }
-        }
-        if (stats && stats.isFile()) {
-          if (exports.IS_WINDOWS) {
-            const upperExt = path5.extname(filePath).toUpperCase();
-            if (extensions.some((validExt) => validExt.toUpperCase() === upperExt)) {
-              return filePath;
-            }
-          } else {
-            if (isUnixExecutable(stats)) {
-              return filePath;
-            }
-          }
-        }
-        const originalFilePath = filePath;
-        for (const extension of extensions) {
-          filePath = originalFilePath + extension;
-          stats = void 0;
-          try {
-            stats = yield exports.stat(filePath);
-          } catch (err) {
-            if (err.code !== "ENOENT") {
-              console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
-            }
-          }
-          if (stats && stats.isFile()) {
-            if (exports.IS_WINDOWS) {
-              try {
-                const directory = path5.dirname(filePath);
-                const upperName = path5.basename(filePath).toUpperCase();
-                for (const actualName of yield exports.readdir(directory)) {
-                  if (upperName === actualName.toUpperCase()) {
-                    filePath = path5.join(directory, actualName);
-                    break;
-                  }
-                }
-              } catch (err) {
-                console.log(`Unexpected error attempting to determine the actual case of the file '${filePath}': ${err}`);
-              }
-              return filePath;
-            } else {
-              if (isUnixExecutable(stats)) {
-                return filePath;
-              }
-            }
-          }
-        }
-        return "";
-      });
-    }
-    exports.tryGetExecutablePath = tryGetExecutablePath;
-    function normalizeSeparators(p) {
-      p = p || "";
-      if (exports.IS_WINDOWS) {
-        p = p.replace(/\//g, "\\");
-        return p.replace(/\\\\+/g, "\\");
-      }
-      return p.replace(/\/\/+/g, "/");
-    }
-    function isUnixExecutable(stats) {
-      return (stats.mode & 1) > 0 || (stats.mode & 8) > 0 && stats.gid === process.getgid() || (stats.mode & 64) > 0 && stats.uid === process.getuid();
-    }
-    function getCmdPath() {
-      var _a5;
-      return (_a5 = process.env["COMSPEC"]) !== null && _a5 !== void 0 ? _a5 : `cmd.exe`;
-    }
-    exports.getCmdPath = getCmdPath;
-  }
-});
-
-// node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io.js
-var require_io = __commonJS({
-  "node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io.js"(exports) {
-    "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m2, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      Object.defineProperty(o, k2, { enumerable: true, get: function() {
-        return m2[k];
-      } });
-    } : function(o, m2, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      o[k2] = m2[k];
-    });
-    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o, v) {
-      Object.defineProperty(o, "default", { enumerable: true, value: v });
-    } : function(o, v) {
-      o["default"] = v;
-    });
-    var __importStar = exports && exports.__importStar || function(mod) {
-      if (mod && mod.__esModule)
-        return mod;
-      var result = {};
-      if (mod != null) {
-        for (var k in mod)
-          if (k !== "default" && Object.hasOwnProperty.call(mod, k))
-            __createBinding(result, mod, k);
-      }
-      __setModuleDefault(result, mod);
-      return result;
-    };
-    var __awaiter = exports && exports.__awaiter || function(thisArg, _arguments, P, generator) {
-      function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve) {
-          resolve(value);
-        });
-      }
-      return new (P || (P = Promise))(function(resolve, reject) {
-        function fulfilled(value) {
-          try {
-            step(generator.next(value));
-          } catch (e2) {
-            reject(e2);
-          }
-        }
-        function rejected(value) {
-          try {
-            step(generator["throw"](value));
-          } catch (e2) {
-            reject(e2);
-          }
-        }
-        function step(result) {
-          result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
-        }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-      });
-    };
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.findInPath = exports.which = exports.mkdirP = exports.rmRF = exports.mv = exports.cp = void 0;
-    var assert_1 = require("assert");
-    var path5 = __importStar(require("path"));
-    var ioUtil = __importStar(require_io_util());
-    function cp(source, dest, options2 = {}) {
-      return __awaiter(this, void 0, void 0, function* () {
-        const { force, recursive, copySourceDirectory } = readCopyOptions(options2);
-        const destStat = (yield ioUtil.exists(dest)) ? yield ioUtil.stat(dest) : null;
-        if (destStat && destStat.isFile() && !force) {
-          return;
-        }
-        const newDest = destStat && destStat.isDirectory() && copySourceDirectory ? path5.join(dest, path5.basename(source)) : dest;
-        if (!(yield ioUtil.exists(source))) {
-          throw new Error(`no such file or directory: ${source}`);
-        }
-        const sourceStat = yield ioUtil.stat(source);
-        if (sourceStat.isDirectory()) {
-          if (!recursive) {
-            throw new Error(`Failed to copy. ${source} is a directory, but tried to copy without recursive flag.`);
-          } else {
-            yield cpDirRecursive(source, newDest, 0, force);
-          }
-        } else {
-          if (path5.relative(source, newDest) === "") {
-            throw new Error(`'${newDest}' and '${source}' are the same file`);
-          }
-          yield copyFile(source, newDest, force);
-        }
-      });
-    }
-    exports.cp = cp;
-    function mv(source, dest, options2 = {}) {
-      return __awaiter(this, void 0, void 0, function* () {
-        if (yield ioUtil.exists(dest)) {
-          let destExists = true;
-          if (yield ioUtil.isDirectory(dest)) {
-            dest = path5.join(dest, path5.basename(source));
-            destExists = yield ioUtil.exists(dest);
-          }
-          if (destExists) {
-            if (options2.force == null || options2.force) {
-              yield rmRF(dest);
-            } else {
-              throw new Error("Destination already exists");
-            }
-          }
-        }
-        yield mkdirP(path5.dirname(dest));
-        yield ioUtil.rename(source, dest);
-      });
-    }
-    exports.mv = mv;
-    function rmRF(inputPath) {
-      return __awaiter(this, void 0, void 0, function* () {
-        if (ioUtil.IS_WINDOWS) {
-          if (/[*"<>|]/.test(inputPath)) {
-            throw new Error('File path must not contain `*`, `"`, `<`, `>` or `|` on Windows');
-          }
-        }
-        try {
-          yield ioUtil.rm(inputPath, {
-            force: true,
-            maxRetries: 3,
-            recursive: true,
-            retryDelay: 300
-          });
-        } catch (err) {
-          throw new Error(`File was unable to be removed ${err}`);
-        }
-      });
-    }
-    exports.rmRF = rmRF;
-    function mkdirP(fsPath) {
-      return __awaiter(this, void 0, void 0, function* () {
-        assert_1.ok(fsPath, "a path argument must be provided");
-        yield ioUtil.mkdir(fsPath, { recursive: true });
-      });
-    }
-    exports.mkdirP = mkdirP;
-    function which(tool, check) {
-      return __awaiter(this, void 0, void 0, function* () {
-        if (!tool) {
-          throw new Error("parameter 'tool' is required");
-        }
-        if (check) {
-          const result = yield which(tool, false);
-          if (!result) {
-            if (ioUtil.IS_WINDOWS) {
-              throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also verify the file has a valid extension for an executable file.`);
-            } else {
-              throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also check the file mode to verify the file is executable.`);
-            }
-          }
-          return result;
-        }
-        const matches = yield findInPath(tool);
-        if (matches && matches.length > 0) {
-          return matches[0];
-        }
-        return "";
-      });
-    }
-    exports.which = which;
-    function findInPath(tool) {
-      return __awaiter(this, void 0, void 0, function* () {
-        if (!tool) {
-          throw new Error("parameter 'tool' is required");
-        }
-        const extensions = [];
-        if (ioUtil.IS_WINDOWS && process.env["PATHEXT"]) {
-          for (const extension of process.env["PATHEXT"].split(path5.delimiter)) {
-            if (extension) {
-              extensions.push(extension);
-            }
-          }
-        }
-        if (ioUtil.isRooted(tool)) {
-          const filePath = yield ioUtil.tryGetExecutablePath(tool, extensions);
-          if (filePath) {
-            return [filePath];
-          }
-          return [];
-        }
-        if (tool.includes(path5.sep)) {
-          return [];
-        }
-        const directories = [];
-        if (process.env.PATH) {
-          for (const p of process.env.PATH.split(path5.delimiter)) {
-            if (p) {
-              directories.push(p);
-            }
-          }
-        }
-        const matches = [];
-        for (const directory of directories) {
-          const filePath = yield ioUtil.tryGetExecutablePath(path5.join(directory, tool), extensions);
-          if (filePath) {
-            matches.push(filePath);
-          }
-        }
-        return matches;
-      });
-    }
-    exports.findInPath = findInPath;
-    function readCopyOptions(options2) {
-      const force = options2.force == null ? true : options2.force;
-      const recursive = Boolean(options2.recursive);
-      const copySourceDirectory = options2.copySourceDirectory == null ? true : Boolean(options2.copySourceDirectory);
-      return { force, recursive, copySourceDirectory };
-    }
-    function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
-      return __awaiter(this, void 0, void 0, function* () {
-        if (currentDepth >= 255)
-          return;
-        currentDepth++;
-        yield mkdirP(destDir);
-        const files = yield ioUtil.readdir(sourceDir);
-        for (const fileName of files) {
-          const srcFile = `${sourceDir}/${fileName}`;
-          const destFile = `${destDir}/${fileName}`;
-          const srcFileStat = yield ioUtil.lstat(srcFile);
-          if (srcFileStat.isDirectory()) {
-            yield cpDirRecursive(srcFile, destFile, currentDepth, force);
-          } else {
-            yield copyFile(srcFile, destFile, force);
-          }
-        }
-        yield ioUtil.chmod(destDir, (yield ioUtil.stat(sourceDir)).mode);
-      });
-    }
-    function copyFile(srcFile, destFile, force) {
-      return __awaiter(this, void 0, void 0, function* () {
-        if ((yield ioUtil.lstat(srcFile)).isSymbolicLink()) {
-          try {
-            yield ioUtil.lstat(destFile);
-            yield ioUtil.unlink(destFile);
-          } catch (e2) {
-            if (e2.code === "EPERM") {
-              yield ioUtil.chmod(destFile, "0666");
-              yield ioUtil.unlink(destFile);
-            }
-          }
-          const symlinkFull = yield ioUtil.readlink(srcFile);
-          yield ioUtil.symlink(symlinkFull, destFile, ioUtil.IS_WINDOWS ? "junction" : null);
-        } else if (!(yield ioUtil.exists(destFile)) || force) {
-          yield ioUtil.copyFile(srcFile, destFile);
-        }
-      });
-    }
-  }
-});
-
 // node_modules/.pnpm/@actions+exec@1.1.1/node_modules/@actions/exec/lib/toolrunner.js
 var require_toolrunner = __commonJS({
   "node_modules/.pnpm/@actions+exec@1.1.1/node_modules/@actions/exec/lib/toolrunner.js"(exports) {
@@ -7374,8 +6943,8 @@ var require_toolrunner = __commonJS({
     var events = __importStar(require("events"));
     var child = __importStar(require("child_process"));
     var path5 = __importStar(require("path"));
-    var io = __importStar(require_io());
-    var ioUtil = __importStar(require_io_util());
+    var io2 = __importStar(require("@actions/io"));
+    var ioUtil = __importStar(require("@actions/io/lib/io-util"));
     var timers_1 = require("timers");
     var IS_WINDOWS = process.platform === "win32";
     var ToolRunner = class extends events.EventEmitter {
@@ -7590,7 +7159,7 @@ var require_toolrunner = __commonJS({
           if (!ioUtil.isRooted(this.toolPath) && (this.toolPath.includes("/") || IS_WINDOWS && this.toolPath.includes("\\"))) {
             this.toolPath = path5.resolve(process.cwd(), this.options.cwd || process.cwd(), this.toolPath);
           }
-          this.toolPath = yield io.which(this.toolPath, true);
+          this.toolPath = yield io2.which(this.toolPath, true);
           return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             this._debug(`exec tool: ${this.toolPath}`);
             this._debug("arguments:");
@@ -12676,7 +12245,7 @@ var require_cacheUtils = __commonJS({
     var core6 = __importStar(require_core());
     var exec2 = __importStar(require_exec());
     var glob = __importStar(require_glob());
-    var io = __importStar(require_io());
+    var io2 = __importStar(require("@actions/io"));
     var fs7 = __importStar(require("fs"));
     var path5 = __importStar(require("path"));
     var semver = __importStar(require_semver());
@@ -12701,7 +12270,7 @@ var require_cacheUtils = __commonJS({
           tempDirectory = path5.join(baseLocation, "actions", "temp");
         }
         const dest = path5.join(tempDirectory, (0, uuid_1.v4)());
-        yield io.mkdirP(dest);
+        yield io2.mkdirP(dest);
         return dest;
       });
     }
@@ -12796,7 +12365,7 @@ var require_cacheUtils = __commonJS({
           return constants_1.GnuTarPathOnWindows;
         }
         const versionOutput = yield getVersion("tar");
-        return versionOutput.toLowerCase().includes("gnu tar") ? io.which("tar") : "";
+        return versionOutput.toLowerCase().includes("gnu tar") ? io2.which("tar") : "";
       });
     }
     exports.getGnuTarPathOnWindows = getGnuTarPathOnWindows;
@@ -62036,7 +61605,7 @@ var require_tar = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.createTar = exports.extractTar = exports.listTar = void 0;
     var exec_1 = require_exec();
-    var io = __importStar(require_io());
+    var io2 = __importStar(require("@actions/io"));
     var fs_1 = require("fs");
     var path5 = __importStar(require("path"));
     var utils = __importStar(require_cacheUtils());
@@ -62056,12 +61625,12 @@ var require_tar = __commonJS({
             break;
           }
           case "darwin": {
-            const gnuTar = yield io.which("gtar", false);
+            const gnuTar = yield io2.which("gtar", false);
             if (gnuTar) {
               return { path: gnuTar, type: constants_1.ArchiveToolType.GNU };
             } else {
               return {
-                path: yield io.which("tar", true),
+                path: yield io2.which("tar", true),
                 type: constants_1.ArchiveToolType.BSD
               };
             }
@@ -62070,7 +61639,7 @@ var require_tar = __commonJS({
             break;
         }
         return {
-          path: yield io.which("tar", true),
+          path: yield io2.which("tar", true),
           type: constants_1.ArchiveToolType.GNU
         };
       });
@@ -62201,7 +61770,7 @@ var require_tar = __commonJS({
     function extractTar(archivePath, compressionMethod) {
       return __awaiter(this, void 0, void 0, function* () {
         const workingDirectory = getWorkingDirectory();
-        yield io.mkdirP(workingDirectory);
+        yield io2.mkdirP(workingDirectory);
         const commands = yield getCommands(compressionMethod, "extract", archivePath);
         yield execCommands(commands);
       });
@@ -62448,6 +62017,7 @@ var fs6 = __toESM(require("fs/promises"));
 var os6 = __toESM(require("os"));
 var import_path3 = __toESM(require("path"));
 var coreDefault5 = __toESM(require_core());
+var io = __toESM(require("@actions/io"));
 
 // node_modules/.pnpm/node-fetch@3.3.1/node_modules/node-fetch/src/index.js
 var import_node_http2 = __toESM(require("http"), 1);
@@ -63825,6 +63395,9 @@ var coreMocked = {
   },
   getState: (name) => {
     return process.env[`STATE_${name.replace(/-/g, "_").toUpperCase()}`] || "";
+  },
+  addPath: (path5) => {
+    console.log(`::add-path::${path5}`);
   }
 };
 
@@ -67810,6 +67383,9 @@ var run = async () => {
   core5.debug(`process.env.HOME: ${process.env.HOME}`);
   core5.debug(`os.homedir(): ${os6.homedir()}`);
   core5.debug(`bashProfile ${PATHS.bashProfile}`);
+  if (process.platform === "win32") {
+    core5.addPath(import_path3.default.dirname(await io.which("cygpath", true)));
+  }
   await downloadMicromamba(getMicromambaUrl(options.micromambaSource));
   await generateCondarc();
   await Promise.all(options.initShell.map((shell) => shellInit(shell)));

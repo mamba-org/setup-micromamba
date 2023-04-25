@@ -2,6 +2,7 @@ import * as fs from 'fs/promises'
 import * as os from 'os'
 import path from 'path'
 import * as coreDefault from '@actions/core'
+import * as io from '@actions/io'
 import fetch from 'node-fetch'
 import untildify from 'untildify'
 import { sha256, getMicromambaUrl, micromambaCmd, execute, determineEnvironmentName } from './util'
@@ -144,6 +145,12 @@ const run = async () => {
   core.debug(`process.env.HOME: ${process.env.HOME}`)
   core.debug(`os.homedir(): ${os.homedir()}`)
   core.debug(`bashProfile ${PATHS.bashProfile}`)
+
+  if (process.platform === 'win32') {
+    // Work around bug in Mamba: https://github.com/mamba-org/mamba/issues/1779
+    // This prevents using provision-with-micromamba without bash
+    core.addPath(path.dirname(await io.which('cygpath', true)))
+  }
 
   await downloadMicromamba(getMicromambaUrl(options.micromambaSource))
   await generateCondarc()

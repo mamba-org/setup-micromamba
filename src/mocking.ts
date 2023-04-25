@@ -31,5 +31,8 @@ export const coreMocked = {
   },
   getState: (name: string) => {
     return process.env[`STATE_${name.replace(/-/g, '_').toUpperCase()}`] || ''
+  },
+  addPath: (path: string) => {
+    console.log(`::add-path::${path}`)
   }
 }
