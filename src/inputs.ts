@@ -3,10 +3,11 @@ import * as z from 'zod'
 import { left, right } from 'fp-ts/lib/Either'
 import type { Either } from 'fp-ts/lib/Either'
 import { coreMocked } from './mocking'
+import { PATHS } from './util'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
-type Inputs = {
+type Inputs = Readonly<{
   condarcFile?: string
   condarc?: string
   environmentFile?: string
@@ -22,10 +23,11 @@ type Inputs = {
   cacheEnvironment?: boolean
   cacheEnvironmentKey?: string
   postCleanup?: PostCleanupType
-}
+}>
 
-export type Options = {
-  condarcFile?: string
+export type Options = Readonly<{
+  writeToCondarc: boolean
+  condarcFile: string
   condarc?: string
   createEnvironment: boolean
   environmentFile?: string
@@ -40,7 +42,7 @@ export type Options = {
   cacheEnvironment: boolean
   cacheEnvironmentKey?: string
   postCleanup: PostCleanupType
-}
+}>
 
 const postCleanupSchema = z.enum(['none', 'shell-init', 'environment', 'all'])
 export type PostCleanupType = z.infer<typeof postCleanupSchema>
@@ -78,8 +80,12 @@ const inferOptions = (inputs: Inputs): Options => {
   const micromambaSource = inputs.micromambaUrl
     ? right(inputs.micromambaUrl)
     : left(inputs.micromambaVersion || 'latest')
-  const options = {
+  // we write to condarc if a condarc file is not already specified
+  const writeToCondarc = inputs.condarcFile === undefined
+  return {
     ...inputs,
+    writeToCondarc,
+    condarcFile: inputs.condarcFile || PATHS.condarc,
     createEnvironment,
     createArgs: inputs.createArgs || [],
     logLevel,
@@ -90,7 +96,6 @@ const inferOptions = (inputs: Inputs): Options => {
     cacheEnvironment: inputs.cacheEnvironment !== undefined ? inputs.cacheEnvironment : true,
     postCleanup: inputs.postCleanup || 'shell-init'
   }
-  return options
 }
 
 const validateInputs = (inputs: Inputs): void => {

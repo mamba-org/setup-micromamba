@@ -1,5 +1,6 @@
 import * as fs from 'fs/promises'
 import * as os from 'os'
+import path from 'path'
 import * as coreDefault from '@actions/core'
 import fetch from 'node-fetch'
 import untildify from 'untildify'
@@ -15,7 +16,7 @@ const downloadMicromamba = (url: string) => {
   core.startGroup('Install micromamba')
   core.debug(`Downloading micromamba from ${url} ...`)
 
-  const mkDir = fs.mkdir(PATHS.micromambaBinFolder, { recursive: true })
+  const mkDir = fs.mkdir(path.dirname(PATHS.micromambaBin), { recursive: true })
   const downloadMicromamba = fetch(url)
     .then((res) => {
       if (!res.ok) {
@@ -41,22 +42,21 @@ const downloadMicromamba = (url: string) => {
 }
 
 const generateCondarc = (options: Options) => {
-  if (options.condarcFile) {
+  if (!options.writeToCondarc) {
     core.debug(`Using condarc file ${options.condarcFile} ...`)
-    return fs.access(untildify(options.condarcFile), fs.constants.F_OK)
+    return fs.access(untildify(options.condarcFile), fs.constants.R_OK)
   }
-  core.debug(`Using ${PATHS.condarc} as condarc file.`)
-  options.condarcFile = PATHS.condarc // TODO: put this in inputs.ts with customCondaRc: boolean
-  const mkDir = fs.mkdir(PATHS.micromambaRoot, { recursive: true })
-  // if we don't put this into a variable, the compiler complains
-  const condarcFile = options.condarcFile
+  core.debug(`Using ${options.condarcFile} as condarc file.`)
+  const mkDir = fs.mkdir(path.dirname(options.condarcFile), { recursive: true })
   if (options.condarc) {
     core.info(`Writing condarc contents to ${options.condarcFile} ...`)
+    // if we don't put this into a variable, typescript complains
     const condarc = options.condarc
-    return mkDir.then(() => fs.writeFile(condarcFile, condarc))
+    return mkDir.then(() => fs.writeFile(options.condarcFile, condarc))
   }
+  // default: condarc contains conda-forge channel
   core.info('Adding conda-forge to condarc channels ...')
-  return mkDir.then(() => fs.writeFile(condarcFile, 'channels:\n  - conda-forge'))
+  return mkDir.then(() => fs.writeFile(options.condarcFile, 'channels:\n  - conda-forge'))
 }
 
 const createEnvironment = (options: Options) => {

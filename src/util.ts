@@ -14,7 +14,6 @@ const core = process.env.MOCKING ? coreMocked : coreDefault
 
 export const PATHS = {
   // TODO fix paths
-  micromambaBinFolder: path.join(os.homedir(), 'debug', 'micromamba-bin'),
   micromambaBin: path.join(
     os.homedir(),
     'debug',
@@ -22,12 +21,11 @@ export const PATHS = {
     `micromamba${os.platform() === 'win32' ? '.exe' : ''}`
   ),
   micromambaRoot: path.join(os.homedir(), 'debug', 'micromamba-root'),
-  micromambaEnvs: path.join(os.homedir(), 'debug', 'micromamba-root', 'envs'),
-  micromambaPkgs: path.join(os.homedir(), 'debug', 'micromamba-root', 'pkgs'),
-  bashProfile: path.join(os.homedir(), '.bash_profile'),
-  bashrc: path.join(os.homedir(), '.bashrc'),
+  // use a different path than ~/.condarc to avoid messing up the user's condarc
   condarc: path.join(os.homedir(), 'debug', 'micromamba-root', '.condarc'),
-  micromambaRunShell: '/usr/local/bin/micromamba-shell'
+  micromambaRunShell: '/usr/local/bin/micromamba-shell',
+  bashProfile: path.join(os.homedir(), '.bash_profile'),
+  bashrc: path.join(os.homedir(), '.bashrc')
 }
 
 const getMicromambaUrlFromVersion = (arch: string, version: string) => {
