@@ -65,6 +65,21 @@ jobs:
           python --version
         shell: micromamba-shell {0}
 
+  bash:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ./
+      with:
+        init-shell: '["bash"]'
+        environment-file: 'test/environment.yml'
+    - run: |
+        micromamba info | grep -q "environment : env-name"
+      shell: bash -el {0}
+
   cmd:
     runs-on: windows-latest
     steps:
