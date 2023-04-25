@@ -6558,6 +6558,9 @@ var validateInputs = (inputs) => {
       throw new Error("You must specify either an environment file or an environment name to create an environment.");
     }
   }
+  if (inputs.micromambaUrl && inputs.micromambaVersion) {
+    throw new Error("You must specify either a micromamba URL or a micromamba version, not both.");
+  }
   if (inputs.generateRunShell && !(inputs.createEnvironment === false)) {
     throw new Error("You must not create an environment to use generate-run-shell.");
   }

@@ -17,7 +17,7 @@ inputs:
       Path to the `environment.yml` or `.lock` file for the environment.
   environment-name:
     description: >-
-      Name of the environment to create. Ovverrides the name in the environment file.
+      Name of the environment to create. Overrides the name in the environment file.
   extra-specs:
     description: >-
       Extra specs to install into the environment.

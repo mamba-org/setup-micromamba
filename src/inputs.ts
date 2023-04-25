@@ -33,7 +33,7 @@ export type Options = {
   extraSpecs: string[]
   createArgs?: string // TODO: is this needed?
   logLevel: LogLevelType
-  micromambaVersion: string
+  micromambaVersion: string // TODO: make micromambaSource: version v | url u
   micromambaUrl?: string
   initShell: ShellType[]
   generateRunShell: boolean
@@ -95,6 +95,9 @@ const validateInputs = (inputs: Inputs): void => {
     if (!inputs.environmentFile && !inputs.environmentName) {
       throw new Error('You must specify either an environment file or an environment name to create an environment.')
     }
+  }
+  if (inputs.micromambaUrl && inputs.micromambaVersion) {
+    throw new Error('You must specify either a micromamba URL or a micromamba version, not both.')
   }
   if (inputs.generateRunShell && !(inputs.createEnvironment === false)) {
     throw new Error('You must not create an environment to use generate-run-shell.')

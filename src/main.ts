@@ -46,7 +46,7 @@ const generateCondarc = (options: Options) => {
     return fs.access(untildify(options.condarcFile), fs.constants.F_OK)
   }
   core.debug(`Using ${PATHS.condarc} as condarc file.`)
-  options.condarcFile = PATHS.condarc
+  options.condarcFile = PATHS.condarc // TODO: put this in inputs.ts with customCondaRc: boolean
   const mkDir = fs.mkdir(PATHS.micromambaRoot, { recursive: true })
   // if we don't put this into a variable, the compiler complains
   const condarcFile = options.condarcFile

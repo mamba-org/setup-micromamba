@@ -28,14 +28,14 @@ jobs:
 
       - name: Compare the expected and actual dist/ directories
         run: |
-          if [ "$(git diff --ignore-space-at-eol dist/index.js | wc -l)" -gt "0" ]; then
+          if [ "$(git diff --ignore-space-at-eol dist/* | wc -l)" -gt "0" ]; then
             echo "Detected uncommitted changes after build.  See status below:"
             git diff
             exit 1
           fi
         id: diff
 
-      # If index.js was different than expected, upload the expected version as an artifact
+      # If index.js or post.js are different than expected, upload the expected version as an artifact
       - uses: actions/upload-artifact@v3
         if: ${{ failure() && steps.diff.conclusion == 'failure' }}
         with:
