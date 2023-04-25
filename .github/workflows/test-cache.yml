@@ -48,14 +48,13 @@ jobs:
           python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
 
   test-env1:
-    name: Test env cache 1/3
+    name: Test env cache 1/2
     timeout-minutes: 10
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest]
-        # os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v3
       - uses: ./
@@ -67,15 +66,14 @@ jobs:
           python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
 
   test-env2:
-    name: Test env cache 2/3
+    name: Test env cache 2/2
     timeout-minutes: 10
     needs: [test-env1]
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest]
-        # os: [windows-latest, ubuntu-latest, macos-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v3
       - uses: ./

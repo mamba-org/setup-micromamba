@@ -38,7 +38,7 @@ const generateEnvironmentKey = (prefix: string) => {
   const arch = `-${getCondaArch()}`
   const envName = options.environmentName ? `-${options.environmentName}` : ''
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : ''
-  const key = `${arch}${prefix}${envName}${createArgs}`
+  const key = `${prefix}${arch}${envName}${createArgs}`
   if (options.environmentFile) {
     return fs.readFile(options.environmentFile, 'utf-8').then((content) => {
       const keyWithFileSha = `${key}-file-${sha256(content)}`
@@ -51,7 +51,7 @@ const generateEnvironmentKey = (prefix: string) => {
 }
 
 const generateDownloadsKey = (prefix: string) => {
-  return `${getCondaArch()}${prefix}`
+  return `${prefix}-${getCondaArch()}`
 }
 
 export const saveCacheEnvironment = (environmentName: string) => {
@@ -59,8 +59,10 @@ export const saveCacheEnvironment = (environmentName: string) => {
     return Promise.resolve()
   }
   const cachePath = path.join(options.micromambaRootPath, 'envs', environmentName)
-  core.info(`Caching environment \`${environmentName}\` in \`${cachePath}\` ...`)
-  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => saveCache(cachePath, key))
+  core.startGroup(`Caching environment \`${environmentName}\` in \`${cachePath}\` ...`)
+  return generateEnvironmentKey(options.cacheEnvironmentKey)
+    .then((key) => saveCache(cachePath, key))
+    .finally(core.endGroup)
 }
 
 /**
@@ -74,14 +76,16 @@ export const restoreCacheEnvironment = (environmentName: string) => {
     return Promise.resolve(undefined)
   }
   const cachePath = path.join(options.micromambaRootPath, 'envs', environmentName)
-  core.info(`Restoring environment \`${environmentName}\` from \`${cachePath}\` ...`)
-  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => restoreCache(cachePath, key))
+  core.startGroup(`Restoring environment \`${environmentName}\` from \`${cachePath}\` ...`)
+  return generateEnvironmentKey(options.cacheEnvironmentKey)
+    .then((key) => restoreCache(cachePath, key))
+    .finally(core.endGroup)
 }
 
 // Inspired by https://github.com/conda-incubator/setup-miniconda/blob/7e642bb2e4ca56ff706818a0febf72bb226d348d/src/delete.ts#L13 (MIT license)
 const trimPkgsCacheFolder = (cacheFolder: string) => {
   core.startGroup('Removing uncompressed packages to trim down cache folder...')
-  // delete all folders in pkgs that are not the cache folder
+  // delete all folders in pkgs that are not the cache folder (i.e., all uncompressed packages)
   return fs
     .readdir(cacheFolder)
     .then((files) => {
@@ -96,7 +100,12 @@ const trimPkgsCacheFolder = (cacheFolder: string) => {
     .then((files) => files.filter((f) => f.stat.isDirectory()))
     .then((dirs) => {
       core.debug(`Directories in \`${cacheFolder}\`: ${JSON.stringify(dirs.map((d) => path.basename(d.path)))}`)
-      return Promise.all(dirs.map((d) => fs.rm(d.path, { recursive: true, force: true })))
+      return Promise.all(
+        dirs.map((d) => {
+          core.info(`Removing \`${path.basename(d.path)}\``)
+          return fs.rm(d.path, { recursive: true, force: true })
+        })
+      )
     })
     .finally(() => core.endGroup())
 }
@@ -107,9 +116,11 @@ export const saveCacheDownloads = () => {
     return Promise.resolve()
   }
   const cachePath = path.join(options.micromambaRootPath, 'pkgs')
-  core.info(`Caching downloads in \`${cachePath}\` ...`)
+  core.startGroup(`Caching downloads in \`${cachePath}\` ...`)
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey)
-  return trimPkgsCacheFolder(cachePath).then(() => saveCache(cachePath, cacheDownloadsKey))
+  return trimPkgsCacheFolder(cachePath)
+    .then(() => saveCache(cachePath, cacheDownloadsKey))
+    .finally(core.endGroup)
 }
 
 /**
@@ -124,5 +135,5 @@ export const restoreCacheDownloads = () => {
   }
   const cachePath = path.join(options.micromambaRootPath, 'pkgs')
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey)
-  return restoreCache(cachePath, cacheDownloadsKey)
+  return restoreCache(cachePath, cacheDownloadsKey).finally(core.endGroup)
 }

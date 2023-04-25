@@ -67667,7 +67667,7 @@ var generateEnvironmentKey = (prefix2) => {
   const arch3 = `-${getCondaArch()}`;
   const envName = options.environmentName ? `-${options.environmentName}` : "";
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : "";
-  const key = `${arch3}${prefix2}${envName}${createArgs}`;
+  const key = `${prefix2}${arch3}${envName}${createArgs}`;
   if (options.environmentFile) {
     return fs5.readFile(options.environmentFile, "utf-8").then((content) => {
       const keyWithFileSha = `${key}-file-${sha256(content)}`;
@@ -67679,23 +67679,23 @@ var generateEnvironmentKey = (prefix2) => {
   return Promise.resolve(key);
 };
 var generateDownloadsKey = (prefix2) => {
-  return `${getCondaArch()}${prefix2}`;
+  return `${prefix2}-${getCondaArch()}`;
 };
 var saveCacheEnvironment = (environmentName) => {
   if (!options.cacheEnvironmentKey) {
     return Promise.resolve();
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "envs", environmentName);
-  core4.info(`Caching environment \`${environmentName}\` in \`${cachePath}\` ...`);
-  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => saveCache2(cachePath, key));
+  core4.startGroup(`Caching environment \`${environmentName}\` in \`${cachePath}\` ...`);
+  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => saveCache2(cachePath, key)).finally(core4.endGroup);
 };
 var restoreCacheEnvironment = (environmentName) => {
   if (!options.cacheEnvironmentKey) {
     return Promise.resolve(void 0);
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "envs", environmentName);
-  core4.info(`Restoring environment \`${environmentName}\` from \`${cachePath}\` ...`);
-  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => restoreCache2(cachePath, key));
+  core4.startGroup(`Restoring environment \`${environmentName}\` from \`${cachePath}\` ...`);
+  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => restoreCache2(cachePath, key)).finally(core4.endGroup);
 };
 var restoreCacheDownloads = () => {
   core4.debug(`Cache downloads key: ${options.cacheDownloadsKey}`);
@@ -67704,7 +67704,7 @@ var restoreCacheDownloads = () => {
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "pkgs");
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey);
-  return restoreCache2(cachePath, cacheDownloadsKey);
+  return restoreCache2(cachePath, cacheDownloadsKey).finally(core4.endGroup);
 };
 
 // src/main.ts
@@ -67772,7 +67772,10 @@ var installEnvironment = () => {
       return Promise.resolve(environmentName);
     }
     core5.startGroup(`Install environment \`${environmentName}\``);
-    return createEnvironment().then((_exitCode) => environmentName).then(
+    return createEnvironment().then((_exitCode) => {
+      core5.endGroup();
+      return environmentName;
+    }).then(
       (environmentName2) => (
         // cache can already be saved here and not in post action since the environment is not changing anymore
         saveCacheEnvironment(environmentName2).then(() => environmentName2)
@@ -67780,7 +67783,7 @@ var installEnvironment = () => {
     );
   }).then(
     (environmentName) => Promise.all(options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)))
-  ).finally(core5.endGroup);
+  );
 };
 var generateInfo = () => {
   core5.startGroup("micromamba info");

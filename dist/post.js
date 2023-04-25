@@ -61610,7 +61610,7 @@ var saveCache2 = (cachePath, cacheKey) => {
   });
 };
 var generateDownloadsKey = (prefix2) => {
-  return `${getCondaArch()}${prefix2}`;
+  return `${prefix2}-${getCondaArch()}`;
 };
 var trimPkgsCacheFolder = (cacheFolder) => {
   core4.startGroup("Removing uncompressed packages to trim down cache folder...");
@@ -61621,7 +61621,12 @@ var trimPkgsCacheFolder = (cacheFolder) => {
     );
   }).then((files) => files.filter((f) => f.stat.isDirectory())).then((dirs) => {
     core4.debug(`Directories in \`${cacheFolder}\`: ${JSON.stringify(dirs.map((d) => import_path2.default.basename(d.path)))}`);
-    return Promise.all(dirs.map((d) => fs4.rm(d.path, { recursive: true, force: true })));
+    return Promise.all(
+      dirs.map((d) => {
+        core4.info(`Removing \`${import_path2.default.basename(d.path)}\``);
+        return fs4.rm(d.path, { recursive: true, force: true });
+      })
+    );
   }).finally(() => core4.endGroup());
 };
 var saveCacheDownloads = () => {
@@ -61630,9 +61635,9 @@ var saveCacheDownloads = () => {
     return Promise.resolve();
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "pkgs");
-  core4.info(`Caching downloads in \`${cachePath}\` ...`);
+  core4.startGroup(`Caching downloads in \`${cachePath}\` ...`);
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey);
-  return trimPkgsCacheFolder(cachePath).then(() => saveCache2(cachePath, cacheDownloadsKey));
+  return trimPkgsCacheFolder(cachePath).then(() => saveCache2(cachePath, cacheDownloadsKey)).finally(core4.endGroup);
 };
 
 // src/post.ts

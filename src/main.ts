@@ -94,7 +94,10 @@ const installEnvironment = () => {
       // cache miss, install and save cache
       core.startGroup(`Install environment \`${environmentName}\``)
       return createEnvironment()
-        .then((_exitCode) => environmentName)
+        .then((_exitCode) => {
+          core.endGroup()
+          return environmentName
+        })
         .then((environmentName) =>
           // cache can already be saved here and not in post action since the environment is not changing anymore
           saveCacheEnvironment(environmentName).then(() => environmentName)
@@ -103,7 +106,6 @@ const installEnvironment = () => {
     .then((environmentName) =>
       Promise.all(options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)))
     )
-    .finally(core.endGroup)
 }
 
 const generateInfo = () => {
