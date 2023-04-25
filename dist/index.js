@@ -14174,7 +14174,6 @@ var inferOptions = (inputs) => {
   const logLevel = inputs.logLevel || (core.isDebug() ? "debug" : "info");
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
-  console.log(PATHS);
   return {
     ...inputs,
     writeToCondarc,

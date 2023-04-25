@@ -104,7 +104,6 @@ const inferOptions = (inputs: Inputs): Options => {
     : left(inputs.micromambaVersion || 'latest')
   // we write to condarc if a condarc file is not already specified
   const writeToCondarc = inputs.condarcFile === undefined
-  console.log(PATHS)
   return {
     ...inputs,
     writeToCondarc,
