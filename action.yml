@@ -65,6 +65,14 @@ inputs:
       `'shell-init'` - cleanup only the shell initialization scripts.
       `'environment'` - cleanup the installed environment and shell initialization scripts.
       `'all'` - cleanup everything including the whole micromamba root folder and the micromamba binary.
+  micromamba-root-path:
+    description: >-
+      Path to the micromamba root folder.
+      Defaults to `~/micromamba`.
+  micromamba-binary-path:
+    description: >-
+      Path to the micromamba binary.
+      Defaults to `~/micromamba/bin/micromamba`.
 runs:
   using: 'node16'
   main: 'dist/index.js'

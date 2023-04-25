@@ -1,5 +1,4 @@
 import * as fs from 'fs/promises'
-import * as path from 'path'
 import * as os from 'os'
 import type { BinaryLike } from 'crypto'
 import { createHash } from 'crypto'
@@ -8,25 +7,10 @@ import { exec } from '@actions/exec'
 import { match } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
 import { coreMocked } from './mocking'
-import type { LogLevelType, MicromambaSourceType } from './inputs'
+import { options } from './options'
+import type { LogLevelType, MicromambaSourceType } from './options'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
-
-export const PATHS = {
-  // TODO fix paths
-  micromambaBin: path.join(
-    os.homedir(),
-    'debug',
-    'micromamba-bin',
-    `micromamba${os.platform() === 'win32' ? '.exe' : ''}`
-  ),
-  micromambaRoot: path.join(os.homedir(), 'debug', 'micromamba-root'),
-  // use a different path than ~/.condarc to avoid messing up the user's condarc
-  condarc: path.join(os.homedir(), 'debug', 'micromamba-root', '.condarc'),
-  micromambaRunShell: '/usr/local/bin/micromamba-shell',
-  bashProfile: path.join(os.homedir(), '.bash_profile'),
-  bashrc: path.join(os.homedir(), '.bashrc')
-}
 
 const getMicromambaUrlFromVersion = (arch: string, version: string) => {
   if (version === 'latest') {
@@ -95,7 +79,7 @@ export const sha256 = (s: BinaryLike) => {
 }
 
 export const micromambaCmd = (command: string, logLevel?: LogLevelType, condarcFile?: string) => {
-  let commandArray = [PATHS.micromambaBin].concat(command.split(' '))
+  let commandArray = [options.micromambaBinPath].concat(command.split(' '))
   if (logLevel) {
     commandArray = commandArray.concat(['--log-level', logLevel])
   }

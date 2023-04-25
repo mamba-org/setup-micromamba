@@ -210,14 +210,14 @@ var init_stringify = __esm({
 });
 
 // node_modules/.pnpm/uuid@8.3.2/node_modules/uuid/dist/esm-node/v1.js
-function v1(options, buf, offset) {
+function v1(options2, buf, offset) {
   let i = buf && offset || 0;
   const b = buf || new Array(16);
-  options = options || {};
-  let node = options.node || _nodeId;
-  let clockseq = options.clockseq !== void 0 ? options.clockseq : _clockseq;
+  options2 = options2 || {};
+  let node = options2.node || _nodeId;
+  let clockseq = options2.clockseq !== void 0 ? options2.clockseq : _clockseq;
   if (node == null || clockseq == null) {
-    const seedBytes = options.random || (options.rng || rng)();
+    const seedBytes = options2.random || (options2.rng || rng)();
     if (node == null) {
       node = _nodeId = [seedBytes[0] | 1, seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]];
     }
@@ -225,13 +225,13 @@ function v1(options, buf, offset) {
       clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 16383;
     }
   }
-  let msecs = options.msecs !== void 0 ? options.msecs : Date.now();
-  let nsecs = options.nsecs !== void 0 ? options.nsecs : _lastNSecs + 1;
+  let msecs = options2.msecs !== void 0 ? options2.msecs : Date.now();
+  let nsecs = options2.nsecs !== void 0 ? options2.nsecs : _lastNSecs + 1;
   const dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 1e4;
-  if (dt < 0 && options.clockseq === void 0) {
+  if (dt < 0 && options2.clockseq === void 0) {
     clockseq = clockseq + 1 & 16383;
   }
-  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === void 0) {
+  if ((dt < 0 || msecs > _lastMSecs) && options2.nsecs === void 0) {
     nsecs = 0;
   }
   if (nsecs >= 1e4) {
@@ -384,9 +384,9 @@ var init_v3 = __esm({
 });
 
 // node_modules/.pnpm/uuid@8.3.2/node_modules/uuid/dist/esm-node/v4.js
-function v4(options, buf, offset) {
-  options = options || {};
-  const rnds = options.random || (options.rng || rng)();
+function v4(options2, buf, offset) {
+  options2 = options2 || {};
+  const rnds = options2.random || (options2.rng || rng)();
   rnds[6] = rnds[6] & 15 | 64;
   rnds[8] = rnds[8] & 63 | 128;
   if (buf) {
@@ -622,42 +622,42 @@ var require_tunnel = __commonJS({
     exports.httpsOverHttp = httpsOverHttp;
     exports.httpOverHttps = httpOverHttps;
     exports.httpsOverHttps = httpsOverHttps;
-    function httpOverHttp(options) {
-      var agent = new TunnelingAgent(options);
+    function httpOverHttp(options2) {
+      var agent = new TunnelingAgent(options2);
       agent.request = http.request;
       return agent;
     }
-    function httpsOverHttp(options) {
-      var agent = new TunnelingAgent(options);
+    function httpsOverHttp(options2) {
+      var agent = new TunnelingAgent(options2);
       agent.request = http.request;
       agent.createSocket = createSecureSocket;
       agent.defaultPort = 443;
       return agent;
     }
-    function httpOverHttps(options) {
-      var agent = new TunnelingAgent(options);
+    function httpOverHttps(options2) {
+      var agent = new TunnelingAgent(options2);
       agent.request = https.request;
       return agent;
     }
-    function httpsOverHttps(options) {
-      var agent = new TunnelingAgent(options);
+    function httpsOverHttps(options2) {
+      var agent = new TunnelingAgent(options2);
       agent.request = https.request;
       agent.createSocket = createSecureSocket;
       agent.defaultPort = 443;
       return agent;
     }
-    function TunnelingAgent(options) {
+    function TunnelingAgent(options2) {
       var self = this;
-      self.options = options || {};
+      self.options = options2 || {};
       self.proxyOptions = self.options.proxy || {};
       self.maxSockets = self.options.maxSockets || http.Agent.defaultMaxSockets;
       self.requests = [];
       self.sockets = [];
       self.on("free", function onFree(socket, host, port, localAddress) {
-        var options2 = toOptions(host, port, localAddress);
+        var options3 = toOptions(host, port, localAddress);
         for (var i = 0, len = self.requests.length; i < len; ++i) {
           var pending = self.requests[i];
-          if (pending.host === options2.host && pending.port === options2.port) {
+          if (pending.host === options3.host && pending.port === options3.port) {
             self.requests.splice(i, 1);
             pending.request.onSocket(socket);
             return;
@@ -670,18 +670,18 @@ var require_tunnel = __commonJS({
     util2.inherits(TunnelingAgent, events.EventEmitter);
     TunnelingAgent.prototype.addRequest = function addRequest(req, host, port, localAddress) {
       var self = this;
-      var options = mergeOptions({ request: req }, self.options, toOptions(host, port, localAddress));
+      var options2 = mergeOptions({ request: req }, self.options, toOptions(host, port, localAddress));
       if (self.sockets.length >= this.maxSockets) {
-        self.requests.push(options);
+        self.requests.push(options2);
         return;
       }
-      self.createSocket(options, function(socket) {
+      self.createSocket(options2, function(socket) {
         socket.on("free", onFree);
         socket.on("close", onCloseOrRemove);
         socket.on("agentRemove", onCloseOrRemove);
         req.onSocket(socket);
         function onFree() {
-          self.emit("free", socket, options);
+          self.emit("free", socket, options2);
         }
         function onCloseOrRemove(err) {
           self.removeSocket(socket);
@@ -691,20 +691,20 @@ var require_tunnel = __commonJS({
         }
       });
     };
-    TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
+    TunnelingAgent.prototype.createSocket = function createSocket(options2, cb) {
       var self = this;
       var placeholder = {};
       self.sockets.push(placeholder);
       var connectOptions = mergeOptions({}, self.proxyOptions, {
         method: "CONNECT",
-        path: options.host + ":" + options.port,
+        path: options2.host + ":" + options2.port,
         agent: false,
         headers: {
-          host: options.host + ":" + options.port
+          host: options2.host + ":" + options2.port
         }
       });
-      if (options.localAddress) {
-        connectOptions.localAddress = options.localAddress;
+      if (options2.localAddress) {
+        connectOptions.localAddress = options2.localAddress;
       }
       if (connectOptions.proxyAuth) {
         connectOptions.headers = connectOptions.headers || {};
@@ -737,7 +737,7 @@ var require_tunnel = __commonJS({
           socket.destroy();
           var error = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
           error.code = "ECONNRESET";
-          options.request.emit("error", error);
+          options2.request.emit("error", error);
           self.removeSocket(placeholder);
           return;
         }
@@ -746,7 +746,7 @@ var require_tunnel = __commonJS({
           socket.destroy();
           var error = new Error("got illegal response body from proxy");
           error.code = "ECONNRESET";
-          options.request.emit("error", error);
+          options2.request.emit("error", error);
           self.removeSocket(placeholder);
           return;
         }
@@ -763,7 +763,7 @@ var require_tunnel = __commonJS({
         );
         var error = new Error("tunneling socket could not be established, cause=" + cause.message);
         error.code = "ECONNRESET";
-        options.request.emit("error", error);
+        options2.request.emit("error", error);
         self.removeSocket(placeholder);
       }
     };
@@ -780,13 +780,13 @@ var require_tunnel = __commonJS({
         });
       }
     };
-    function createSecureSocket(options, cb) {
+    function createSecureSocket(options2, cb) {
       var self = this;
-      TunnelingAgent.prototype.createSocket.call(self, options, function(socket) {
-        var hostHeader = options.request.getHeader("host");
+      TunnelingAgent.prototype.createSocket.call(self, options2, function(socket) {
+        var hostHeader = options2.request.getHeader("host");
         var tlsOptions = mergeOptions({}, self.options, {
           socket,
-          servername: hostHeader ? hostHeader.replace(/:.*$/, "") : options.host
+          servername: hostHeader ? hostHeader.replace(/:.*$/, "") : options2.host
         });
         var secureSocket = tls.connect(0, tlsOptions);
         self.sockets[self.sockets.indexOf(socket)] = secureSocket;
@@ -1343,8 +1343,8 @@ var require_lib = __commonJS({
           this._proxyAgent = agent;
         }
         if (this._keepAlive && !agent) {
-          const options = { keepAlive: this._keepAlive, maxSockets };
-          agent = usingSsl ? new https.Agent(options) : new http.Agent(options);
+          const options2 = { keepAlive: this._keepAlive, maxSockets };
+          agent = usingSsl ? new https.Agent(options2) : new http.Agent(options2);
           this._agent = agent;
         }
         if (!agent) {
@@ -1364,7 +1364,7 @@ var require_lib = __commonJS({
           return new Promise((resolve) => setTimeout(() => resolve(), ms));
         });
       }
-      _processResponse(res, options) {
+      _processResponse(res, options2) {
         return __awaiter(this, void 0, void 0, function* () {
           return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             const statusCode = res.message.statusCode || 0;
@@ -1390,7 +1390,7 @@ var require_lib = __commonJS({
             try {
               contents = yield res.readBody();
               if (contents && contents.length > 0) {
-                if (options && options.deserializeDates) {
+                if (options2 && options2.deserializeDates) {
                   obj = JSON.parse(contents, dateTimeDeserializer);
                 } else {
                   obj = JSON.parse(contents);
@@ -1462,11 +1462,11 @@ var require_auth = __commonJS({
         this.username = username;
         this.password = password;
       }
-      prepareRequest(options) {
-        if (!options.headers) {
+      prepareRequest(options2) {
+        if (!options2.headers) {
           throw Error("The request has no headers");
         }
-        options.headers["Authorization"] = `Basic ${Buffer.from(`${this.username}:${this.password}`).toString("base64")}`;
+        options2.headers["Authorization"] = `Basic ${Buffer.from(`${this.username}:${this.password}`).toString("base64")}`;
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -1485,11 +1485,11 @@ var require_auth = __commonJS({
       }
       // currently implements pre-authorization
       // TODO: support preAuth = false where it hooks on 401
-      prepareRequest(options) {
-        if (!options.headers) {
+      prepareRequest(options2) {
+        if (!options2.headers) {
           throw Error("The request has no headers");
         }
-        options.headers["Authorization"] = `Bearer ${this.token}`;
+        options2.headers["Authorization"] = `Bearer ${this.token}`;
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -1508,11 +1508,11 @@ var require_auth = __commonJS({
       }
       // currently implements pre-authorization
       // TODO: support preAuth = false where it hooks on 401
-      prepareRequest(options) {
-        if (!options.headers) {
+      prepareRequest(options2) {
+        if (!options2.headers) {
           throw Error("The request has no headers");
         }
-        options.headers["Authorization"] = `Basic ${Buffer.from(`PAT:${this.token}`).toString("base64")}`;
+        options2.headers["Authorization"] = `Basic ${Buffer.from(`PAT:${this.token}`).toString("base64")}`;
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -1715,9 +1715,9 @@ var require_summary = __commonJS({
        *
        * @returns {Promise<Summary>} summary instance
        */
-      write(options) {
+      write(options2) {
         return __awaiter(this, void 0, void 0, function* () {
-          const overwrite = !!(options === null || options === void 0 ? void 0 : options.overwrite);
+          const overwrite = !!(options2 === null || options2 === void 0 ? void 0 : options2.overwrite);
           const filePath = yield this.filePath();
           const writeFunc = overwrite ? writeFile2 : appendFile2;
           yield writeFunc(filePath, this._buffer, { encoding: "utf8" });
@@ -1850,8 +1850,8 @@ var require_summary = __commonJS({
        *
        * @returns {Summary} summary instance
        */
-      addImage(src, alt, options) {
-        const { width, height } = options || {};
+      addImage(src, alt, options2) {
+        const { width, height } = options2 || {};
         const attrs = Object.assign(Object.assign({}, width && { width }), height && { height });
         const element = this.wrap("img", null, Object.assign({ src, alt }, attrs));
         return this.addRaw(element).addEOL();
@@ -2066,29 +2066,29 @@ var require_core = __commonJS({
       process.env["PATH"] = `${inputPath}${path4.delimiter}${process.env["PATH"]}`;
     }
     exports.addPath = addPath;
-    function getInput(name, options) {
+    function getInput(name, options2) {
       const val = process.env[`INPUT_${name.replace(/ /g, "_").toUpperCase()}`] || "";
-      if (options && options.required && !val) {
+      if (options2 && options2.required && !val) {
         throw new Error(`Input required and not supplied: ${name}`);
       }
-      if (options && options.trimWhitespace === false) {
+      if (options2 && options2.trimWhitespace === false) {
         return val;
       }
       return val.trim();
     }
     exports.getInput = getInput;
-    function getMultilineInput(name, options) {
-      const inputs = getInput(name, options).split("\n").filter((x) => x !== "");
-      if (options && options.trimWhitespace === false) {
+    function getMultilineInput(name, options2) {
+      const inputs = getInput(name, options2).split("\n").filter((x) => x !== "");
+      if (options2 && options2.trimWhitespace === false) {
         return inputs;
       }
       return inputs.map((input) => input.trim());
     }
     exports.getMultilineInput = getMultilineInput;
-    function getBooleanInput(name, options) {
+    function getBooleanInput(name, options2) {
       const trueValue = ["true", "True", "TRUE"];
       const falseValue = ["false", "False", "FALSE"];
-      const val = getInput(name, options);
+      const val = getInput(name, options2);
       if (trueValue.includes(val))
         return true;
       if (falseValue.includes(val))
@@ -3805,6 +3805,21 @@ var require_Either = __commonJS({
   }
 });
 
+// node_modules/.pnpm/untildify@4.0.0/node_modules/untildify/index.js
+var require_untildify = __commonJS({
+  "node_modules/.pnpm/untildify@4.0.0/node_modules/untildify/index.js"(exports, module2) {
+    "use strict";
+    var os4 = require("os");
+    var homeDirectory = os4.homedir();
+    module2.exports = (pathWithTilde) => {
+      if (typeof pathWithTilde !== "string") {
+        throw new TypeError(`Expected a string, got ${typeof pathWithTilde}`);
+      }
+      return homeDirectory ? pathWithTilde.replace(/^~(?=$|\/|\\)/, homeDirectory) : pathWithTilde;
+    };
+  }
+});
+
 // node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io-util.js
 var require_io_util = __commonJS({
   "node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io-util.js"(exports) {
@@ -4047,9 +4062,9 @@ var require_io = __commonJS({
     var assert_1 = require("assert");
     var path4 = __importStar(require("path"));
     var ioUtil = __importStar(require_io_util());
-    function cp(source, dest, options = {}) {
+    function cp(source, dest, options2 = {}) {
       return __awaiter(this, void 0, void 0, function* () {
-        const { force, recursive, copySourceDirectory } = readCopyOptions(options);
+        const { force, recursive, copySourceDirectory } = readCopyOptions(options2);
         const destStat = (yield ioUtil.exists(dest)) ? yield ioUtil.stat(dest) : null;
         if (destStat && destStat.isFile() && !force) {
           return;
@@ -4074,7 +4089,7 @@ var require_io = __commonJS({
       });
     }
     exports.cp = cp;
-    function mv(source, dest, options = {}) {
+    function mv(source, dest, options2 = {}) {
       return __awaiter(this, void 0, void 0, function* () {
         if (yield ioUtil.exists(dest)) {
           let destExists = true;
@@ -4083,7 +4098,7 @@ var require_io = __commonJS({
             destExists = yield ioUtil.exists(dest);
           }
           if (destExists) {
-            if (options.force == null || options.force) {
+            if (options2.force == null || options2.force) {
               yield rmRF(dest);
             } else {
               throw new Error("Destination already exists");
@@ -4188,10 +4203,10 @@ var require_io = __commonJS({
       });
     }
     exports.findInPath = findInPath;
-    function readCopyOptions(options) {
-      const force = options.force == null ? true : options.force;
-      const recursive = Boolean(options.recursive);
-      const copySourceDirectory = options.copySourceDirectory == null ? true : Boolean(options.copySourceDirectory);
+    function readCopyOptions(options2) {
+      const force = options2.force == null ? true : options2.force;
+      const recursive = Boolean(options2.recursive);
+      const copySourceDirectory = options2.copySourceDirectory == null ? true : Boolean(options2.copySourceDirectory);
       return { force, recursive, copySourceDirectory };
     }
     function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
@@ -4306,23 +4321,23 @@ var require_toolrunner = __commonJS({
     var timers_1 = require("timers");
     var IS_WINDOWS = process.platform === "win32";
     var ToolRunner = class extends events.EventEmitter {
-      constructor(toolPath, args, options) {
+      constructor(toolPath, args, options2) {
         super();
         if (!toolPath) {
           throw new Error("Parameter 'toolPath' cannot be null or empty.");
         }
         this.toolPath = toolPath;
         this.args = args || [];
-        this.options = options || {};
+        this.options = options2 || {};
       }
       _debug(message) {
         if (this.options.listeners && this.options.listeners.debug) {
           this.options.listeners.debug(message);
         }
       }
-      _getCommandString(options, noPrefix) {
+      _getCommandString(options2, noPrefix) {
         const toolPath = this._getSpawnFileName();
-        const args = this._getSpawnArgs(options);
+        const args = this._getSpawnArgs(options2);
         let cmd = noPrefix ? "" : "[command]";
         if (IS_WINDOWS) {
           if (this._isCmdFile()) {
@@ -4330,7 +4345,7 @@ var require_toolrunner = __commonJS({
             for (const a of args) {
               cmd += ` ${a}`;
             }
-          } else if (options.windowsVerbatimArguments) {
+          } else if (options2.windowsVerbatimArguments) {
             cmd += `"${toolPath}"`;
             for (const a of args) {
               cmd += ` ${a}`;
@@ -4373,13 +4388,13 @@ var require_toolrunner = __commonJS({
         }
         return this.toolPath;
       }
-      _getSpawnArgs(options) {
+      _getSpawnArgs(options2) {
         if (IS_WINDOWS) {
           if (this._isCmdFile()) {
             let argline = `/D /S /C "${this._windowsQuoteCmdArg(this.toolPath)}`;
             for (const a of this.args) {
               argline += " ";
-              argline += options.windowsVerbatimArguments ? a : this._windowsQuoteCmdArg(a);
+              argline += options2.windowsVerbatimArguments ? a : this._windowsQuoteCmdArg(a);
             }
             argline += '"';
             return [argline];
@@ -4477,28 +4492,28 @@ var require_toolrunner = __commonJS({
         reverse += '"';
         return reverse.split("").reverse().join("");
       }
-      _cloneExecOptions(options) {
-        options = options || {};
+      _cloneExecOptions(options2) {
+        options2 = options2 || {};
         const result = {
-          cwd: options.cwd || process.cwd(),
-          env: options.env || process.env,
-          silent: options.silent || false,
-          windowsVerbatimArguments: options.windowsVerbatimArguments || false,
-          failOnStdErr: options.failOnStdErr || false,
-          ignoreReturnCode: options.ignoreReturnCode || false,
-          delay: options.delay || 1e4
+          cwd: options2.cwd || process.cwd(),
+          env: options2.env || process.env,
+          silent: options2.silent || false,
+          windowsVerbatimArguments: options2.windowsVerbatimArguments || false,
+          failOnStdErr: options2.failOnStdErr || false,
+          ignoreReturnCode: options2.ignoreReturnCode || false,
+          delay: options2.delay || 1e4
         };
-        result.outStream = options.outStream || process.stdout;
-        result.errStream = options.errStream || process.stderr;
+        result.outStream = options2.outStream || process.stdout;
+        result.errStream = options2.errStream || process.stderr;
         return result;
       }
-      _getSpawnOptions(options, toolPath) {
-        options = options || {};
+      _getSpawnOptions(options2, toolPath) {
+        options2 = options2 || {};
         const result = {};
-        result.cwd = options.cwd;
-        result.env = options.env;
-        result["windowsVerbatimArguments"] = options.windowsVerbatimArguments || this._isCmdFile();
-        if (options.windowsVerbatimArguments) {
+        result.cwd = options2.cwd;
+        result.env = options2.env;
+        result["windowsVerbatimArguments"] = options2.windowsVerbatimArguments || this._isCmdFile();
+        if (options2.windowsVerbatimArguments) {
           result.argv0 = `"${toolPath}"`;
         }
         return result;
@@ -4661,7 +4676,7 @@ var require_toolrunner = __commonJS({
     }
     exports.argStringToArray = argStringToArray;
     var ExecState = class extends events.EventEmitter {
-      constructor(options, toolPath) {
+      constructor(options2, toolPath) {
         super();
         this.processClosed = false;
         this.processError = "";
@@ -4674,10 +4689,10 @@ var require_toolrunner = __commonJS({
         if (!toolPath) {
           throw new Error("toolPath must not be empty");
         }
-        this.options = options;
+        this.options = options2;
         this.toolPath = toolPath;
-        if (options.delay) {
-          this.delay = options.delay;
+        if (options2.delay) {
+          this.delay = options2.delay;
         }
       }
       CheckComplete() {
@@ -4788,7 +4803,7 @@ var require_exec = __commonJS({
     exports.getExecOutput = exports.exec = void 0;
     var string_decoder_1 = require("string_decoder");
     var tr = __importStar(require_toolrunner());
-    function exec2(commandLine, args, options) {
+    function exec2(commandLine, args, options2) {
       return __awaiter(this, void 0, void 0, function* () {
         const commandArgs = tr.argStringToArray(commandLine);
         if (commandArgs.length === 0) {
@@ -4796,20 +4811,20 @@ var require_exec = __commonJS({
         }
         const toolPath = commandArgs[0];
         args = commandArgs.slice(1).concat(args || []);
-        const runner = new tr.ToolRunner(toolPath, args, options);
+        const runner = new tr.ToolRunner(toolPath, args, options2);
         return runner.exec();
       });
     }
     exports.exec = exec2;
-    function getExecOutput(commandLine, args, options) {
+    function getExecOutput(commandLine, args, options2) {
       var _a, _b;
       return __awaiter(this, void 0, void 0, function* () {
         let stdout = "";
         let stderr = "";
         const stdoutDecoder = new string_decoder_1.StringDecoder("utf8");
         const stderrDecoder = new string_decoder_1.StringDecoder("utf8");
-        const originalStdoutListener = (_a = options === null || options === void 0 ? void 0 : options.listeners) === null || _a === void 0 ? void 0 : _a.stdout;
-        const originalStdErrListener = (_b = options === null || options === void 0 ? void 0 : options.listeners) === null || _b === void 0 ? void 0 : _b.stderr;
+        const originalStdoutListener = (_a = options2 === null || options2 === void 0 ? void 0 : options2.listeners) === null || _a === void 0 ? void 0 : _a.stdout;
+        const originalStdErrListener = (_b = options2 === null || options2 === void 0 ? void 0 : options2.listeners) === null || _b === void 0 ? void 0 : _b.stderr;
         const stdErrListener = (data) => {
           stderr += stderrDecoder.write(data);
           if (originalStdErrListener) {
@@ -4822,8 +4837,8 @@ var require_exec = __commonJS({
             originalStdoutListener(data);
           }
         };
-        const listeners = Object.assign(Object.assign({}, options === null || options === void 0 ? void 0 : options.listeners), { stdout: stdOutListener, stderr: stdErrListener });
-        const exitCode = yield exec2(commandLine, args, Object.assign(Object.assign({}, options), { listeners }));
+        const listeners = Object.assign(Object.assign({}, options2 === null || options2 === void 0 ? void 0 : options2.listeners), { stdout: stdOutListener, stderr: stdErrListener });
+        const exitCode = yield exec2(commandLine, args, Object.assign(Object.assign({}, options2), { listeners }));
         stdout += stdoutDecoder.end();
         stderr += stderrDecoder.end();
         return {
@@ -4876,8 +4891,10 @@ var coreMocked = {
   isDebug: () => true
 };
 
-// src/inputs.ts
-var coreDefault2 = __toESM(require_core());
+// src/options.ts
+var path = __toESM(require("path"));
+var os = __toESM(require("os"));
+var coreDefault = __toESM(require_core());
 
 // node_modules/.pnpm/zod@3.20.6/node_modules/zod/lib/index.mjs
 var util;
@@ -5817,21 +5834,21 @@ var ZodString = class extends ZodType {
   cuid2(message) {
     return this._addCheck({ kind: "cuid2", ...errorUtil.errToObj(message) });
   }
-  datetime(options) {
+  datetime(options2) {
     var _a;
-    if (typeof options === "string") {
+    if (typeof options2 === "string") {
       return this._addCheck({
         kind: "datetime",
         precision: null,
         offset: false,
-        message: options
+        message: options2
       });
     }
     return this._addCheck({
       kind: "datetime",
-      precision: typeof (options === null || options === void 0 ? void 0 : options.precision) === "undefined" ? null : options === null || options === void 0 ? void 0 : options.precision,
-      offset: (_a = options === null || options === void 0 ? void 0 : options.offset) !== null && _a !== void 0 ? _a : false,
-      ...errorUtil.errToObj(options === null || options === void 0 ? void 0 : options.message)
+      precision: typeof (options2 === null || options2 === void 0 ? void 0 : options2.precision) === "undefined" ? null : options2 === null || options2 === void 0 ? void 0 : options2.precision,
+      offset: (_a = options2 === null || options2 === void 0 ? void 0 : options2.offset) !== null && _a !== void 0 ? _a : false,
+      ...errorUtil.errToObj(options2 === null || options2 === void 0 ? void 0 : options2.message)
     });
   }
   regex(regex, message) {
@@ -6910,7 +6927,7 @@ ZodObject.lazycreate = (shape, params) => {
 var ZodUnion = class extends ZodType {
   _parse(input) {
     const { ctx } = this._processInputParams(input);
-    const options = this._def.options;
+    const options2 = this._def.options;
     function handleResults(results) {
       for (const result of results) {
         if (result.result.status === "valid") {
@@ -6931,7 +6948,7 @@ var ZodUnion = class extends ZodType {
       return INVALID;
     }
     if (ctx.common.async) {
-      return Promise.all(options.map(async (option) => {
+      return Promise.all(options2.map(async (option) => {
         const childCtx = {
           ...ctx,
           common: {
@@ -6952,7 +6969,7 @@ var ZodUnion = class extends ZodType {
     } else {
       let dirty = void 0;
       const issues = [];
-      for (const option of options) {
+      for (const option of options2) {
         const childCtx = {
           ...ctx,
           common: {
@@ -7072,9 +7089,9 @@ var ZodDiscriminatedUnion = class extends ZodType {
    * @param types an array of object schemas
    * @param params
    */
-  static create(discriminator, options, params) {
+  static create(discriminator, options2, params) {
     const optionsMap = /* @__PURE__ */ new Map();
-    for (const type of options) {
+    for (const type of options2) {
       const discriminatorValues = getDiscriminator(type.shape[discriminator]);
       if (!discriminatorValues) {
         throw new Error(`A discriminator value for key \`${discriminator}\` could not be extracted from all schema options`);
@@ -7089,7 +7106,7 @@ var ZodDiscriminatedUnion = class extends ZodType {
     return new ZodDiscriminatedUnion({
       typeName: ZodFirstPartyTypeKind.ZodDiscriminatedUnion,
       discriminator,
-      options,
+      options: options2,
       optionsMap,
       ...processCreateParams(params)
     });
@@ -8121,15 +8138,9 @@ var nullableType = ZodNullable.create;
 var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
-// src/inputs.ts
+// src/options.ts
 var import_Either = __toESM(require_Either());
-
-// src/util.ts
-var fs = __toESM(require("fs/promises"));
-var path = __toESM(require("path"));
-var os = __toESM(require("os"));
-var coreDefault = __toESM(require_core());
-var import_exec = __toESM(require_exec());
+var import_untildify = __toESM(require_untildify());
 var core = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
   // TODO fix paths
@@ -8146,59 +8157,18 @@ var PATHS = {
   bashProfile: path.join(os.homedir(), ".bash_profile"),
   bashrc: path.join(os.homedir(), ".bashrc")
 };
-var determineEnvironmentName = (environmentName, environmentFile) => {
-  core.debug("Determining environment name from inputs.");
-  core.debug(`environmentName: ${environmentName}`);
-  core.debug(`environmentFile: ${environmentFile}`);
-  if (environmentName) {
-    core.debug(`Determined environment name: ${environmentName}`);
-    return Promise.resolve(environmentName);
-  }
-  if (!environmentFile) {
-    core.error("No environment name or file specified.");
-    throw new Error();
-  }
-  return fs.readFile(environmentFile, "utf8").then((fileContents) => {
-    const environmentName2 = fileContents.toString().match(/name:\s*(.*)/)?.[1];
-    if (!environmentName2) {
-      const errorMessage = `Could not determine environment name from file ${environmentFile}`;
-      core.error(errorMessage);
-      throw new Error(errorMessage);
-    }
-    core.debug(`Determined environment name from file ${environmentFile}: ${environmentName2}`);
-    return environmentName2;
-  });
-};
-var mambaRegexBlock = /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/;
-var micromambaCmd = (command, logLevel, condarcFile) => {
-  let commandArray = [PATHS.micromambaBin].concat(command.split(" "));
-  if (logLevel) {
-    commandArray = commandArray.concat(["--log-level", logLevel]);
-  }
-  if (condarcFile) {
-    commandArray = commandArray.concat(["--rc-file", condarcFile]);
-  }
-  return commandArray;
-};
-var execute = (cmd) => {
-  core.debug(`Executing: ${cmd.join(" ")}`);
-  return (0, import_exec.exec)(cmd[0], cmd.slice(1));
-};
-
-// src/inputs.ts
-var core2 = process.env.MOCKING ? coreMocked : coreDefault2;
 var postCleanupSchema = enumType(["none", "shell-init", "environment", "all"]);
 var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
 var shellSchema = enumType(["bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
 var parseOrUndefined = (key, schema) => {
-  const input = core2.getInput(key);
+  const input = core.getInput(key);
   if (input === "") {
     return void 0;
   }
   return schema.parse(input);
 };
 var parseOrUndefinedJSON = (key, schema) => {
-  const input = core2.getInput(key);
+  const input = core.getInput(key);
   if (input === "") {
     return void 0;
   }
@@ -8206,9 +8176,10 @@ var parseOrUndefinedJSON = (key, schema) => {
 };
 var inferOptions = (inputs) => {
   const createEnvironment = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
-  const logLevel = inputs.logLevel || (core2.isDebug() ? "debug" : "info");
+  const logLevel = inputs.logLevel || (core.isDebug() ? "debug" : "info");
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
+  console.log(PATHS);
   return {
     ...inputs,
     writeToCondarc,
@@ -8221,7 +8192,9 @@ var inferOptions = (inputs) => {
     generateRunShell: inputs.generateRunShell !== void 0 ? inputs.generateRunShell : createEnvironment,
     cacheDownloads: inputs.cacheDownloads !== void 0 ? inputs.cacheDownloads : true,
     cacheEnvironment: inputs.cacheEnvironment !== void 0 ? inputs.cacheEnvironment : true,
-    postCleanup: inputs.postCleanup || "shell-init"
+    postCleanup: inputs.postCleanup || "shell-init",
+    micromambaRootPath: inputs.micromambaRootPath ? (0, import_untildify.default)(inputs.micromambaRootPath) : PATHS.micromambaRoot,
+    micromambaBinPath: inputs.micromambaBinPath ? (0, import_untildify.default)(inputs.micromambaBinPath) : PATHS.micromambaBin
   };
 };
 var validateInputs = (inputs) => {
@@ -8238,14 +8211,14 @@ var validateInputs = (inputs) => {
     throw new Error("You must specify either a condarc file or a condarc string, not both.");
   }
 };
-var assertOptions = (options) => {
+var assertOptions = (options2) => {
   const assert = (condition, message) => {
     if (!condition) {
       throw new Error(message);
     }
   };
-  assert(!options.generateRunShell || options.createEnvironment);
-  assert(!options.createEnvironment || options.environmentFile !== void 0 || options.environmentName !== void 0);
+  assert(!options2.generateRunShell || options2.createEnvironment);
+  assert(!options2.createEnvironment || options2.environmentFile !== void 0 || options2.environmentName !== void 0);
 };
 var getOptions = () => {
   const inputs = {
@@ -8266,14 +8239,61 @@ var getOptions = () => {
     cacheDownloadsKey: parseOrUndefined("cache-downloads-key", stringType()),
     cacheEnvironment: parseOrUndefinedJSON("cache-environment", booleanType()),
     cacheEnvironmentKey: parseOrUndefined("cache-environment-key", stringType()),
-    postCleanup: parseOrUndefined("post-cleanup", postCleanupSchema)
+    postCleanup: parseOrUndefined("post-cleanup", postCleanupSchema),
+    micromambaRootPath: parseOrUndefined("micromamba-root-path", stringType()),
+    micromambaBinPath: parseOrUndefined("micromamba-binary-path", stringType())
   };
-  core2.debug(`Inputs: ${JSON.stringify(inputs)}`);
+  core.debug(`Inputs: ${JSON.stringify(inputs)}`);
   validateInputs(inputs);
-  const options = inferOptions(inputs);
-  core2.debug(`Inferred options: ${JSON.stringify(options)}`);
-  assertOptions(options);
-  return options;
+  const options2 = inferOptions(inputs);
+  core.debug(`Inferred options: ${JSON.stringify(options2)}`);
+  assertOptions(options2);
+  return options2;
+};
+var options = getOptions();
+
+// src/util.ts
+var fs = __toESM(require("fs/promises"));
+var coreDefault2 = __toESM(require_core());
+var import_exec = __toESM(require_exec());
+var core2 = process.env.MOCKING ? coreMocked : coreDefault2;
+var determineEnvironmentName = (environmentName, environmentFile) => {
+  core2.debug("Determining environment name from inputs.");
+  core2.debug(`environmentName: ${environmentName}`);
+  core2.debug(`environmentFile: ${environmentFile}`);
+  if (environmentName) {
+    core2.debug(`Determined environment name: ${environmentName}`);
+    return Promise.resolve(environmentName);
+  }
+  if (!environmentFile) {
+    core2.error("No environment name or file specified.");
+    throw new Error();
+  }
+  return fs.readFile(environmentFile, "utf8").then((fileContents) => {
+    const environmentName2 = fileContents.toString().match(/name:\s*(.*)/)?.[1];
+    if (!environmentName2) {
+      const errorMessage = `Could not determine environment name from file ${environmentFile}`;
+      core2.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+    core2.debug(`Determined environment name from file ${environmentFile}: ${environmentName2}`);
+    return environmentName2;
+  });
+};
+var mambaRegexBlock = /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/;
+var micromambaCmd = (command, logLevel, condarcFile) => {
+  let commandArray = [options.micromambaBinPath].concat(command.split(" "));
+  if (logLevel) {
+    commandArray = commandArray.concat(["--log-level", logLevel]);
+  }
+  if (condarcFile) {
+    commandArray = commandArray.concat(["--rc-file", condarcFile]);
+  }
+  return commandArray;
+};
+var execute = (cmd) => {
+  core2.debug(`Executing: ${cmd.join(" ")}`);
+  return (0, import_exec.exec)(cmd[0], cmd.slice(1));
 };
 
 // src/shell-init.ts
@@ -8293,11 +8313,11 @@ var removeMambaInitBlockFromBashProfile = () => {
     return fs2.writeFile(PATHS.bashProfile, bashProfile.replace(mambaRegexBlock, ""));
   });
 };
-var shellDeinit = (shell, options) => {
+var shellDeinit = (shell) => {
   core3.startGroup(`Deinitialize micromamba for ${shell}`);
   const command = execute(
     // it should be -r instead of -p, see https://github.com/mamba-org/mamba/issues/2442
-    micromambaCmd(`shell deinit -s ${shell} -p ${PATHS.micromambaRoot}`, options.logLevel, options.condarcFile)
+    micromambaCmd(`shell deinit -s ${shell} -p ${options.micromambaRootPath}`, options.logLevel, options.condarcFile)
   );
   if (os2.platform() === "linux" && shell === "bash") {
     return command.then(removeMambaInitBlockFromBashProfile).finally(core3.endGroup);
@@ -8310,7 +8330,7 @@ var rcFileDict = {
   fish: import_path.default.join(os2.homedir(), ".config", "fish", "config.fish"),
   tcsh: import_path.default.join(os2.homedir(), ".tcshrc"),
   xonsh: import_path.default.join(os2.homedir(), ".xonshrc"),
-  "cmd.exe": import_path.default.join(PATHS.micromambaRoot, "condabin", "mamba_hook.bat"),
+  "cmd.exe": import_path.default.join(options.micromambaRootPath, "condabin", "mamba_hook.bat"),
   powershell: import_path.default.join(os2.homedir(), "Documents", "WindowsPowershell", "profile.ps1"),
   pwshWin: import_path.default.join(os2.homedir(), "Documents", "Powershell", "profile.ps1"),
   pwshUnix: import_path.default.join(os2.homedir(), ".config", "powershell", "profile.ps1")
@@ -8318,16 +8338,16 @@ var rcFileDict = {
 
 // src/post.ts
 var core4 = process.env.MOCKING ? coreMocked : coreDefault4;
-var removeMicromambaRunShell = (inputs) => {
-  if (!inputs.generateRunShell || os3.platform() === "win32") {
+var removeMicromambaRunShell = () => {
+  if (!options.generateRunShell || os3.platform() === "win32") {
     return Promise.resolve();
   }
   core4.info("Removing micromamba run shell ...");
   return fs3.rm(PATHS.micromambaRunShell);
 };
-var uninstallEnvironment = (options) => {
+var uninstallEnvironment = () => {
   return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
-    const envPath = import_path2.default.join(PATHS.micromambaRoot, "envs", environmentName);
+    const envPath = import_path2.default.join(options.micromambaRootPath, "envs", environmentName);
     core4.info(`Removing environment ${environmentName} ...`);
     core4.debug(`Deleting ${envPath}`);
     return fs3.rm(envPath, { recursive: true });
@@ -8335,39 +8355,37 @@ var uninstallEnvironment = (options) => {
 };
 var removeRoot = () => {
   core4.info("Removing micromamba root ...");
-  core4.debug(`Deleting ${PATHS.micromambaRoot}`);
-  return fs3.rm(PATHS.micromambaRoot, { recursive: true });
+  core4.debug(`Deleting ${options.micromambaRootPath}`);
+  return fs3.rm(options.micromambaRootPath, { recursive: true });
 };
 var removeMicromambaBinary = () => {
   core4.info("Removing micromamba binary ...");
-  core4.debug(`Deleting ${PATHS.micromambaBin}`);
-  return fs3.rm(PATHS.micromambaBin, { force: false });
+  core4.debug(`Deleting ${options.micromambaBinPath}`);
+  return fs3.rm(options.micromambaBinPath, { force: false });
 };
-var cleanup = (options) => {
+var cleanup = () => {
   const postCleanup = options.postCleanup;
   switch (postCleanup) {
     case "none":
       return Promise.resolve();
     case "shell-init":
-      return Promise.all([
-        removeMicromambaRunShell(options),
-        ...options.initShell.map((shell) => shellDeinit(shell, options))
-      ]).then(() => Promise.resolve());
+      return Promise.all([removeMicromambaRunShell(), ...options.initShell.map((shell) => shellDeinit(shell))]).then(
+        () => Promise.resolve()
+      );
     case "environment":
       return Promise.all([
-        uninstallEnvironment(options),
-        removeMicromambaRunShell(options),
-        ...options.initShell.map((shell) => shellDeinit(shell, options))
+        uninstallEnvironment(),
+        removeMicromambaRunShell(),
+        ...options.initShell.map((shell) => shellDeinit(shell))
       ]).then(() => Promise.resolve());
     case "all":
-      return Promise.all(options.initShell.map((shell) => shellDeinit(shell, options))).then(() => Promise.all([removeRoot(), removeMicromambaRunShell(options), removeMicromambaBinary()])).then(() => Promise.resolve());
+      return Promise.all(options.initShell.map((shell) => shellDeinit(shell))).then(() => Promise.all([removeRoot(), removeMicromambaRunShell(), removeMicromambaBinary()])).then(() => Promise.resolve());
     default:
       throw new Error(`Unknown post cleanup type: ${postCleanup}`);
   }
 };
 var run = async () => {
-  const options = getOptions();
-  await cleanup(options);
+  await cleanup();
 };
 run();
 //# sourceMappingURL=post.js.map
