@@ -27,13 +27,11 @@ jobs:
           micromamba info | grep -q "environment : env-name"
         shell: bash -el {0}
 
-  create-environment-false:
+  no-environment:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./
-        with:
-          create-environment: false
       - run: |
           micromamba info | grep -q "environment : None (not found)"
         shell: bash -el {0}
