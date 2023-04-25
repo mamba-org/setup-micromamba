@@ -4,7 +4,7 @@ import * as cache from '@actions/cache'
 import * as coreDefault from '@actions/core'
 import { coreMocked } from './mocking'
 import { options } from './options'
-import { sha256, sha256Short } from './util'
+import { getCondaArch, sha256, sha256Short } from './util'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -34,19 +34,24 @@ const restoreCache = (cachePath: string, cacheKey: string) => {
   })
 }
 
-const generateKey = (prefix: string) => {
+const generateEnvironmentKey = (prefix: string) => {
+  const arch = `-${getCondaArch()}`
   const envName = options.environmentName ? `-${options.environmentName}` : ''
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : ''
+  const key = `${arch}${prefix}${envName}${createArgs}`
   if (options.environmentFile) {
     return fs.readFile(options.environmentFile, 'utf-8').then((content) => {
-      const key = `${prefix}${envName}${createArgs}-file-${sha256(content)}`
-      core.debug(`Generated key \`${key}\`.`)
-      return key
+      const keyWithFileSha = `${key}-file-${sha256(content)}`
+      core.debug(`Generated key \`${keyWithFileSha}\`.`)
+      return keyWithFileSha
     })
   }
-  const key = `${prefix}${envName}${createArgs}`
   core.debug(`Generated key \`${key}\`.`)
   return Promise.resolve(key)
+}
+
+const generateDownloadsKey = (prefix: string) => {
+  return `${getCondaArch()}${prefix}`
 }
 
 export const saveCacheEnvironment = (environmentName: string) => {
@@ -55,7 +60,7 @@ export const saveCacheEnvironment = (environmentName: string) => {
   }
   const cachePath = path.join(options.micromambaRootPath, 'envs', environmentName)
   core.info(`Caching environment \`${environmentName}\` in \`${cachePath}\` ...`)
-  return generateKey(options.cacheEnvironmentKey).then((key) => saveCache(cachePath, key))
+  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => saveCache(cachePath, key))
 }
 
 /**
@@ -70,7 +75,7 @@ export const restoreCacheEnvironment = (environmentName: string) => {
   }
   const cachePath = path.join(options.micromambaRootPath, 'envs', environmentName)
   core.info(`Restoring environment \`${environmentName}\` from \`${cachePath}\` ...`)
-  return generateKey(options.cacheEnvironmentKey).then((key) => restoreCache(cachePath, key))
+  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => restoreCache(cachePath, key))
 }
 
 // Inspired by https://github.com/conda-incubator/setup-miniconda/blob/7e642bb2e4ca56ff706818a0febf72bb226d348d/src/delete.ts#L13 (MIT license)
@@ -103,8 +108,7 @@ export const saveCacheDownloads = () => {
   }
   const cachePath = path.join(options.micromambaRootPath, 'pkgs')
   core.info(`Caching downloads in \`${cachePath}\` ...`)
-  // if we don't put this into a variable, typescript complains
-  const cacheDownloadsKey = options.cacheDownloadsKey
+  const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey)
   return trimPkgsCacheFolder(cachePath).then(() => saveCache(cachePath, cacheDownloadsKey))
 }
 
@@ -119,5 +123,6 @@ export const restoreCacheDownloads = () => {
     return Promise.resolve(undefined)
   }
   const cachePath = path.join(options.micromambaRootPath, 'pkgs')
-  return restoreCache(cachePath, options.cacheDownloadsKey)
+  const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey)
+  return restoreCache(cachePath, cacheDownloadsKey)
 }

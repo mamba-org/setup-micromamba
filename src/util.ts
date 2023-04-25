@@ -19,7 +19,7 @@ const getMicromambaUrlFromVersion = (arch: string, version: string) => {
   return `https://github.com/mamba-org/micromamba-releases/releases/download/${version}/micromamba-${arch}`
 }
 
-const getCondaArch = () => {
+export const getCondaArch = () => {
   const archDict: Record<string, string> = {
     'darwin-x64': 'osx-64',
     'darwin-arm64': 'osx-arm64',
