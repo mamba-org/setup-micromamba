@@ -7,7 +7,7 @@ const core = process.env.MOCKING ? coreMocked : coreDefault
 type Inputs = {
   condarcFile?: string
   condarc?: string
-  createEnvironment?: boolean
+  createEnvironment?: boolean // TODO: is this needed?
   environmentFile?: string
   environmentName?: string
   extraSpecs?: string[]
@@ -99,7 +99,12 @@ const validateInputs = (inputs: Inputs): void => {
   if (inputs.generateRunShell && !(inputs.createEnvironment === false)) {
     throw new Error('You must not create an environment to use generate-run-shell.')
   }
-  if (!inputs.createEnvironment && inputs.postCleanup === 'environment') {
+  if (
+    !(inputs.postCleanup === 'environment') ||
+    inputs.createEnvironment ||
+    inputs.environmentName !== undefined ||
+    inputs.environmentFile !== undefined
+  ) {
     throw new Error("You must create an environment to use post-cleanup: 'environment'.")
   }
   if (inputs.condarcFile && inputs.condarc) {

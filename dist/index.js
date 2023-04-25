@@ -12618,7 +12618,7 @@ var validateInputs = (inputs) => {
   if (inputs.generateRunShell && !(inputs.createEnvironment === false)) {
     throw new Error("You must not create an environment to use generate-run-shell.");
   }
-  if (!inputs.createEnvironment && inputs.postCleanup === "environment") {
+  if (!(inputs.postCleanup === "environment") || inputs.createEnvironment || inputs.environmentName !== void 0 || inputs.environmentFile !== void 0) {
     throw new Error("You must create an environment to use post-cleanup: 'environment'.");
   }
   if (inputs.condarcFile && inputs.condarc) {
