@@ -121,7 +121,7 @@ const generateMicromambaRunShell = (options: Options) => {
   }
   core.info('Generating micromamba run shell.')
   const micromambaShellFile = fs.readFile('src/resources/micromamba-shell', { encoding: 'utf8' })
-  return Promise.all([micromambaShellFile, determineEnvironmentName(options.environmentName, options.environmentName)])
+  return Promise.all([micromambaShellFile, determineEnvironmentName(options.environmentName, options.environmentFile)])
     .then(([fileContents, environmentName]) => {
       const file = fileContents
         .replace(/\$MAMBA_EXE/g, PATHS.micromambaBin)

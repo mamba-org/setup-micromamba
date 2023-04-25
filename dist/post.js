@@ -6634,6 +6634,8 @@ var PATHS = {
 };
 var determineEnvironmentName = (environmentName, environmentFile) => {
   core2.debug("Determining environment name from inputs.");
+  core2.debug(`environmentName: ${environmentName}`);
+  core2.debug(`environmentFile: ${environmentFile}`);
   if (environmentName) {
     core2.debug(`Determined environment name: ${environmentName}`);
     return Promise.resolve(environmentName);

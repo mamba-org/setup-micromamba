@@ -53,6 +53,8 @@ const getCondaArch = () => {
 
 export const determineEnvironmentName = (environmentName?: string, environmentFile?: string) => {
   core.debug('Determining environment name from inputs.')
+  core.debug(`environmentName: ${environmentName}`)
+  core.debug(`environmentFile: ${environmentFile}`)
   if (environmentName) {
     core.debug(`Determined environment name: ${environmentName}`)
     return Promise.resolve(environmentName)

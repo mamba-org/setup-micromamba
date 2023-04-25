@@ -9277,6 +9277,8 @@ var getCondaArch = () => {
 };
 var determineEnvironmentName = (environmentName, environmentFile) => {
   core.debug("Determining environment name from inputs.");
+  core.debug(`environmentName: ${environmentName}`);
+  core.debug(`environmentFile: ${environmentFile}`);
   if (environmentName) {
     core.debug(`Determined environment name: ${environmentName}`);
     return Promise.resolve(environmentName);
@@ -12827,7 +12829,7 @@ var generateMicromambaRunShell = (options) => {
   }
   core4.info("Generating micromamba run shell.");
   const micromambaShellFile = fs4.readFile("src/resources/micromamba-shell", { encoding: "utf8" });
-  return Promise.all([micromambaShellFile, determineEnvironmentName(options.environmentName, options.environmentName)]).then(([fileContents, environmentName]) => {
+  return Promise.all([micromambaShellFile, determineEnvironmentName(options.environmentName, options.environmentFile)]).then(([fileContents, environmentName]) => {
     const file = fileContents.replace(/\$MAMBA_EXE/g, PATHS.micromambaBin).replace(/\$MAMBA_ROOT_PREFIX/g, PATHS.micromambaRoot).replace(/\$MAMBA_DEFAULT_ENV/g, environmentName);
     return fs4.writeFile(PATHS.micromambaRunShell, file, { encoding: "utf8", mode: 493 });
   }).finally(core4.endGroup);
