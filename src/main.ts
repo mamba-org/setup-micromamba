@@ -3,7 +3,7 @@ import * as os from 'os'
 import * as coreDefault from '@actions/core'
 import fetch from 'node-fetch'
 import untildify from 'untildify'
-import { PATHS, sha256, getMicromambaUrlFromInputs, micromambaCmd, execute, determineEnvironmentName } from './util'
+import { PATHS, sha256, getMicromambaUrl, micromambaCmd, execute, determineEnvironmentName } from './util'
 import { coreMocked } from './mocking'
 import { getOptions } from './inputs'
 import type { Options } from './inputs'
@@ -62,7 +62,6 @@ const generateCondarc = (options: Options) => {
 const createEnvironment = (options: Options) => {
   core.debug(`environmentFile: ${options.environmentFile}`)
   core.debug(`environmentName: ${options.environmentName}`)
-  core.debug(`extraSpecs: ${options.extraSpecs}`)
   core.debug(`createArgs: ${options.createArgs}`)
   core.debug(`condarcFile: ${options.condarcFile}`)
   let commandStr = `create -y -r ${PATHS.micromambaRoot}`
@@ -72,12 +71,8 @@ const createEnvironment = (options: Options) => {
   if (options.environmentName) {
     commandStr += ` -n ${options.environmentName}`
   }
-  if (options.extraSpecs) {
-    console.log(`EXTRASPECS ${options.extraSpecs}`)
-    commandStr += ` ${options.extraSpecs.join(' ')}`
-  }
   if (options.createArgs) {
-    commandStr += ` ${options.createArgs}`
+    commandStr += ` ${options.createArgs.join(' ')}`
   }
   if (options.condarcFile) {
     commandStr += ` --rc-file ${options.condarcFile}`
@@ -136,10 +131,9 @@ const run = async () => {
   core.debug(`process.env.HOME: ${process.env.HOME}`)
   core.debug(`os.homedir(): ${os.homedir()}`)
   core.debug(`bashProfile ${PATHS.bashProfile}`)
-  core.debug(core.getInput('extra-specs'))
   const options = getOptions()
 
-  const url = getMicromambaUrlFromInputs(options.micromambaVersion, options.micromambaUrl)
+  const url = getMicromambaUrl(options.micromambaSource)
   await downloadMicromamba(url)
   await generateCondarc(options)
   await Promise.all(options.initShell.map((shell) => shellInit(shell, options)))

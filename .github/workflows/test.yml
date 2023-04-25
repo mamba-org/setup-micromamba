@@ -11,7 +11,7 @@ jobs:
       - uses: ./
         with:
           environment-name: test
-          extra-specs: '["python", "cython"]'
+          create-args: '["python", "cython"]'
       - run: |
           micromamba info | grep -q "environment : test"
         shell: bash -el {0}
@@ -60,7 +60,7 @@ jobs:
         with:
           init-shell: '[]'
           environment-file: ''
-          extra-specs: '["pytest"]'
+          create-args: '["pytest"]'
           environment-name: test
       - run: |
           pytest --version

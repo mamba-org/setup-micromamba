@@ -5,8 +5,10 @@ import type { BinaryLike } from 'crypto'
 import { createHash } from 'crypto'
 import * as coreDefault from '@actions/core'
 import { exec } from '@actions/exec'
+import { match } from 'fp-ts/Either'
+import { pipe } from 'fp-ts/function'
 import { coreMocked } from './mocking'
-import type { LogLevelType } from './inputs'
+import type { LogLevelType, MicromambaSourceType } from './inputs'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -28,7 +30,7 @@ export const PATHS = {
   micromambaRunShell: '/usr/local/bin/micromamba-shell'
 }
 
-const getMicromambaUrl = (arch: string, version: string) => {
+const getMicromambaUrlFromVersion = (arch: string, version: string) => {
   if (version === 'latest') {
     return `https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-${arch}`
   }
@@ -80,15 +82,14 @@ export const determineEnvironmentName = (environmentName?: string, environmentFi
 export const mambaRegexBlock =
   /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/
 
-export const getMicromambaUrlFromInputs = (micromambaVersion: string, micromambaUrl?: string) => {
-  if (micromambaUrl) {
-    return micromambaUrl
-  }
-  const arch = getCondaArch()
-  if (!micromambaVersion) {
-    return getMicromambaUrl(arch, 'latest')
-  }
-  return getMicromambaUrl(arch, micromambaVersion)
+export const getMicromambaUrl = (micromambaSource: MicromambaSourceType) => {
+  return pipe(
+    micromambaSource,
+    match(
+      (version) => getMicromambaUrlFromVersion(getCondaArch(), version),
+      (url) => url
+    )
+  )
 }
 
 export const sha256 = (s: BinaryLike) => {

@@ -18,21 +18,16 @@ inputs:
   environment-name:
     description: >-
       Name of the environment to create. Overrides the name in the environment file.
-  extra-specs:
-    description: >-
-      Extra specs to install into the environment.
-      For multiple packages, use multiline syntax:
-      ```yml
-      extra-specs: |
-        - package1
-        - package2
-      ```
   create-args:
     description: >-
       Extra arguments to pass to `micromamba create`.
-  create-environment:
-    description: >-
-      Whether to create a micromamba environment. If `false`, the action will only install micromamba.
+      Also possible to list extra specs to install into the environment.
+      For multiple packages, use multiline syntax:
+      ```yml
+      create-args: |
+        - package1
+        - package2
+      ```
   log-level:
     description: >-
       Log level for micromamba.

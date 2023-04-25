@@ -7,6 +7,9 @@ dependencies:
   '@actions/exec':
     specifier: ^1.1.1
     version: 1.1.1
+  fp-ts:
+    specifier: ^2.14.0
+    version: 2.14.0
   node-fetch:
     specifier: ^3.3.0
     version: 3.3.0
@@ -1243,6 +1246,10 @@ packages:
     engines: {node: '>=12.20.0'}
     dependencies:
       fetch-blob: 3.2.0
+    dev: false
+
+  /fp-ts@2.14.0:
+    resolution: {integrity: sha512-QLagLSYAgMA00pZzUzeksH/78Sd14y7+Gc2A8Yaja3/IpGOFMdm/gYBuDMxYqLsJ58iT5lz+bJb953RAeFfp1A==}
     dev: false
 
   /fs.realpath@1.0.0:
