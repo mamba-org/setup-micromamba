@@ -100,10 +100,10 @@ const validateInputs = (inputs: Inputs): void => {
     throw new Error('You must not create an environment to use generate-run-shell.')
   }
   if (
-    !(inputs.postCleanup === 'environment') ||
-    inputs.createEnvironment ||
-    inputs.environmentName !== undefined ||
-    inputs.environmentFile !== undefined
+    inputs.postCleanup === 'environment' &&
+    !inputs.createEnvironment &&
+    inputs.environmentName === undefined &&
+    inputs.environmentFile === undefined
   ) {
     throw new Error("You must create an environment to use post-cleanup: 'environment'.")
   }
