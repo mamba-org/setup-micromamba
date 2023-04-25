@@ -67639,6 +67639,8 @@ var cache = __toESM(require_cache());
 var coreDefault4 = __toESM(require_core());
 var core4 = process.env.MOCKING ? coreMocked : coreDefault4;
 var saveCache2 = (cachePath, cacheKey) => {
+  core4.debug(`Saving cache with key \`${cacheKey}\` ...`);
+  core4.debug(`Cache path: ${cachePath}`);
   cache.saveCache([cachePath], cacheKey, void 0, false).then((cacheId) => {
     core4.info(`Saved cache with ID \`${cacheId}\``);
   }).catch((err) => {
@@ -67646,6 +67648,8 @@ var saveCache2 = (cachePath, cacheKey) => {
   });
 };
 var restoreCache2 = (cachePath, cacheKey) => {
+  core4.debug(`Restoring cache with key \`${cacheKey}\` ...`);
+  core4.debug(`Cache path: ${cachePath}`);
   return cache.restoreCache([cachePath], cacheKey, void 0, void 0, false).then((key) => {
     if (key) {
       core4.info(`Restored cache with key \`${key}\``);
@@ -67683,7 +67687,7 @@ var restoreCacheEnvironment = (environmentName) => {
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "envs", environmentName);
   core4.info(`Restoring environment \`${environmentName}\` from \`${cachePath}\` ...`);
-  return restoreCache2(cachePath, options.cacheEnvironmentKey);
+  return generateKey(options.cacheEnvironmentKey).then((key) => restoreCache2(cachePath, key));
 };
 var restoreCacheDownloads = () => {
   core4.debug(`Cache downloads key: ${options.cacheDownloadsKey}`);

@@ -61582,6 +61582,8 @@ var cache = __toESM(require_cache());
 var coreDefault4 = __toESM(require_core());
 var core4 = process.env.MOCKING ? coreMocked : coreDefault4;
 var saveCache2 = (cachePath, cacheKey) => {
+  core4.debug(`Saving cache with key \`${cacheKey}\` ...`);
+  core4.debug(`Cache path: ${cachePath}`);
   cache.saveCache([cachePath], cacheKey, void 0, false).then((cacheId) => {
     core4.info(`Saved cache with ID \`${cacheId}\``);
   }).catch((err) => {
@@ -61591,11 +61593,14 @@ var saveCache2 = (cachePath, cacheKey) => {
 var trimPkgsCacheFolder = (cacheFolder) => {
   core4.startGroup("Removing uncompressed packages to trim down cache folder...");
   return fs4.readdir(cacheFolder).then((files) => {
-    core4.debug(`Files in \`${cacheFolder}\`: ${files}`);
+    core4.debug(`Files in \`${cacheFolder}\`: ${JSON.stringify(files)}`);
     return Promise.all(
       files.filter((f) => f !== "cache").map((f) => import_path2.default.join(cacheFolder, f)).map((f) => fs4.lstat(f).then((stat2) => ({ path: f, stat: stat2 })))
     );
-  }).then((files) => files.filter((f) => f.stat.isDirectory())).then((dirs) => Promise.all(dirs.map((d) => fs4.rm(d.path, { recursive: true, force: true })))).finally(() => core4.endGroup());
+  }).then((files) => files.filter((f) => f.stat.isDirectory())).then((dirs) => {
+    core4.debug(`Directories in \`${cacheFolder}\`: ${JSON.stringify(dirs.map((d) => import_path2.default.basename(d.path)))}`);
+    return Promise.all(dirs.map((d) => fs4.rm(d.path, { recursive: true, force: true })));
+  }).finally(() => core4.endGroup());
 };
 var saveCacheDownloads = () => {
   core4.debug(`Cache downloads key: ${options.cacheDownloadsKey}`);

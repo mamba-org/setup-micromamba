@@ -9,6 +9,8 @@ import { sha256, sha256Short } from './util'
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
 const saveCache = (cachePath: string, cacheKey: string) => {
+  core.debug(`Saving cache with key \`${cacheKey}\` ...`)
+  core.debug(`Cache path: ${cachePath}`)
   cache
     .saveCache([cachePath], cacheKey, undefined, false)
     .then((cacheId) => {
@@ -20,6 +22,8 @@ const saveCache = (cachePath: string, cacheKey: string) => {
 }
 
 const restoreCache = (cachePath: string, cacheKey: string) => {
+  core.debug(`Restoring cache with key \`${cacheKey}\` ...`)
+  core.debug(`Cache path: ${cachePath}`)
   return cache.restoreCache([cachePath], cacheKey, undefined, undefined, false).then((key) => {
     if (key) {
       core.info(`Restored cache with key \`${key}\``)
@@ -66,7 +70,7 @@ export const restoreCacheEnvironment = (environmentName: string) => {
   }
   const cachePath = path.join(options.micromambaRootPath, 'envs', environmentName)
   core.info(`Restoring environment \`${environmentName}\` from \`${cachePath}\` ...`)
-  return restoreCache(cachePath, options.cacheEnvironmentKey)
+  return generateKey(options.cacheEnvironmentKey).then((key) => restoreCache(cachePath, key))
 }
 
 // Inspired by https://github.com/conda-incubator/setup-miniconda/blob/7e642bb2e4ca56ff706818a0febf72bb226d348d/src/delete.ts#L13 (MIT license)
@@ -76,7 +80,7 @@ const trimPkgsCacheFolder = (cacheFolder: string) => {
   return fs
     .readdir(cacheFolder)
     .then((files) => {
-      core.debug(`Files in \`${cacheFolder}\`: ${files}`)
+      core.debug(`Files in \`${cacheFolder}\`: ${JSON.stringify(files)}`)
       return Promise.all(
         files
           .filter((f) => f !== 'cache') // skip index cache
@@ -85,7 +89,10 @@ const trimPkgsCacheFolder = (cacheFolder: string) => {
       )
     })
     .then((files) => files.filter((f) => f.stat.isDirectory()))
-    .then((dirs) => Promise.all(dirs.map((d) => fs.rm(d.path, { recursive: true, force: true }))))
+    .then((dirs) => {
+      core.debug(`Directories in \`${cacheFolder}\`: ${JSON.stringify(dirs.map((d) => path.basename(d.path)))}`)
+      return Promise.all(dirs.map((d) => fs.rm(d.path, { recursive: true, force: true })))
+    })
     .finally(() => core.endGroup())
 }
 
