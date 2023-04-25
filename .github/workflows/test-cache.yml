@@ -1,0 +1,178 @@
+name: Test caching
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: null
+
+defaults:
+  run:
+    shell: bash -el {0}
+
+jobs:
+  test-download1:
+    name: Test download cache 1/2
+    timeout-minutes: 10
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          cache-downloads: true
+          cache-downloads-key: download-key-${{ github.sha }}-${{ github.run_attempt }}
+      - name: test environment name
+        run: |
+          python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'testenv'"
+
+  test-download2:
+    name: Test download cache 2/2
+    timeout-minutes: 10
+    needs: [test-download1]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          cache-downloads-key: download-key-${{ github.sha }}-${{ github.run_attempt }}
+      - name: test environment name
+        run: |
+          python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'testenv'"
+
+  test-env1:
+    name: Test env cache 1/3
+    timeout-minutes: 10
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          cache-environment-key: env-key-${{ github.sha }}-${{ github.run_attempt }}
+      - name: test environment name
+        run: |
+          python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'testenv'"
+
+  test-env2:
+    name: Test env cache 2/3
+    timeout-minutes: 10
+    needs: [test-env1]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          cache-environment-key: env-key-${{ github.sha }}-${{ github.run_attempt }}
+      - name: test environment name
+        run: |
+          python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'testenv'"
+
+  # test-env3:
+  #   if: false # Doesn't work
+  #   timeout-minutes: 10
+  #   name: Test env cache 3/3
+  #   needs: [test-env1]
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [windows-latest, ubuntu-latest, macos-latest]
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: install mamba
+  #       uses: ./
+  #       with:
+  #         cache-env: true
+  #         cache-env-always-update: true
+  #         cache-env-key: env-envkey-${{ github.sha }}-${{ github.run_attempt }}
+
+  #     - name: test environment name
+  #       run: |
+  #         python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'testenv'"
+
+  # test_download_and_env1:
+  #   name: Test download+env cache 1/2
+  #   timeout-minutes: 10
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [windows-latest, ubuntu-latest, macos-latest]
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: install mamba
+  #       uses: ./
+  #       with:
+  #         cache-downloads: true
+  #         cache-env: true
+  #         cache-downloads-key: download-env-downloadkey-${{ github.sha }}-${{ github.run_attempt }}
+  #         cache-env-key: download-env-envkey-${{ github.sha }}-${{ github.run_attempt }}
+
+  #     - name: test environment name
+  #       run: |
+  #         python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'testenv'"
+
+  # test_download_and_env2:
+  #   name: Test download+env cache 2/2
+  #   timeout-minutes: 10
+  #   needs: [test_download_and_env1]
+  #   runs-on: ${{ matrix.os }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       os: [windows-latest, ubuntu-latest, macos-latest]
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: install mamba
+  #       uses: ./
+  #       with:
+  #         cache-downloads: true
+  #         cache-env: true
+  #         cache-downloads-key: download-env-downloadkey-${{ github.sha }}-${{ github.run_attempt }}
+  #         cache-env-key: download-env-envkey-${{ github.sha }}-${{ github.run_attempt }}
+
+  #     - name: test environment name
+  #       run: |
+  #         python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'testenv'"
+
+  test-env-fail:
+    name: Test env creation failure
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - cache-downloads: true
+            cache-environment: false
+          - cache-downloads: false
+            cache-environment: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: install mamba
+        uses: ./
+        with:
+          environment-file: false
+          environment-name: test-fail
+          extra-specs: |
+            micromamba <0.1
+          cache-downloads: ${{ matrix.cache-downloads }}
+          cache-env: ${{ matrix.cache-environment }}
+        continue-on-error: true
