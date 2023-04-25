@@ -85,7 +85,7 @@ const inferOptions = (inputs: Inputs): Options => {
     generateRunShell: inputs.generateRunShell !== undefined ? inputs.generateRunShell : createEnvironment,
     cacheDownloads: inputs.cacheDownloads !== undefined ? inputs.cacheDownloads : true,
     cacheEnvironment: inputs.cacheEnvironment !== undefined ? inputs.cacheEnvironment : true,
-    postCleanup: inputs.postCleanup || 'shell-init',
+    postCleanup: inputs.postCleanup || 'shell-init'
   }
   return options
 }
