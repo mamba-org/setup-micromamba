@@ -61603,7 +61603,7 @@ var core4 = process.env.MOCKING ? coreMocked : coreDefault4;
 var saveCache2 = (cachePath, cacheKey) => {
   core4.debug(`Saving cache with key \`${cacheKey}\` ...`);
   core4.debug(`Cache path: ${cachePath}`);
-  cache.saveCache([cachePath], cacheKey, void 0, false).then((cacheId) => {
+  return cache.saveCache([cachePath], cacheKey, void 0, false).then((cacheId) => {
     core4.info(`Saved cache with ID \`${cacheId}\``);
   }).catch((err) => {
     core4.error(`Error saving cache: ${err.message}`);

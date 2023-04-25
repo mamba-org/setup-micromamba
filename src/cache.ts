@@ -11,7 +11,7 @@ const core = process.env.MOCKING ? coreMocked : coreDefault
 const saveCache = (cachePath: string, cacheKey: string) => {
   core.debug(`Saving cache with key \`${cacheKey}\` ...`)
   core.debug(`Cache path: ${cachePath}`)
-  cache
+  return cache
     .saveCache([cachePath], cacheKey, undefined, false)
     .then((cacheId) => {
       core.info(`Saved cache with ID \`${cacheId}\``)
