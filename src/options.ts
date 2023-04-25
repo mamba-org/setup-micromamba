@@ -112,7 +112,8 @@ const inferOptions = (inputs: Inputs): Options => {
     micromambaSource,
     initShell: inputs.initShell || ['bash'],
     generateRunShell: inputs.generateRunShell !== undefined ? inputs.generateRunShell : createEnvironment,
-    cacheEnvironmentKey: inputs.cacheEnvironmentKey || (inputs.cacheEnvironment ? `micromamba-environment-` : undefined),
+    cacheEnvironmentKey:
+      inputs.cacheEnvironmentKey || (inputs.cacheEnvironment ? `micromamba-environment-` : undefined),
     cacheDownloadsKey: inputs.cacheDownloadsKey || (inputs.cacheDownloads ? `micromamba-downloads-` : undefined),
     postCleanup: inputs.postCleanup || 'shell-init',
     micromambaRootPath: inputs.micromambaRootPath ? untildify(inputs.micromambaRootPath) : PATHS.micromambaRoot,

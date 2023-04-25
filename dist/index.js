@@ -67633,9 +67633,9 @@ var addEnvironmentToAutoActivate = (environmentName, shell) => {
 
 // src/cache.ts
 var import_path2 = __toESM(require("path"));
+var fs5 = __toESM(require("fs/promises"));
 var cache = __toESM(require_cache());
 var coreDefault4 = __toESM(require_core());
-var fs5 = __toESM(require("fs/promises"));
 var core4 = process.env.MOCKING ? coreMocked : coreDefault4;
 var saveCache2 = (cachePath, cacheKey) => {
   cache.saveCache([cachePath], cacheKey, void 0, false).then((cacheId) => {
@@ -67744,10 +67744,9 @@ var createEnvironment = () => {
   return execute(micromambaCmd(commandStr, options.logLevel, options.condarcFile));
 };
 var installEnvironment = () => {
-  return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => Promise.all([
-    Promise.resolve(environmentName),
-    restoreCacheEnvironment(environmentName)
-  ])).then(([environmentName, cacheKey]) => {
+  return determineEnvironmentName(options.environmentName, options.environmentFile).then(
+    (environmentName) => Promise.all([Promise.resolve(environmentName), restoreCacheEnvironment(environmentName)])
+  ).then(([environmentName, cacheKey]) => {
     if (cacheKey) {
       return Promise.resolve(environmentName);
     }
@@ -67758,9 +67757,9 @@ var installEnvironment = () => {
         saveCacheEnvironment(environmentName2).then(() => environmentName2)
       )
     );
-  }).then((environmentName) => Promise.all(
-    options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell))
-  )).finally(core5.endGroup);
+  }).then(
+    (environmentName) => Promise.all(options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)))
+  ).finally(core5.endGroup);
 };
 var generateInfo = () => {
   core5.startGroup("micromamba info");

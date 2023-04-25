@@ -82,9 +82,9 @@ const createEnvironment = () => {
 
 const installEnvironment = () => {
   return determineEnvironmentName(options.environmentName, options.environmentFile)
-    .then((environmentName) => Promise.all([
-      Promise.resolve(environmentName), restoreCacheEnvironment(environmentName)
-    ]))
+    .then((environmentName) =>
+      Promise.all([Promise.resolve(environmentName), restoreCacheEnvironment(environmentName)])
+    )
     .then(([environmentName, cacheKey]) => {
       if (cacheKey) {
         // cache hit, no need to install and save cache
@@ -92,15 +92,16 @@ const installEnvironment = () => {
       }
       // cache miss, install and save cache
       core.startGroup(`Install environment \`${environmentName}\``)
-      return createEnvironment().then((_exitCode) => environmentName)
+      return createEnvironment()
+        .then((_exitCode) => environmentName)
         .then((environmentName) =>
           // cache can already be saved here and not in post action since the environment is not changing anymore
           saveCacheEnvironment(environmentName).then(() => environmentName)
         )
     })
-    .then((environmentName) => Promise.all(
-      options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell))
-    ))
+    .then((environmentName) =>
+      Promise.all(options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)))
+    )
     .finally(core.endGroup)
 }
 
