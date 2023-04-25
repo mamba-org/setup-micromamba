@@ -1,5 +1,7 @@
 import * as coreDefault from '@actions/core'
 import * as z from 'zod'
+import { left, right } from 'fp-ts/lib/Either'
+import type { Either } from 'fp-ts/lib/Either'
 import { coreMocked } from './mocking'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
@@ -7,11 +9,9 @@ const core = process.env.MOCKING ? coreMocked : coreDefault
 type Inputs = {
   condarcFile?: string
   condarc?: string
-  createEnvironment?: boolean // TODO: is this needed?
   environmentFile?: string
   environmentName?: string
-  extraSpecs?: string[]
-  createArgs?: string
+  createArgs?: string[]
   logLevel?: LogLevelType
   micromambaVersion?: string
   micromambaUrl?: string
@@ -30,11 +30,9 @@ export type Options = {
   createEnvironment: boolean
   environmentFile?: string
   environmentName?: string
-  extraSpecs: string[]
-  createArgs?: string // TODO: is this needed?
+  createArgs: string[]
   logLevel: LogLevelType
-  micromambaVersion: string // TODO: make micromambaSource: version v | url u
-  micromambaUrl?: string
+  micromambaSource: MicromambaSourceType
   initShell: ShellType[]
   generateRunShell: boolean
   cacheDownloads: boolean
@@ -52,6 +50,8 @@ export type LogLevelType = z.infer<typeof logLevelSchema>
 
 const shellSchema = z.enum(['bash', 'cmd.exe', 'fish', 'powershell', 'tcsh', 'xonsh', 'zsh'])
 export type ShellType = z.infer<typeof shellSchema>
+
+export type MicromambaSourceType = Either<string, string> // Either<version, url>
 
 const parseOrUndefined = <T>(key: string, schema: z.ZodSchema<T>): T | undefined => {
   const input = core.getInput(key)
@@ -72,15 +72,18 @@ const parseOrUndefinedJSON = <T>(key: string, schema: z.ZodSchema<T>): T | undef
 }
 
 const inferOptions = (inputs: Inputs): Options => {
-  const createEnvironment =
-    inputs.createEnvironment || inputs.environmentName !== undefined || inputs.environmentFile !== undefined
+  const createEnvironment = inputs.environmentName !== undefined || inputs.environmentFile !== undefined
   const logLevel = inputs.logLevel || (core.isDebug() ? 'debug' : 'info')
+  // if micromambaUrl is specified, use that, otherwise use micromambaVersion (or 'latest' if not specified)
+  const micromambaSource = inputs.micromambaUrl
+    ? right(inputs.micromambaUrl)
+    : left(inputs.micromambaVersion || 'latest')
   const options = {
     ...inputs,
     createEnvironment,
-    extraSpecs: inputs.extraSpecs || [],
+    createArgs: inputs.createArgs || [],
     logLevel,
-    micromambaVersion: inputs.micromambaVersion || 'latest', // if micromambaUrl is set, this is ignored
+    micromambaSource,
     initShell: inputs.initShell || ['bash'],
     generateRunShell: inputs.generateRunShell !== undefined ? inputs.generateRunShell : createEnvironment,
     cacheDownloads: inputs.cacheDownloads !== undefined ? inputs.cacheDownloads : true,
@@ -91,23 +94,13 @@ const inferOptions = (inputs: Inputs): Options => {
 }
 
 const validateInputs = (inputs: Inputs): void => {
-  if (inputs.createEnvironment) {
-    if (!inputs.environmentFile && !inputs.environmentName) {
-      throw new Error('You must specify either an environment file or an environment name to create an environment.')
-    }
-  }
   if (inputs.micromambaUrl && inputs.micromambaVersion) {
     throw new Error('You must specify either a micromamba URL or a micromamba version, not both.')
   }
-  if (inputs.generateRunShell && !(inputs.createEnvironment === false)) {
-    throw new Error('You must not create an environment to use generate-run-shell.')
+  if (inputs.generateRunShell && !inputs.environmentName && !inputs.environmentFile) {
+    throw new Error("You must create an environment to use 'generate-run-shell'.")
   }
-  if (
-    inputs.postCleanup === 'environment' &&
-    !inputs.createEnvironment &&
-    inputs.environmentName === undefined &&
-    inputs.environmentFile === undefined
-  ) {
+  if (inputs.postCleanup === 'environment' && !inputs.environmentName && !inputs.environmentFile) {
     throw new Error("You must create an environment to use post-cleanup: 'environment'.")
   }
   if (inputs.condarcFile && inputs.condarc) {
@@ -133,9 +126,7 @@ export const getOptions = () => {
     condarc: parseOrUndefined('condarc', z.string()),
     environmentFile: parseOrUndefined('environment-file', z.string()),
     environmentName: parseOrUndefined('environment-name', z.string()),
-    extraSpecs: parseOrUndefinedJSON('extra-specs', z.array(z.string())),
-    createArgs: parseOrUndefined('create-args', z.string()),
-    createEnvironment: parseOrUndefinedJSON('create-environment', z.boolean()),
+    createArgs: parseOrUndefinedJSON('create-args', z.array(z.string())),
     logLevel: parseOrUndefined('log-level', logLevelSchema),
     micromambaVersion: parseOrUndefined(
       'micromamba-version',
