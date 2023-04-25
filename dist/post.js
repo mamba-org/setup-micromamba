@@ -8325,9 +8325,9 @@ var removeMicromambaRunShell = (inputs) => {
   core4.info("Removing micromamba run shell ...");
   return fs3.rm(PATHS.micromambaRunShell);
 };
-var uninstallEnvironment = (inputs) => {
-  return determineEnvironmentName(inputs.environmentName, inputs.environmentFile).then((environmentName) => {
-    const envPath = import_path2.default.join(PATHS.micromambaEnvs, environmentName);
+var uninstallEnvironment = (options) => {
+  return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
+    const envPath = import_path2.default.join(PATHS.micromambaRoot, "envs", environmentName);
     core4.info(`Removing environment ${environmentName} ...`);
     core4.debug(`Deleting ${envPath}`);
     return fs3.rm(envPath, { recursive: true });
