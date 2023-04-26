@@ -17,13 +17,13 @@ dependencies:
     specifier: ^2.14.0
     version: 2.14.0
   node-fetch:
-    specifier: ^3.3.0
+    specifier: ^3.3.1
     version: 3.3.1
   untildify:
     specifier: ^4.0.0
     version: 4.0.0
   zod:
-    specifier: ^3.20.6
+    specifier: ^3.21.4
     version: 3.21.4
 
 devDependencies:
@@ -31,19 +31,19 @@ devDependencies:
     specifier: ^4.2.4
     version: 4.2.4
   '@types/node':
-    specifier: ^18.14.2
-    version: 18.16.0
+    specifier: ^18.16.1
+    version: 18.16.1
   '@typescript-eslint/eslint-plugin':
-    specifier: ^5.54.0
+    specifier: ^5.59.1
     version: 5.59.1(@typescript-eslint/parser@5.59.1)(eslint@8.39.0)(typescript@4.9.5)
   '@typescript-eslint/parser':
-    specifier: ^5.54.0
+    specifier: ^5.59.1
     version: 5.59.1(eslint@8.39.0)(typescript@4.9.5)
   eslint:
-    specifier: ^8.35.0
+    specifier: ^8.39.0
     version: 8.39.0
   eslint-config-prettier:
-    specifier: ^8.6.0
+    specifier: ^8.8.0
     version: 8.8.0(eslint@8.39.0)
   eslint-config-standard:
     specifier: ^17.0.0
@@ -52,19 +52,19 @@ devDependencies:
     specifier: ^2.27.5
     version: 2.27.5(@typescript-eslint/parser@5.59.1)(eslint@8.39.0)
   eslint-plugin-n:
-    specifier: ^15.6.1
+    specifier: ^15.7.0
     version: 15.7.0(eslint@8.39.0)
   eslint-plugin-prettier:
     specifier: ^4.2.1
     version: 4.2.1(eslint-config-prettier@8.8.0)(eslint@8.39.0)(prettier@2.8.8)
   eslint-plugin-promise:
-    specifier: ^6.0.0
+    specifier: ^6.1.1
     version: 6.1.1(eslint@8.39.0)
   prettier:
-    specifier: ^2.8.4
+    specifier: ^2.8.8
     version: 2.8.8
   tsup:
-    specifier: ^6.6.3
+    specifier: ^6.7.0
     version: 6.7.0(typescript@4.9.5)
   typescript:
     specifier: ^4.9.5
@@ -546,7 +546,7 @@ packages:
   /@types/decompress@4.2.4:
     resolution: {integrity: sha512-/C8kTMRTNiNuWGl5nEyKbPiMv6HA+0RbEXzFhFBEzASM6+oa4tJro9b8nj7eRlOFfuLdzUU+DS/GPDlvvzMOhA==}
     dependencies:
-      '@types/node': 18.16.0
+      '@types/node': 18.16.1
     dev: true
 
   /@types/json-schema@7.0.11:
@@ -560,12 +560,12 @@ packages:
   /@types/node-fetch@2.6.3:
     resolution: {integrity: sha512-ETTL1mOEdq/sxUtgtOhKjyB2Irra4cjxksvcMUR5Zr4n+PxVhsCD9WS46oPbHL3et9Zde7CNRr+WUNlcHvsX+w==}
     dependencies:
-      '@types/node': 18.16.0
+      '@types/node': 18.16.1
       form-data: 3.0.1
     dev: false
 
-  /@types/node@18.16.0:
-    resolution: {integrity: sha512-BsAaKhB+7X+H4GnSjGhJG9Qi8Tw+inU9nJDwmD5CgOmBLEI6ArdhikpLX7DjbjDRDTbqZzU2LSQNZg8WGPiSZQ==}
+  /@types/node@18.16.1:
+    resolution: {integrity: sha512-DZxSZWXxFfOlx7k7Rv4LAyiMroaxa3Ly/7OOzZO8cBNho0YzAi4qlbrx8W27JGqG57IgR/6J7r+nOJWw6kcvZA==}
 
   /@types/semver@7.3.13:
     resolution: {integrity: sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==}
@@ -574,7 +574,7 @@ packages:
   /@types/tunnel@0.0.3:
     resolution: {integrity: sha512-sOUTGn6h1SfQ+gbgqC364jLFBw2lnFqkgF3q0WovEHRLMrVD1sd5aufqi/aJObLekJO+Aq5z646U4Oxy6shXMA==}
     dependencies:
-      '@types/node': 18.16.0
+      '@types/node': 18.16.1
     dev: false
 
   /@typescript-eslint/eslint-plugin@5.59.1(@typescript-eslint/parser@5.59.1)(eslint@8.39.0)(typescript@4.9.5):
