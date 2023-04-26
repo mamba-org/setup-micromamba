@@ -36,8 +36,17 @@ const removeRoot = () => {
 const removeMicromambaBinary = () => {
   core.info('Removing micromamba binary ...')
   core.debug(`Deleting ${options.micromambaBinPath}`)
-  // the micromamba binary may be in a different folder than the root
-  return fs.rm(options.micromambaBinPath, { force: false })
+  return fs
+    .rm(options.micromambaBinPath, { force: false })
+    .then(() => fs.readdir(path.dirname(options.micromambaBinPath)))
+    .then((files) => {
+      // if the folder is empty, remove it
+      if (files.length === 0) {
+        core.debug(`Deleting ${path.dirname(options.micromambaBinPath)}`)
+        return fs.rm(path.dirname(options.micromambaBinPath))
+      }
+      return Promise.resolve()
+    })
 }
 
 const cleanup = () => {

@@ -10,8 +10,7 @@ import { coreMocked } from './mocking'
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
 export const PATHS = {
-  // TODO fix paths
-  micromambaBin: path.join(os.homedir(), 'micromamba', 'bin', `micromamba${os.platform() === 'win32' ? '.exe' : ''}`),
+  micromambaBin: path.join(os.homedir(), 'micromamba-bin', `micromamba${os.platform() === 'win32' ? '.exe' : ''}`),
   micromambaRoot: path.join(os.homedir(), 'micromamba'),
   // use a different path than ~/.condarc to avoid messing up the user's condarc
   condarc: path.join(os.homedir(), 'micromamba', '.condarc'),

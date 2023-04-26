@@ -61376,8 +61376,7 @@ var import_Either = __toESM(require_Either());
 var import_untildify = __toESM(require_untildify());
 var core = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
-  // TODO fix paths
-  micromambaBin: path.join(os.homedir(), "micromamba", "bin", `micromamba${os.platform() === "win32" ? ".exe" : ""}`),
+  micromambaBin: path.join(os.homedir(), "micromamba-bin", `micromamba${os.platform() === "win32" ? ".exe" : ""}`),
   micromambaRoot: path.join(os.homedir(), "micromamba"),
   // use a different path than ~/.condarc to avoid messing up the user's condarc
   condarc: path.join(os.homedir(), "micromamba", ".condarc"),
@@ -61673,7 +61672,13 @@ var removeRoot = () => {
 var removeMicromambaBinary = () => {
   core5.info("Removing micromamba binary ...");
   core5.debug(`Deleting ${options.micromambaBinPath}`);
-  return fs5.rm(options.micromambaBinPath, { force: false });
+  return fs5.rm(options.micromambaBinPath, { force: false }).then(() => fs5.readdir(import_path3.default.dirname(options.micromambaBinPath))).then((files) => {
+    if (files.length === 0) {
+      core5.debug(`Deleting ${import_path3.default.dirname(options.micromambaBinPath)}`);
+      return fs5.rm(import_path3.default.dirname(options.micromambaBinPath));
+    }
+    return Promise.resolve();
+  });
 };
 var cleanup = () => {
   const postCleanup = options.postCleanup;

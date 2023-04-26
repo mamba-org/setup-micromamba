@@ -67372,8 +67372,7 @@ var import_Either = __toESM(require_Either());
 var import_untildify = __toESM(require_untildify());
 var core = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
-  // TODO fix paths
-  micromambaBin: path.join(os.homedir(), "micromamba", "bin", `micromamba${os.platform() === "win32" ? ".exe" : ""}`),
+  micromambaBin: path.join(os.homedir(), "micromamba-bin", `micromamba${os.platform() === "win32" ? ".exe" : ""}`),
   micromambaRoot: path.join(os.homedir(), "micromamba"),
   // use a different path than ~/.condarc to avoid messing up the user's condarc
   condarc: path.join(os.homedir(), "micromamba", ".condarc"),
