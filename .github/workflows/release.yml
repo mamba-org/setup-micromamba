@@ -1,0 +1,27 @@
+name: Release
+on:
+  push:
+    tags:
+      # only release von 'vx.y.z' tags, not on the 'vx' tag itself
+      - 'v*.*.*'
+permissions:
+  contents: write
+
+# To release a new version, update the version in package.json and push a tag with the new version 'vx.y.z'.
+# This will create a draft release with the changelog and push a 'vx' tag that points to the new release.
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          version="${{ github.ref }}"
+          major=${version%%.*} # see https://linuxjournal.com/article/8919 for an explanation of this bash magic
+          git tag $major
+          git push origin $major
+          echo "Pushed ${major} -> ${version} tag to origin." >> "$GITHUB_STEP_SUMMARY"
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
+          draft: true
