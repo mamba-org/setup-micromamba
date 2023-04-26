@@ -131,7 +131,7 @@ const generateMicromambaRunShell = () => {
     return Promise.resolve()
   }
   core.info('Generating micromamba run shell.')
-  const micromambaRunShellContents = `#!/bin/env bash
+  const micromambaRunShellContents = `#!/usr/bin/env sh
 chmod +x $1
 $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
 `
