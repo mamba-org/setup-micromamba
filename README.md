@@ -221,7 +221,7 @@ If nothing is specified, `setup-micromamba` will default to `info` or `debug` de
 
 On self hosted runners, it may happen that some files are persisted between jobs.
 This can lead to problems when the next job is run.
-To avoid this, you can use the `post-cleanup` input to specify the post cleanup behavior of the action.
+To avoid this, you can use the `post-cleanup` input to specify the post cleanup behavior of the action (i.e., what happens _after_ all your commands have been executed).
 
 There is a total of 4 options:
 - `none`: No cleanup is performed.
