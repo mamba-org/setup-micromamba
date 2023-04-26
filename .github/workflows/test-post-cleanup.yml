@@ -39,9 +39,10 @@ jobs:
             set -euxo pipefail
             ${{ matrix.mamba-init-block-exists }}grep -F "mamba initialize" ~/.bash_profile
             ${{ matrix.mamba-init-block-exists }}grep -F "mamba initialize" ~/.bashrc
-            ${{ matrix.env-exists }}test -d ~/debug/micromamba-root/envs/env-name
-            ${{ matrix.root-exists }}test -d ~/debug/micromamba-root
-            ${{ matrix.binary-exists }}test -f ~/debug/micromamba-bin/micromamba
+            ${{ matrix.env-exists }}test -d ~/micromamba/envs/env-name
+            ${{ matrix.root-exists }}test -d ~/micromamba
+            ${{ matrix.binary-exists }}test -f ~/micromamba-bin/micromamba
+            ${{ matrix.binary-exists }}test -f ~/micromamba-bin/.condarc
       - uses: ./
         with:
           environment-file: 'test/environment.yml'
@@ -51,6 +52,7 @@ jobs:
           set -euxo pipefail
           grep -F "mamba initialize" ~/.bash_profile
           grep -F "mamba initialize" ~/.bashrc
-          test -d ~/debug/micromamba-root/envs/env-name
-          test -d ~/debug/micromamba-root
+          test -d ~/debug/micromamba/envs/env-name
+          test -d ~/debug/micromamba
           test -f ~/debug/micromamba-bin/micromamba
+          test -f ~/debug/micromamba-bin/.condarc
