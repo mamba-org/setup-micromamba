@@ -27,7 +27,7 @@ GitHub Action to set up the [micromamba](https://github.com/mamba-org/mamba#micr
 
 ## Features
 
-To see all available input arguments, see the [action.yml](action.yml) file.
+To see all available input arguments, see the [`action.yml`](action.yml) file.
 
 ### Shell initialization
 
