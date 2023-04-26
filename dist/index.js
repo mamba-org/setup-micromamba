@@ -9617,7 +9617,7 @@ var require_internal_path_helper = __commonJS({
     var path5 = __importStar(require("path"));
     var assert_1 = __importDefault(require("assert"));
     var IS_WINDOWS = process.platform === "win32";
-    function dirname(p) {
+    function dirname2(p) {
       p = safeTrimTrailingSeparator(p);
       if (IS_WINDOWS && /^\\\\[^\\]+(\\[^\\]+)?$/.test(p)) {
         return p;
@@ -9628,7 +9628,7 @@ var require_internal_path_helper = __commonJS({
       }
       return result;
     }
-    exports.dirname = dirname;
+    exports.dirname = dirname2;
     function ensureAbsoluteRoot(root, itemPath) {
       assert_1.default(root, `ensureAbsoluteRoot parameter 'root' must not be empty`);
       assert_1.default(itemPath, `ensureAbsoluteRoot parameter 'itemPath' must not be empty`);
@@ -67374,8 +67374,6 @@ var core = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
   micromambaBin: path.join(os.homedir(), "micromamba-bin", `micromamba${os.platform() === "win32" ? ".exe" : ""}`),
   micromambaRoot: path.join(os.homedir(), "micromamba"),
-  // use a different path than ~/.condarc to avoid messing up the user's condarc
-  condarc: path.join(os.homedir(), "micromamba", ".condarc"),
   micromambaRunShell: "/usr/local/bin/micromamba-shell",
   bashProfile: path.join(os.homedir(), ".bash_profile"),
   bashrc: path.join(os.homedir(), ".bashrc")
@@ -67413,7 +67411,6 @@ var inferOptions = (inputs) => {
   return {
     ...inputs,
     writeToCondarc,
-    condarcFile: inputs.condarcFile || PATHS.condarc,
     createEnvironment: createEnvironment2,
     createArgs: inputs.createArgs || [],
     logLevel,
@@ -67423,8 +67420,11 @@ var inferOptions = (inputs) => {
     cacheEnvironmentKey: inputs.cacheEnvironmentKey || (inputs.cacheEnvironment ? `micromamba-environment-` : void 0),
     cacheDownloadsKey: inputs.cacheDownloadsKey || (inputs.cacheDownloads ? `micromamba-downloads-` : void 0),
     postCleanup: inputs.postCleanup || "shell-init",
-    micromambaRootPath: inputs.micromambaRootPath ? (0, import_untildify.default)(inputs.micromambaRootPath) : PATHS.micromambaRoot,
-    micromambaBinPath: inputs.micromambaBinPath ? (0, import_untildify.default)(inputs.micromambaBinPath) : PATHS.micromambaBin
+    // use a different path than ~/.condarc to avoid messing up the user's condarc
+    condarcFile: inputs.condarcFile || path.join(path.dirname(PATHS.micromambaBin), ".condarc"),
+    // next to the micromamba binary -> easier cleanup
+    micromambaBinPath: inputs.micromambaBinPath ? (0, import_untildify.default)(inputs.micromambaBinPath) : PATHS.micromambaBin,
+    micromambaRootPath: inputs.micromambaRootPath ? (0, import_untildify.default)(inputs.micromambaRootPath) : PATHS.micromambaRoot
   };
 };
 var validateInputs = (inputs) => {
@@ -67823,8 +67823,6 @@ var run = async () => {
   core5.debug(`process.env.HOME: ${process.env.HOME}`);
   core5.debug(`os.homedir(): ${os6.homedir()}`);
   core5.debug(`bashProfile ${PATHS.bashProfile}`);
-  core5.info(`create-args: "${core5.getInput("create-args")}"`);
-  core5.info(`init-shell: "${core5.getInput("init-shell")}"`);
   if (process.platform === "win32") {
     core5.addPath(import_path3.default.dirname(await io.which("cygpath", true)));
   }

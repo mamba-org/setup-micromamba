@@ -36,6 +36,7 @@ inputs:
   micromamba-version:
     description: |
       Version of micromamba to install.
+      Must match with a micromamba version from the https://github.com/mamba-org/micromamba-releases repository or 'latest'.
   micromamba-url:
     description: |
       URL to download micromamba from.
@@ -82,7 +83,8 @@ inputs:
   micromamba-binary-path:
     description: |
       Path to the micromamba binary.
-      Defaults to `~/micromamba/bin/micromamba`.
+      Defaults to `~/micromamba-bin/micromamba`.
+      Also specifies the path to the custom condarc which is located in the same folder as the micromamba binary.
 runs:
   using: 'node16'
   main: 'dist/index.js'

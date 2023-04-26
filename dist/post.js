@@ -4961,7 +4961,7 @@ var require_internal_path_helper = __commonJS({
     var path5 = __importStar(require("path"));
     var assert_1 = __importDefault(require("assert"));
     var IS_WINDOWS = process.platform === "win32";
-    function dirname(p) {
+    function dirname2(p) {
       p = safeTrimTrailingSeparator(p);
       if (IS_WINDOWS && /^\\\\[^\\]+(\\[^\\]+)?$/.test(p)) {
         return p;
@@ -4972,7 +4972,7 @@ var require_internal_path_helper = __commonJS({
       }
       return result;
     }
-    exports.dirname = dirname;
+    exports.dirname = dirname2;
     function ensureAbsoluteRoot(root, itemPath) {
       assert_1.default(root, `ensureAbsoluteRoot parameter 'root' must not be empty`);
       assert_1.default(itemPath, `ensureAbsoluteRoot parameter 'itemPath' must not be empty`);
@@ -61378,8 +61378,6 @@ var core = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
   micromambaBin: path.join(os.homedir(), "micromamba-bin", `micromamba${os.platform() === "win32" ? ".exe" : ""}`),
   micromambaRoot: path.join(os.homedir(), "micromamba"),
-  // use a different path than ~/.condarc to avoid messing up the user's condarc
-  condarc: path.join(os.homedir(), "micromamba", ".condarc"),
   micromambaRunShell: "/usr/local/bin/micromamba-shell",
   bashProfile: path.join(os.homedir(), ".bash_profile"),
   bashrc: path.join(os.homedir(), ".bashrc")
@@ -61417,7 +61415,6 @@ var inferOptions = (inputs) => {
   return {
     ...inputs,
     writeToCondarc,
-    condarcFile: inputs.condarcFile || PATHS.condarc,
     createEnvironment,
     createArgs: inputs.createArgs || [],
     logLevel,
@@ -61427,8 +61424,11 @@ var inferOptions = (inputs) => {
     cacheEnvironmentKey: inputs.cacheEnvironmentKey || (inputs.cacheEnvironment ? `micromamba-environment-` : void 0),
     cacheDownloadsKey: inputs.cacheDownloadsKey || (inputs.cacheDownloads ? `micromamba-downloads-` : void 0),
     postCleanup: inputs.postCleanup || "shell-init",
-    micromambaRootPath: inputs.micromambaRootPath ? (0, import_untildify.default)(inputs.micromambaRootPath) : PATHS.micromambaRoot,
-    micromambaBinPath: inputs.micromambaBinPath ? (0, import_untildify.default)(inputs.micromambaBinPath) : PATHS.micromambaBin
+    // use a different path than ~/.condarc to avoid messing up the user's condarc
+    condarcFile: inputs.condarcFile || path.join(path.dirname(PATHS.micromambaBin), ".condarc"),
+    // next to the micromamba binary -> easier cleanup
+    micromambaBinPath: inputs.micromambaBinPath ? (0, import_untildify.default)(inputs.micromambaBinPath) : PATHS.micromambaBin,
+    micromambaRootPath: inputs.micromambaRootPath ? (0, import_untildify.default)(inputs.micromambaRootPath) : PATHS.micromambaRoot
   };
 };
 var validateInputs = (inputs) => {
@@ -61669,16 +61669,27 @@ var removeRoot = () => {
   core5.debug(`Deleting ${options.micromambaRootPath}`);
   return fs5.rm(options.micromambaRootPath, { recursive: true });
 };
-var removeMicromambaBinary = () => {
-  core5.info("Removing micromamba binary ...");
-  core5.debug(`Deleting ${options.micromambaBinPath}`);
-  return fs5.rm(options.micromambaBinPath, { force: false }).then(() => fs5.readdir(import_path3.default.dirname(options.micromambaBinPath))).then((files) => {
+var removeCustomCondarc = () => {
+  if (!options.writeToCondarc) {
+    return Promise.resolve();
+  }
+  core5.info("Removing custom condarc ...");
+  core5.debug(`Deleting ${options.condarcFile}`);
+  return fs5.rm(options.condarcFile);
+};
+var removeMicromambaBinaryParentIfEmpty = () => {
+  return fs5.readdir(import_path3.default.dirname(options.micromambaBinPath)).then((files) => {
     if (files.length === 0) {
       core5.debug(`Deleting ${import_path3.default.dirname(options.micromambaBinPath)}`);
       return fs5.rm(import_path3.default.dirname(options.micromambaBinPath));
     }
     return Promise.resolve();
   });
+};
+var removeMicromambaBinary = () => {
+  core5.info("Removing micromamba binary ...");
+  core5.debug(`Deleting ${options.micromambaBinPath}`);
+  return fs5.rm(options.micromambaBinPath, { force: false });
 };
 var cleanup = () => {
   const postCleanup = options.postCleanup;
@@ -61696,7 +61707,9 @@ var cleanup = () => {
         ...options.initShell.map((shell) => shellDeinit(shell))
       ]).then(() => Promise.resolve());
     case "all":
-      return Promise.all(options.initShell.map((shell) => shellDeinit(shell))).then(() => Promise.all([removeRoot(), removeMicromambaRunShell(), removeMicromambaBinary()])).then(() => Promise.resolve());
+      return Promise.all(options.initShell.map((shell) => shellDeinit(shell))).then(
+        () => Promise.all([removeRoot(), removeMicromambaRunShell(), removeMicromambaBinary(), removeCustomCondarc()])
+      ).then(removeMicromambaBinaryParentIfEmpty);
     default:
       throw new Error(`Unknown post cleanup type: ${postCleanup}`);
   }

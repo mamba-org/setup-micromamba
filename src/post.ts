@@ -33,20 +33,30 @@ const removeRoot = () => {
   return fs.rm(options.micromambaRootPath, { recursive: true })
 }
 
+const removeCustomCondarc = () => {
+  if (!options.writeToCondarc) {
+    return Promise.resolve()
+  }
+  core.info('Removing custom condarc ...')
+  core.debug(`Deleting ${options.condarcFile}`)
+  return fs.rm(options.condarcFile)
+}
+
+const removeMicromambaBinaryParentIfEmpty = () => {
+  return fs.readdir(path.dirname(options.micromambaBinPath)).then((files) => {
+    // if the folder is empty, remove it
+    if (files.length === 0) {
+      core.debug(`Deleting ${path.dirname(options.micromambaBinPath)}`)
+      return fs.rm(path.dirname(options.micromambaBinPath))
+    }
+    return Promise.resolve()
+  })
+}
+
 const removeMicromambaBinary = () => {
   core.info('Removing micromamba binary ...')
   core.debug(`Deleting ${options.micromambaBinPath}`)
-  return fs
-    .rm(options.micromambaBinPath, { force: false })
-    .then(() => fs.readdir(path.dirname(options.micromambaBinPath)))
-    .then((files) => {
-      // if the folder is empty, remove it
-      if (files.length === 0) {
-        core.debug(`Deleting ${path.dirname(options.micromambaBinPath)}`)
-        return fs.rm(path.dirname(options.micromambaBinPath))
-      }
-      return Promise.resolve()
-    })
+  return fs.rm(options.micromambaBinPath, { force: false })
 }
 
 const cleanup = () => {
@@ -66,8 +76,10 @@ const cleanup = () => {
       ]).then(() => Promise.resolve())
     case 'all':
       return Promise.all(options.initShell.map((shell) => shellDeinit(shell)))
-        .then(() => Promise.all([removeRoot(), removeMicromambaRunShell(), removeMicromambaBinary()]))
-        .then(() => Promise.resolve())
+        .then(() =>
+          Promise.all([removeRoot(), removeMicromambaRunShell(), removeMicromambaBinary(), removeCustomCondarc()])
+        )
+        .then(removeMicromambaBinaryParentIfEmpty)
     default:
       // This should never happen, because the input is validated in parseInputs
       throw new Error(`Unknown post cleanup type: ${postCleanup}`)

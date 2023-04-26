@@ -12,8 +12,6 @@ const core = process.env.MOCKING ? coreMocked : coreDefault
 export const PATHS = {
   micromambaBin: path.join(os.homedir(), 'micromamba-bin', `micromamba${os.platform() === 'win32' ? '.exe' : ''}`),
   micromambaRoot: path.join(os.homedir(), 'micromamba'),
-  // use a different path than ~/.condarc to avoid messing up the user's condarc
-  condarc: path.join(os.homedir(), 'micromamba', '.condarc'),
   micromambaRunShell: '/usr/local/bin/micromamba-shell',
   bashProfile: path.join(os.homedir(), '.bash_profile'),
   bashrc: path.join(os.homedir(), '.bashrc')
@@ -121,7 +119,6 @@ const inferOptions = (inputs: Inputs): Options => {
   return {
     ...inputs,
     writeToCondarc,
-    condarcFile: inputs.condarcFile || PATHS.condarc,
     createEnvironment,
     createArgs: inputs.createArgs || [],
     logLevel,
@@ -132,8 +129,10 @@ const inferOptions = (inputs: Inputs): Options => {
       inputs.cacheEnvironmentKey || (inputs.cacheEnvironment ? `micromamba-environment-` : undefined),
     cacheDownloadsKey: inputs.cacheDownloadsKey || (inputs.cacheDownloads ? `micromamba-downloads-` : undefined),
     postCleanup: inputs.postCleanup || 'shell-init',
-    micromambaRootPath: inputs.micromambaRootPath ? untildify(inputs.micromambaRootPath) : PATHS.micromambaRoot,
-    micromambaBinPath: inputs.micromambaBinPath ? untildify(inputs.micromambaBinPath) : PATHS.micromambaBin
+    // use a different path than ~/.condarc to avoid messing up the user's condarc
+    condarcFile: inputs.condarcFile || path.join(path.dirname(PATHS.micromambaBin), '.condarc'), // next to the micromamba binary -> easier cleanup
+    micromambaBinPath: inputs.micromambaBinPath ? untildify(inputs.micromambaBinPath) : PATHS.micromambaBin,
+    micromambaRootPath: inputs.micromambaRootPath ? untildify(inputs.micromambaRootPath) : PATHS.micromambaRoot
   }
 }
 

@@ -148,9 +148,6 @@ const run = async () => {
   core.debug(`os.homedir(): ${os.homedir()}`)
   core.debug(`bashProfile ${PATHS.bashProfile}`)
 
-  core.info(`create-args: "${core.getInput('create-args')}"`)
-  core.info(`init-shell: "${core.getInput('init-shell')}"`)
-
   if (process.platform === 'win32') {
     // Work around bug in Mamba: https://github.com/mamba-org/mamba/issues/1779
     // This prevents using provision-with-micromamba without bash
