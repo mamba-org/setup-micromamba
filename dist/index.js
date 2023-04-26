@@ -67818,6 +67818,9 @@ chmod +x $1
 $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1`;
   return Promise.all([determineEnvironmentName(options.environmentName, options.environmentFile)]).then(([environmentName]) => {
     const file = micromambaRunShellContents.replace(/\$MAMBA_EXE/g, options.micromambaBinPath).replace(/\$MAMBA_ROOT_PREFIX/g, options.micromambaRootPath).replace(/\$MAMBA_DEFAULT_ENV/g, environmentName);
+    core5.debug(`Writing micromamba run shell to ${PATHS.micromambaRunShell}`);
+    core5.debug(`File contents:
+${file}`);
     return fs6.writeFile(PATHS.micromambaRunShell, file, { encoding: "utf8", mode: 493 });
   }).finally(core5.endGroup);
 };

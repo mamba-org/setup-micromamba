@@ -140,6 +140,8 @@ $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1`
         .replace(/\$MAMBA_EXE/g, options.micromambaBinPath)
         .replace(/\$MAMBA_ROOT_PREFIX/g, options.micromambaRootPath)
         .replace(/\$MAMBA_DEFAULT_ENV/g, environmentName)
+      core.debug(`Writing micromamba run shell to ${PATHS.micromambaRunShell}`)
+      core.debug(`File contents:\n${file}`)
       return fs.writeFile(PATHS.micromambaRunShell, file, { encoding: 'utf8', mode: 0o755 })
     })
     .finally(core.endGroup)
