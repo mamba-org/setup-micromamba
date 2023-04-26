@@ -73,4 +73,4 @@ const run = async () => {
   await cleanup()
 }
 
-// run()
+run()
