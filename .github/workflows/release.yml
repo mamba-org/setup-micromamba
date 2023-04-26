@@ -14,12 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: |
-          version="${{ github.ref }}"
-          major=${version%%.*} # see https://linuxjournal.com/article/8919 for an explanation of this bash magic
-          git tag $major
-          git push origin $major
-          echo "Pushed ${major} -> ${version} tag to origin." >> "$GITHUB_STEP_SUMMARY"
+      - run: .github/scripts/release.sh
+        env:
+          TAG_NAME: ${{ github.ref_name }}
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
