@@ -67813,9 +67813,11 @@ var generateMicromambaRunShell = () => {
     return Promise.resolve();
   }
   core5.info("Generating micromamba run shell.");
-  const micromambaShellFile = fs6.readFile("src/resources/micromamba-shell", { encoding: "utf8" });
-  return Promise.all([micromambaShellFile, determineEnvironmentName(options.environmentName, options.environmentFile)]).then(([fileContents, environmentName]) => {
-    const file = fileContents.replace(/\$MAMBA_EXE/g, options.micromambaBinPath).replace(/\$MAMBA_ROOT_PREFIX/g, options.micromambaRootPath).replace(/\$MAMBA_DEFAULT_ENV/g, environmentName);
+  const micromambaRunShellContents = `#!/bin/env bash
+chmod +x $1
+$MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1`;
+  return Promise.all([determineEnvironmentName(options.environmentName, options.environmentFile)]).then(([environmentName]) => {
+    const file = micromambaRunShellContents.replace(/\$MAMBA_EXE/g, options.micromambaBinPath).replace(/\$MAMBA_ROOT_PREFIX/g, options.micromambaRootPath).replace(/\$MAMBA_DEFAULT_ENV/g, environmentName);
     return fs6.writeFile(PATHS.micromambaRunShell, file, { encoding: "utf8", mode: 493 });
   }).finally(core5.endGroup);
 };
