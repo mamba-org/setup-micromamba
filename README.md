@@ -109,7 +109,7 @@ With this, you don't need to initialize your shell and activate the environment 
   shell: micromamba-shell {0}
 ```
 
-### Custom .condarc file
+### Custom `.condarc` file
 
 To specify custom channels or other micromamba settings, you may want to use `.condarc` files to do this.
 
