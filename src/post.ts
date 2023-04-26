@@ -33,10 +33,30 @@ const removeRoot = () => {
   return fs.rm(options.micromambaRootPath, { recursive: true })
 }
 
+const removeCustomCondarc = () => {
+  if (!options.writeToCondarc) {
+    return Promise.resolve()
+  }
+  core.info('Removing custom condarc ...')
+  core.debug(`Deleting ${options.condarcFile}`)
+  return fs.rm(options.condarcFile)
+}
+
+const removeMicromambaBinaryParentIfEmpty = () => {
+  const parentDir = path.dirname(options.micromambaBinPath)
+  return fs.readdir(parentDir).then((files) => {
+    // if the folder is empty, remove it
+    if (files.length === 0) {
+      core.debug(`Deleting ${parentDir}`)
+      return fs.rmdir(parentDir)
+    }
+    return Promise.resolve()
+  })
+}
+
 const removeMicromambaBinary = () => {
   core.info('Removing micromamba binary ...')
   core.debug(`Deleting ${options.micromambaBinPath}`)
-  // the micromamba binary may be in a different folder than the root
   return fs.rm(options.micromambaBinPath, { force: false })
 }
 
@@ -57,8 +77,11 @@ const cleanup = () => {
       ]).then(() => Promise.resolve())
     case 'all':
       return Promise.all(options.initShell.map((shell) => shellDeinit(shell)))
-        .then(() => Promise.all([removeRoot(), removeMicromambaRunShell(), removeMicromambaBinary()]))
-        .then(() => Promise.resolve())
+        .then(() =>
+          // uninstallEnvironment is not called, because it is not needed if the root is removed
+          Promise.all([removeRoot(), removeMicromambaRunShell(), removeMicromambaBinary(), removeCustomCondarc()])
+        )
+        .then(removeMicromambaBinaryParentIfEmpty)
     default:
       // This should never happen, because the input is validated in parseInputs
       throw new Error(`Unknown post cleanup type: ${postCleanup}`)

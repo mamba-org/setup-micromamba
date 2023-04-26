@@ -6,72 +6,85 @@ branding:
   color: 'green'
 inputs:
   condarc-file:
-    description: >-
+    description: |
       Path to a condarc file to use
   condarc:
-    description: >-
+    description: |
       Contents of a condarc file to use.
   environment-file:
-    description: >-
+    description: |
       Path to the `environment.yml` or `.lock` file for the environment.
   environment-name:
-    description: >-
+    description: |
       Name of the environment to create. Overrides the name in the environment file.
   create-args:
-    description: >-
+    description: |
       Extra arguments to pass to `micromamba create`.
       Also possible to list extra specs to install into the environment.
-      For multiple packages, use multiline syntax:
+      For multiple packages, separate using spaces or use multiline syntax:
       ```yml
-      create-args: |
-        - package1
-        - package2
+      create-args: package1 package2
+      # or
+      create-args: >-
+        package1
+        package2
       ```
   log-level:
-    description: >-
+    description: |
       Log level for micromamba.
       One of `'trace'`, `'debug'`, `'info'`, `'warning'`, `'error'`, `'critical'`, `'off'`.
   micromamba-version:
-    description: >-
+    description: |
       Version of micromamba to install.
+      Must match with a micromamba version from the https://github.com/mamba-org/micromamba-releases repository or 'latest'.
   micromamba-url:
-    description: >-
+    description: |
       URL to download micromamba from.
   init-shell:
-    description: >-
+    description: |
       Which shells to initialize micromamba in.
-      Array of `"bash"`, `"cmd.exe"`, `"powershell"`.
-      Also supports other shells, but they are not tested.
+      Also possible to list multiple shells using spaces or use multiline syntax:
+      ```yml
+      init-shell: bash cmd.exe powershell
+      # or
+      init-shell: >-
+        bash
+        cmd.exe
+        powershell
+      ```
+      To initialize no shell, use `'none'`.
+      Also supports other shells than bash, cmd.exe and powershell, but they are not tested.
   generate-run-shell:
-    description: >-
+    description: |
       Whether to generate a custom shell script that allows to use it in the workflow file using `run: micromamba-shell {0}`
   cache-downloads:
-    description: >-
+    description: |
       Whether to cache downloads or not.
   cache-downloads-key:
-    description: >-
+    description: |
       Cache key to use for caching.
   cache-environment:
-    description: >-
+    description: |
       Whether to cache the environment or not.
   cache-environment-key:
-    description: >-
+    description: |
       Cache key to use for caching.
   post-cleanup:
-    description: >-
+    description: |
       Which kind of cleanup to do after the action.
       `'none'` - do not cleanup anything.
       `'shell-init'` - cleanup only the shell initialization scripts.
       `'environment'` - cleanup the installed environment and shell initialization scripts.
       `'all'` - cleanup everything including the whole micromamba root folder and the micromamba binary.
   micromamba-root-path:
-    description: >-
+    description: |
       Path to the micromamba root folder.
       Defaults to `~/micromamba`.
   micromamba-binary-path:
-    description: >-
+    description: |
       Path to the micromamba binary.
-      Defaults to `~/micromamba/bin/micromamba`.
+      Defaults to `~/micromamba-bin/micromamba`.
+      Also specifies the path to the custom condarc which is located in the same folder as the micromamba binary.
 runs:
   using: 'node16'
   main: 'dist/index.js'

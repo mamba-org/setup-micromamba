@@ -9617,7 +9617,7 @@ var require_internal_path_helper = __commonJS({
     var path5 = __importStar(require("path"));
     var assert_1 = __importDefault(require("assert"));
     var IS_WINDOWS = process.platform === "win32";
-    function dirname(p) {
+    function dirname2(p) {
       p = safeTrimTrailingSeparator(p);
       if (IS_WINDOWS && /^\\\\[^\\]+(\\[^\\]+)?$/.test(p)) {
         return p;
@@ -9628,7 +9628,7 @@ var require_internal_path_helper = __commonJS({
       }
       return result;
     }
-    exports.dirname = dirname;
+    exports.dirname = dirname2;
     function ensureAbsoluteRoot(root, itemPath) {
       assert_1.default(root, `ensureAbsoluteRoot parameter 'root' must not be empty`);
       assert_1.default(itemPath, `ensureAbsoluteRoot parameter 'itemPath' must not be empty`);
@@ -67372,23 +67372,15 @@ var import_Either = __toESM(require_Either());
 var import_untildify = __toESM(require_untildify());
 var core = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
-  // TODO fix paths
-  micromambaBin: path.join(
-    os.homedir(),
-    "debug",
-    "micromamba-bin",
-    `micromamba${os.platform() === "win32" ? ".exe" : ""}`
-  ),
-  micromambaRoot: path.join(os.homedir(), "debug", "micromamba-root"),
-  // use a different path than ~/.condarc to avoid messing up the user's condarc
-  condarc: path.join(os.homedir(), "debug", "micromamba-root", ".condarc"),
+  micromambaBin: path.join(os.homedir(), "micromamba-bin", `micromamba${os.platform() === "win32" ? ".exe" : ""}`),
+  micromambaRoot: path.join(os.homedir(), "micromamba"),
   micromambaRunShell: "/usr/local/bin/micromamba-shell",
   bashProfile: path.join(os.homedir(), ".bash_profile"),
   bashrc: path.join(os.homedir(), ".bashrc")
 };
 var postCleanupSchema = enumType(["none", "shell-init", "environment", "all"]);
 var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
-var shellSchema = enumType(["bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
+var shellSchema = enumType(["none", "bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
 var parseOrUndefined = (key, schema) => {
   const input = core.getInput(key);
   if (input === "") {
@@ -67403,26 +67395,36 @@ var parseOrUndefinedJSON = (key, schema) => {
   }
   return schema.parse(JSON.parse(input));
 };
+var parseOrUndefinedList = (key, schema) => {
+  const input = core.getInput(key);
+  if (input === "") {
+    return void 0;
+  }
+  return input.split(" ").map((s2) => schema.parse(s2));
+};
 var inferOptions = (inputs) => {
   const createEnvironment2 = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
   const logLevel = inputs.logLevel || (core.isDebug() ? "debug" : "info");
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
+  const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;
   return {
     ...inputs,
     writeToCondarc,
-    condarcFile: inputs.condarcFile || PATHS.condarc,
     createEnvironment: createEnvironment2,
     createArgs: inputs.createArgs || [],
     logLevel,
     micromambaSource,
-    initShell: inputs.initShell || ["bash"],
+    initShell,
     generateRunShell: inputs.generateRunShell !== void 0 ? inputs.generateRunShell : createEnvironment2,
     cacheEnvironmentKey: inputs.cacheEnvironmentKey || (inputs.cacheEnvironment ? `micromamba-environment-` : void 0),
     cacheDownloadsKey: inputs.cacheDownloadsKey || (inputs.cacheDownloads ? `micromamba-downloads-` : void 0),
     postCleanup: inputs.postCleanup || "shell-init",
-    micromambaRootPath: inputs.micromambaRootPath ? (0, import_untildify.default)(inputs.micromambaRootPath) : PATHS.micromambaRoot,
-    micromambaBinPath: inputs.micromambaBinPath ? (0, import_untildify.default)(inputs.micromambaBinPath) : PATHS.micromambaBin
+    // use a different path than ~/.condarc to avoid messing up the user's condarc
+    condarcFile: inputs.condarcFile || path.join(path.dirname(PATHS.micromambaBin), ".condarc"),
+    // next to the micromamba binary -> easier cleanup
+    micromambaBinPath: inputs.micromambaBinPath ? (0, import_untildify.default)(inputs.micromambaBinPath) : PATHS.micromambaBin,
+    micromambaRootPath: inputs.micromambaRootPath ? (0, import_untildify.default)(inputs.micromambaRootPath) : PATHS.micromambaRoot
   };
 };
 var validateInputs = (inputs) => {
@@ -67448,6 +67450,9 @@ var validateInputs = (inputs) => {
   if (inputs.cacheDownloads === false && inputs.cacheDownloadsKey) {
     throw new Error("You must enable 'cache-downloads' to use 'cache-downloads-key'.");
   }
+  if (inputs.initShell?.includes("none") && inputs.initShell.length !== 1) {
+    throw new Error("You cannot specify 'none' with other shells.");
+  }
 };
 var assertOptions = (options2) => {
   const assert = (condition, message) => {
@@ -67464,14 +67469,14 @@ var getOptions = () => {
     condarc: parseOrUndefined("condarc", stringType()),
     environmentFile: parseOrUndefined("environment-file", stringType()),
     environmentName: parseOrUndefined("environment-name", stringType()),
-    createArgs: parseOrUndefinedJSON("create-args", arrayType(stringType())),
+    createArgs: parseOrUndefinedList("create-args", stringType()),
     logLevel: parseOrUndefined("log-level", logLevelSchema),
     micromambaVersion: parseOrUndefined(
       "micromamba-version",
       unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)])
     ),
     micromambaUrl: parseOrUndefined("micromamba-url", stringType().url()),
-    initShell: parseOrUndefinedJSON("init-shell", arrayType(shellSchema)),
+    initShell: parseOrUndefinedList("init-shell", shellSchema),
     generateRunShell: parseOrUndefinedJSON("generate-run-shell", booleanType()),
     cacheDownloads: parseOrUndefinedJSON("cache-downloads", booleanType()),
     cacheDownloadsKey: parseOrUndefined("cache-downloads-key", stringType()),
