@@ -29,21 +29,6 @@ GitHub Action to set up the [micromamba](https://github.com/mamba-org/mamba#micr
 
 To see all available input arguments, see the [`action.yml`](action.yml) file.
 
-### Shell initialization
-
-In order to be able to activate micromamba environments, you need to initialize your shell.
-`setup-micromamba` can create shell initialization scripts for different shells (by calling `micromamba shell init -s <shell>`).
-By default, it will create shell initialization scripts for `bash`.
-If you want to customize this, you can use the `init-shell` input.
-
-```yml
-- uses: mamba-org/setup-micromamba@v1
-  with:
-    init-shell: '["bash", "powershell", "cmd.exe"]'
-```
-
-Please read [about login shells](#about-login-shells) for more information about the shell initialization.
-
 ### Environment creation
 
 `setup-micromamba` allows you to create micromamba environments from an environment file or from a list of packages.
@@ -71,7 +56,7 @@ You can specify extra environment specs using the `create-args` input.
     # the create command looks like this:
     # `micromamba create -n test-env python=3.10 numpy`
     environment-name: test-env
-    create-args: |
+    create-args: >-
       python=3.10
       numpy
 ```
@@ -87,21 +72,53 @@ You can specify custom arguments for the `micromamba create` command using the `
 - uses: mamba-org/setup-micromamba@v1
   with:
     environment-file: environment.yml
-    create-args: |
-      -v
+    create-args: -v
 ```
+
+### Shell initialization
+
+In order to be able to activate micromamba environments, you need to initialize your shell.
+`setup-micromamba` can create shell initialization scripts for different shells (by calling `micromamba shell init -s <shell>`).
+By default, it will create shell initialization scripts for `bash`.
+If you want to customize this, you can use the `init-shell` input.
+
+```yml
+- uses: mamba-org/setup-micromamba@v1
+  with:
+    init-shell: bash
+```
+
+In case you don't want to initialize your shell, you can set `init-shell` to `none`.
+
+You can also specify multiple shells by separating them with a space (or using the `>-` YAML block scalar)
+
+```yml
+- uses: mamba-org/setup-micromamba@v1
+  with:
+    init-shell: >-
+      bash
+      powershell
+    # or
+    init-shell: bash powershell
+```
+
+Please read [about login shells](#about-login-shells) for more information about the shell initialization.
 
 ### Custom `micromamba-shell` wrapper
 
 `setup-micromamba` will allow you to run commands in the created micromamba environment with a custom shell wrapper. In this &#8220;shell&#8221;, the micromamba is activated and the commands are executed.
 With this, you don't need to initialize your shell and activate the environment which may come in handy for self-hosted runners that persist between jobs.
+You can set this behavior by specifying the `generate-run-shell` input (defaults to `true`).
 
 > Under the hood, this shell wrapper runs `micromamba run -r <root-prefix-path> -n <env-name> <command>` with `<command>` being a file containing the part that you specify in the `run:` section of your workflow. 
 > See the [official documentation](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#custom-shell) and [ADR 0277](https://github.com/actions/runner/blob/main/docs/adrs/0277-run-action-shell-options.md) for more information about how the `shell:` input works in GitHub Actions.
 
+> ⚠️ Only available on macOS and Linux.
+
 ```yml
 - uses: mamba-org/setup-micromamba@v1
   with:
+    generate-run-shell: true
     environment-file: environment.yml
 - run: |
     pytest --version

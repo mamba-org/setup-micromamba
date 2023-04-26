@@ -61390,7 +61390,7 @@ var PATHS = {
 };
 var postCleanupSchema = enumType(["none", "shell-init", "environment", "all"]);
 var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
-var shellSchema = enumType(["bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
+var shellSchema = enumType(["none", "bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
 var parseOrUndefined = (key, schema) => {
   const input = core.getInput(key);
   if (input === "") {
@@ -61405,11 +61405,19 @@ var parseOrUndefinedJSON = (key, schema) => {
   }
   return schema.parse(JSON.parse(input));
 };
+var parseOrUndefinedList = (key, schema) => {
+  const input = core.getInput(key);
+  if (input === "") {
+    return void 0;
+  }
+  return input.split(" ").map((s) => schema.parse(s));
+};
 var inferOptions = (inputs) => {
   const createEnvironment = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
   const logLevel = inputs.logLevel || (core.isDebug() ? "debug" : "info");
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
+  const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;
   return {
     ...inputs,
     writeToCondarc,
@@ -61418,7 +61426,7 @@ var inferOptions = (inputs) => {
     createArgs: inputs.createArgs || [],
     logLevel,
     micromambaSource,
-    initShell: inputs.initShell || ["bash"],
+    initShell,
     generateRunShell: inputs.generateRunShell !== void 0 ? inputs.generateRunShell : createEnvironment,
     cacheEnvironmentKey: inputs.cacheEnvironmentKey || (inputs.cacheEnvironment ? `micromamba-environment-` : void 0),
     cacheDownloadsKey: inputs.cacheDownloadsKey || (inputs.cacheDownloads ? `micromamba-downloads-` : void 0),
@@ -61450,6 +61458,9 @@ var validateInputs = (inputs) => {
   if (inputs.cacheDownloads === false && inputs.cacheDownloadsKey) {
     throw new Error("You must enable 'cache-downloads' to use 'cache-downloads-key'.");
   }
+  if (inputs.initShell?.includes("none") && inputs.initShell.length !== 1) {
+    throw new Error("You cannot specify 'none' with other shells.");
+  }
 };
 var assertOptions = (options2) => {
   const assert = (condition, message) => {
@@ -61466,14 +61477,14 @@ var getOptions = () => {
     condarc: parseOrUndefined("condarc", stringType()),
     environmentFile: parseOrUndefined("environment-file", stringType()),
     environmentName: parseOrUndefined("environment-name", stringType()),
-    createArgs: parseOrUndefinedJSON("create-args", stringType()),
+    createArgs: parseOrUndefinedList("create-args", stringType()),
     logLevel: parseOrUndefined("log-level", logLevelSchema),
     micromambaVersion: parseOrUndefined(
       "micromamba-version",
       unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)])
     ),
     micromambaUrl: parseOrUndefined("micromamba-url", stringType().url()),
-    initShell: parseOrUndefined("init-shell", stringType()),
+    initShell: parseOrUndefinedList("init-shell", shellSchema),
     generateRunShell: parseOrUndefinedJSON("generate-run-shell", booleanType()),
     cacheDownloads: parseOrUndefinedJSON("cache-downloads", booleanType()),
     cacheDownloadsKey: parseOrUndefined("cache-downloads-key", stringType()),
