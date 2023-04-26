@@ -52,7 +52,7 @@ jobs:
           set -euxo pipefail
           grep -F "mamba initialize" ~/.bash_profile
           grep -F "mamba initialize" ~/.bashrc
-          test -d ~/debug/micromamba/envs/env-name
-          test -d ~/debug/micromamba
-          test -f ~/debug/micromamba-bin/micromamba
-          test -f ~/debug/micromamba-bin/.condarc
+          test -d ~/micromamba/envs/env-name
+          test -d ~/micromamba
+          test -f ~/micromamba-bin/micromamba
+          test -f ~/micromamba-bin/.condarc

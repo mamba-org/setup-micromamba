@@ -77,6 +77,7 @@ const cleanup = () => {
     case 'all':
       return Promise.all(options.initShell.map((shell) => shellDeinit(shell)))
         .then(() =>
+          // uninstallEnvironment is not called, because it is not needed if the root is removed
           Promise.all([removeRoot(), removeMicromambaRunShell(), removeMicromambaBinary(), removeCustomCondarc()])
         )
         .then(removeMicromambaBinaryParentIfEmpty)

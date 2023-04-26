@@ -61708,7 +61708,10 @@ var cleanup = () => {
       ]).then(() => Promise.resolve());
     case "all":
       return Promise.all(options.initShell.map((shell) => shellDeinit(shell))).then(
-        () => Promise.all([removeRoot(), removeMicromambaRunShell(), removeMicromambaBinary(), removeCustomCondarc()])
+        () => (
+          // uninstallEnvironment is not called, because it is not needed if the root is removed
+          Promise.all([removeRoot(), removeMicromambaRunShell(), removeMicromambaBinary(), removeCustomCondarc()])
+        )
       ).then(removeMicromambaBinaryParentIfEmpty);
     default:
       throw new Error(`Unknown post cleanup type: ${postCleanup}`);
