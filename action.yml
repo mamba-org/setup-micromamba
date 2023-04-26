@@ -1,10 +1,9 @@
 name: setup-micromamba
 description: 'Install the micromamba package manager'
 author: 'Pavel Zwerschke'
-# TODO branding
-# branding:
-#   icon: 'chevrons-right'
-#   color: 'green'
+branding:
+  icon: 'package'
+  color: 'green'
 inputs:
   condarc-file:
     description: >-
