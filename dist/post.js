@@ -61678,10 +61678,11 @@ var removeCustomCondarc = () => {
   return fs5.rm(options.condarcFile);
 };
 var removeMicromambaBinaryParentIfEmpty = () => {
-  return fs5.readdir(import_path3.default.dirname(options.micromambaBinPath)).then((files) => {
+  const parentDir = import_path3.default.dirname(options.micromambaBinPath);
+  return fs5.readdir(parentDir).then((files) => {
     if (files.length === 0) {
-      core5.debug(`Deleting ${import_path3.default.dirname(options.micromambaBinPath)}`);
-      return fs5.rm(import_path3.default.dirname(options.micromambaBinPath));
+      core5.debug(`Deleting ${parentDir}`);
+      return fs5.rmdir(parentDir);
     }
     return Promise.resolve();
   });

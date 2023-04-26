@@ -43,11 +43,12 @@ const removeCustomCondarc = () => {
 }
 
 const removeMicromambaBinaryParentIfEmpty = () => {
-  return fs.readdir(path.dirname(options.micromambaBinPath)).then((files) => {
+  const parentDir = path.dirname(options.micromambaBinPath)
+  return fs.readdir(parentDir).then((files) => {
     // if the folder is empty, remove it
     if (files.length === 0) {
-      core.debug(`Deleting ${path.dirname(options.micromambaBinPath)}`)
-      return fs.rm(path.dirname(options.micromambaBinPath))
+      core.debug(`Deleting ${parentDir}`)
+      return fs.rmdir(parentDir)
     }
     return Promise.resolve()
   })
