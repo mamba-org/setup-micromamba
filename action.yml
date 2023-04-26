@@ -24,8 +24,8 @@ inputs:
       For multiple packages, use multiline syntax:
       ```yml
       create-args: |
-        - package1
-        - package2
+        package1
+        package2
       ```
   log-level:
     description: >-

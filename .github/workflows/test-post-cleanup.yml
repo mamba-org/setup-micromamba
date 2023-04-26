@@ -45,7 +45,7 @@ jobs:
       - uses: ./
         with:
           environment-file: 'test/environment.yml'
-          init-shell: '["bash"]'
+          init-shell: bash
           post-cleanup: ${{ matrix.post-cleanup }}
       - run: |
           set -euxo pipefail

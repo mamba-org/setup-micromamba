@@ -11,15 +11,10 @@ const core = process.env.MOCKING ? coreMocked : coreDefault
 
 export const PATHS = {
   // TODO fix paths
-  micromambaBin: path.join(
-    os.homedir(),
-    'debug',
-    'micromamba-bin',
-    `micromamba${os.platform() === 'win32' ? '.exe' : ''}`
-  ),
-  micromambaRoot: path.join(os.homedir(), 'debug', 'micromamba-root'),
+  micromambaBin: path.join(os.homedir(), 'micromamba', 'bin', `micromamba${os.platform() === 'win32' ? '.exe' : ''}`),
+  micromambaRoot: path.join(os.homedir(), 'micromamba'),
   // use a different path than ~/.condarc to avoid messing up the user's condarc
-  condarc: path.join(os.homedir(), 'debug', 'micromamba-root', '.condarc'),
+  condarc: path.join(os.homedir(), 'micromamba', '.condarc'),
   micromambaRunShell: '/usr/local/bin/micromamba-shell',
   bashProfile: path.join(os.homedir(), '.bash_profile'),
   bashrc: path.join(os.homedir(), '.bashrc')
@@ -164,14 +159,14 @@ const getOptions = () => {
     condarc: parseOrUndefined('condarc', z.string()),
     environmentFile: parseOrUndefined('environment-file', z.string()),
     environmentName: parseOrUndefined('environment-name', z.string()),
-    createArgs: parseOrUndefinedJSON('create-args', z.array(z.string())),
+    createArgs: parseOrUndefinedJSON('create-args', z.string()),
     logLevel: parseOrUndefined('log-level', logLevelSchema),
     micromambaVersion: parseOrUndefined(
       'micromamba-version',
       z.union([z.literal('latest'), z.string().regex(/^\d+\.\d+\.\d+-\d+$/)])
     ),
     micromambaUrl: parseOrUndefined('micromamba-url', z.string().url()),
-    initShell: parseOrUndefinedJSON('init-shell', z.array(shellSchema)),
+    initShell: parseOrUndefined('init-shell', z.string()),
     generateRunShell: parseOrUndefinedJSON('generate-run-shell', z.boolean()),
     cacheDownloads: parseOrUndefinedJSON('cache-downloads', z.boolean()),
     cacheDownloadsKey: parseOrUndefined('cache-downloads-key', z.string()),

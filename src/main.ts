@@ -148,22 +148,25 @@ const run = async () => {
   core.debug(`os.homedir(): ${os.homedir()}`)
   core.debug(`bashProfile ${PATHS.bashProfile}`)
 
-  if (process.platform === 'win32') {
-    // Work around bug in Mamba: https://github.com/mamba-org/mamba/issues/1779
-    // This prevents using provision-with-micromamba without bash
-    core.addPath(path.dirname(await io.which('cygpath', true)))
-  }
+  core.info(`create-args: "${core.getInput('create-args')}"`)
+  core.info(`init-shell: "${core.getInput('init-shell')}"`)
 
-  await downloadMicromamba(getMicromambaUrl(options.micromambaSource))
-  await generateCondarc()
-  await Promise.all(options.initShell.map((shell) => shellInit(shell)))
-  const cacheDownloadsKey = await restoreCacheDownloads()
-  core.saveState('cacheDownloadsCacheHit', cacheDownloadsKey !== undefined)
-  if (options.createEnvironment) {
-    await installEnvironment()
-    await generateMicromambaRunShell()
-  }
-  await generateInfo()
+  // if (process.platform === 'win32') {
+  //   // Work around bug in Mamba: https://github.com/mamba-org/mamba/issues/1779
+  //   // This prevents using provision-with-micromamba without bash
+  //   core.addPath(path.dirname(await io.which('cygpath', true)))
+  // }
+
+  // await downloadMicromamba(getMicromambaUrl(options.micromambaSource))
+  // await generateCondarc()
+  // await Promise.all(options.initShell.map((shell) => shellInit(shell)))
+  // const cacheDownloadsKey = await restoreCacheDownloads()
+  // core.saveState('cacheDownloadsCacheHit', cacheDownloadsKey !== undefined)
+  // if (options.createEnvironment) {
+  //   await installEnvironment()
+  //   await generateMicromambaRunShell()
+  // }
+  // await generateInfo()
 }
 
 run()
