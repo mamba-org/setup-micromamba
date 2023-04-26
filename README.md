@@ -1,7 +1,5 @@
 # setup-micromamba
 
----
-
 [![CI](https://github.com/mamba-org/setup-micromamba/actions/workflows/test.yml/badge.svg)](https://github.com/mamba-org/setup-micromamba/actions/workflows/test.yml)
 
 GitHub Action to set up the [micromamba](https://github.com/mamba-org/mamba#micromamba) package manager.
@@ -28,6 +26,8 @@ GitHub Action to set up the [micromamba](https://github.com/mamba-org/mamba#micr
 ```
 
 ## Features
+
+To see all available input arguments, see the [action.yml](action.yml) file.
 
 ### Shell initialization
 
@@ -215,7 +215,7 @@ This can be specified by setting the `log-level` input.
     log-level: debug
 ```
 
-If nothing is specified, `setup-micromamba` will default to `info` or `debug` depending on if debug logging is enabled [for the action](#debug-logging-of-the-action).
+If nothing is specified, `setup-micromamba` will default to `info` or `debug` depending on if [debug logging is enabled for the action](#debug-logging-of-the-action).
 
 ### Post action cleanup
 
@@ -273,7 +273,7 @@ jobs:
       run:
         shell: bash -l {0}
 
-# Or top-level:
+# or top-level:
 defaults:
   run:
     shell: bash -l {0}
