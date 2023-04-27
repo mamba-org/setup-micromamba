@@ -34,5 +34,9 @@ export const coreMocked = {
   },
   addPath: (path: string) => {
     console.log(`::add-path::${path}`)
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  exportVariable: (path: string, value: any) => {
+    console.log(`::set-env name=${path}::${value}`)
   }
 }
