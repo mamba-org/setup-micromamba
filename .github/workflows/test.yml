@@ -141,6 +141,6 @@ jobs:
         with:
           environment-file: 'test/environment.yml'
       - run: | # this should work even without `bash -l {0}`
-          [[ -n "$MAMBA_ROOT_PREFIX" ]]
-          [[ -n "$MAMBA_EXE" ]]
-          [[ -n "$CONDARC" ]]
+          [ -z "$MAMBA_ROOT_PREFIX" ]
+          [ -z "$MAMBA_EXE" ]
+          [ -z "$CONDARC" ]
