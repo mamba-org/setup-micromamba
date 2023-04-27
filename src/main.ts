@@ -154,8 +154,8 @@ const setEnvVariables = () => {
   core.exportVariable('MAMBA_ROOT_PREFIX', options.micromambaRootPath)
   core.debug(`MAMBA_EXE: ${options.micromambaBinPath}`)
   core.exportVariable('MAMBA_EXE', options.micromambaBinPath)
-  core.debug(`CONDARC: ${options.environmentName}`)
-  core.exportVariable('CONDARC', options.environmentName)
+  core.debug(`CONDARC: ${options.condarcFile}`)
+  core.exportVariable('CONDARC', options.condarcFile)
 }
 
 const run = async () => {

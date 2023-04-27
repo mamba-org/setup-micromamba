@@ -67835,8 +67835,8 @@ var setEnvVariables = () => {
   core5.exportVariable("MAMBA_ROOT_PREFIX", options.micromambaRootPath);
   core5.debug(`MAMBA_EXE: ${options.micromambaBinPath}`);
   core5.exportVariable("MAMBA_EXE", options.micromambaBinPath);
-  core5.debug(`CONDARC: ${options.environmentName}`);
-  core5.exportVariable("CONDARC", options.environmentName);
+  core5.debug(`CONDARC: ${options.condarcFile}`);
+  core5.exportVariable("CONDARC", options.condarcFile);
 };
 var run = async () => {
   core5.debug(`process.env.HOME: ${process.env.HOME}`);
