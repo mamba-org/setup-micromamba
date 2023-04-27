@@ -57833,6 +57833,10 @@ var coreMocked = {
   },
   addPath: (path5) => {
     console.log(`::add-path::${path5}`);
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  exportVariable: (path5, value) => {
+    console.log(`::set-env name=${path5}::${value}`);
   }
 };
 

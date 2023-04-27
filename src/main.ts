@@ -148,6 +148,16 @@ $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
     .finally(core.endGroup)
 }
 
+const setEnvVariables = () => {
+  core.info('Set environment variables.')
+  core.debug(`MAMBA_ROOT_PREFIX: ${options.micromambaRootPath}`)
+  core.exportVariable('MAMBA_ROOT_PREFIX', options.micromambaRootPath)
+  core.debug(`MAMBA_EXE: ${options.micromambaBinPath}`)
+  core.exportVariable('MAMBA_EXE', options.micromambaBinPath)
+  core.debug(`CONDARC: ${options.environmentName}`)
+  core.exportVariable('CONDARC', options.environmentName)
+}
+
 const run = async () => {
   core.debug(`process.env.HOME: ${process.env.HOME}`)
   core.debug(`os.homedir(): ${os.homedir()}`)
@@ -168,6 +178,7 @@ const run = async () => {
     await installEnvironment()
     await generateMicromambaRunShell()
   }
+  setEnvVariables()
   await generateInfo()
 }
 

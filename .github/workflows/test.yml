@@ -132,3 +132,15 @@ jobs:
         run: micromamba info
         shell: powershell
       # TODO: powershell equivalent of `micromamba info | grep -q "environment : env-name"`
+
+  env-variable:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          environment-file: 'test/environment.yml'
+      - run: | # this should work even without `bash -l {0}`
+          [[ -n "$MAMBA_ROOT_PREFIX" ]]
+          [[ -n "$MAMBA_EXE" ]]
+          [[ -n "$CONDARC" ]]

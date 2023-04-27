@@ -63829,6 +63829,10 @@ var coreMocked = {
   },
   addPath: (path5) => {
     console.log(`::add-path::${path5}`);
+  },
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  exportVariable: (path5, value) => {
+    console.log(`::set-env name=${path5}::${value}`);
   }
 };
 
@@ -67825,6 +67829,15 @@ $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
     return fs6.writeFile(PATHS.micromambaRunShell, file, { encoding: "utf8", mode: 493 });
   }).finally(core5.endGroup);
 };
+var setEnvVariables = () => {
+  core5.info("Set environment variables.");
+  core5.debug(`MAMBA_ROOT_PREFIX: ${options.micromambaRootPath}`);
+  core5.exportVariable("MAMBA_ROOT_PREFIX", options.micromambaRootPath);
+  core5.debug(`MAMBA_EXE: ${options.micromambaBinPath}`);
+  core5.exportVariable("MAMBA_EXE", options.micromambaBinPath);
+  core5.debug(`CONDARC: ${options.environmentName}`);
+  core5.exportVariable("CONDARC", options.environmentName);
+};
 var run = async () => {
   core5.debug(`process.env.HOME: ${process.env.HOME}`);
   core5.debug(`os.homedir(): ${os6.homedir()}`);
@@ -67841,6 +67854,7 @@ var run = async () => {
     await installEnvironment();
     await generateMicromambaRunShell();
   }
+  setEnvVariables();
   await generateInfo();
 };
 run();
