@@ -11,7 +11,9 @@ GitHub Action to set up the [micromamba](https://github.com/mamba-org/mamba#micr
   with:
     micromamba-version: '1.3.1-0'
     environment-file: environment.yml
-    init-shell: '["bash", "powershell"]'
+    init-shell: >-
+      bash
+      powershell
     cache-environment: true
     post-cleanup: 'all'
 - name: Import numpy in micromamba environment (bash)
