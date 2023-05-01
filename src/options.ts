@@ -130,9 +130,15 @@ const inferOptions = (inputs: Inputs): Options => {
     cacheDownloadsKey: inputs.cacheDownloadsKey || (inputs.cacheDownloads ? `micromamba-downloads-` : undefined),
     postCleanup: inputs.postCleanup || 'shell-init',
     // use a different path than ~/.condarc to avoid messing up the user's condarc
-    condarcFile: inputs.condarcFile || path.join(path.dirname(PATHS.micromambaBin), '.condarc'), // next to the micromamba binary -> easier cleanup
-    micromambaBinPath: inputs.micromambaBinPath ? untildify(inputs.micromambaBinPath) : PATHS.micromambaBin,
-    micromambaRootPath: inputs.micromambaRootPath ? untildify(inputs.micromambaRootPath) : PATHS.micromambaRoot
+    condarcFile: inputs.condarcFile
+      ? path.resolve(untildify(inputs.condarcFile))
+      : path.join(path.dirname(PATHS.micromambaBin), '.condarc'), // next to the micromamba binary -> easier cleanup
+    micromambaBinPath: inputs.micromambaBinPath
+      ? path.resolve(untildify(inputs.micromambaBinPath))
+      : PATHS.micromambaBin,
+    micromambaRootPath: inputs.micromambaRootPath
+      ? path.resolve(untildify(inputs.micromambaRootPath))
+      : PATHS.micromambaRoot
   }
 }
 

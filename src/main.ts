@@ -5,7 +5,6 @@ import path from 'path'
 import * as coreDefault from '@actions/core'
 import * as io from '@actions/io'
 import fetch from 'node-fetch'
-import untildify from 'untildify'
 import { sha256, getMicromambaUrl, micromambaCmd, execute, determineEnvironmentName } from './util'
 import { coreMocked } from './mocking'
 import { PATHS, options } from './options'
@@ -46,7 +45,7 @@ const downloadMicromamba = (url: string) => {
 const generateCondarc = () => {
   if (!options.writeToCondarc) {
     core.debug(`Using condarc file ${options.condarcFile} ...`)
-    return fs.access(untildify(options.condarcFile), fsConstants.R_OK)
+    return fs.access(options.condarcFile, fsConstants.R_OK)
   }
   core.debug(`Using ${options.condarcFile} as condarc file.`)
   const mkDir = fs.mkdir(path.dirname(options.condarcFile), { recursive: true })
