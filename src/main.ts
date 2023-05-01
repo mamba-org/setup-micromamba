@@ -1,8 +1,9 @@
 import fs from 'fs/promises'
+import { constants as fsConstants } from 'fs' // fs.constants is not available in fs/promises for node < 18.4.0
 import os from 'os'
 import path from 'path'
 import * as coreDefault from '@actions/core'
-import io from '@actions/io'
+import * as io from '@actions/io'
 import fetch from 'node-fetch'
 import untildify from 'untildify'
 import { sha256, getMicromambaUrl, micromambaCmd, execute, determineEnvironmentName } from './util'
@@ -45,7 +46,7 @@ const downloadMicromamba = (url: string) => {
 const generateCondarc = () => {
   if (!options.writeToCondarc) {
     core.debug(`Using condarc file ${options.condarcFile} ...`)
-    return fs.access(untildify(options.condarcFile), fs.constants.R_OK)
+    return fs.access(untildify(options.condarcFile), fsConstants.R_OK)
   }
   core.debug(`Using ${options.condarcFile} as condarc file.`)
   const mkDir = fs.mkdir(path.dirname(options.condarcFile), { recursive: true })

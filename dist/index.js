@@ -2542,13 +2542,13 @@ var require_io = __commonJS({
       });
     }
     exports.mkdirP = mkdirP;
-    function which(tool, check) {
+    function which2(tool, check) {
       return __awaiter(this, void 0, void 0, function* () {
         if (!tool) {
           throw new Error("parameter 'tool' is required");
         }
         if (check) {
-          const result = yield which(tool, false);
+          const result = yield which2(tool, false);
           if (!result) {
             if (ioUtil.IS_WINDOWS) {
               throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also verify the file has a valid extension for an executable file.`);
@@ -2565,7 +2565,7 @@ var require_io = __commonJS({
         return "";
       });
     }
-    exports.which = which;
+    exports.which = which2;
     function findInPath(tool) {
       return __awaiter(this, void 0, void 0, function* () {
         if (!tool) {
@@ -62445,10 +62445,11 @@ var require_cache = __commonJS({
 
 // src/main.ts
 var import_promises = __toESM(require("fs/promises"));
+var import_fs = require("fs");
 var import_os2 = __toESM(require("os"));
 var import_path3 = __toESM(require("path"));
 var coreDefault5 = __toESM(require_core());
-var import_io = __toESM(require_io());
+var io = __toESM(require_io());
 
 // node_modules/.pnpm/node-fetch@3.3.1/node_modules/node-fetch/src/index.js
 var import_node_http2 = __toESM(require("http"), 1);
@@ -67742,7 +67743,7 @@ var downloadMicromamba = (url2) => {
 var generateCondarc = () => {
   if (!options.writeToCondarc) {
     core5.debug(`Using condarc file ${options.condarcFile} ...`);
-    return import_promises.default.access((0, import_untildify2.default)(options.condarcFile), import_promises.default.constants.R_OK);
+    return import_promises.default.access((0, import_untildify2.default)(options.condarcFile), import_fs.constants.R_OK);
   }
   core5.debug(`Using ${options.condarcFile} as condarc file.`);
   const mkDir = import_promises.default.mkdir(import_path3.default.dirname(options.condarcFile), { recursive: true });
@@ -67843,7 +67844,7 @@ var run = async () => {
   core5.debug(`os.homedir(): ${import_os2.default.homedir()}`);
   core5.debug(`bashProfile ${PATHS.bashProfile}`);
   if (process.platform === "win32") {
-    core5.addPath(import_path3.default.dirname(await import_io.default.which("cygpath", true)));
+    core5.addPath(import_path3.default.dirname(await io.which("cygpath", true)));
   }
   await downloadMicromamba(getMicromambaUrl(options.micromambaSource));
   await generateCondarc();
