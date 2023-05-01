@@ -1687,7 +1687,7 @@ var require_summary = __commonJS({
     exports.summary = exports.markdownSummary = exports.SUMMARY_DOCS_URL = exports.SUMMARY_ENV_VAR = void 0;
     var os_1 = require("os");
     var fs_1 = require("fs");
-    var { access: access3, appendFile: appendFile2, writeFile: writeFile3 } = fs_1.promises;
+    var { access: access2, appendFile: appendFile2, writeFile: writeFile2 } = fs_1.promises;
     exports.SUMMARY_ENV_VAR = "GITHUB_STEP_SUMMARY";
     exports.SUMMARY_DOCS_URL = "https://docs.github.com/actions/using-workflows/workflow-commands-for-github-actions#adding-a-job-summary";
     var Summary = class {
@@ -1710,7 +1710,7 @@ var require_summary = __commonJS({
             throw new Error(`Unable to find environment variable for $${exports.SUMMARY_ENV_VAR}. Check if your runtime environment supports job summaries.`);
           }
           try {
-            yield access3(pathFromEnv, fs_1.constants.R_OK | fs_1.constants.W_OK);
+            yield access2(pathFromEnv, fs_1.constants.R_OK | fs_1.constants.W_OK);
           } catch (_a4) {
             throw new Error(`Unable to access summary file: '${pathFromEnv}'. Check if the file has correct read/write permissions.`);
           }
@@ -1745,7 +1745,7 @@ var require_summary = __commonJS({
         return __awaiter(this, void 0, void 0, function* () {
           const overwrite = !!(options2 === null || options2 === void 0 ? void 0 : options2.overwrite);
           const filePath = yield this.filePath();
-          const writeFunc = overwrite ? writeFile3 : appendFile2;
+          const writeFunc = overwrite ? writeFile2 : appendFile2;
           yield writeFunc(filePath, this._buffer, { encoding: "utf8" });
           return this.emptyBuffer();
         });
@@ -10780,7 +10780,7 @@ var require_internal_pattern = __commonJS({
     var internal_path_1 = require_internal_path();
     var IS_WINDOWS = process.platform === "win32";
     var Pattern = class {
-      constructor(patternOrNegate, isImplicitPattern = false, segments, homedir4) {
+      constructor(patternOrNegate, isImplicitPattern = false, segments, homedir3) {
         this.negate = false;
         let pattern;
         if (typeof patternOrNegate === "string") {
@@ -10799,7 +10799,7 @@ var require_internal_pattern = __commonJS({
           this.negate = !this.negate;
           pattern = pattern.substr(1).trim();
         }
-        pattern = Pattern.fixupPattern(pattern, homedir4);
+        pattern = Pattern.fixupPattern(pattern, homedir3);
         this.segments = new internal_path_1.Path(pattern).segments;
         this.trailingSeparator = pathHelper.normalizeSeparators(pattern).endsWith(path5.sep);
         pattern = pathHelper.safeTrimTrailingSeparator(pattern);
@@ -10855,7 +10855,7 @@ var require_internal_pattern = __commonJS({
       /**
        * Normalizes slashes and ensures absolute root
        */
-      static fixupPattern(pattern, homedir4) {
+      static fixupPattern(pattern, homedir3) {
         assert_1.default(pattern, "pattern cannot be empty");
         const literalSegments = new internal_path_1.Path(pattern).segments.map((x2) => Pattern.getLiteral(x2));
         assert_1.default(literalSegments.every((x2, i2) => (x2 !== "." || i2 === 0) && x2 !== ".."), `Invalid pattern '${pattern}'. Relative pathing '.' and '..' is not allowed.`);
@@ -10864,10 +10864,10 @@ var require_internal_pattern = __commonJS({
         if (pattern === "." || pattern.startsWith(`.${path5.sep}`)) {
           pattern = Pattern.globEscape(process.cwd()) + pattern.substr(1);
         } else if (pattern === "~" || pattern.startsWith(`~${path5.sep}`)) {
-          homedir4 = homedir4 || os7.homedir();
-          assert_1.default(homedir4, "Unable to determine HOME directory");
-          assert_1.default(pathHelper.hasAbsoluteRoot(homedir4), `Expected HOME directory to be a rooted path. Actual '${homedir4}'`);
-          pattern = Pattern.globEscape(homedir4) + pattern.substr(1);
+          homedir3 = homedir3 || os7.homedir();
+          assert_1.default(homedir3, "Unable to determine HOME directory");
+          assert_1.default(pathHelper.hasAbsoluteRoot(homedir3), `Expected HOME directory to be a rooted path. Actual '${homedir3}'`);
+          pattern = Pattern.globEscape(homedir3) + pattern.substr(1);
         } else if (IS_WINDOWS && (pattern.match(/^[A-Z]:$/i) || pattern.match(/^[A-Z]:[^\\]/i))) {
           let root = pathHelper.ensureAbsoluteRoot("C:\\dummy-root", pattern.substr(0, 2));
           if (pattern.length > 2 && !root.endsWith("\\")) {
@@ -59140,7 +59140,7 @@ var init_ContainerClient = __esm({
        * @param containerAcl - Array of elements each having a unique Id and details of the access policy.
        * @param options - Options to Container Set Access Policy operation.
        */
-      async setAccessPolicy(access3, containerAcl2, options2 = {}) {
+      async setAccessPolicy(access2, containerAcl2, options2 = {}) {
         options2.conditions = options2.conditions || {};
         const { span, updatedOptions } = createSpan2("ContainerClient-setAccessPolicy", options2);
         try {
@@ -59155,7 +59155,7 @@ var init_ContainerClient = __esm({
               id: identifier.id
             });
           }
-          return await this.containerContext.setAccessPolicy(Object.assign({ abortSignal: options2.abortSignal, access: access3, containerAcl: acl, leaseAccessConditions: options2.conditions, modifiedAccessConditions: options2.conditions }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.containerContext.setAccessPolicy(Object.assign({ abortSignal: options2.abortSignal, access: access2, containerAcl: acl, leaseAccessConditions: options2.conditions, modifiedAccessConditions: options2.conditions }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e2) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -62444,8 +62444,9 @@ var require_cache = __commonJS({
 });
 
 // src/main.ts
-var fs6 = __toESM(require("fs/promises"));
-var os6 = __toESM(require("os"));
+var import_promises = __toESM(require("fs/promises"));
+var import_fs = require("fs");
+var import_os2 = __toESM(require("os"));
 var import_path3 = __toESM(require("path"));
 var coreDefault5 = __toESM(require_core());
 var io = __toESM(require_io());
@@ -67722,7 +67723,7 @@ var core5 = process.env.MOCKING ? coreMocked : coreDefault5;
 var downloadMicromamba = (url2) => {
   core5.startGroup("Install micromamba");
   core5.debug(`Downloading micromamba from ${url2} ...`);
-  const mkDir = fs6.mkdir(import_path3.default.dirname(options.micromambaBinPath), { recursive: true });
+  const mkDir = import_promises.default.mkdir(import_path3.default.dirname(options.micromambaBinPath), { recursive: true });
   const downloadMicromamba2 = fetch(url2).then((res) => {
     if (!res.ok) {
       throw new Error(`Download failed: ${res.statusText}`);
@@ -67731,7 +67732,7 @@ var downloadMicromamba = (url2) => {
   }).then((arrayBuffer) => Buffer.from(arrayBuffer));
   return Promise.all([mkDir, downloadMicromamba2]).then(([, buffer]) => {
     core5.debug(`micromamba binary sha256: ${sha256(buffer)}`);
-    return fs6.writeFile(options.micromambaBinPath, buffer, { encoding: "binary", mode: 493 });
+    return import_promises.default.writeFile(options.micromambaBinPath, buffer, { encoding: "binary", mode: 493 });
   }).then(() => {
     core5.info(`micromamba installed to ${options.micromambaBinPath}`);
   }).catch((err) => {
@@ -67742,17 +67743,17 @@ var downloadMicromamba = (url2) => {
 var generateCondarc = () => {
   if (!options.writeToCondarc) {
     core5.debug(`Using condarc file ${options.condarcFile} ...`);
-    return fs6.access((0, import_untildify2.default)(options.condarcFile), fs6.constants.R_OK);
+    return import_promises.default.access((0, import_untildify2.default)(options.condarcFile), import_fs.constants.R_OK);
   }
   core5.debug(`Using ${options.condarcFile} as condarc file.`);
-  const mkDir = fs6.mkdir(import_path3.default.dirname(options.condarcFile), { recursive: true });
+  const mkDir = import_promises.default.mkdir(import_path3.default.dirname(options.condarcFile), { recursive: true });
   if (options.condarc) {
     core5.info(`Writing condarc contents to ${options.condarcFile} ...`);
     const condarc = options.condarc;
-    return mkDir.then(() => fs6.writeFile(options.condarcFile, condarc));
+    return mkDir.then(() => import_promises.default.writeFile(options.condarcFile, condarc));
   }
   core5.info("Adding conda-forge to condarc channels ...");
-  return mkDir.then(() => fs6.writeFile(options.condarcFile, "channels:\n  - conda-forge"));
+  return mkDir.then(() => import_promises.default.writeFile(options.condarcFile, "channels:\n  - conda-forge"));
 };
 var createEnvironment = () => {
   core5.debug(`environmentFile: ${options.environmentFile}`);
@@ -67812,7 +67813,7 @@ var generateMicromambaRunShell = () => {
     core5.debug("Skipping micromamba run shell generation.");
     return Promise.resolve();
   }
-  if (os6.platform() === "win32") {
+  if (import_os2.default.platform() === "win32") {
     core5.info("Skipping micromamba run shell on Windows.");
     return Promise.resolve();
   }
@@ -67826,7 +67827,7 @@ $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
     core5.debug(`Writing micromamba run shell to ${PATHS.micromambaRunShell}`);
     core5.debug(`File contents:
 "${file}"`);
-    return fs6.writeFile(PATHS.micromambaRunShell, file, { encoding: "utf8", mode: 493 });
+    return import_promises.default.writeFile(PATHS.micromambaRunShell, file, { encoding: "utf8", mode: 493 });
   }).finally(core5.endGroup);
 };
 var setEnvVariables = () => {
@@ -67840,7 +67841,7 @@ var setEnvVariables = () => {
 };
 var run = async () => {
   core5.debug(`process.env.HOME: ${process.env.HOME}`);
-  core5.debug(`os.homedir(): ${os6.homedir()}`);
+  core5.debug(`os.homedir(): ${import_os2.default.homedir()}`);
   core5.debug(`bashProfile ${PATHS.bashProfile}`);
   if (process.platform === "win32") {
     core5.addPath(import_path3.default.dirname(await io.which("cygpath", true)));
