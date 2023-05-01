@@ -62447,7 +62447,7 @@ var require_cache = __commonJS({
 var import_promises = __toESM(require("fs/promises"));
 var import_os2 = __toESM(require("os"));
 var import_path3 = __toESM(require("path"));
-var import_core = __toESM(require_core());
+var coreDefault5 = __toESM(require_core());
 var import_io = __toESM(require_io());
 
 // node_modules/.pnpm/node-fetch@3.3.1/node_modules/node-fetch/src/index.js
@@ -67718,7 +67718,7 @@ var restoreCacheDownloads = () => {
 };
 
 // src/main.ts
-var core5 = process.env.MOCKING ? coreMocked : import_core.default;
+var core5 = process.env.MOCKING ? coreMocked : coreDefault5;
 var downloadMicromamba = (url2) => {
   core5.startGroup("Install micromamba");
   core5.debug(`Downloading micromamba from ${url2} ...`);

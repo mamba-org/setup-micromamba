@@ -1,7 +1,7 @@
 import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
-import coreDefault from '@actions/core'
+import * as coreDefault from '@actions/core'
 import io from '@actions/io'
 import fetch from 'node-fetch'
 import untildify from 'untildify'
