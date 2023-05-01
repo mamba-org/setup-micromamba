@@ -144,3 +144,15 @@ jobs:
           [ -n "$MAMBA_ROOT_PREFIX" ]
           [ -n "$MAMBA_EXE" ]
           [ -n "$CONDARC" ]
+
+  custom-condarc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          environment-file: 'test/environment.yml'
+          condarc: 'test/.condarc'
+      - run: | # this should only work when the pytorch channel is loaded, i.e., the custom condarc is used
+          micromamba search pytorch=2.0.0 | grep -q "pytorch 2.0.0   py3.10_cpu_0                 pytorch/linux-64"
+        shell: bash -el {0}
