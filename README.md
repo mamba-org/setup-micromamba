@@ -137,6 +137,7 @@ To specify custom channels or other micromamba settings, you may want to use `.c
 When you specify `condarc-file`, `setup-micromamba` will use this file for all micromamba commands.
 
 When you specify `condarc`, `setup-micromamba` will create a `.condarc` next to the micromamba binary (to not mess with the `~/.condarc` that may be overwritten on self-hosted runners) and use this file for all micromamba commands.
+The action will also set the `CONDARC` environment variable to point to this file.
 
 If nothing is specified, `setup-micromamba` will create a `.condarc` next to the micromamba binary with `conda-forge` as the only channel.
 
