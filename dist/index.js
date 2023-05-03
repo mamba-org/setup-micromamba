@@ -67767,9 +67767,6 @@ var createEnvironment = () => {
   if (options.createArgs) {
     commandStr += ` ${options.createArgs.join(" ")}`;
   }
-  if (options.condarcFile) {
-    commandStr += ` --rc-file ${options.condarcFile}`;
-  }
   return execute(micromambaCmd(commandStr, options.logLevel, options.condarcFile));
 };
 var installEnvironment = () => {
