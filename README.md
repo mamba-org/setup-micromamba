@@ -235,7 +235,7 @@ This can be specified by setting the `log-level` input.
     log-level: debug
 ```
 
-If nothing is specified, `setup-micromamba` will default to `info` or `debug` depending on if [debug logging is enabled for the action](#debug-logging-of-the-action).
+If nothing is specified, `setup-micromamba` will default to `warning` or `debug` depending on if [debug logging is enabled for the action](#debug-logging-of-the-action).
 
 ### Post action cleanup
 
