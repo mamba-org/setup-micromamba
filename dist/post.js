@@ -61412,7 +61412,7 @@ var parseOrUndefinedList = (key, schema) => {
 };
 var inferOptions = (inputs) => {
   const createEnvironment = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
-  const logLevel = inputs.logLevel || (core.isDebug() ? "debug" : "info");
+  const logLevel = inputs.logLevel || (core.isDebug() ? "debug" : "warning");
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
   const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;

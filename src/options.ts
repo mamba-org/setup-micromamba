@@ -98,7 +98,7 @@ const parseOrUndefinedList = <T>(key: string, schema: z.ZodSchema<T>): T[] | und
 const inferOptions = (inputs: Inputs): Options => {
   const createEnvironment = inputs.environmentName !== undefined || inputs.environmentFile !== undefined
 
-  const logLevel = inputs.logLevel || (core.isDebug() ? 'debug' : 'info')
+  const logLevel = inputs.logLevel || (core.isDebug() ? 'debug' : 'warning')
 
   // if micromambaUrl is specified, use that, otherwise use micromambaVersion (or 'latest' if not specified)
   const micromambaSource = inputs.micromambaUrl
