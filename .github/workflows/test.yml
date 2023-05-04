@@ -111,7 +111,7 @@ jobs:
           create-args: pytest
       - name: micromamba info (cmd.exe)
         run: |
-          micromamba info
+          call micromamba info
           pytest --version
         shell: cmd /C CALL {0}
       # TODO: cmd equivalent of `micromamba info | grep -q "environment : env-name"`
