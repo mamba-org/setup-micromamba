@@ -108,8 +108,11 @@ jobs:
         with:
           init-shell: cmd.exe
           environment-file: 'test/environment.yml'
+          create-args: pytest
       - name: micromamba info (cmd.exe)
-        run: micromamba info
+        run: |
+          micromamba info
+          pytest --version
         shell: cmd /C CALL {0}
       # TODO: cmd equivalent of `micromamba info | grep -q "environment : env-name"`
 
