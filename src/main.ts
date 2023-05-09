@@ -5,6 +5,7 @@ import path from 'path'
 import * as coreDefault from '@actions/core'
 import * as io from '@actions/io'
 import fetch from 'node-fetch'
+import { ProxyAgent } from 'proxy-agent'
 import { sha256, getMicromambaUrl, micromambaCmd, execute, determineEnvironmentName } from './util'
 import { coreMocked } from './mocking'
 import { PATHS, options } from './options'
@@ -18,7 +19,8 @@ const downloadMicromamba = (url: string) => {
   core.debug(`Downloading micromamba from ${url} ...`)
 
   const mkDir = fs.mkdir(path.dirname(options.micromambaBinPath), { recursive: true })
-  const downloadMicromamba = fetch(url)
+  const agent = new ProxyAgent()
+  const downloadMicromamba = fetch(url, { agent })
     .then((res) => {
       if (!res.ok) {
         throw new Error(`Download failed: ${res.statusText}`)
