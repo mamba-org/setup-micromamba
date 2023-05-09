@@ -19,6 +19,8 @@ const downloadMicromamba = (url: string) => {
   core.debug(`Downloading micromamba from ${url} ...`)
 
   const mkDir = fs.mkdir(path.dirname(options.micromambaBinPath), { recursive: true })
+  // Use an agent here to honor `http_proxy`, `https_proxy` and `noproxy` environment variables.
+  // This is esp. required when behind a corporate proxy.
   const agent = new ProxyAgent()
   const downloadMicromamba = fetch(url, { agent })
     .then((res) => {
