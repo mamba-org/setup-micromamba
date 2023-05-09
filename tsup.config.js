@@ -22,6 +22,8 @@ export default defineConfig({
     'http-proxy-agent',
     'https-proxy-agent',
     'proxy-from-env',
+    'lru-cache',
+    'agent-base',
     'untildify',
     'zod',
     'fp-ts'
