@@ -1,7 +1,10 @@
 name: Test post cleanup
 
 on:
-  push
+  push:
+    branches: main
+  pull_request:
+    branches: main
 
 jobs:
   test-post-cleanup:
