@@ -18,7 +18,10 @@ export default defineConfig({
     '@actions/cache',
     '@actions/io',
     'node-fetch',
-    'proxy-agent',
+    'debug',
+    'http-proxy-agent',
+    'https-proxy-agent',
+    'proxy-from-env',
     'untildify',
     'zod',
     'fp-ts'
