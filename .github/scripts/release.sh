@@ -3,6 +3,18 @@
 version="${TAG_NAME}"
 major="${version%%.*}" # see https://linuxjournal.com/article/8919 for an explanation of this bash magic
 
+git tag "${version}"
+git push origin "${version}"
+push_worked=$?
+if [ $push_worked -eq 0 ]; then
+    echo "Created ${version} tag on remote."
+    echo "Created \`${version}\` tag on remote." >> "$GITHUB_STEP_SUMMARY"
+else
+    echo "Failed to push ${version} tag to remote."
+    echo "Failed to push \`${version}\` tag to remote." >> "$GITHUB_STEP_SUMMARY"
+    exit 1
+fi
+
 git tag -d "${major}"
 local_delete=$?
 if [ $local_delete -eq 0 ]; then

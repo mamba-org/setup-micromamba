@@ -1,24 +1,29 @@
-name: Release
+name: Release if version changed
 
 on:
   push:
-    tags:
-      # only release von 'vx.y.z' tags, not on the 'vx' tag itself
-      - 'v*.*.*'
+    branches: main
 permissions:
   contents: write
 
-# To release a new version, update the version in package.json and push a tag with the new version 'vx.y.z'.
-# This will create a draft release with the changelog and push a 'vx' tag that points to the new release.
+# To release a new version, update the version in package.json.
+# This will create a draft release with the changelog and push a 'vx' tag that points to the new release as well as 'vx.y.z'.
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: Quantco/ui-actions/version-metadata@v1
+        id: version-metadata
+        with:
+          file: ./package.json
+          token: ${{ secrets.GITHUB_TOKEN }}
       - run: .github/scripts/release.sh
+        if: steps.version-metadata.outputs.changed == 'true'
         env:
-          TAG_NAME: ${{ github.ref_name }}
+          TAG_NAME: v${{ steps.version-metadata.outputs.newVersion }}
       - name: Create release
+        if: steps.version-metadata.outputs.changed == 'true'
         uses: softprops/action-gh-release@v1
         with:
           generate_release_notes: true
