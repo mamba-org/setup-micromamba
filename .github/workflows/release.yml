@@ -27,4 +27,5 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           generate_release_notes: true
+          tag_name: v${{ steps.version-metadata.outputs.newVersion }}
           draft: true
