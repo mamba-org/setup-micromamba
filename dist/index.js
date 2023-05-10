@@ -62576,9 +62576,7 @@ var core5 = process.env.MOCKING ? coreMocked : coreDefault5;
 var downloadMicromamba = (url2) => {
   core5.startGroup("Install micromamba");
   core5.debug(`Downloading micromamba from ${url2} ...`);
-  return import_promises.default.mkdir(import_path3.default.dirname(options.micromambaBinPath), { recursive: true }).then(() => (0, import_tool_cache.downloadTool)(url2, options.micromambaBinPath)).then((_downloadPath) => {
-    core5.info(`micromamba installed to ${options.micromambaBinPath}`);
-  }).catch((err) => {
+  return import_promises.default.mkdir(import_path3.default.dirname(options.micromambaBinPath), { recursive: true }).then(() => (0, import_tool_cache.downloadTool)(url2, options.micromambaBinPath)).then((_downloadPath) => import_promises.default.chmod(options.micromambaBinPath, 493)).then(() => core5.info(`micromamba installed to ${options.micromambaBinPath}`)).catch((err) => {
     core5.error(`Error installing micromamba: ${err.message}`);
     throw err;
   }).finally(core5.endGroup);

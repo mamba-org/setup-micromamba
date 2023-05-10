@@ -20,9 +20,8 @@ const downloadMicromamba = (url: string) => {
   return fs
     .mkdir(path.dirname(options.micromambaBinPath), { recursive: true })
     .then(() => downloadTool(url, options.micromambaBinPath))
-    .then((_downloadPath) => {
-      core.info(`micromamba installed to ${options.micromambaBinPath}`)
-    })
+    .then((_downloadPath) => fs.chmod(options.micromambaBinPath, 0o755))
+    .then(() => core.info(`micromamba installed to ${options.micromambaBinPath}`))
     .catch((err) => {
       core.error(`Error installing micromamba: ${err.message}`)
       throw err
