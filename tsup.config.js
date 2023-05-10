@@ -18,14 +18,15 @@ export default defineConfig({
     '@actions/cache',
     '@actions/io',
     'node-fetch',
+    'untildify',
+    'zod',
+    'fp-ts',
+    // proxy-agent dependencies: https://github.com/TooTallNate/proxy-agents/blob/main/packages/proxy-agent/package.json
+    'agent-base',
     'debug',
     'http-proxy-agent',
     'https-proxy-agent',
-    'proxy-from-env',
     'lru-cache',
-    'agent-base',
-    'untildify',
-    'zod',
-    'fp-ts'
+    'proxy-from-env'
   ]
 })

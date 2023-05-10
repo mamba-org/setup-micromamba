@@ -1,3 +1,8 @@
+/**
+ * This file is taken from
+ * https://github.com/TooTallNate/proxy-agents/blob/main/packages/proxy-agent/src/index.ts.
+ * It is stripped to not include proxies for SOCKS and PAC which are not needed.
+ */
 import * as http from 'http'
 import * as https from 'https'
 import LRUCache from 'lru-cache'

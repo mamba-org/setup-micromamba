@@ -6477,14 +6477,14 @@ var require_streams = __commonJS({
     if (!globalThis.ReadableStream) {
       try {
         const process2 = require("process");
-        const { emitWarning: emitWarning2 } = process2;
+        const { emitWarning } = process2;
         try {
           process2.emitWarning = () => {
           };
           Object.assign(globalThis, require("stream/web"));
-          process2.emitWarning = emitWarning2;
+          process2.emitWarning = emitWarning;
         } catch (error) {
-          process2.emitWarning = emitWarning2;
+          process2.emitWarning = emitWarning;
           throw error;
         }
       } catch (error) {
@@ -7294,9 +7294,846 @@ var init_multipart_parser = __esm({
   }
 });
 
-// node_modules/agent-base/dist/helpers.js
+// node_modules/.pnpm/lru-cache@7.14.1/node_modules/lru-cache/index.js
+var require_lru_cache = __commonJS({
+  "node_modules/.pnpm/lru-cache@7.14.1/node_modules/lru-cache/index.js"(exports, module2) {
+    var perf = typeof performance === "object" && performance && typeof performance.now === "function" ? performance : Date;
+    var hasAbortController = typeof AbortController === "function";
+    var AC = hasAbortController ? AbortController : class AbortController {
+      constructor() {
+        this.signal = new AS();
+      }
+      abort() {
+        this.signal.dispatchEvent("abort");
+      }
+    };
+    var hasAbortSignal = typeof AbortSignal === "function";
+    var hasACAbortSignal = typeof AC.AbortSignal === "function";
+    var AS = hasAbortSignal ? AbortSignal : hasACAbortSignal ? AC.AbortController : class AbortSignal {
+      constructor() {
+        this.aborted = false;
+        this._listeners = [];
+      }
+      dispatchEvent(type3) {
+        if (type3 === "abort") {
+          this.aborted = true;
+          const e2 = { type: type3, target: this };
+          this.onabort(e2);
+          this._listeners.forEach((f3) => f3(e2), this);
+        }
+      }
+      onabort() {
+      }
+      addEventListener(ev, fn) {
+        if (ev === "abort") {
+          this._listeners.push(fn);
+        }
+      }
+      removeEventListener(ev, fn) {
+        if (ev === "abort") {
+          this._listeners = this._listeners.filter((f3) => f3 !== fn);
+        }
+      }
+    };
+    var warned = /* @__PURE__ */ new Set();
+    var deprecatedOption = (opt, instead) => {
+      const code = `LRU_CACHE_OPTION_${opt}`;
+      if (shouldWarn(code)) {
+        warn(code, `${opt} option`, `options.${instead}`, LRUCache2);
+      }
+    };
+    var deprecatedMethod = (method, instead) => {
+      const code = `LRU_CACHE_METHOD_${method}`;
+      if (shouldWarn(code)) {
+        const { prototype } = LRUCache2;
+        const { get } = Object.getOwnPropertyDescriptor(prototype, method);
+        warn(code, `${method} method`, `cache.${instead}()`, get);
+      }
+    };
+    var deprecatedProperty = (field, instead) => {
+      const code = `LRU_CACHE_PROPERTY_${field}`;
+      if (shouldWarn(code)) {
+        const { prototype } = LRUCache2;
+        const { get } = Object.getOwnPropertyDescriptor(prototype, field);
+        warn(code, `${field} property`, `cache.${instead}`, get);
+      }
+    };
+    var emitWarning = (...a) => {
+      typeof process === "object" && process && typeof process.emitWarning === "function" ? process.emitWarning(...a) : console.error(...a);
+    };
+    var shouldWarn = (code) => !warned.has(code);
+    var warn = (code, what, instead, fn) => {
+      warned.add(code);
+      const msg = `The ${what} is deprecated. Please use ${instead} instead.`;
+      emitWarning(msg, "DeprecationWarning", code, fn);
+    };
+    var isPosInt = (n) => n && n === Math.floor(n) && n > 0 && isFinite(n);
+    var getUintArray = (max) => !isPosInt(max) ? null : max <= Math.pow(2, 8) ? Uint8Array : max <= Math.pow(2, 16) ? Uint16Array : max <= Math.pow(2, 32) ? Uint32Array : max <= Number.MAX_SAFE_INTEGER ? ZeroArray : null;
+    var ZeroArray = class extends Array {
+      constructor(size) {
+        super(size);
+        this.fill(0);
+      }
+    };
+    var Stack = class {
+      constructor(max) {
+        if (max === 0) {
+          return [];
+        }
+        const UintArray = getUintArray(max);
+        this.heap = new UintArray(max);
+        this.length = 0;
+      }
+      push(n) {
+        this.heap[this.length++] = n;
+      }
+      pop() {
+        return this.heap[--this.length];
+      }
+    };
+    var LRUCache2 = class {
+      constructor(options2 = {}) {
+        const {
+          max = 0,
+          ttl,
+          ttlResolution = 1,
+          ttlAutopurge,
+          updateAgeOnGet,
+          updateAgeOnHas,
+          allowStale,
+          dispose,
+          disposeAfter,
+          noDisposeOnSet,
+          noUpdateTTL,
+          maxSize: maxSize2 = 0,
+          maxEntrySize = 0,
+          sizeCalculation,
+          fetchMethod,
+          fetchContext,
+          noDeleteOnFetchRejection,
+          noDeleteOnStaleGet
+        } = options2;
+        const { length, maxAge, stale } = options2 instanceof LRUCache2 ? {} : options2;
+        if (max !== 0 && !isPosInt(max)) {
+          throw new TypeError("max option must be a nonnegative integer");
+        }
+        const UintArray = max ? getUintArray(max) : Array;
+        if (!UintArray) {
+          throw new Error("invalid max value: " + max);
+        }
+        this.max = max;
+        this.maxSize = maxSize2;
+        this.maxEntrySize = maxEntrySize || this.maxSize;
+        this.sizeCalculation = sizeCalculation || length;
+        if (this.sizeCalculation) {
+          if (!this.maxSize && !this.maxEntrySize) {
+            throw new TypeError(
+              "cannot set sizeCalculation without setting maxSize or maxEntrySize"
+            );
+          }
+          if (typeof this.sizeCalculation !== "function") {
+            throw new TypeError("sizeCalculation set to non-function");
+          }
+        }
+        this.fetchMethod = fetchMethod || null;
+        if (this.fetchMethod && typeof this.fetchMethod !== "function") {
+          throw new TypeError(
+            "fetchMethod must be a function if specified"
+          );
+        }
+        this.fetchContext = fetchContext;
+        if (!this.fetchMethod && fetchContext !== void 0) {
+          throw new TypeError(
+            "cannot set fetchContext without fetchMethod"
+          );
+        }
+        this.keyMap = /* @__PURE__ */ new Map();
+        this.keyList = new Array(max).fill(null);
+        this.valList = new Array(max).fill(null);
+        this.next = new UintArray(max);
+        this.prev = new UintArray(max);
+        this.head = 0;
+        this.tail = 0;
+        this.free = new Stack(max);
+        this.initialFill = 1;
+        this.size = 0;
+        if (typeof dispose === "function") {
+          this.dispose = dispose;
+        }
+        if (typeof disposeAfter === "function") {
+          this.disposeAfter = disposeAfter;
+          this.disposed = [];
+        } else {
+          this.disposeAfter = null;
+          this.disposed = null;
+        }
+        this.noDisposeOnSet = !!noDisposeOnSet;
+        this.noUpdateTTL = !!noUpdateTTL;
+        this.noDeleteOnFetchRejection = !!noDeleteOnFetchRejection;
+        if (this.maxEntrySize !== 0) {
+          if (this.maxSize !== 0) {
+            if (!isPosInt(this.maxSize)) {
+              throw new TypeError(
+                "maxSize must be a positive integer if specified"
+              );
+            }
+          }
+          if (!isPosInt(this.maxEntrySize)) {
+            throw new TypeError(
+              "maxEntrySize must be a positive integer if specified"
+            );
+          }
+          this.initializeSizeTracking();
+        }
+        this.allowStale = !!allowStale || !!stale;
+        this.noDeleteOnStaleGet = !!noDeleteOnStaleGet;
+        this.updateAgeOnGet = !!updateAgeOnGet;
+        this.updateAgeOnHas = !!updateAgeOnHas;
+        this.ttlResolution = isPosInt(ttlResolution) || ttlResolution === 0 ? ttlResolution : 1;
+        this.ttlAutopurge = !!ttlAutopurge;
+        this.ttl = ttl || maxAge || 0;
+        if (this.ttl) {
+          if (!isPosInt(this.ttl)) {
+            throw new TypeError(
+              "ttl must be a positive integer if specified"
+            );
+          }
+          this.initializeTTLTracking();
+        }
+        if (this.max === 0 && this.ttl === 0 && this.maxSize === 0) {
+          throw new TypeError(
+            "At least one of max, maxSize, or ttl is required"
+          );
+        }
+        if (!this.ttlAutopurge && !this.max && !this.maxSize) {
+          const code = "LRU_CACHE_UNBOUNDED";
+          if (shouldWarn(code)) {
+            warned.add(code);
+            const msg = "TTL caching without ttlAutopurge, max, or maxSize can result in unbounded memory consumption.";
+            emitWarning(msg, "UnboundedCacheWarning", code, LRUCache2);
+          }
+        }
+        if (stale) {
+          deprecatedOption("stale", "allowStale");
+        }
+        if (maxAge) {
+          deprecatedOption("maxAge", "ttl");
+        }
+        if (length) {
+          deprecatedOption("length", "sizeCalculation");
+        }
+      }
+      getRemainingTTL(key) {
+        return this.has(key, { updateAgeOnHas: false }) ? Infinity : 0;
+      }
+      initializeTTLTracking() {
+        this.ttls = new ZeroArray(this.max);
+        this.starts = new ZeroArray(this.max);
+        this.setItemTTL = (index, ttl, start = perf.now()) => {
+          this.starts[index] = ttl !== 0 ? start : 0;
+          this.ttls[index] = ttl;
+          if (ttl !== 0 && this.ttlAutopurge) {
+            const t2 = setTimeout(() => {
+              if (this.isStale(index)) {
+                this.delete(this.keyList[index]);
+              }
+            }, ttl + 1);
+            if (t2.unref) {
+              t2.unref();
+            }
+          }
+        };
+        this.updateItemAge = (index) => {
+          this.starts[index] = this.ttls[index] !== 0 ? perf.now() : 0;
+        };
+        let cachedNow = 0;
+        const getNow = () => {
+          const n = perf.now();
+          if (this.ttlResolution > 0) {
+            cachedNow = n;
+            const t2 = setTimeout(
+              () => cachedNow = 0,
+              this.ttlResolution
+            );
+            if (t2.unref) {
+              t2.unref();
+            }
+          }
+          return n;
+        };
+        this.getRemainingTTL = (key) => {
+          const index = this.keyMap.get(key);
+          if (index === void 0) {
+            return 0;
+          }
+          return this.ttls[index] === 0 || this.starts[index] === 0 ? Infinity : this.starts[index] + this.ttls[index] - (cachedNow || getNow());
+        };
+        this.isStale = (index) => {
+          return this.ttls[index] !== 0 && this.starts[index] !== 0 && (cachedNow || getNow()) - this.starts[index] > this.ttls[index];
+        };
+      }
+      updateItemAge(index) {
+      }
+      setItemTTL(index, ttl, start) {
+      }
+      isStale(index) {
+        return false;
+      }
+      initializeSizeTracking() {
+        this.calculatedSize = 0;
+        this.sizes = new ZeroArray(this.max);
+        this.removeItemSize = (index) => {
+          this.calculatedSize -= this.sizes[index];
+          this.sizes[index] = 0;
+        };
+        this.requireSize = (k, v, size, sizeCalculation) => {
+          if (this.isBackgroundFetch(v)) {
+            return 0;
+          }
+          if (!isPosInt(size)) {
+            if (sizeCalculation) {
+              if (typeof sizeCalculation !== "function") {
+                throw new TypeError("sizeCalculation must be a function");
+              }
+              size = sizeCalculation(v, k);
+              if (!isPosInt(size)) {
+                throw new TypeError(
+                  "sizeCalculation return invalid (expect positive integer)"
+                );
+              }
+            } else {
+              throw new TypeError(
+                "invalid size value (must be positive integer)"
+              );
+            }
+          }
+          return size;
+        };
+        this.addItemSize = (index, size) => {
+          this.sizes[index] = size;
+          if (this.maxSize) {
+            const maxSize2 = this.maxSize - this.sizes[index];
+            while (this.calculatedSize > maxSize2) {
+              this.evict(true);
+            }
+          }
+          this.calculatedSize += this.sizes[index];
+        };
+      }
+      removeItemSize(index) {
+      }
+      addItemSize(index, size) {
+      }
+      requireSize(k, v, size, sizeCalculation) {
+        if (size || sizeCalculation) {
+          throw new TypeError(
+            "cannot set size without setting maxSize or maxEntrySize on cache"
+          );
+        }
+      }
+      *indexes({ allowStale = this.allowStale } = {}) {
+        if (this.size) {
+          for (let i2 = this.tail; true; ) {
+            if (!this.isValidIndex(i2)) {
+              break;
+            }
+            if (allowStale || !this.isStale(i2)) {
+              yield i2;
+            }
+            if (i2 === this.head) {
+              break;
+            } else {
+              i2 = this.prev[i2];
+            }
+          }
+        }
+      }
+      *rindexes({ allowStale = this.allowStale } = {}) {
+        if (this.size) {
+          for (let i2 = this.head; true; ) {
+            if (!this.isValidIndex(i2)) {
+              break;
+            }
+            if (allowStale || !this.isStale(i2)) {
+              yield i2;
+            }
+            if (i2 === this.tail) {
+              break;
+            } else {
+              i2 = this.next[i2];
+            }
+          }
+        }
+      }
+      isValidIndex(index) {
+        return this.keyMap.get(this.keyList[index]) === index;
+      }
+      *entries() {
+        for (const i2 of this.indexes()) {
+          yield [this.keyList[i2], this.valList[i2]];
+        }
+      }
+      *rentries() {
+        for (const i2 of this.rindexes()) {
+          yield [this.keyList[i2], this.valList[i2]];
+        }
+      }
+      *keys() {
+        for (const i2 of this.indexes()) {
+          yield this.keyList[i2];
+        }
+      }
+      *rkeys() {
+        for (const i2 of this.rindexes()) {
+          yield this.keyList[i2];
+        }
+      }
+      *values() {
+        for (const i2 of this.indexes()) {
+          yield this.valList[i2];
+        }
+      }
+      *rvalues() {
+        for (const i2 of this.rindexes()) {
+          yield this.valList[i2];
+        }
+      }
+      [Symbol.iterator]() {
+        return this.entries();
+      }
+      find(fn, getOptions2 = {}) {
+        for (const i2 of this.indexes()) {
+          if (fn(this.valList[i2], this.keyList[i2], this)) {
+            return this.get(this.keyList[i2], getOptions2);
+          }
+        }
+      }
+      forEach(fn, thisp = this) {
+        for (const i2 of this.indexes()) {
+          fn.call(thisp, this.valList[i2], this.keyList[i2], this);
+        }
+      }
+      rforEach(fn, thisp = this) {
+        for (const i2 of this.rindexes()) {
+          fn.call(thisp, this.valList[i2], this.keyList[i2], this);
+        }
+      }
+      get prune() {
+        deprecatedMethod("prune", "purgeStale");
+        return this.purgeStale;
+      }
+      purgeStale() {
+        let deleted = false;
+        for (const i2 of this.rindexes({ allowStale: true })) {
+          if (this.isStale(i2)) {
+            this.delete(this.keyList[i2]);
+            deleted = true;
+          }
+        }
+        return deleted;
+      }
+      dump() {
+        const arr = [];
+        for (const i2 of this.indexes({ allowStale: true })) {
+          const key = this.keyList[i2];
+          const v = this.valList[i2];
+          const value = this.isBackgroundFetch(v) ? v.__staleWhileFetching : v;
+          const entry = { value };
+          if (this.ttls) {
+            entry.ttl = this.ttls[i2];
+            const age = perf.now() - this.starts[i2];
+            entry.start = Math.floor(Date.now() - age);
+          }
+          if (this.sizes) {
+            entry.size = this.sizes[i2];
+          }
+          arr.unshift([key, entry]);
+        }
+        return arr;
+      }
+      load(arr) {
+        this.clear();
+        for (const [key, entry] of arr) {
+          if (entry.start) {
+            const age = Date.now() - entry.start;
+            entry.start = perf.now() - age;
+          }
+          this.set(key, entry.value, entry);
+        }
+      }
+      dispose(v, k, reason) {
+      }
+      set(k, v, {
+        ttl = this.ttl,
+        start,
+        noDisposeOnSet = this.noDisposeOnSet,
+        size = 0,
+        sizeCalculation = this.sizeCalculation,
+        noUpdateTTL = this.noUpdateTTL
+      } = {}) {
+        size = this.requireSize(k, v, size, sizeCalculation);
+        if (this.maxEntrySize && size > this.maxEntrySize) {
+          this.delete(k);
+          return this;
+        }
+        let index = this.size === 0 ? void 0 : this.keyMap.get(k);
+        if (index === void 0) {
+          index = this.newIndex();
+          this.keyList[index] = k;
+          this.valList[index] = v;
+          this.keyMap.set(k, index);
+          this.next[this.tail] = index;
+          this.prev[index] = this.tail;
+          this.tail = index;
+          this.size++;
+          this.addItemSize(index, size);
+          noUpdateTTL = false;
+        } else {
+          const oldVal = this.valList[index];
+          if (v !== oldVal) {
+            if (this.isBackgroundFetch(oldVal)) {
+              oldVal.__abortController.abort();
+            } else {
+              if (!noDisposeOnSet) {
+                this.dispose(oldVal, k, "set");
+                if (this.disposeAfter) {
+                  this.disposed.push([oldVal, k, "set"]);
+                }
+              }
+            }
+            this.removeItemSize(index);
+            this.valList[index] = v;
+            this.addItemSize(index, size);
+          }
+          this.moveToTail(index);
+        }
+        if (ttl !== 0 && this.ttl === 0 && !this.ttls) {
+          this.initializeTTLTracking();
+        }
+        if (!noUpdateTTL) {
+          this.setItemTTL(index, ttl, start);
+        }
+        if (this.disposeAfter) {
+          while (this.disposed.length) {
+            this.disposeAfter(...this.disposed.shift());
+          }
+        }
+        return this;
+      }
+      newIndex() {
+        if (this.size === 0) {
+          return this.tail;
+        }
+        if (this.size === this.max && this.max !== 0) {
+          return this.evict(false);
+        }
+        if (this.free.length !== 0) {
+          return this.free.pop();
+        }
+        return this.initialFill++;
+      }
+      pop() {
+        if (this.size) {
+          const val = this.valList[this.head];
+          this.evict(true);
+          return val;
+        }
+      }
+      evict(free) {
+        const head2 = this.head;
+        const k = this.keyList[head2];
+        const v = this.valList[head2];
+        if (this.isBackgroundFetch(v)) {
+          v.__abortController.abort();
+        } else {
+          this.dispose(v, k, "evict");
+          if (this.disposeAfter) {
+            this.disposed.push([v, k, "evict"]);
+          }
+        }
+        this.removeItemSize(head2);
+        if (free) {
+          this.keyList[head2] = null;
+          this.valList[head2] = null;
+          this.free.push(head2);
+        }
+        this.head = this.next[head2];
+        this.keyMap.delete(k);
+        this.size--;
+        return head2;
+      }
+      has(k, { updateAgeOnHas = this.updateAgeOnHas } = {}) {
+        const index = this.keyMap.get(k);
+        if (index !== void 0) {
+          if (!this.isStale(index)) {
+            if (updateAgeOnHas) {
+              this.updateItemAge(index);
+            }
+            return true;
+          }
+        }
+        return false;
+      }
+      // like get(), but without any LRU updating or TTL expiration
+      peek(k, { allowStale = this.allowStale } = {}) {
+        const index = this.keyMap.get(k);
+        if (index !== void 0 && (allowStale || !this.isStale(index))) {
+          const v = this.valList[index];
+          return this.isBackgroundFetch(v) ? v.__staleWhileFetching : v;
+        }
+      }
+      backgroundFetch(k, index, options2, context3) {
+        const v = index === void 0 ? void 0 : this.valList[index];
+        if (this.isBackgroundFetch(v)) {
+          return v;
+        }
+        const ac = new AC();
+        const fetchOpts = {
+          signal: ac.signal,
+          options: options2,
+          context: context3
+        };
+        const cb = (v2) => {
+          if (!ac.signal.aborted) {
+            this.set(k, v2, fetchOpts.options);
+          }
+          return v2;
+        };
+        const eb = (er) => {
+          if (this.valList[index] === p) {
+            const del = !options2.noDeleteOnFetchRejection || p.__staleWhileFetching === void 0;
+            if (del) {
+              this.delete(k);
+            } else {
+              this.valList[index] = p.__staleWhileFetching;
+            }
+          }
+          if (p.__returned === p) {
+            throw er;
+          }
+        };
+        const pcall = (res) => res(this.fetchMethod(k, v, fetchOpts));
+        const p = new Promise(pcall).then(cb, eb);
+        p.__abortController = ac;
+        p.__staleWhileFetching = v;
+        p.__returned = null;
+        if (index === void 0) {
+          this.set(k, p, fetchOpts.options);
+          index = this.keyMap.get(k);
+        } else {
+          this.valList[index] = p;
+        }
+        return p;
+      }
+      isBackgroundFetch(p) {
+        return p && typeof p === "object" && typeof p.then === "function" && Object.prototype.hasOwnProperty.call(
+          p,
+          "__staleWhileFetching"
+        ) && Object.prototype.hasOwnProperty.call(p, "__returned") && (p.__returned === p || p.__returned === null);
+      }
+      // this takes the union of get() and set() opts, because it does both
+      async fetch(k, {
+        // get options
+        allowStale = this.allowStale,
+        updateAgeOnGet = this.updateAgeOnGet,
+        noDeleteOnStaleGet = this.noDeleteOnStaleGet,
+        // set options
+        ttl = this.ttl,
+        noDisposeOnSet = this.noDisposeOnSet,
+        size = 0,
+        sizeCalculation = this.sizeCalculation,
+        noUpdateTTL = this.noUpdateTTL,
+        // fetch exclusive options
+        noDeleteOnFetchRejection = this.noDeleteOnFetchRejection,
+        fetchContext = this.fetchContext,
+        forceRefresh = false
+      } = {}) {
+        if (!this.fetchMethod) {
+          return this.get(k, {
+            allowStale,
+            updateAgeOnGet,
+            noDeleteOnStaleGet
+          });
+        }
+        const options2 = {
+          allowStale,
+          updateAgeOnGet,
+          noDeleteOnStaleGet,
+          ttl,
+          noDisposeOnSet,
+          size,
+          sizeCalculation,
+          noUpdateTTL,
+          noDeleteOnFetchRejection
+        };
+        let index = this.keyMap.get(k);
+        if (index === void 0) {
+          const p = this.backgroundFetch(k, index, options2, fetchContext);
+          return p.__returned = p;
+        } else {
+          const v = this.valList[index];
+          if (this.isBackgroundFetch(v)) {
+            return allowStale && v.__staleWhileFetching !== void 0 ? v.__staleWhileFetching : v.__returned = v;
+          }
+          if (!forceRefresh && !this.isStale(index)) {
+            this.moveToTail(index);
+            if (updateAgeOnGet) {
+              this.updateItemAge(index);
+            }
+            return v;
+          }
+          const p = this.backgroundFetch(k, index, options2, fetchContext);
+          return allowStale && p.__staleWhileFetching !== void 0 ? p.__staleWhileFetching : p.__returned = p;
+        }
+      }
+      get(k, {
+        allowStale = this.allowStale,
+        updateAgeOnGet = this.updateAgeOnGet,
+        noDeleteOnStaleGet = this.noDeleteOnStaleGet
+      } = {}) {
+        const index = this.keyMap.get(k);
+        if (index !== void 0) {
+          const value = this.valList[index];
+          const fetching = this.isBackgroundFetch(value);
+          if (this.isStale(index)) {
+            if (!fetching) {
+              if (!noDeleteOnStaleGet) {
+                this.delete(k);
+              }
+              return allowStale ? value : void 0;
+            } else {
+              return allowStale ? value.__staleWhileFetching : void 0;
+            }
+          } else {
+            if (fetching) {
+              return void 0;
+            }
+            this.moveToTail(index);
+            if (updateAgeOnGet) {
+              this.updateItemAge(index);
+            }
+            return value;
+          }
+        }
+      }
+      connect(p, n) {
+        this.prev[n] = p;
+        this.next[p] = n;
+      }
+      moveToTail(index) {
+        if (index !== this.tail) {
+          if (index === this.head) {
+            this.head = this.next[index];
+          } else {
+            this.connect(this.prev[index], this.next[index]);
+          }
+          this.connect(this.tail, index);
+          this.tail = index;
+        }
+      }
+      get del() {
+        deprecatedMethod("del", "delete");
+        return this.delete;
+      }
+      delete(k) {
+        let deleted = false;
+        if (this.size !== 0) {
+          const index = this.keyMap.get(k);
+          if (index !== void 0) {
+            deleted = true;
+            if (this.size === 1) {
+              this.clear();
+            } else {
+              this.removeItemSize(index);
+              const v = this.valList[index];
+              if (this.isBackgroundFetch(v)) {
+                v.__abortController.abort();
+              } else {
+                this.dispose(v, k, "delete");
+                if (this.disposeAfter) {
+                  this.disposed.push([v, k, "delete"]);
+                }
+              }
+              this.keyMap.delete(k);
+              this.keyList[index] = null;
+              this.valList[index] = null;
+              if (index === this.tail) {
+                this.tail = this.prev[index];
+              } else if (index === this.head) {
+                this.head = this.next[index];
+              } else {
+                this.next[this.prev[index]] = this.next[index];
+                this.prev[this.next[index]] = this.prev[index];
+              }
+              this.size--;
+              this.free.push(index);
+            }
+          }
+        }
+        if (this.disposed) {
+          while (this.disposed.length) {
+            this.disposeAfter(...this.disposed.shift());
+          }
+        }
+        return deleted;
+      }
+      clear() {
+        for (const index of this.rindexes({ allowStale: true })) {
+          const v = this.valList[index];
+          if (this.isBackgroundFetch(v)) {
+            v.__abortController.abort();
+          } else {
+            const k = this.keyList[index];
+            this.dispose(v, k, "delete");
+            if (this.disposeAfter) {
+              this.disposed.push([v, k, "delete"]);
+            }
+          }
+        }
+        this.keyMap.clear();
+        this.valList.fill(null);
+        this.keyList.fill(null);
+        if (this.ttls) {
+          this.ttls.fill(0);
+          this.starts.fill(0);
+        }
+        if (this.sizes) {
+          this.sizes.fill(0);
+        }
+        this.head = 0;
+        this.tail = 0;
+        this.initialFill = 1;
+        this.free.length = 0;
+        this.calculatedSize = 0;
+        this.size = 0;
+        if (this.disposed) {
+          while (this.disposed.length) {
+            this.disposeAfter(...this.disposed.shift());
+          }
+        }
+      }
+      get reset() {
+        deprecatedMethod("reset", "clear");
+        return this.clear;
+      }
+      get length() {
+        deprecatedProperty("length", "size");
+        return this.size;
+      }
+      static get AbortController() {
+        return AC;
+      }
+      static get AbortSignal() {
+        return AS;
+      }
+    };
+    module2.exports = LRUCache2;
+  }
+});
+
+// node_modules/.pnpm/agent-base@7.0.1/node_modules/agent-base/dist/helpers.js
 var require_helpers = __commonJS({
-  "node_modules/agent-base/dist/helpers.js"(exports) {
+  "node_modules/.pnpm/agent-base@7.0.1/node_modules/agent-base/dist/helpers.js"(exports) {
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m2, k, k2) {
       if (k2 === void 0)
@@ -7369,9 +8206,9 @@ var require_helpers = __commonJS({
   }
 });
 
-// node_modules/agent-base/dist/index.js
+// node_modules/.pnpm/agent-base@7.0.1/node_modules/agent-base/dist/index.js
 var require_dist = __commonJS({
-  "node_modules/agent-base/dist/index.js"(exports) {
+  "node_modules/.pnpm/agent-base@7.0.1/node_modules/agent-base/dist/index.js"(exports) {
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m2, k, k2) {
       if (k2 === void 0)
@@ -7758,10 +8595,10 @@ var require_browser = __commonJS({
     exports.useColors = useColors;
     exports.storage = localstorage();
     exports.destroy = (() => {
-      let warned2 = false;
+      let warned = false;
       return () => {
-        if (!warned2) {
-          warned2 = true;
+        if (!warned) {
+          warned = true;
           console.warn("Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`.");
         }
       };
@@ -8288,184 +9125,8 @@ var require_proxy_from_env = __commonJS({
   }
 });
 
-// node_modules/.pnpm/agent-base@7.0.1/node_modules/agent-base/dist/helpers.js
-var require_helpers2 = __commonJS({
-  "node_modules/.pnpm/agent-base@7.0.1/node_modules/agent-base/dist/helpers.js"(exports) {
-    "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m2, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      var desc = Object.getOwnPropertyDescriptor(m2, k);
-      if (!desc || ("get" in desc ? !m2.__esModule : desc.writable || desc.configurable)) {
-        desc = { enumerable: true, get: function() {
-          return m2[k];
-        } };
-      }
-      Object.defineProperty(o, k2, desc);
-    } : function(o, m2, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      o[k2] = m2[k];
-    });
-    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o, v) {
-      Object.defineProperty(o, "default", { enumerable: true, value: v });
-    } : function(o, v) {
-      o["default"] = v;
-    });
-    var __importStar = exports && exports.__importStar || function(mod) {
-      if (mod && mod.__esModule)
-        return mod;
-      var result = {};
-      if (mod != null) {
-        for (var k in mod)
-          if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k))
-            __createBinding(result, mod, k);
-      }
-      __setModuleDefault(result, mod);
-      return result;
-    };
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.req = exports.json = exports.toBuffer = void 0;
-    var http6 = __importStar(require("http"));
-    var https5 = __importStar(require("https"));
-    async function toBuffer(stream) {
-      let length = 0;
-      const chunks = [];
-      for await (const chunk of stream) {
-        length += chunk.length;
-        chunks.push(chunk);
-      }
-      return Buffer.concat(chunks, length);
-    }
-    exports.toBuffer = toBuffer;
-    async function json(stream) {
-      const buf = await toBuffer(stream);
-      const str = buf.toString("utf8");
-      try {
-        return JSON.parse(str);
-      } catch (_err) {
-        const err = _err;
-        err.message += ` (input: ${str})`;
-        throw err;
-      }
-    }
-    exports.json = json;
-    function req(url2, opts = {}) {
-      let req2;
-      const promise = new Promise((resolve2, reject) => {
-        const href = typeof url2 === "string" ? url2 : url2.href;
-        req2 = (href.startsWith("https:") ? https5 : http6).request(url2, opts, resolve2).once("error", reject).end();
-      });
-      req2.then = promise.then.bind(promise);
-      return req2;
-    }
-    exports.req = req;
-  }
-});
-
-// node_modules/.pnpm/agent-base@7.0.1/node_modules/agent-base/dist/index.js
-var require_dist2 = __commonJS({
-  "node_modules/.pnpm/agent-base@7.0.1/node_modules/agent-base/dist/index.js"(exports) {
-    "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m2, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      var desc = Object.getOwnPropertyDescriptor(m2, k);
-      if (!desc || ("get" in desc ? !m2.__esModule : desc.writable || desc.configurable)) {
-        desc = { enumerable: true, get: function() {
-          return m2[k];
-        } };
-      }
-      Object.defineProperty(o, k2, desc);
-    } : function(o, m2, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      o[k2] = m2[k];
-    });
-    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o, v) {
-      Object.defineProperty(o, "default", { enumerable: true, value: v });
-    } : function(o, v) {
-      o["default"] = v;
-    });
-    var __importStar = exports && exports.__importStar || function(mod) {
-      if (mod && mod.__esModule)
-        return mod;
-      var result = {};
-      if (mod != null) {
-        for (var k in mod)
-          if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k))
-            __createBinding(result, mod, k);
-      }
-      __setModuleDefault(result, mod);
-      return result;
-    };
-    var __exportStar = exports && exports.__exportStar || function(m2, exports2) {
-      for (var p in m2)
-        if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p))
-          __createBinding(exports2, m2, p);
-    };
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.Agent = void 0;
-    var http6 = __importStar(require("http"));
-    __exportStar(require_helpers2(), exports);
-    function isSecureEndpoint() {
-      const { stack } = new Error();
-      if (typeof stack !== "string")
-        return false;
-      return stack.split("\n").some((l) => l.indexOf("(https.js:") !== -1 || l.indexOf("node:https:") !== -1);
-    }
-    var Agent6 = class extends http6.Agent {
-      constructor(opts) {
-        super(opts);
-        this._defaultPort = void 0;
-        this._protocol = void 0;
-      }
-      createSocket(req, options2, cb) {
-        const o = {
-          ...options2,
-          secureEndpoint: options2.secureEndpoint ?? isSecureEndpoint()
-        };
-        Promise.resolve().then(() => this.connect(req, o)).then((socket) => {
-          if (socket instanceof http6.Agent) {
-            return socket.addRequest(req, o);
-          }
-          this._currentSocket = socket;
-          super.createSocket(req, options2, cb);
-        }, cb);
-      }
-      createConnection() {
-        if (!this._currentSocket) {
-          throw new Error("no socket");
-        }
-        return this._currentSocket;
-      }
-      get defaultPort() {
-        if (typeof this._defaultPort === "number") {
-          return this._defaultPort;
-        }
-        const port = this.protocol === "https:" ? 443 : 80;
-        return port;
-      }
-      set defaultPort(v) {
-        this._defaultPort = v;
-      }
-      get protocol() {
-        if (typeof this._protocol === "string") {
-          return this._protocol;
-        }
-        const p = isSecureEndpoint() ? "https:" : "http:";
-        return p;
-      }
-      set protocol(v) {
-        this._protocol = v;
-      }
-    };
-    exports.Agent = Agent6;
-  }
-});
-
 // node_modules/.pnpm/http-proxy-agent@6.0.1/node_modules/http-proxy-agent/dist/index.js
-var require_dist3 = __commonJS({
+var require_dist2 = __commonJS({
   "node_modules/.pnpm/http-proxy-agent@6.0.1/node_modules/http-proxy-agent/dist/index.js"(exports) {
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m2, k, k2) {
@@ -8509,7 +9170,7 @@ var require_dist3 = __commonJS({
     var tls = __importStar(require("tls"));
     var debug_1 = __importDefault(require_src());
     var events_1 = require("events");
-    var agent_base_1 = require_dist2();
+    var agent_base_1 = require_dist();
     var debug2 = (0, debug_1.default)("http-proxy-agent");
     function isHTTPS(protocol) {
       return typeof protocol === "string" ? /^https:?$/i.test(protocol) : false;
@@ -8674,7 +9335,7 @@ var require_parse_proxy_response = __commonJS({
 });
 
 // node_modules/.pnpm/https-proxy-agent@6.1.0/node_modules/https-proxy-agent/dist/index.js
-var require_dist4 = __commonJS({
+var require_dist3 = __commonJS({
   "node_modules/.pnpm/https-proxy-agent@6.1.0/node_modules/https-proxy-agent/dist/index.js"(exports) {
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m2, k, k2) {
@@ -8718,7 +9379,7 @@ var require_dist4 = __commonJS({
     var tls = __importStar(require("tls"));
     var assert_1 = __importDefault(require("assert"));
     var debug_1 = __importDefault(require_src());
-    var agent_base_1 = require_dist2();
+    var agent_base_1 = require_dist();
     var parse_proxy_response_1 = require_parse_proxy_response();
     var debug2 = (0, debug_1.default)("https-proxy-agent");
     var HttpsProxyAgent2 = class extends agent_base_1.Agent {
@@ -15578,12 +16239,12 @@ function abortSignal(signal) {
   }
   abortedMap.set(signal, true);
 }
-var listenersMap, abortedMap, AbortSignal3;
+var listenersMap, abortedMap, AbortSignal2;
 var init_AbortSignal = __esm({
   "node_modules/.pnpm/@azure+abort-controller@1.1.0/node_modules/@azure/abort-controller/dist-esm/src/AbortSignal.js"() {
     listenersMap = /* @__PURE__ */ new WeakMap();
     abortedMap = /* @__PURE__ */ new WeakMap();
-    AbortSignal3 = class {
+    AbortSignal2 = class {
       constructor() {
         this.onabort = null;
         listenersMap.set(this, []);
@@ -15606,7 +16267,7 @@ var init_AbortSignal = __esm({
        * @readonly
        */
       static get none() {
-        return new AbortSignal3();
+        return new AbortSignal2();
       }
       /**
        * Added new "abort" event listener, only support "abort" event.
@@ -15648,7 +16309,7 @@ var init_AbortSignal = __esm({
 });
 
 // node_modules/.pnpm/@azure+abort-controller@1.1.0/node_modules/@azure/abort-controller/dist-esm/src/AbortController.js
-var AbortError2, AbortController3;
+var AbortError2, AbortController2;
 var init_AbortController = __esm({
   "node_modules/.pnpm/@azure+abort-controller@1.1.0/node_modules/@azure/abort-controller/dist-esm/src/AbortController.js"() {
     init_AbortSignal();
@@ -15658,10 +16319,10 @@ var init_AbortController = __esm({
         this.name = "AbortError";
       }
     };
-    AbortController3 = class {
+    AbortController2 = class {
       // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
       constructor(parentSignals) {
-        this._signal = new AbortSignal3();
+        this._signal = new AbortSignal2();
         if (!parentSignals) {
           return;
         }
@@ -15699,7 +16360,7 @@ var init_AbortController = __esm({
        * @param ms - Elapsed time in milliseconds to trigger an abort.
        */
       static timeout(ms) {
-        const signal = new AbortSignal3();
+        const signal = new AbortSignal2();
         const timer = setTimeout(abortSignal, ms, signal);
         if (typeof timer.unref === "function") {
           timer.unref();
@@ -15713,9 +16374,9 @@ var init_AbortController = __esm({
 // node_modules/.pnpm/@azure+abort-controller@1.1.0/node_modules/@azure/abort-controller/dist-esm/src/index.js
 var src_exports = {};
 __export(src_exports, {
-  AbortController: () => AbortController3,
+  AbortController: () => AbortController2,
   AbortError: () => AbortError2,
-  AbortSignal: () => AbortSignal3
+  AbortSignal: () => AbortSignal2
 });
 var init_src = __esm({
   "node_modules/.pnpm/@azure+abort-controller@1.1.0/node_modules/@azure/abort-controller/dist-esm/src/index.js"() {
@@ -29164,7 +29825,7 @@ var init_nodeFetchHttpClient = __esm({
         if (!httpRequest && typeof httpRequest !== "object") {
           throw new Error("'httpRequest' (WebResourceLike) cannot be null or undefined and must be of type object.");
         }
-        const abortController = new AbortController3();
+        const abortController = new AbortController2();
         let abortListener;
         if (httpRequest.abortSignal) {
           if (httpRequest.abortSignal.aborted) {
@@ -65270,1026 +65931,12 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
 // src/proxy.ts
 var http3 = __toESM(require("http"));
 var https2 = __toESM(require("https"));
-
-// node_modules/lru-cache/index.mjs
-var perf = typeof performance === "object" && performance && typeof performance.now === "function" ? performance : Date;
-var hasAbortController = typeof AbortController === "function";
-var AC = hasAbortController ? AbortController : class AbortController2 {
-  constructor() {
-    this.signal = new AS();
-  }
-  abort(reason = new Error("This operation was aborted")) {
-    this.signal.reason = this.signal.reason || reason;
-    this.signal.aborted = true;
-    this.signal.dispatchEvent({
-      type: "abort",
-      target: this.signal
-    });
-  }
-};
-var hasAbortSignal = typeof AbortSignal === "function";
-var hasACAbortSignal = typeof AC.AbortSignal === "function";
-var AS = hasAbortSignal ? AbortSignal : hasACAbortSignal ? AC.AbortController : class AbortSignal2 {
-  constructor() {
-    this.reason = void 0;
-    this.aborted = false;
-    this._listeners = [];
-  }
-  dispatchEvent(e2) {
-    if (e2.type === "abort") {
-      this.aborted = true;
-      this.onabort(e2);
-      this._listeners.forEach((f3) => f3(e2), this);
-    }
-  }
-  onabort() {
-  }
-  addEventListener(ev, fn) {
-    if (ev === "abort") {
-      this._listeners.push(fn);
-    }
-  }
-  removeEventListener(ev, fn) {
-    if (ev === "abort") {
-      this._listeners = this._listeners.filter((f3) => f3 !== fn);
-    }
-  }
-};
-var warned = /* @__PURE__ */ new Set();
-var deprecatedOption = (opt, instead) => {
-  const code = `LRU_CACHE_OPTION_${opt}`;
-  if (shouldWarn(code)) {
-    warn(code, `${opt} option`, `options.${instead}`, LRUCache);
-  }
-};
-var deprecatedMethod = (method, instead) => {
-  const code = `LRU_CACHE_METHOD_${method}`;
-  if (shouldWarn(code)) {
-    const { prototype } = LRUCache;
-    const { get } = Object.getOwnPropertyDescriptor(prototype, method);
-    warn(code, `${method} method`, `cache.${instead}()`, get);
-  }
-};
-var deprecatedProperty = (field, instead) => {
-  const code = `LRU_CACHE_PROPERTY_${field}`;
-  if (shouldWarn(code)) {
-    const { prototype } = LRUCache;
-    const { get } = Object.getOwnPropertyDescriptor(prototype, field);
-    warn(code, `${field} property`, `cache.${instead}`, get);
-  }
-};
-var emitWarning = (...a) => {
-  typeof process === "object" && process && typeof process.emitWarning === "function" ? process.emitWarning(...a) : console.error(...a);
-};
-var shouldWarn = (code) => !warned.has(code);
-var warn = (code, what, instead, fn) => {
-  warned.add(code);
-  const msg = `The ${what} is deprecated. Please use ${instead} instead.`;
-  emitWarning(msg, "DeprecationWarning", code, fn);
-};
-var isPosInt = (n) => n && n === Math.floor(n) && n > 0 && isFinite(n);
-var getUintArray = (max) => !isPosInt(max) ? null : max <= Math.pow(2, 8) ? Uint8Array : max <= Math.pow(2, 16) ? Uint16Array : max <= Math.pow(2, 32) ? Uint32Array : max <= Number.MAX_SAFE_INTEGER ? ZeroArray : null;
-var ZeroArray = class extends Array {
-  constructor(size) {
-    super(size);
-    this.fill(0);
-  }
-};
-var Stack = class {
-  constructor(max) {
-    if (max === 0) {
-      return [];
-    }
-    const UintArray = getUintArray(max);
-    this.heap = new UintArray(max);
-    this.length = 0;
-  }
-  push(n) {
-    this.heap[this.length++] = n;
-  }
-  pop() {
-    return this.heap[--this.length];
-  }
-};
-var LRUCache = class {
-  constructor(options2 = {}) {
-    const {
-      max = 0,
-      ttl,
-      ttlResolution = 1,
-      ttlAutopurge,
-      updateAgeOnGet,
-      updateAgeOnHas,
-      allowStale,
-      dispose,
-      disposeAfter,
-      noDisposeOnSet,
-      noUpdateTTL,
-      maxSize: maxSize2 = 0,
-      maxEntrySize = 0,
-      sizeCalculation,
-      fetchMethod,
-      fetchContext,
-      noDeleteOnFetchRejection,
-      noDeleteOnStaleGet,
-      allowStaleOnFetchRejection,
-      allowStaleOnFetchAbort,
-      ignoreFetchAbort
-    } = options2;
-    const { length, maxAge, stale } = options2 instanceof LRUCache ? {} : options2;
-    if (max !== 0 && !isPosInt(max)) {
-      throw new TypeError("max option must be a nonnegative integer");
-    }
-    const UintArray = max ? getUintArray(max) : Array;
-    if (!UintArray) {
-      throw new Error("invalid max value: " + max);
-    }
-    this.max = max;
-    this.maxSize = maxSize2;
-    this.maxEntrySize = maxEntrySize || this.maxSize;
-    this.sizeCalculation = sizeCalculation || length;
-    if (this.sizeCalculation) {
-      if (!this.maxSize && !this.maxEntrySize) {
-        throw new TypeError(
-          "cannot set sizeCalculation without setting maxSize or maxEntrySize"
-        );
-      }
-      if (typeof this.sizeCalculation !== "function") {
-        throw new TypeError("sizeCalculation set to non-function");
-      }
-    }
-    this.fetchMethod = fetchMethod || null;
-    if (this.fetchMethod && typeof this.fetchMethod !== "function") {
-      throw new TypeError(
-        "fetchMethod must be a function if specified"
-      );
-    }
-    this.fetchContext = fetchContext;
-    if (!this.fetchMethod && fetchContext !== void 0) {
-      throw new TypeError(
-        "cannot set fetchContext without fetchMethod"
-      );
-    }
-    this.keyMap = /* @__PURE__ */ new Map();
-    this.keyList = new Array(max).fill(null);
-    this.valList = new Array(max).fill(null);
-    this.next = new UintArray(max);
-    this.prev = new UintArray(max);
-    this.head = 0;
-    this.tail = 0;
-    this.free = new Stack(max);
-    this.initialFill = 1;
-    this.size = 0;
-    if (typeof dispose === "function") {
-      this.dispose = dispose;
-    }
-    if (typeof disposeAfter === "function") {
-      this.disposeAfter = disposeAfter;
-      this.disposed = [];
-    } else {
-      this.disposeAfter = null;
-      this.disposed = null;
-    }
-    this.noDisposeOnSet = !!noDisposeOnSet;
-    this.noUpdateTTL = !!noUpdateTTL;
-    this.noDeleteOnFetchRejection = !!noDeleteOnFetchRejection;
-    this.allowStaleOnFetchRejection = !!allowStaleOnFetchRejection;
-    this.allowStaleOnFetchAbort = !!allowStaleOnFetchAbort;
-    this.ignoreFetchAbort = !!ignoreFetchAbort;
-    if (this.maxEntrySize !== 0) {
-      if (this.maxSize !== 0) {
-        if (!isPosInt(this.maxSize)) {
-          throw new TypeError(
-            "maxSize must be a positive integer if specified"
-          );
-        }
-      }
-      if (!isPosInt(this.maxEntrySize)) {
-        throw new TypeError(
-          "maxEntrySize must be a positive integer if specified"
-        );
-      }
-      this.initializeSizeTracking();
-    }
-    this.allowStale = !!allowStale || !!stale;
-    this.noDeleteOnStaleGet = !!noDeleteOnStaleGet;
-    this.updateAgeOnGet = !!updateAgeOnGet;
-    this.updateAgeOnHas = !!updateAgeOnHas;
-    this.ttlResolution = isPosInt(ttlResolution) || ttlResolution === 0 ? ttlResolution : 1;
-    this.ttlAutopurge = !!ttlAutopurge;
-    this.ttl = ttl || maxAge || 0;
-    if (this.ttl) {
-      if (!isPosInt(this.ttl)) {
-        throw new TypeError(
-          "ttl must be a positive integer if specified"
-        );
-      }
-      this.initializeTTLTracking();
-    }
-    if (this.max === 0 && this.ttl === 0 && this.maxSize === 0) {
-      throw new TypeError(
-        "At least one of max, maxSize, or ttl is required"
-      );
-    }
-    if (!this.ttlAutopurge && !this.max && !this.maxSize) {
-      const code = "LRU_CACHE_UNBOUNDED";
-      if (shouldWarn(code)) {
-        warned.add(code);
-        const msg = "TTL caching without ttlAutopurge, max, or maxSize can result in unbounded memory consumption.";
-        emitWarning(msg, "UnboundedCacheWarning", code, LRUCache);
-      }
-    }
-    if (stale) {
-      deprecatedOption("stale", "allowStale");
-    }
-    if (maxAge) {
-      deprecatedOption("maxAge", "ttl");
-    }
-    if (length) {
-      deprecatedOption("length", "sizeCalculation");
-    }
-  }
-  getRemainingTTL(key) {
-    return this.has(key, { updateAgeOnHas: false }) ? Infinity : 0;
-  }
-  initializeTTLTracking() {
-    this.ttls = new ZeroArray(this.max);
-    this.starts = new ZeroArray(this.max);
-    this.setItemTTL = (index, ttl, start = perf.now()) => {
-      this.starts[index] = ttl !== 0 ? start : 0;
-      this.ttls[index] = ttl;
-      if (ttl !== 0 && this.ttlAutopurge) {
-        const t2 = setTimeout(() => {
-          if (this.isStale(index)) {
-            this.delete(this.keyList[index]);
-          }
-        }, ttl + 1);
-        if (t2.unref) {
-          t2.unref();
-        }
-      }
-    };
-    this.updateItemAge = (index) => {
-      this.starts[index] = this.ttls[index] !== 0 ? perf.now() : 0;
-    };
-    this.statusTTL = (status, index) => {
-      if (status) {
-        status.ttl = this.ttls[index];
-        status.start = this.starts[index];
-        status.now = cachedNow || getNow();
-        status.remainingTTL = status.now + status.ttl - status.start;
-      }
-    };
-    let cachedNow = 0;
-    const getNow = () => {
-      const n = perf.now();
-      if (this.ttlResolution > 0) {
-        cachedNow = n;
-        const t2 = setTimeout(
-          () => cachedNow = 0,
-          this.ttlResolution
-        );
-        if (t2.unref) {
-          t2.unref();
-        }
-      }
-      return n;
-    };
-    this.getRemainingTTL = (key) => {
-      const index = this.keyMap.get(key);
-      if (index === void 0) {
-        return 0;
-      }
-      return this.ttls[index] === 0 || this.starts[index] === 0 ? Infinity : this.starts[index] + this.ttls[index] - (cachedNow || getNow());
-    };
-    this.isStale = (index) => {
-      return this.ttls[index] !== 0 && this.starts[index] !== 0 && (cachedNow || getNow()) - this.starts[index] > this.ttls[index];
-    };
-  }
-  updateItemAge(_index) {
-  }
-  statusTTL(_status, _index) {
-  }
-  setItemTTL(_index, _ttl, _start2) {
-  }
-  isStale(_index) {
-    return false;
-  }
-  initializeSizeTracking() {
-    this.calculatedSize = 0;
-    this.sizes = new ZeroArray(this.max);
-    this.removeItemSize = (index) => {
-      this.calculatedSize -= this.sizes[index];
-      this.sizes[index] = 0;
-    };
-    this.requireSize = (k, v, size, sizeCalculation) => {
-      if (this.isBackgroundFetch(v)) {
-        return 0;
-      }
-      if (!isPosInt(size)) {
-        if (sizeCalculation) {
-          if (typeof sizeCalculation !== "function") {
-            throw new TypeError("sizeCalculation must be a function");
-          }
-          size = sizeCalculation(v, k);
-          if (!isPosInt(size)) {
-            throw new TypeError(
-              "sizeCalculation return invalid (expect positive integer)"
-            );
-          }
-        } else {
-          throw new TypeError(
-            "invalid size value (must be positive integer). When maxSize or maxEntrySize is used, sizeCalculation or size must be set."
-          );
-        }
-      }
-      return size;
-    };
-    this.addItemSize = (index, size, status) => {
-      this.sizes[index] = size;
-      if (this.maxSize) {
-        const maxSize2 = this.maxSize - this.sizes[index];
-        while (this.calculatedSize > maxSize2) {
-          this.evict(true);
-        }
-      }
-      this.calculatedSize += this.sizes[index];
-      if (status) {
-        status.entrySize = size;
-        status.totalCalculatedSize = this.calculatedSize;
-      }
-    };
-  }
-  removeItemSize(_index) {
-  }
-  addItemSize(_index, _size2) {
-  }
-  requireSize(_k, _v, size, sizeCalculation) {
-    if (size || sizeCalculation) {
-      throw new TypeError(
-        "cannot set size without setting maxSize or maxEntrySize on cache"
-      );
-    }
-  }
-  *indexes({ allowStale = this.allowStale } = {}) {
-    if (this.size) {
-      for (let i2 = this.tail; true; ) {
-        if (!this.isValidIndex(i2)) {
-          break;
-        }
-        if (allowStale || !this.isStale(i2)) {
-          yield i2;
-        }
-        if (i2 === this.head) {
-          break;
-        } else {
-          i2 = this.prev[i2];
-        }
-      }
-    }
-  }
-  *rindexes({ allowStale = this.allowStale } = {}) {
-    if (this.size) {
-      for (let i2 = this.head; true; ) {
-        if (!this.isValidIndex(i2)) {
-          break;
-        }
-        if (allowStale || !this.isStale(i2)) {
-          yield i2;
-        }
-        if (i2 === this.tail) {
-          break;
-        } else {
-          i2 = this.next[i2];
-        }
-      }
-    }
-  }
-  isValidIndex(index) {
-    return index !== void 0 && this.keyMap.get(this.keyList[index]) === index;
-  }
-  *entries() {
-    for (const i2 of this.indexes()) {
-      if (this.valList[i2] !== void 0 && this.keyList[i2] !== void 0 && !this.isBackgroundFetch(this.valList[i2])) {
-        yield [this.keyList[i2], this.valList[i2]];
-      }
-    }
-  }
-  *rentries() {
-    for (const i2 of this.rindexes()) {
-      if (this.valList[i2] !== void 0 && this.keyList[i2] !== void 0 && !this.isBackgroundFetch(this.valList[i2])) {
-        yield [this.keyList[i2], this.valList[i2]];
-      }
-    }
-  }
-  *keys() {
-    for (const i2 of this.indexes()) {
-      if (this.keyList[i2] !== void 0 && !this.isBackgroundFetch(this.valList[i2])) {
-        yield this.keyList[i2];
-      }
-    }
-  }
-  *rkeys() {
-    for (const i2 of this.rindexes()) {
-      if (this.keyList[i2] !== void 0 && !this.isBackgroundFetch(this.valList[i2])) {
-        yield this.keyList[i2];
-      }
-    }
-  }
-  *values() {
-    for (const i2 of this.indexes()) {
-      if (this.valList[i2] !== void 0 && !this.isBackgroundFetch(this.valList[i2])) {
-        yield this.valList[i2];
-      }
-    }
-  }
-  *rvalues() {
-    for (const i2 of this.rindexes()) {
-      if (this.valList[i2] !== void 0 && !this.isBackgroundFetch(this.valList[i2])) {
-        yield this.valList[i2];
-      }
-    }
-  }
-  [Symbol.iterator]() {
-    return this.entries();
-  }
-  find(fn, getOptions2) {
-    for (const i2 of this.indexes()) {
-      const v = this.valList[i2];
-      const value = this.isBackgroundFetch(v) ? v.__staleWhileFetching : v;
-      if (value === void 0)
-        continue;
-      if (fn(value, this.keyList[i2], this)) {
-        return this.get(this.keyList[i2], getOptions2);
-      }
-    }
-  }
-  forEach(fn, thisp = this) {
-    for (const i2 of this.indexes()) {
-      const v = this.valList[i2];
-      const value = this.isBackgroundFetch(v) ? v.__staleWhileFetching : v;
-      if (value === void 0)
-        continue;
-      fn.call(thisp, value, this.keyList[i2], this);
-    }
-  }
-  rforEach(fn, thisp = this) {
-    for (const i2 of this.rindexes()) {
-      const v = this.valList[i2];
-      const value = this.isBackgroundFetch(v) ? v.__staleWhileFetching : v;
-      if (value === void 0)
-        continue;
-      fn.call(thisp, value, this.keyList[i2], this);
-    }
-  }
-  get prune() {
-    deprecatedMethod("prune", "purgeStale");
-    return this.purgeStale;
-  }
-  purgeStale() {
-    let deleted = false;
-    for (const i2 of this.rindexes({ allowStale: true })) {
-      if (this.isStale(i2)) {
-        this.delete(this.keyList[i2]);
-        deleted = true;
-      }
-    }
-    return deleted;
-  }
-  dump() {
-    const arr = [];
-    for (const i2 of this.indexes({ allowStale: true })) {
-      const key = this.keyList[i2];
-      const v = this.valList[i2];
-      const value = this.isBackgroundFetch(v) ? v.__staleWhileFetching : v;
-      if (value === void 0)
-        continue;
-      const entry = { value };
-      if (this.ttls) {
-        entry.ttl = this.ttls[i2];
-        const age = perf.now() - this.starts[i2];
-        entry.start = Math.floor(Date.now() - age);
-      }
-      if (this.sizes) {
-        entry.size = this.sizes[i2];
-      }
-      arr.unshift([key, entry]);
-    }
-    return arr;
-  }
-  load(arr) {
-    this.clear();
-    for (const [key, entry] of arr) {
-      if (entry.start) {
-        const age = Date.now() - entry.start;
-        entry.start = perf.now() - age;
-      }
-      this.set(key, entry.value, entry);
-    }
-  }
-  dispose(_v, _k, _reason) {
-  }
-  set(k, v, {
-    ttl = this.ttl,
-    start,
-    noDisposeOnSet = this.noDisposeOnSet,
-    size = 0,
-    sizeCalculation = this.sizeCalculation,
-    noUpdateTTL = this.noUpdateTTL,
-    status
-  } = {}) {
-    size = this.requireSize(k, v, size, sizeCalculation);
-    if (this.maxEntrySize && size > this.maxEntrySize) {
-      if (status) {
-        status.set = "miss";
-        status.maxEntrySizeExceeded = true;
-      }
-      this.delete(k);
-      return this;
-    }
-    let index = this.size === 0 ? void 0 : this.keyMap.get(k);
-    if (index === void 0) {
-      index = this.newIndex();
-      this.keyList[index] = k;
-      this.valList[index] = v;
-      this.keyMap.set(k, index);
-      this.next[this.tail] = index;
-      this.prev[index] = this.tail;
-      this.tail = index;
-      this.size++;
-      this.addItemSize(index, size, status);
-      if (status) {
-        status.set = "add";
-      }
-      noUpdateTTL = false;
-    } else {
-      this.moveToTail(index);
-      const oldVal = this.valList[index];
-      if (v !== oldVal) {
-        if (this.isBackgroundFetch(oldVal)) {
-          oldVal.__abortController.abort(new Error("replaced"));
-        } else {
-          if (!noDisposeOnSet) {
-            this.dispose(oldVal, k, "set");
-            if (this.disposeAfter) {
-              this.disposed.push([oldVal, k, "set"]);
-            }
-          }
-        }
-        this.removeItemSize(index);
-        this.valList[index] = v;
-        this.addItemSize(index, size, status);
-        if (status) {
-          status.set = "replace";
-          const oldValue = oldVal && this.isBackgroundFetch(oldVal) ? oldVal.__staleWhileFetching : oldVal;
-          if (oldValue !== void 0)
-            status.oldValue = oldValue;
-        }
-      } else if (status) {
-        status.set = "update";
-      }
-    }
-    if (ttl !== 0 && this.ttl === 0 && !this.ttls) {
-      this.initializeTTLTracking();
-    }
-    if (!noUpdateTTL) {
-      this.setItemTTL(index, ttl, start);
-    }
-    this.statusTTL(status, index);
-    if (this.disposeAfter) {
-      while (this.disposed.length) {
-        this.disposeAfter(...this.disposed.shift());
-      }
-    }
-    return this;
-  }
-  newIndex() {
-    if (this.size === 0) {
-      return this.tail;
-    }
-    if (this.size === this.max && this.max !== 0) {
-      return this.evict(false);
-    }
-    if (this.free.length !== 0) {
-      return this.free.pop();
-    }
-    return this.initialFill++;
-  }
-  pop() {
-    if (this.size) {
-      const val = this.valList[this.head];
-      this.evict(true);
-      return val;
-    }
-  }
-  evict(free) {
-    const head2 = this.head;
-    const k = this.keyList[head2];
-    const v = this.valList[head2];
-    if (this.isBackgroundFetch(v)) {
-      v.__abortController.abort(new Error("evicted"));
-    } else {
-      this.dispose(v, k, "evict");
-      if (this.disposeAfter) {
-        this.disposed.push([v, k, "evict"]);
-      }
-    }
-    this.removeItemSize(head2);
-    if (free) {
-      this.keyList[head2] = null;
-      this.valList[head2] = null;
-      this.free.push(head2);
-    }
-    this.head = this.next[head2];
-    this.keyMap.delete(k);
-    this.size--;
-    return head2;
-  }
-  has(k, { updateAgeOnHas = this.updateAgeOnHas, status } = {}) {
-    const index = this.keyMap.get(k);
-    if (index !== void 0) {
-      if (!this.isStale(index)) {
-        if (updateAgeOnHas) {
-          this.updateItemAge(index);
-        }
-        if (status)
-          status.has = "hit";
-        this.statusTTL(status, index);
-        return true;
-      } else if (status) {
-        status.has = "stale";
-        this.statusTTL(status, index);
-      }
-    } else if (status) {
-      status.has = "miss";
-    }
-    return false;
-  }
-  // like get(), but without any LRU updating or TTL expiration
-  peek(k, { allowStale = this.allowStale } = {}) {
-    const index = this.keyMap.get(k);
-    if (index !== void 0 && (allowStale || !this.isStale(index))) {
-      const v = this.valList[index];
-      return this.isBackgroundFetch(v) ? v.__staleWhileFetching : v;
-    }
-  }
-  backgroundFetch(k, index, options2, context3) {
-    const v = index === void 0 ? void 0 : this.valList[index];
-    if (this.isBackgroundFetch(v)) {
-      return v;
-    }
-    const ac = new AC();
-    if (options2.signal) {
-      options2.signal.addEventListener(
-        "abort",
-        () => ac.abort(options2.signal.reason)
-      );
-    }
-    const fetchOpts = {
-      signal: ac.signal,
-      options: options2,
-      context: context3
-    };
-    const cb = (v2, updateCache = false) => {
-      const { aborted } = ac.signal;
-      const ignoreAbort = options2.ignoreFetchAbort && v2 !== void 0;
-      if (options2.status) {
-        if (aborted && !updateCache) {
-          options2.status.fetchAborted = true;
-          options2.status.fetchError = ac.signal.reason;
-          if (ignoreAbort)
-            options2.status.fetchAbortIgnored = true;
-        } else {
-          options2.status.fetchResolved = true;
-        }
-      }
-      if (aborted && !ignoreAbort && !updateCache) {
-        return fetchFail(ac.signal.reason);
-      }
-      if (this.valList[index] === p) {
-        if (v2 === void 0) {
-          if (p.__staleWhileFetching) {
-            this.valList[index] = p.__staleWhileFetching;
-          } else {
-            this.delete(k);
-          }
-        } else {
-          if (options2.status)
-            options2.status.fetchUpdated = true;
-          this.set(k, v2, fetchOpts.options);
-        }
-      }
-      return v2;
-    };
-    const eb = (er) => {
-      if (options2.status) {
-        options2.status.fetchRejected = true;
-        options2.status.fetchError = er;
-      }
-      return fetchFail(er);
-    };
-    const fetchFail = (er) => {
-      const { aborted } = ac.signal;
-      const allowStaleAborted = aborted && options2.allowStaleOnFetchAbort;
-      const allowStale = allowStaleAborted || options2.allowStaleOnFetchRejection;
-      const noDelete = allowStale || options2.noDeleteOnFetchRejection;
-      if (this.valList[index] === p) {
-        const del = !noDelete || p.__staleWhileFetching === void 0;
-        if (del) {
-          this.delete(k);
-        } else if (!allowStaleAborted) {
-          this.valList[index] = p.__staleWhileFetching;
-        }
-      }
-      if (allowStale) {
-        if (options2.status && p.__staleWhileFetching !== void 0) {
-          options2.status.returnedStale = true;
-        }
-        return p.__staleWhileFetching;
-      } else if (p.__returned === p) {
-        throw er;
-      }
-    };
-    const pcall = (res, rej) => {
-      this.fetchMethod(k, v, fetchOpts).then((v2) => res(v2), rej);
-      ac.signal.addEventListener("abort", () => {
-        if (!options2.ignoreFetchAbort || options2.allowStaleOnFetchAbort) {
-          res();
-          if (options2.allowStaleOnFetchAbort) {
-            res = (v2) => cb(v2, true);
-          }
-        }
-      });
-    };
-    if (options2.status)
-      options2.status.fetchDispatched = true;
-    const p = new Promise(pcall).then(cb, eb);
-    p.__abortController = ac;
-    p.__staleWhileFetching = v;
-    p.__returned = null;
-    if (index === void 0) {
-      this.set(k, p, { ...fetchOpts.options, status: void 0 });
-      index = this.keyMap.get(k);
-    } else {
-      this.valList[index] = p;
-    }
-    return p;
-  }
-  isBackgroundFetch(p) {
-    return p && typeof p === "object" && typeof p.then === "function" && Object.prototype.hasOwnProperty.call(
-      p,
-      "__staleWhileFetching"
-    ) && Object.prototype.hasOwnProperty.call(p, "__returned") && (p.__returned === p || p.__returned === null);
-  }
-  // this takes the union of get() and set() opts, because it does both
-  async fetch(k, {
-    // get options
-    allowStale = this.allowStale,
-    updateAgeOnGet = this.updateAgeOnGet,
-    noDeleteOnStaleGet = this.noDeleteOnStaleGet,
-    // set options
-    ttl = this.ttl,
-    noDisposeOnSet = this.noDisposeOnSet,
-    size = 0,
-    sizeCalculation = this.sizeCalculation,
-    noUpdateTTL = this.noUpdateTTL,
-    // fetch exclusive options
-    noDeleteOnFetchRejection = this.noDeleteOnFetchRejection,
-    allowStaleOnFetchRejection = this.allowStaleOnFetchRejection,
-    ignoreFetchAbort = this.ignoreFetchAbort,
-    allowStaleOnFetchAbort = this.allowStaleOnFetchAbort,
-    fetchContext = this.fetchContext,
-    forceRefresh = false,
-    status,
-    signal
-  } = {}) {
-    if (!this.fetchMethod) {
-      if (status)
-        status.fetch = "get";
-      return this.get(k, {
-        allowStale,
-        updateAgeOnGet,
-        noDeleteOnStaleGet,
-        status
-      });
-    }
-    const options2 = {
-      allowStale,
-      updateAgeOnGet,
-      noDeleteOnStaleGet,
-      ttl,
-      noDisposeOnSet,
-      size,
-      sizeCalculation,
-      noUpdateTTL,
-      noDeleteOnFetchRejection,
-      allowStaleOnFetchRejection,
-      allowStaleOnFetchAbort,
-      ignoreFetchAbort,
-      status,
-      signal
-    };
-    let index = this.keyMap.get(k);
-    if (index === void 0) {
-      if (status)
-        status.fetch = "miss";
-      const p = this.backgroundFetch(k, index, options2, fetchContext);
-      return p.__returned = p;
-    } else {
-      const v = this.valList[index];
-      if (this.isBackgroundFetch(v)) {
-        const stale = allowStale && v.__staleWhileFetching !== void 0;
-        if (status) {
-          status.fetch = "inflight";
-          if (stale)
-            status.returnedStale = true;
-        }
-        return stale ? v.__staleWhileFetching : v.__returned = v;
-      }
-      const isStale = this.isStale(index);
-      if (!forceRefresh && !isStale) {
-        if (status)
-          status.fetch = "hit";
-        this.moveToTail(index);
-        if (updateAgeOnGet) {
-          this.updateItemAge(index);
-        }
-        this.statusTTL(status, index);
-        return v;
-      }
-      const p = this.backgroundFetch(k, index, options2, fetchContext);
-      const hasStale = p.__staleWhileFetching !== void 0;
-      const staleVal = hasStale && allowStale;
-      if (status) {
-        status.fetch = hasStale && isStale ? "stale" : "refresh";
-        if (staleVal && isStale)
-          status.returnedStale = true;
-      }
-      return staleVal ? p.__staleWhileFetching : p.__returned = p;
-    }
-  }
-  get(k, {
-    allowStale = this.allowStale,
-    updateAgeOnGet = this.updateAgeOnGet,
-    noDeleteOnStaleGet = this.noDeleteOnStaleGet,
-    status
-  } = {}) {
-    const index = this.keyMap.get(k);
-    if (index !== void 0) {
-      const value = this.valList[index];
-      const fetching = this.isBackgroundFetch(value);
-      this.statusTTL(status, index);
-      if (this.isStale(index)) {
-        if (status)
-          status.get = "stale";
-        if (!fetching) {
-          if (!noDeleteOnStaleGet) {
-            this.delete(k);
-          }
-          if (status)
-            status.returnedStale = allowStale;
-          return allowStale ? value : void 0;
-        } else {
-          if (status) {
-            status.returnedStale = allowStale && value.__staleWhileFetching !== void 0;
-          }
-          return allowStale ? value.__staleWhileFetching : void 0;
-        }
-      } else {
-        if (status)
-          status.get = "hit";
-        if (fetching) {
-          return value.__staleWhileFetching;
-        }
-        this.moveToTail(index);
-        if (updateAgeOnGet) {
-          this.updateItemAge(index);
-        }
-        return value;
-      }
-    } else if (status) {
-      status.get = "miss";
-    }
-  }
-  connect(p, n) {
-    this.prev[n] = p;
-    this.next[p] = n;
-  }
-  moveToTail(index) {
-    if (index !== this.tail) {
-      if (index === this.head) {
-        this.head = this.next[index];
-      } else {
-        this.connect(this.prev[index], this.next[index]);
-      }
-      this.connect(this.tail, index);
-      this.tail = index;
-    }
-  }
-  get del() {
-    deprecatedMethod("del", "delete");
-    return this.delete;
-  }
-  delete(k) {
-    let deleted = false;
-    if (this.size !== 0) {
-      const index = this.keyMap.get(k);
-      if (index !== void 0) {
-        deleted = true;
-        if (this.size === 1) {
-          this.clear();
-        } else {
-          this.removeItemSize(index);
-          const v = this.valList[index];
-          if (this.isBackgroundFetch(v)) {
-            v.__abortController.abort(new Error("deleted"));
-          } else {
-            this.dispose(v, k, "delete");
-            if (this.disposeAfter) {
-              this.disposed.push([v, k, "delete"]);
-            }
-          }
-          this.keyMap.delete(k);
-          this.keyList[index] = null;
-          this.valList[index] = null;
-          if (index === this.tail) {
-            this.tail = this.prev[index];
-          } else if (index === this.head) {
-            this.head = this.next[index];
-          } else {
-            this.next[this.prev[index]] = this.next[index];
-            this.prev[this.next[index]] = this.prev[index];
-          }
-          this.size--;
-          this.free.push(index);
-        }
-      }
-    }
-    if (this.disposed) {
-      while (this.disposed.length) {
-        this.disposeAfter(...this.disposed.shift());
-      }
-    }
-    return deleted;
-  }
-  clear() {
-    for (const index of this.rindexes({ allowStale: true })) {
-      const v = this.valList[index];
-      if (this.isBackgroundFetch(v)) {
-        v.__abortController.abort(new Error("deleted"));
-      } else {
-        const k = this.keyList[index];
-        this.dispose(v, k, "delete");
-        if (this.disposeAfter) {
-          this.disposed.push([v, k, "delete"]);
-        }
-      }
-    }
-    this.keyMap.clear();
-    this.valList.fill(null);
-    this.keyList.fill(null);
-    if (this.ttls) {
-      this.ttls.fill(0);
-      this.starts.fill(0);
-    }
-    if (this.sizes) {
-      this.sizes.fill(0);
-    }
-    this.head = 0;
-    this.tail = 0;
-    this.initialFill = 1;
-    this.free.length = 0;
-    this.calculatedSize = 0;
-    this.size = 0;
-    if (this.disposed) {
-      while (this.disposed.length) {
-        this.disposeAfter(...this.disposed.shift());
-      }
-    }
-  }
-  get reset() {
-    deprecatedMethod("reset", "clear");
-    return this.clear;
-  }
-  get length() {
-    deprecatedProperty("length", "size");
-    return this.size;
-  }
-  static get AbortController() {
-    return AC;
-  }
-  static get AbortSignal() {
-    return AS;
-  }
-};
-var lru_cache_default = LRUCache;
-
-// src/proxy.ts
+var import_lru_cache = __toESM(require_lru_cache());
 var import_agent_base = __toESM(require_dist());
 var import_debug = __toESM(require_src());
 var import_proxy_from_env = __toESM(require_proxy_from_env());
-var import_http_proxy_agent = __toESM(require_dist3());
-var import_https_proxy_agent = __toESM(require_dist4());
+var import_http_proxy_agent = __toESM(require_dist2());
+var import_https_proxy_agent = __toESM(require_dist3());
 var debug = (0, import_debug.default)("proxy-agent");
 var PROTOCOLS = [...import_http_proxy_agent.HttpProxyAgent.protocols];
 var proxies = {
@@ -66305,7 +65952,7 @@ var ProxyAgent = class extends import_agent_base.Agent {
     /**
      * Cache for `Agent` instances.
      */
-    this.cache = new lru_cache_default({ max: 20 });
+    this.cache = new import_lru_cache.default({ max: 20 });
     debug("Creating new ProxyAgent instance: %o", opts);
     this.connectOpts = opts;
     this.httpAgent = new http3.Agent(opts);
