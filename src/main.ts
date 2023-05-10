@@ -4,8 +4,8 @@ import os from 'os'
 import path from 'path'
 import * as coreDefault from '@actions/core'
 import * as io from '@actions/io'
-import fetch from 'node-fetch'
-import { sha256, getMicromambaUrl, micromambaCmd, execute, determineEnvironmentName } from './util'
+import { downloadTool } from '@actions/tool-cache'
+import { getMicromambaUrl, micromambaCmd, execute, determineEnvironmentName } from './util'
 import { coreMocked } from './mocking'
 import { PATHS, options } from './options'
 import { addEnvironmentToAutoActivate, shellInit } from './shell-init'
@@ -17,22 +17,10 @@ const downloadMicromamba = (url: string) => {
   core.startGroup('Install micromamba')
   core.debug(`Downloading micromamba from ${url} ...`)
 
-  const mkDir = fs.mkdir(path.dirname(options.micromambaBinPath), { recursive: true })
-  const downloadMicromamba = fetch(url)
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`Download failed: ${res.statusText}`)
-      }
-      return res.arrayBuffer()
-    })
-    .then((arrayBuffer) => Buffer.from(arrayBuffer))
-
-  return Promise.all([mkDir, downloadMicromamba])
-    .then(([, buffer]) => {
-      core.debug(`micromamba binary sha256: ${sha256(buffer)}`)
-      return fs.writeFile(options.micromambaBinPath, buffer, { encoding: 'binary', mode: 0o755 })
-    })
-    .then(() => {
+  return fs
+    .mkdir(path.dirname(options.micromambaBinPath), { recursive: true })
+    .then(() => downloadTool(url, options.micromambaBinPath))
+    .then((_downloadPath) => {
       core.info(`micromamba installed to ${options.micromambaBinPath}`)
     })
     .catch((err) => {
