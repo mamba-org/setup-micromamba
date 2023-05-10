@@ -17,6 +17,7 @@ export default defineConfig({
     '@actions/exec',
     '@actions/cache',
     '@actions/io',
+    '@actions/tool-cache',
     'node-fetch',
     'untildify',
     'zod',
