@@ -204,8 +204,5 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./
         id: setup-micromamba
-        with:
-          environment-name: test
-          micromamba-root-prefix: /home/runner/custom-micromamba-root-prefix
       - run: |
           test "${{ steps.setup-micromamba.outputs.environment-path }}" = ""
