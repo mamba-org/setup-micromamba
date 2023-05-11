@@ -132,6 +132,14 @@ $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
     .finally(core.endGroup)
 }
 
+const addEnvironmentPathToOutput = () => {
+  return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
+    const environmentPath = path.join(options.micromambaRootPath, 'envs', environmentName)
+    core.debug(`Setting environment-path output to ${environmentPath}`)
+    core.setOutput('environment-path', environmentPath)
+  })
+}
+
 const setEnvVariables = () => {
   core.info('Set environment variables.')
   core.debug(`MAMBA_ROOT_PREFIX: ${options.micromambaRootPath}`)
@@ -161,6 +169,7 @@ const run = async () => {
   if (options.createEnvironment) {
     await installEnvironment()
     await generateMicromambaRunShell()
+    await addEnvironmentPathToOutput()
   }
   setEnvVariables()
   await generateInfo()

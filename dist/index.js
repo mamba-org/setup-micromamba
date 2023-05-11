@@ -62668,6 +62668,13 @@ $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
     return import_promises.default.writeFile(PATHS.micromambaRunShell, file, { encoding: "utf8", mode: 493 });
   }).finally(core5.endGroup);
 };
+var addEnvironmentPathToOutput = () => {
+  return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
+    const environmentPath = import_path3.default.join(options.micromambaRootPath, "envs", environmentName);
+    core5.debug(`Setting environment-path output to ${environmentPath}`);
+    core5.setOutput("environment-path", environmentPath);
+  });
+};
 var setEnvVariables = () => {
   core5.info("Set environment variables.");
   core5.debug(`MAMBA_ROOT_PREFIX: ${options.micromambaRootPath}`);
@@ -62692,6 +62699,7 @@ var run = async () => {
   if (options.createEnvironment) {
     await installEnvironment();
     await generateMicromambaRunShell();
+    await addEnvironmentPathToOutput();
   }
   setEnvVariables();
   await generateInfo();

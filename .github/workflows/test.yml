@@ -159,3 +159,50 @@ jobs:
       - run: | # this should only work when the pytorch channel is loaded, i.e., the custom condarc is used
           micromamba search pytorch=2.0.0 | grep -q "pytorch 2.0.0   py3.10_cpu_0                 pytorch/linux-64"
         shell: bash -el {0}
+    
+  output-environment-path-env-file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        id: setup-micromamba
+        with:
+          environment-file: 'test/environment.yml'
+      - run: |
+          test ${{ steps.setup-micromamba.outputs.environment-path }} = "$HOME/micromamba/envs/env-name"
+          ls ${{ steps.setup-micromamba.outputs.environment-path }}
+
+  output-environment-path-env-name-overwrite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        id: setup-micromamba
+        with:
+          environment-file: 'test/environment.yml'
+          environment-name: test
+      - run: |
+          test "${{ steps.setup-micromamba.outputs.environment-path }}" = /home/runner/micromamba/envs/test
+          ls "${{ steps.setup-micromamba.outputs.environment-path }}"
+
+  output-environment-path-custom-root-prefix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        id: setup-micromamba
+        with:
+          environment-name: test
+          micromamba-root-path: /home/runner/custom-micromamba-root-prefix
+      - run: |
+          test "${{ steps.setup-micromamba.outputs.environment-path }}" = /home/runner/custom-micromamba-root-prefix/envs/test
+          ls "${{ steps.setup-micromamba.outputs.environment-path }}"
+
+  output-no-environment-path:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        id: setup-micromamba
+      - run: |
+          test "${{ steps.setup-micromamba.outputs.environment-path }}" = ""
