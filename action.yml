@@ -4,6 +4,7 @@ author: 'Pavel Zwerschke'
 branding:
   icon: 'package'
   color: 'green'
+
 inputs:
   condarc-file:
     description: |
@@ -85,6 +86,11 @@ inputs:
       Path to the micromamba binary.
       Defaults to `~/micromamba-bin/micromamba`.
       Also specifies the path to the custom condarc which is located in the same folder as the micromamba binary.
+
+outputs:
+  environment-path:
+    description: Path to the created environment. Only populated if environment was created, i.e., `environment-file` or `environment-name` was specified.
+
 runs:
   using: 'node16'
   main: 'dist/index.js'
