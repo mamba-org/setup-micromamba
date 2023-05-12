@@ -18,9 +18,3 @@ jobs:
             "bug, enhancement, ci, documentation, dependencies, ignore-for-release"
           mode: minimum
           count: 1
-      # - uses: yogevbd/enforce-label-action@2.2.2
-      #   with:
-      #     REQUIRED_LABELS_ANY: |
-      #       "bug,enhancement,ci,documentation,dependencies,ignore-for-release"
-      #     REQUIRED_LABELS_ANY_DESCRIPTION: |
-      #       "Select at least one label ['bug', 'enhancement', 'ci', 'documentation', 'dependencies', 'ignore-for-release']"
