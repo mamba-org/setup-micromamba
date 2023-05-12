@@ -98,9 +98,18 @@ const generateInfo = () => {
   if (!options.createEnvironment) {
     command = execute(micromambaCmd(`info -r ${options.micromambaRootPath}`))
   } else {
-    command = determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) =>
-      execute(micromambaCmd(`info -r ${options.micromambaRootPath} -n ${environmentName}`))
-    )
+    command = determineEnvironmentName(options.environmentName, options.environmentFile)
+      .then((environmentName) =>
+        Promise.all([
+          execute(micromambaCmd(`info -r ${options.micromambaRootPath} -n ${environmentName}`)),
+          Promise.resolve(environmentName)
+        ])
+      )
+      .then(([_exitCode, environmentName]) => {
+        core.endGroup()
+        core.startGroup('micromamba list')
+        return execute(micromambaCmd(`list -r ${options.micromambaRootPath} -n ${environmentName}`))
+      })
   }
   return command.finally(core.endGroup)
 }
