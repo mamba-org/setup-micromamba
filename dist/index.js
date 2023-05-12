@@ -62641,8 +62641,15 @@ var generateInfo = () => {
     command = execute(micromambaCmd(`info -r ${options.micromambaRootPath}`));
   } else {
     command = determineEnvironmentName(options.environmentName, options.environmentFile).then(
-      (environmentName) => execute(micromambaCmd(`info -r ${options.micromambaRootPath} -n ${environmentName}`))
-    );
+      (environmentName) => Promise.all([
+        execute(micromambaCmd(`info -r ${options.micromambaRootPath} -n ${environmentName}`)),
+        Promise.resolve(environmentName)
+      ])
+    ).then(([_exitCode, environmentName]) => {
+      core5.endGroup();
+      core5.startGroup("micromamba list");
+      return execute(micromambaCmd(`list -r ${options.micromambaRootPath} -n ${environmentName}`));
+    });
   }
   return command.finally(core5.endGroup);
 };
