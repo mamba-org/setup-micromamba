@@ -10,6 +10,11 @@ jobs:
       - uses: actions/labeler@v3
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
+
+  label-check:
+    runs-on: ubuntu-latest
+    needs: pr-label
+    steps:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
           REQUIRED_LABELS_ANY: |
