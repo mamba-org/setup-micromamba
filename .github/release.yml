@@ -6,6 +6,9 @@ changelog:
     - title: New features
       labels:
         - enhancement
+    - title: CI
+      labels:
+        - ci
     - title: Bug fixes
       labels:
         - bug
