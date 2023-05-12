@@ -2,19 +2,25 @@ name: Pull Request Labeling
 
 on:
   pull_request:
-    types: [labeled, unlabeled, opened, edited, synchronize]
+    types: [labeled, unlabeled, opened, reopened, edited, synchronize]
 
 jobs:
   pr-label:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/labeler@v4
-        if: github.event.action == 'opened' || github.event.action == 'edited' || github.event.action == 'synchronize'
+        if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'edited' || github.event.action == 'synchronize'
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
-      - uses: yogevbd/enforce-label-action@2.2.2
+      - uses: mheap/github-action-required-labels@v4
         with:
-          REQUIRED_LABELS_ANY: |
-            "bug,enhancement,ci,documentation,dependencies,ignore-for-release"
-          REQUIRED_LABELS_ANY_DESCRIPTION: |
-            "Select at least one label ['bug', 'enhancement', 'ci', 'documentation', 'dependencies', 'ignore-for-release']"
+          labels: |
+            "bug, enhancement, ci, documentation, dependencies, ignore-for-release"
+          mode: minimum
+          count: 1
+      # - uses: yogevbd/enforce-label-action@2.2.2
+      #   with:
+      #     REQUIRED_LABELS_ANY: |
+      #       "bug,enhancement,ci,documentation,dependencies,ignore-for-release"
+      #     REQUIRED_LABELS_ANY_DESCRIPTION: |
+      #       "Select at least one label ['bug', 'enhancement', 'ci', 'documentation', 'dependencies', 'ignore-for-release']"
