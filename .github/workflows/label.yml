@@ -9,13 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/labeler@v4
+        if: github.event.action == 'opened' || github.event.action == 'edited' || github.event.action == 'synchronize'
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
-
-  label-check:
-    runs-on: ubuntu-latest
-    needs: pr-label
-    steps:
       - uses: yogevbd/enforce-label-action@2.2.2
         with:
           REQUIRED_LABELS_ANY: |
