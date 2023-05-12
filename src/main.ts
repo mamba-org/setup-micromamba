@@ -98,7 +98,8 @@ const generateInfo = () => {
   if (!options.createEnvironment) {
     command = execute(micromambaCmd(`info -r ${options.micromambaRootPath}`))
   } else {
-    command = determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) =>
+    command = determineEnvironmentName(options.environmentName, options.environmentFile)
+      .then((environmentName) =>
         Promise.all([
           execute(micromambaCmd(`info -r ${options.micromambaRootPath} -n ${environmentName}`)),
           Promise.resolve(environmentName)
