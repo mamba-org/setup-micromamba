@@ -14,7 +14,6 @@ jobs:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
       - uses: mheap/github-action-required-labels@v4
         with:
-          labels: |
-            "bug, enhancement, ci, documentation, dependencies, ignore-for-release"
+          labels: bug,enhancement,ci,documentation,dependencies,ignore-for-release
           mode: minimum
           count: 1
