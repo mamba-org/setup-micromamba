@@ -61671,6 +61671,7 @@ var rcFileDict = {
 // src/cache.ts
 var import_path2 = __toESM(require("path"));
 var fs4 = __toESM(require("fs/promises"));
+var import_fs = require("fs");
 var cache = __toESM(require_cache());
 var coreDefault4 = __toESM(require_core());
 var core4 = process.env.MOCKING ? coreMocked : coreDefault4;
@@ -61710,6 +61711,10 @@ var saveCacheDownloads = () => {
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "pkgs");
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey);
+  if (!(0, import_fs.existsSync)(cachePath)) {
+    core4.debug(`Cache folder \`${cachePath}\` doesn't exist, skipping cache saving.`);
+    return Promise.resolve();
+  }
   return trimPkgsCacheFolder(cachePath).then(() => {
     core4.startGroup(`Saving cache for \`${cachePath}\` ...`);
     return saveCache2(cachePath, cacheDownloadsKey);
