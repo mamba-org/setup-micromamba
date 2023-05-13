@@ -100,7 +100,7 @@ jobs:
       - uses: ./
         with:
           environment-file: test/environment.yml
-          cache-environment-key: env-then-download-key-${{ github.sha }}-${{ github.run_attempt }}
+          cache-environment-key: env-then-download-env-${{ github.sha }}-${{ github.run_attempt }}
       - name: test environment name
         run: |
           python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
@@ -119,7 +119,7 @@ jobs:
       - uses: ./
         with:
           environment-file: test/environment.yml
-          cache-environment-key: env-then-download-${{ github.sha }}-${{ github.run_attempt }}
+          cache-environment-key: env-then-download-env-${{ github.sha }}-${{ github.run_attempt }}
           cache-downloads-key: env-then-download-download-${{ github.sha }}-${{ github.run_attempt }}
       - name: test environment name
         run: |
