@@ -1,5 +1,6 @@
 import path from 'path'
 import * as fs from 'fs/promises'
+import { existsSync } from 'fs'
 import * as cache from '@actions/cache'
 import * as coreDefault from '@actions/core'
 import { coreMocked } from './mocking'
@@ -117,6 +118,10 @@ export const saveCacheDownloads = () => {
   }
   const cachePath = path.join(options.micromambaRootPath, 'pkgs')
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey)
+  if (!existsSync(cachePath)) {
+    core.debug(`Cache folder \`${cachePath}\` doesn't exist, skipping cache saving.`)
+    return Promise.resolve()
+  }
   return trimPkgsCacheFolder(cachePath)
     .then(() => {
       core.startGroup(`Saving cache for \`${cachePath}\` ...`)

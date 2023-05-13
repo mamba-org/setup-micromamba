@@ -87,7 +87,6 @@ jobs:
 
 
   test-env-then-download1:
-    # First cache the environment, then activate download cache + env cache -> no downloads and micromamba-root/pkgs does not exist
     name: Test env then download 1/2
     timeout-minutes: 10
     runs-on: ${{ matrix.os }}
@@ -118,6 +117,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: ./
         with:
+          # Since the environment is cached, there will be no downloaded packages in $MAMBA_ROOT_PREFIX/pkgs.
+          # The caching should not fail because of this.
           environment-file: test/environment.yml
           cache-environment-key: env-then-download-env-${{ github.sha }}-${{ github.run_attempt }}
           cache-downloads-key: env-then-download-download-${{ github.sha }}-${{ github.run_attempt }}
