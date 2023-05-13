@@ -32,7 +32,7 @@ jobs:
   test-download2:
     name: Test download cache 2/2
     timeout-minutes: 10
-    needs: [test-download1]
+    needs: test-download1
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -69,7 +69,7 @@ jobs:
   test-env2:
     name: Test env cache 2/2
     timeout-minutes: 10
-    needs: [test-env1]
+    needs: test-env1
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -85,3 +85,44 @@ jobs:
         run: |
           python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
 
+
+  test-env-then-download1:
+    # First cache the environment, then activate download cache + env cache -> no downloads and micromamba-root/pkgs does not exist
+    name: Test env cache 1/2
+    timeout-minutes: 10
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          environment-file: test/environment.yml
+          cache-environment-key: env-then-download-key-${{ github.sha }}-${{ github.run_attempt }}
+      - name: test environment name
+        run: |
+          python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
+
+  test-env-then-download2:
+    name: Test env cache 2/2
+    timeout-minutes: 10
+    needs: test-env-then-download1
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          environment-file: test/environment.yml
+          cache-environment-key: env-then-download-${{ github.sha }}-${{ github.run_attempt }}
+          cache-downloads-key: env-then-download-download-${{ github.sha }}-${{ github.run_attempt }}
+      - name: test environment name
+        run: |
+          python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
+          test -d $MAMBA_ROOT_PREFIX
+          ! test -d $MAMBA_ROOT_PREFIX/pkgs
