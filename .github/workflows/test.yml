@@ -5,6 +5,7 @@ on:
     branches: main
   pull_request:
     branches: main
+  merge_group:
 
 jobs:
   no-environment-file:
@@ -157,7 +158,7 @@ jobs:
           environment-file: 'test/environment.yml'
           condarc-file: 'test/.condarc'
       - run: | # this should only work when the pytorch channel is loaded, i.e., the custom condarc is used
-          micromamba search pytorch=2.0.0 | grep -q "pytorch 2.0.0   py3.10_cpu_0                 pytorch/linux-64"
+          micromamba search pytorch=2.0.0 | grep -q "pytorch 2.0.0   py3.10_cpu_0                 pytorch"
         shell: bash -el {0}
     
   output-environment-path-env-file:
