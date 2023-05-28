@@ -34,8 +34,9 @@ To see all available input arguments, see the [`action.yml`](action.yml) file.
 ### Environment creation
 
 `setup-micromamba` allows you to create micromamba environments from an environment file or from a list of packages.
-You can use `environment-file`, `environment-specs` and `create-args` arguments to specify the environment creation.
-If you don't specify any of these arguments, `setup-micromamba` will skip the environment creation.
+You can use either `environment-file` or `create-args` arguments to specify an environment to be created.
+An environment name (other than `base`) must also be specified either in the environment file or via `environment-name`.
+If the environment is not fully specified then `setup-micromamba` will skip the environment creation and install only the `micromamba` executable.
 
 After the environment has been created, `setup-micromamba` will write `micromamba activate <env-name>` into the rc file of all shells that are [initialized](#shell-initialization).
 This will automatically activate the environment when the shell is started.
