@@ -168,6 +168,7 @@ jobs:
       - uses: ./
         with:
           environment-file: 'test/conda-lock.yml'
+          environment-name: locked-env
       - run: |
           micromamba list
         shell: bash -el {0}
