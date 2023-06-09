@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: main
+    # branches: main
   pull_request:
     branches: main
   merge_group:
@@ -159,6 +159,17 @@ jobs:
           condarc-file: 'test/.condarc'
       - run: | # this should only work when the pytorch channel is loaded, i.e., the custom condarc is used
           micromamba search pytorch=2.0.0 | grep -q "pytorch 2.0.0   py3.10_cpu_0                 pytorch"
+        shell: bash -el {0}
+
+  conda-lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          environment-file: 'test/conda-lock.yml'
+      - run: |
+          micromamba list
         shell: bash -el {0}
     
   output-environment-path-env-file:
