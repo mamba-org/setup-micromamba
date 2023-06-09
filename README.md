@@ -51,7 +51,7 @@ This will automatically activate the environment when the shell is started.
 
 #### Create environment from `conda-lock` file
 
-Mamba supports the `conda-lock` [unified lockfile format](https://conda.github.io/conda-lock/output/#unified-lockfile), but this format does not specify an environment name.
+Micromamba supports the `conda-lock` [unified lockfile format](https://conda.github.io/conda-lock/output/#unified-lockfile), but this format does not specify an environment name.
 Because `setup-micromamba` requires an environment name to be specified, config might look like this:
 
 ```yml
