@@ -61602,7 +61602,7 @@ var determineEnvironmentName = (environmentName, environmentFile) => {
     throw new Error();
   }
   return fs.readFile(environmentFile, "utf8").then((fileContents) => {
-    const environmentName2 = fileContents.toString().match(/^name:\s*(.*)$/)?.[1];
+    const environmentName2 = fileContents.toString().match(/^name:\s*(.*)/)?.[1];
     if (!environmentName2) {
       const errorMessage = `Could not determine environment name from file ${environmentFile}`;
       core2.error(errorMessage);

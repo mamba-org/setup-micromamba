@@ -50,7 +50,7 @@ export const determineEnvironmentName = (environmentName?: string, environmentFi
     throw new Error()
   }
   return fs.readFile(environmentFile, 'utf8').then((fileContents) => {
-    const environmentName = fileContents.toString().match(/^name:\s*(.*)$/)?.[1]
+    const environmentName = fileContents.toString().match(/^name:\s*(.*)/)?.[1]
     if (!environmentName) {
       const errorMessage = `Could not determine environment name from file ${environmentFile}`
       core.error(errorMessage)
