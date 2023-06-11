@@ -61,6 +61,8 @@ Because `setup-micromamba` requires an environment name to be specified, config 
     environment-name: ci
 ```
 
+> ⚠️ Beware that `micromamba` does not allow additional packages to be installed into a locked environment and will ignore additional specs added by `create-args`, see [mamba#1760](https://github.com/mamba-org/mamba/issues/1760).
+
 #### Create environment from environment specs
 
 You can specify extra environment specs using the `create-args` input.
