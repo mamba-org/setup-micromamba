@@ -2,7 +2,7 @@ ci:
   - .github/workflows/*
 
 documentation:
-  - ./*.md
+  - '*.md'
 
 dependencies:
   - pnpm-lock.yaml
