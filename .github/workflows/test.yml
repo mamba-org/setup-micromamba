@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: main
+    # branches: [main]
   pull_request:
-    branches: main
+    branches: [main]
   merge_group:
 
 jobs:
@@ -171,6 +171,17 @@ jobs:
           environment-name: locked-env
       - run: |
           micromamba list | grep -q "python              3.11.3    h2755cc3_0_cpython  conda-forge"
+        shell: bash -el {0}
+  
+  comment-in-environment-file:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./
+        with:
+          environment-file: 'test/environment2.yml'
+      - run: |
+          micromamba info | grep -q "environment : env-name2"
         shell: bash -el {0}
     
   output-environment-path-env-file:

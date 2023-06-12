@@ -1,0 +1,7 @@
+# This is an example comment line
+name: env-name2
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.9
