@@ -64330,12 +64330,10 @@ var determineEnvironmentName = (environmentName, environmentFile) => {
     core3.debug(`Determined environment name from file ${environmentFile}: ${environmentName2}`);
     return environmentName2;
   }).catch((error) => {
-    if (!error) {
-      core3.error(`Could not determine environment name from file ${environmentFile}`);
-      core3.error(`Error: ${error}`);
-      core3.error("If your environment file is not YAML, please specify the environment name directly.");
-      throw new Error(error);
-    }
+    core3.error(`Could not determine environment name from file ${environmentFile}`);
+    core3.error(`Error: ${error}`);
+    core3.error("If your environment file is not YAML, please specify the environment name directly.");
+    throw new Error(error);
   });
 };
 var mambaRegexBlock = /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/;

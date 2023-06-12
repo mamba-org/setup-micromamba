@@ -62,12 +62,10 @@ export const determineEnvironmentName = (environmentName?: string, environmentFi
       return environmentName
     })
     .catch((error) => {
-      if (!error) {
-        core.error(`Could not determine environment name from file ${environmentFile}`)
-        core.error(`Error: ${error}`)
-        core.error('If your environment file is not YAML, please specify the environment name directly.')
-        throw new Error(error)
-      }
+      core.error(`Could not determine environment name from file ${environmentFile}`)
+      core.error(`Error: ${error}`)
+      core.error('If your environment file is not YAML, please specify the environment name directly.')
+      throw new Error(error)
     })
 }
 

@@ -2,9 +2,9 @@ name: Test caching
 
 on:
   push:
-    branches: main
+    branches: [main]
   pull_request:
-    branches: main
+    branches: [main]
   merge_group:
 
 defaults:
