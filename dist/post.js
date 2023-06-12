@@ -64332,7 +64332,9 @@ var determineEnvironmentName = (environmentName, environmentFile) => {
   }).catch((error) => {
     core3.error(`Could not determine environment name from file ${environmentFile}`);
     core3.error(`Error: ${error}`);
-    core3.error("If your environment file is not YAML, please specify the environment name directly.");
+    core3.error(
+      "If your environment file is not YAML containing `name` at the top level, please specify the environment name directly."
+    );
     throw new Error(error);
   });
 };
