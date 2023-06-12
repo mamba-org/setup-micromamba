@@ -20,6 +20,7 @@ export default defineConfig({
     '@actions/tool-cache',
     'untildify',
     'zod',
-    'fp-ts'
+    'fp-ts',
+    'js-yaml'
   ]
 })
