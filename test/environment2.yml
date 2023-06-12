@@ -1,5 +1,5 @@
 # This is an example comment line
-name: env-name2
+name: env-name2  # This is another comment line
 channels:
   - conda-forge
   - defaults

@@ -2,10 +2,12 @@ import * as fs from 'fs/promises'
 import * as os from 'os'
 import type { BinaryLike } from 'crypto'
 import { createHash } from 'crypto'
+import * as yaml from 'js-yaml'
 import * as coreDefault from '@actions/core'
 import { exec } from '@actions/exec'
 import { match } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
+import * as z from 'zod'
 import { coreMocked } from './mocking'
 import { options } from './options'
 import type { LogLevelType, MicromambaSourceType } from './options'
@@ -49,16 +51,24 @@ export const determineEnvironmentName = (environmentName?: string, environmentFi
     core.error('No environment name or file specified.')
     throw new Error()
   }
-  return fs.readFile(environmentFile, 'utf8').then((fileContents) => {
-    const environmentName = fileContents.toString().match(/^name:\s*(.*)/)?.[1]
-    if (!environmentName) {
-      const errorMessage = `Could not determine environment name from file ${environmentFile}`
-      core.error(errorMessage)
-      throw new Error(errorMessage)
-    }
-    core.debug(`Determined environment name from file ${environmentFile}: ${environmentName}`)
-    return environmentName
-  })
+  return fs
+    .readFile(environmentFile)
+    .then((fileContents) => {
+      const environmentFileSchema = z.object({
+        name: z.string()
+      })
+      const environmentName = environmentFileSchema.parse(yaml.load(fileContents.toString())).name
+      core.debug(`Determined environment name from file ${environmentFile}: ${environmentName}`)
+      return environmentName
+    })
+    .catch((error) => {
+      if (!error) {
+        core.error(`Could not determine environment name from file ${environmentFile}`)
+        core.error(`Error: ${error}`)
+        core.error('If your environment file is not YAML, please specify the environment name directly.')
+        throw new Error(error)
+      }
+    })
 }
 
 export const mambaRegexBlock =
