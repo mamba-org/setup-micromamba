@@ -1,20 +1,16 @@
 name: Check dist
 
 on:
-  pull_request:
+  push:
     branches: [main]
+  merge_group:
 
 jobs:
   check-dist:
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-
     steps:
       - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.head_ref }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -33,7 +29,18 @@ jobs:
       - name: Rebuild the dist/ directory
         run: pnpm build
 
-      - name: Commit dist/ changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+      - name: Compare the expected and actual dist/ directories
+        run: |
+          if [ "$(git diff --ignore-space-at-eol dist/* | wc -l)" -gt "0" ]; then
+            echo "Detected uncommitted changes after build.  See status below:"
+            git diff
+            exit 1
+          fi
+        id: diff
+
+      # If index.js or post.js are different than expected, upload the expected version as an artifact
+      - uses: actions/upload-artifact@v3
+        if: ${{ failure() && steps.diff.conclusion == 'failure' }}
         with:
-          commit_message: Build dist/ directory
+          name: dist
+          path: dist/

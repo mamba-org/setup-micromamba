@@ -1,0 +1,39 @@
+name: Build dist
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-dist:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Rebuild the dist/ directory
+        run: pnpm build
+
+      - name: Commit dist/ changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Build dist/ directory
