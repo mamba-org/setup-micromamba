@@ -65580,7 +65580,6 @@ var setEnvVariables = () => {
   core6.exportVariable("CONDARC", options.condarcFile);
 };
 var run = async () => {
-  core6.info("TEST");
   core6.debug(`process.env.HOME: ${process.env.HOME}`);
   core6.debug(`os.homedir(): ${import_os2.default.homedir()}`);
   core6.debug(`bashProfile ${PATHS.bashProfile}`);
