@@ -3,8 +3,6 @@ name: Check dist
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   merge_group:
 
 jobs:
@@ -14,16 +12,19 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8
-          run_install: true
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Rebuild the dist/ directory
         run: pnpm build

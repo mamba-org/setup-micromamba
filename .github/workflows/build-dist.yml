@@ -1,17 +1,20 @@
-name: Build
+name: Build dist
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
-  merge_group:
 
 jobs:
-  build:
+  build-dist:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -28,4 +31,9 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Rebuild the dist/ directory
-        run: pnpm all
+        run: pnpm build
+
+      - name: Commit dist/ changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Build dist/ directory

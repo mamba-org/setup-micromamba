@@ -12,7 +12,9 @@ jobs:
         if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'edited' || github.event.action == 'synchronize'
         with:
           repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        id: labeler
       - uses: mheap/github-action-required-labels@v5
+        if: steps.labeler.outputs.new-labels == ''
         with:
           labels: bug,enhancement,ci,documentation,dependencies,ignore-for-release
           mode: minimum
