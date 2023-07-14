@@ -1,11 +1,8 @@
 name: Check dist
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
-  merge_group:
 
 jobs:
   check-dist:
@@ -18,6 +15,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: pnpm
 
       - name: Install pnpm
         uses: pnpm/action-setup@v2
@@ -33,13 +31,10 @@ jobs:
           if [ "$(git diff --ignore-space-at-eol dist/* | wc -l)" -gt "0" ]; then
             echo "Detected uncommitted changes after build.  See status below:"
             git diff
-            exit 1
+            echo "Committing changes to dist/ directory."
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git config --global user.name "github-actions[bot]"
+            git add dist/
+            git commit -m "Build dist/ directory"
+            git push
           fi
-        id: diff
-
-      # If index.js or post.js are different than expected, upload the expected version as an artifact
-      - uses: actions/upload-artifact@v3
-        if: ${{ failure() && steps.diff.conclusion == 'failure' }}
-        with:
-          name: dist
-          path: dist/
