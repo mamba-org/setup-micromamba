@@ -27,8 +27,8 @@ dependencies:
     specifier: ^4.1.0
     version: 4.1.0
   untildify:
-    specifier: ^4.0.0
-    version: 4.0.0
+    specifier: ^5.0.0
+    version: 5.0.0
   zod:
     specifier: ^3.21.4
     version: 3.21.4
@@ -2586,9 +2586,9 @@ packages:
       which-boxed-primitive: 1.0.2
     dev: true
 
-  /untildify@4.0.0:
-    resolution: {integrity: sha512-KK8xQ1mkzZeg9inewmFVDNkg3l5LUhoq9kN6iWYB/CC9YMG8HA+c1Q8HwDe6dEX7kErrEVNVBO3fWsVq5iDgtw==}
-    engines: {node: '>=8'}
+  /untildify@5.0.0:
+    resolution: {integrity: sha512-bOgQLUnd2G5rhzaTvh1VCI9Fo6bC5cLTpH17T5aFfamyXFYDbbdzN6IXdeoc3jBS7T9hNTmJtYUzJCJ2Xlc9gA==}
+    engines: {node: '>=16'}
     dev: false
 
   /uri-js@4.4.1:
