@@ -99,11 +99,11 @@ var require_command = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.issue = exports.issueCommand = void 0;
-    var os7 = __importStar(require("os"));
+    var os8 = __importStar(require("os"));
     var utils_1 = require_utils();
     function issueCommand(command, properties, message) {
       const cmd = new Command(command, properties, message);
-      process.stdout.write(cmd.toString() + os7.EOL);
+      process.stdout.write(cmd.toString() + os8.EOL);
     }
     exports.issueCommand = issueCommand;
     function issue(name, message = "") {
@@ -520,7 +520,7 @@ var require_file_command = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.prepareKeyValueMessage = exports.issueFileCommand = void 0;
     var fs6 = __importStar(require("fs"));
-    var os7 = __importStar(require("os"));
+    var os8 = __importStar(require("os"));
     var uuid_1 = (init_esm_node(), __toCommonJS(esm_node_exports));
     var utils_1 = require_utils();
     function issueFileCommand(command, message) {
@@ -531,7 +531,7 @@ var require_file_command = __commonJS({
       if (!fs6.existsSync(filePath)) {
         throw new Error(`Missing file at path: ${filePath}`);
       }
-      fs6.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os7.EOL}`, {
+      fs6.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os8.EOL}`, {
         encoding: "utf8"
       });
     }
@@ -545,7 +545,7 @@ var require_file_command = __commonJS({
       if (convertedValue.includes(delimiter2)) {
         throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter2}"`);
       }
-      return `${key}<<${delimiter2}${os7.EOL}${convertedValue}${os7.EOL}${delimiter2}`;
+      return `${key}<<${delimiter2}${os8.EOL}${convertedValue}${os8.EOL}${delimiter2}`;
     }
     exports.prepareKeyValueMessage = prepareKeyValueMessage;
   }
@@ -2042,7 +2042,7 @@ var require_core = __commonJS({
     var command_1 = require_command();
     var file_command_1 = require_file_command();
     var utils_1 = require_utils();
-    var os7 = __importStar(require("os"));
+    var os8 = __importStar(require("os"));
     var path5 = __importStar(require("path"));
     var oidc_utils_1 = require_oidc_utils();
     var ExitCode;
@@ -2110,7 +2110,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       if (filePath) {
         return file_command_1.issueFileCommand("OUTPUT", file_command_1.prepareKeyValueMessage(name, value));
       }
-      process.stdout.write(os7.EOL);
+      process.stdout.write(os8.EOL);
       command_1.issueCommand("set-output", { name }, utils_1.toCommandValue(value));
     }
     exports.setOutput = setOutput;
@@ -2144,7 +2144,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     }
     exports.notice = notice;
     function info(message) {
-      process.stdout.write(message + os7.EOL);
+      process.stdout.write(message + os8.EOL);
     }
     exports.info = info;
     function startGroup(name) {
@@ -3830,12 +3830,12 @@ var require_manifest = __commonJS({
     exports._readLinuxVersionFile = exports._getOsVersion = exports._findMatch = void 0;
     var semver = __importStar(require_semver());
     var core_1 = require_core();
-    var os7 = require("os");
+    var os8 = require("os");
     var cp = require("child_process");
     var fs6 = require("fs");
     function _findMatch(versionSpec, stable, candidates, archFilter) {
       return __awaiter(this, void 0, void 0, function* () {
-        const platFilter = os7.platform();
+        const platFilter = os8.platform();
         let result;
         let match2;
         let file;
@@ -3872,7 +3872,7 @@ var require_manifest = __commonJS({
     }
     exports._findMatch = _findMatch;
     function _getOsVersion() {
-      const plat = os7.platform();
+      const plat = os8.platform();
       let version3 = "";
       if (plat === "darwin") {
         version3 = cp.execSync("sw_vers -productVersion").toString();
@@ -4042,7 +4042,7 @@ var require_toolrunner = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.argStringToArray = exports.ToolRunner = void 0;
-    var os7 = __importStar(require("os"));
+    var os8 = __importStar(require("os"));
     var events = __importStar(require("events"));
     var child = __importStar(require("child_process"));
     var path5 = __importStar(require("path"));
@@ -4097,12 +4097,12 @@ var require_toolrunner = __commonJS({
       _processLineBuffer(data, strBuffer, onLine) {
         try {
           let s = strBuffer + data.toString();
-          let n = s.indexOf(os7.EOL);
+          let n = s.indexOf(os8.EOL);
           while (n > -1) {
             const line = s.substring(0, n);
             onLine(line);
-            s = s.substring(n + os7.EOL.length);
-            n = s.indexOf(os7.EOL);
+            s = s.substring(n + os8.EOL.length);
+            n = s.indexOf(os8.EOL);
           }
           return s;
         } catch (err) {
@@ -4271,7 +4271,7 @@ var require_toolrunner = __commonJS({
             }
             const optionsNonNull = this._cloneExecOptions(this.options);
             if (!optionsNonNull.silent && optionsNonNull.outStream) {
-              optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os7.EOL);
+              optionsNonNull.outStream.write(this._getCommandString(optionsNonNull) + os8.EOL);
             }
             const state = new ExecState(optionsNonNull, this.toolPath);
             state.on("debug", (message) => {
@@ -4757,7 +4757,7 @@ var require_tool_cache = __commonJS({
     var io2 = __importStar(require_io());
     var fs6 = __importStar(require("fs"));
     var mm = __importStar(require_manifest());
-    var os7 = __importStar(require("os"));
+    var os8 = __importStar(require("os"));
     var path5 = __importStar(require("path"));
     var httpm = __importStar(require_lib());
     var semver = __importStar(require_semver());
@@ -5036,7 +5036,7 @@ var require_tool_cache = __commonJS({
     function cacheDir(sourceDir, tool, version3, arch3) {
       return __awaiter(this, void 0, void 0, function* () {
         version3 = semver.clean(version3) || version3;
-        arch3 = arch3 || os7.arch();
+        arch3 = arch3 || os8.arch();
         core7.debug(`Caching tool ${tool} ${version3} ${arch3}`);
         core7.debug(`source dir: ${sourceDir}`);
         if (!fs6.statSync(sourceDir).isDirectory()) {
@@ -5055,7 +5055,7 @@ var require_tool_cache = __commonJS({
     function cacheFile(sourceFile, targetFile, tool, version3, arch3) {
       return __awaiter(this, void 0, void 0, function* () {
         version3 = semver.clean(version3) || version3;
-        arch3 = arch3 || os7.arch();
+        arch3 = arch3 || os8.arch();
         core7.debug(`Caching tool ${tool} ${version3} ${arch3}`);
         core7.debug(`source file: ${sourceFile}`);
         if (!fs6.statSync(sourceFile).isFile()) {
@@ -5077,7 +5077,7 @@ var require_tool_cache = __commonJS({
       if (!versionSpec) {
         throw new Error("versionSpec parameter is required");
       }
-      arch3 = arch3 || os7.arch();
+      arch3 = arch3 || os8.arch();
       if (!isExplicitVersion(versionSpec)) {
         const localVersions = findAllVersions(toolName, arch3);
         const match2 = evaluateVersions(localVersions, versionSpec);
@@ -5100,7 +5100,7 @@ var require_tool_cache = __commonJS({
     exports.find = find2;
     function findAllVersions(toolName, arch3) {
       const versions = [];
-      arch3 = arch3 || os7.arch();
+      arch3 = arch3 || os8.arch();
       const toolPath = path5.join(_getCacheDirectory(), toolName);
       if (fs6.existsSync(toolPath)) {
         const children2 = fs6.readdirSync(toolPath);
@@ -5151,7 +5151,7 @@ var require_tool_cache = __commonJS({
       });
     }
     exports.getManifestFromRepo = getManifestFromRepo;
-    function findFromManifest(versionSpec, stable, manifest, archFilter = os7.arch()) {
+    function findFromManifest(versionSpec, stable, manifest, archFilter = os8.arch()) {
       return __awaiter(this, void 0, void 0, function* () {
         const match2 = yield mm._findMatch(versionSpec, stable, manifest, archFilter);
         return match2;
@@ -6962,21 +6962,6 @@ var require_Either = __commonJS({
   }
 });
 
-// node_modules/.pnpm/untildify@4.0.0/node_modules/untildify/index.js
-var require_untildify = __commonJS({
-  "node_modules/.pnpm/untildify@4.0.0/node_modules/untildify/index.js"(exports, module2) {
-    "use strict";
-    var os7 = require("os");
-    var homeDirectory = os7.homedir();
-    module2.exports = (pathWithTilde) => {
-      if (typeof pathWithTilde !== "string") {
-        throw new TypeError(`Expected a string, got ${typeof pathWithTilde}`);
-      }
-      return homeDirectory ? pathWithTilde.replace(/^~(?=$|\/|\\)/, homeDirectory) : pathWithTilde;
-    };
-  }
-});
-
 // node_modules/.pnpm/@actions+glob@0.1.2/node_modules/@actions/glob/lib/internal-glob-options-helper.js
 var require_internal_glob_options_helper = __commonJS({
   "node_modules/.pnpm/@actions+glob@0.1.2/node_modules/@actions/glob/lib/internal-glob-options-helper.js"(exports) {
@@ -8232,7 +8217,7 @@ var require_internal_pattern = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.Pattern = void 0;
-    var os7 = __importStar(require("os"));
+    var os8 = __importStar(require("os"));
     var path5 = __importStar(require("path"));
     var pathHelper = __importStar(require_internal_path_helper());
     var assert_1 = __importDefault(require("assert"));
@@ -8325,7 +8310,7 @@ var require_internal_pattern = __commonJS({
         if (pattern === "." || pattern.startsWith(`.${path5.sep}`)) {
           pattern = Pattern.globEscape(process.cwd()) + pattern.substr(1);
         } else if (pattern === "~" || pattern.startsWith(`~${path5.sep}`)) {
-          homedir3 = homedir3 || os7.homedir();
+          homedir3 = homedir3 || os8.homedir();
           assert_1.default(homedir3, "Unable to determine HOME directory");
           assert_1.default(pathHelper.hasAbsoluteRoot(homedir3), `Expected HOME directory to be a rooted path. Actual '${homedir3}'`);
           pattern = Pattern.globEscape(homedir3) + pattern.substr(1);
@@ -30872,14 +30857,14 @@ function getPlatformSpecificData() {
   };
   const osInfo = {
     key: "OS",
-    value: `(${os4.arch()}-${os4.type()}-${os4.release()})`
+    value: `(${os5.arch()}-${os5.type()}-${os5.release()})`
   };
   return [runtimeInfo, osInfo];
 }
-var os4;
+var os5;
 var init_msRestUserAgentPolicy = __esm({
   "node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/policies/msRestUserAgentPolicy.js"() {
-    os4 = __toESM(require("os"));
+    os5 = __toESM(require("os"));
     init_constants();
   }
 });
@@ -47585,11 +47570,11 @@ var init_TelemetryPolicy = __esm({
 });
 
 // node_modules/.pnpm/@azure+storage-blob@12.14.0/node_modules/@azure/storage-blob/dist-esm/storage-blob/src/TelemetryPolicyFactory.js
-var os5, TelemetryPolicyFactory;
+var os6, TelemetryPolicyFactory;
 var init_TelemetryPolicyFactory = __esm({
   "node_modules/.pnpm/@azure+storage-blob@12.14.0/node_modules/@azure/storage-blob/dist-esm/storage-blob/src/TelemetryPolicyFactory.js"() {
     init_src6();
-    os5 = __toESM(require("os"));
+    os6 = __toESM(require("os"));
     init_TelemetryPolicy();
     init_constants2();
     TelemetryPolicyFactory = class {
@@ -47611,8 +47596,8 @@ var init_TelemetryPolicyFactory = __esm({
             userAgentInfo.push(libInfo);
           }
           let runtimeInfo = `(NODE-VERSION ${process.version})`;
-          if (os5) {
-            runtimeInfo = `(NODE-VERSION ${process.version}; ${os5.type()} ${os5.release()})`;
+          if (os6) {
+            runtimeInfo = `(NODE-VERSION ${process.version}; ${os6.type()} ${os6.release()})`;
           }
           if (userAgentInfo.indexOf(runtimeInfo) === -1) {
             userAgentInfo.push(runtimeInfo);
@@ -58720,7 +58705,7 @@ var import_tool_cache = __toESM(require_tool_cache());
 
 // src/util.ts
 var fs = __toESM(require("fs/promises"));
-var os2 = __toESM(require("os"));
+var os3 = __toESM(require("os"));
 var import_crypto4 = require("crypto");
 
 // node_modules/.pnpm/js-yaml@4.1.0/node_modules/js-yaml/dist/js-yaml.mjs
@@ -65107,17 +65092,28 @@ var coreMocked = {
 
 // src/options.ts
 var path = __toESM(require("path"));
-var os = __toESM(require("os"));
+var os2 = __toESM(require("os"));
 var coreDefault = __toESM(require_core());
 var import_Either = __toESM(require_Either());
-var import_untildify = __toESM(require_untildify());
+
+// node_modules/.pnpm/untildify@5.0.0/node_modules/untildify/index.js
+var import_node_os = __toESM(require("os"), 1);
+var homeDirectory = import_node_os.default.homedir();
+function untildify(pathWithTilde) {
+  if (typeof pathWithTilde !== "string") {
+    throw new TypeError(`Expected a string, got ${typeof pathWithTilde}`);
+  }
+  return homeDirectory ? pathWithTilde.replace(/^~(?=$|\/|\\)/, homeDirectory) : pathWithTilde;
+}
+
+// src/options.ts
 var core2 = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
-  micromambaBin: path.join(os.homedir(), "micromamba-bin", `micromamba${os.platform() === "win32" ? ".exe" : ""}`),
-  micromambaRoot: path.join(os.homedir(), "micromamba"),
+  micromambaBin: path.join(os2.homedir(), "micromamba-bin", `micromamba${os2.platform() === "win32" ? ".exe" : ""}`),
+  micromambaRoot: path.join(os2.homedir(), "micromamba"),
   micromambaRunShell: "/usr/local/bin/micromamba-shell",
-  bashProfile: path.join(os.homedir(), ".bash_profile"),
-  bashrc: path.join(os.homedir(), ".bashrc")
+  bashProfile: path.join(os2.homedir(), ".bash_profile"),
+  bashrc: path.join(os2.homedir(), ".bashrc")
 };
 var postCleanupSchema = enumType(["none", "shell-init", "environment", "all"]);
 var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
@@ -65162,10 +65158,10 @@ var inferOptions = (inputs) => {
     cacheDownloadsKey: inputs.cacheDownloadsKey || (inputs.cacheDownloads ? `micromamba-downloads-` : void 0),
     postCleanup: inputs.postCleanup || "shell-init",
     // use a different path than ~/.condarc to avoid messing up the user's condarc
-    condarcFile: inputs.condarcFile ? path.resolve((0, import_untildify.default)(inputs.condarcFile)) : path.join(path.dirname(PATHS.micromambaBin), ".condarc"),
+    condarcFile: inputs.condarcFile ? path.resolve(untildify(inputs.condarcFile)) : path.join(path.dirname(PATHS.micromambaBin), ".condarc"),
     // next to the micromamba binary -> easier cleanup
-    micromambaBinPath: inputs.micromambaBinPath ? path.resolve((0, import_untildify.default)(inputs.micromambaBinPath)) : PATHS.micromambaBin,
-    micromambaRootPath: inputs.micromambaRootPath ? path.resolve((0, import_untildify.default)(inputs.micromambaRootPath)) : PATHS.micromambaRoot
+    micromambaBinPath: inputs.micromambaBinPath ? path.resolve(untildify(inputs.micromambaBinPath)) : PATHS.micromambaBin,
+    micromambaRootPath: inputs.micromambaRootPath ? path.resolve(untildify(inputs.micromambaRootPath)) : PATHS.micromambaRoot
   };
 };
 var validateInputs = (inputs) => {
@@ -65253,9 +65249,9 @@ var getCondaArch = () => {
     "linux-ppc64": "linux-ppc64le",
     "win32-x64": "win-64"
   };
-  const arch3 = archDict[`${os2.platform()}-${os2.arch()}`];
+  const arch3 = archDict[`${os3.platform()}-${os3.arch()}`];
   if (!arch3) {
-    throw new Error(`Unsupported platform: ${os2.platform()}-${os2.arch()}`);
+    throw new Error(`Unsupported platform: ${os3.platform()}-${os3.arch()}`);
   }
   return arch3;
 };
@@ -65320,7 +65316,7 @@ var execute = (cmd) => {
 
 // src/shell-init.ts
 var fs2 = __toESM(require("fs/promises"));
-var os3 = __toESM(require("os"));
+var os4 = __toESM(require("os"));
 var import_path = __toESM(require("path"));
 var coreDefault3 = __toESM(require_core());
 var core4 = process.env.MOCKING ? coreMocked : coreDefault3;
@@ -65341,7 +65337,7 @@ var shellInit = (shell) => {
     // it should be -r instead of -p, see https://github.com/mamba-org/mamba/issues/2442
     micromambaCmd(`shell init -s ${shell} -p ${options.micromambaRootPath}`, options.logLevel, options.condarcFile)
   );
-  if (os3.platform() === "linux" && shell === "bash") {
+  if (os4.platform() === "linux" && shell === "bash") {
     return command.then(copyMambaInitBlockToBashProfile).finally(core4.endGroup);
   }
   return command.finally(core4.endGroup);
@@ -65354,17 +65350,17 @@ var addEnvironmentToRcFile = (environmentName, rcFile) => {
 };
 var rcFileDict = {
   bash: PATHS.bashProfile,
-  zsh: import_path.default.join(os3.homedir(), ".zshrc"),
-  fish: import_path.default.join(os3.homedir(), ".config", "fish", "config.fish"),
-  tcsh: import_path.default.join(os3.homedir(), ".tcshrc"),
-  xonsh: import_path.default.join(os3.homedir(), ".xonshrc"),
+  zsh: import_path.default.join(os4.homedir(), ".zshrc"),
+  fish: import_path.default.join(os4.homedir(), ".config", "fish", "config.fish"),
+  tcsh: import_path.default.join(os4.homedir(), ".tcshrc"),
+  xonsh: import_path.default.join(os4.homedir(), ".xonshrc"),
   "cmd.exe": import_path.default.join(options.micromambaRootPath, "condabin", "mamba_hook.bat"),
-  powershell: import_path.default.join(os3.homedir(), "Documents", "WindowsPowershell", "profile.ps1"),
-  pwshWin: import_path.default.join(os3.homedir(), "Documents", "Powershell", "profile.ps1"),
-  pwshUnix: import_path.default.join(os3.homedir(), ".config", "powershell", "profile.ps1")
+  powershell: import_path.default.join(os4.homedir(), "Documents", "WindowsPowershell", "profile.ps1"),
+  pwshWin: import_path.default.join(os4.homedir(), "Documents", "Powershell", "profile.ps1"),
+  pwshUnix: import_path.default.join(os4.homedir(), ".config", "powershell", "profile.ps1")
 };
 var addEnvironmentToPowershellProfile = (environmentName) => {
-  switch (os3.platform()) {
+  switch (os4.platform()) {
     case "win32":
       return Promise.all([
         addEnvironmentToRcFile(environmentName, rcFileDict.powershell),
@@ -65374,7 +65370,7 @@ var addEnvironmentToPowershellProfile = (environmentName) => {
     case "darwin":
       return addEnvironmentToRcFile(environmentName, rcFileDict.pwshUnix);
     default:
-      throw new Error(`Unsupported platform: ${os3.platform()}`);
+      throw new Error(`Unsupported platform: ${os4.platform()}`);
   }
 };
 var addEnvironmentToAutoActivate = (environmentName, shell) => {
