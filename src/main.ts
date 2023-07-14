@@ -160,6 +160,7 @@ const setEnvVariables = () => {
 }
 
 const run = async () => {
+  core.info('TEST')
   core.debug(`process.env.HOME: ${process.env.HOME}`)
   core.debug(`os.homedir(): ${os.homedir()}`)
   core.debug(`bashProfile ${PATHS.bashProfile}`)
