@@ -35,6 +35,7 @@ const restoreCache = (cachePath: string, cacheKey: string) => {
   })
 }
 
+// TODO
 const generateEnvironmentKey = (prefix: string) => {
   const arch = `-${getCondaArch()}`
   const envName = options.environmentName ? `-${options.environmentName}` : ''
