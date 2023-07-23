@@ -61594,6 +61594,19 @@ var assertOptions = (options2) => {
   assert(!options2.generateRunShell || options2.createEnvironment);
   assert(!options2.createEnvironment || options2.environmentFile !== void 0 || options2.environmentName !== void 0);
 };
+var getRootPrefixFlagForInit = (options2) => {
+  if (options2.micromambaSource._tag === "Left" && options2.micromambaSource.left < "1.4.5-0") {
+    return "-p";
+  }
+  return "-r";
+};
+var checkForKnownIssues = (options2) => {
+  if (options2.initShell && getRootPrefixFlagForInit(options2) === "-p") {
+    core.warning(
+      "You are using a micromamba version < 1.4.5-0 and initialize the shell. This is behavior is deprecated. Please update the micromamba version. For further informations, see https://github.com/mamba-org/setup-micromamba/pull/107"
+    );
+  }
+};
 var getOptions = () => {
   const inputs = {
     condarcFile: parseOrUndefined("condarc-file", stringType()),
@@ -61621,6 +61634,7 @@ var getOptions = () => {
   validateInputs(inputs);
   const options2 = inferOptions(inputs);
   core.debug(`Inferred options: ${JSON.stringify(options2)}`);
+  checkForKnownIssues(options2);
   assertOptions(options2);
   return options2;
 };
@@ -64369,8 +64383,13 @@ var removeMambaInitBlockFromBashProfile = () => {
 };
 var shellDeinit = (shell) => {
   core4.startGroup(`Deinitialize micromamba for ${shell}`);
+  const rootPrefixFlag = getRootPrefixFlagForInit(options);
   const command = execute(
-    micromambaCmd(`shell deinit -s ${shell} -r ${options.micromambaRootPath}`, options.logLevel, options.condarcFile)
+    micromambaCmd(
+      `shell deinit -s ${shell} ${rootPrefixFlag} ${options.micromambaRootPath}`,
+      options.logLevel,
+      options.condarcFile
+    )
   );
   if (os4.platform() === "linux" && shell === "bash") {
     return command.then(removeMambaInitBlockFromBashProfile).finally(core4.endGroup);
