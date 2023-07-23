@@ -192,6 +192,7 @@ export const getRootPrefixFlagForInit = (options: Options) => {
 
 const checkForKnownIssues = (options: Options) => {
   // micromamba 1.4.5 now uses -r for shell init instead of -p
+  // https://github.com/mamba-org/mamba/pull/2538
   if (!options.initShell && getRootPrefixFlagForInit(options) === '-p') {
     core.warning(
       'You are using a micromamba version < 1.4.5-0 and initialize the shell. This is behavior is deprecated. Please update the micromamba version. For further informations, see https://github.com/mamba-org/setup-micromamba/pull/107.'
