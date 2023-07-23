@@ -65209,7 +65209,7 @@ var getRootPrefixFlagForInit = (options2) => {
 var checkForKnownIssues = (options2) => {
   if (options2.initShell && getRootPrefixFlagForInit(options2) === "-p") {
     core2.warning(
-      "You are using a micromamba version < 1.4.5-0 and initialize the shell. This is behavior is deprecated. Please update the micromamba version. For further informations, see https://github.com/mamba-org/setup-micromamba/pull/107."
+      "You are using a micromamba version < 1.4.5-0 and initialize the shell. This is behavior is deprecated. Please update the micromamba version. For further informations, see https://github.com/mamba-org/setup-micromamba/pull/107"
     );
   }
 };

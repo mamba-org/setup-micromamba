@@ -195,7 +195,7 @@ const checkForKnownIssues = (options: Options) => {
   // https://github.com/mamba-org/mamba/pull/2538
   if (options.initShell && getRootPrefixFlagForInit(options) === '-p') {
     core.warning(
-      'You are using a micromamba version < 1.4.5-0 and initialize the shell. This is behavior is deprecated. Please update the micromamba version. For further informations, see https://github.com/mamba-org/setup-micromamba/pull/107.'
+      'You are using a micromamba version < 1.4.5-0 and initialize the shell. This is behavior is deprecated. Please update the micromamba version. For further informations, see https://github.com/mamba-org/setup-micromamba/pull/107'
     )
   }
 }
