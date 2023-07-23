@@ -182,6 +182,19 @@ const assertOptions = (options: Options) => {
   assert(!options.createEnvironment || options.environmentFile !== undefined || options.environmentName !== undefined)
 }
 
+const checkForKnownIssues = (options: Options) => {
+  // micromamba 1.4.5 now uses -r for shell init instead of -p
+  if (options.micromambaSource._tag === 'Left') {
+    const version = options.micromambaSource.left
+    if (version < '1.4.5-0' && !options.initShell) {
+      // latest is always > 1.4.5-0
+      core.setFailed(
+        'You are using a micromamba version < 1.4.5-0 and initialize the shell. This is only possible with versions >= 1.4.5-0. Please update the micromamba version. For further informations, see https://github.com/mamba-org/setup-micromamba/pull/107.'
+      )
+    }
+  }
+}
+
 const getOptions = () => {
   const inputs: Inputs = {
     condarcFile: parseOrUndefined('condarc-file', z.string()),
@@ -209,6 +222,7 @@ const getOptions = () => {
   validateInputs(inputs)
   const options = inferOptions(inputs)
   core.debug(`Inferred options: ${JSON.stringify(options)}`)
+  checkForKnownIssues(options)
   assertOptions(options)
   return options
 }
