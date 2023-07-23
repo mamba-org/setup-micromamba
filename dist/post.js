@@ -64370,8 +64370,7 @@ var removeMambaInitBlockFromBashProfile = () => {
 var shellDeinit = (shell) => {
   core4.startGroup(`Deinitialize micromamba for ${shell}`);
   const command = execute(
-    // it should be -r instead of -p, see https://github.com/mamba-org/mamba/issues/2442
-    micromambaCmd(`shell deinit -s ${shell} -p ${options.micromambaRootPath}`, options.logLevel, options.condarcFile)
+    micromambaCmd(`shell deinit -s ${shell} -r ${options.micromambaRootPath}`, options.logLevel, options.condarcFile)
   );
   if (os4.platform() === "linux" && shell === "bash") {
     return command.then(removeMambaInitBlockFromBashProfile).finally(core4.endGroup);

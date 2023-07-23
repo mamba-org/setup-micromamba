@@ -65334,8 +65334,7 @@ var copyMambaInitBlockToBashProfile = () => {
 var shellInit = (shell) => {
   core4.startGroup(`Initialize micromamba for ${shell}.`);
   const command = execute(
-    // it should be -r instead of -p, see https://github.com/mamba-org/mamba/issues/2442
-    micromambaCmd(`shell init -s ${shell} -p ${options.micromambaRootPath}`, options.logLevel, options.condarcFile)
+    micromambaCmd(`shell init -s ${shell} -r ${options.micromambaRootPath}`, options.logLevel, options.condarcFile)
   );
   if (os4.platform() === "linux" && shell === "bash") {
     return command.then(copyMambaInitBlockToBashProfile).finally(core4.endGroup);
