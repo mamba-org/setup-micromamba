@@ -5237,9 +5237,9 @@ var require_tool_cache = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/function.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/function.js
 var require_function = __commonJS({
-  "node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/function.js"(exports) {
+  "node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/function.js"(exports) {
     "use strict";
     var __spreadArray6 = exports && exports.__spreadArray || function(to, from, pack) {
       if (pack || arguments.length === 2)
@@ -5528,9 +5528,9 @@ var require_function = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/internal.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/internal.js
 var require_internal = __commonJS({
-  "node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/internal.js"(exports) {
+  "node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/internal.js"(exports) {
     "use strict";
     var __spreadArray6 = exports && exports.__spreadArray || function(to, from, pack) {
       if (pack || arguments.length === 2)
@@ -5671,9 +5671,9 @@ var require_internal = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Apply.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Apply.js
 var require_Apply = __commonJS({
-  "node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Apply.js"(exports) {
+  "node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Apply.js"(exports) {
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0)
@@ -5921,9 +5921,9 @@ var require_Apply = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Functor.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Functor.js
 var require_Functor = __commonJS({
-  "node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Functor.js"(exports) {
+  "node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Functor.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.asUnit = exports.as = exports.getFunctorComposition = exports.let = exports.bindTo = exports.flap = exports.map = void 0;
@@ -5997,9 +5997,9 @@ var require_Functor = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Applicative.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Applicative.js
 var require_Applicative = __commonJS({
-  "node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Applicative.js"(exports) {
+  "node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Applicative.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getApplicativeComposition = exports.getApplicativeMonoid = void 0;
@@ -6033,9 +6033,9 @@ var require_Applicative = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Chain.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Chain.js
 var require_Chain = __commonJS({
-  "node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Chain.js"(exports) {
+  "node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Chain.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.bind = exports.tap = exports.chainFirst = void 0;
@@ -6074,9 +6074,9 @@ var require_Chain = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/ChainRec.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/ChainRec.js
 var require_ChainRec = __commonJS({
-  "node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/ChainRec.js"(exports) {
+  "node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/ChainRec.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.tailRec = void 0;
@@ -6091,9 +6091,9 @@ var require_ChainRec = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/FromEither.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/FromEither.js
 var require_FromEither = __commonJS({
-  "node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/FromEither.js"(exports) {
+  "node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/FromEither.js"(exports) {
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0)
@@ -6215,9 +6215,9 @@ var require_FromEither = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Separated.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Separated.js
 var require_Separated = __commonJS({
-  "node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Separated.js"(exports) {
+  "node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Separated.js"(exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.right = exports.left = exports.flap = exports.Functor = exports.Bifunctor = exports.URI = exports.bimap = exports.mapLeft = exports.map = exports.separated = void 0;
@@ -6276,9 +6276,9 @@ var require_Separated = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Witherable.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Witherable.js
 var require_Witherable = __commonJS({
-  "node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Witherable.js"(exports) {
+  "node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Witherable.js"(exports) {
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0)
@@ -6351,9 +6351,9 @@ var require_Witherable = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Either.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Either.js
 var require_Either = __commonJS({
-  "node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/lib/Either.js"(exports) {
+  "node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/lib/Either.js"(exports) {
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0)
@@ -61369,7 +61369,7 @@ var safeDump = renamed("safeDump", "dump");
 var coreDefault2 = __toESM(require_core());
 var import_exec = __toESM(require_exec());
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/es6/function.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/es6/function.js
 var __spreadArray = function(to, from, pack) {
   if (pack || arguments.length === 2)
     for (var i = 0, l = from.length, ar; i < l; i++) {
@@ -61428,7 +61428,7 @@ var dual = function(arity, body2) {
   };
 };
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/es6/internal.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/es6/internal.js
 var isLeft = function(ma) {
   return ma._tag === "Left";
 };
@@ -61436,7 +61436,7 @@ var right = function(a) {
   return { _tag: "Right", right: a };
 };
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/es6/Functor.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/es6/Functor.js
 function as(F) {
   return function(self, b) {
     return F.map(self, function() {
@@ -61451,7 +61451,7 @@ function asUnit(F) {
   };
 }
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/es6/Chain.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/es6/Chain.js
 function tap(M) {
   return function(first, f) {
     return M.chain(first, function(a) {
@@ -61462,7 +61462,7 @@ function tap(M) {
   };
 }
 
-// node_modules/.pnpm/fp-ts@2.16.0/node_modules/fp-ts/es6/Either.js
+// node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/es6/Either.js
 var right2 = right;
 var flatMap = /* @__PURE__ */ dual(2, function(ma, f) {
   return isLeft2(ma) ? ma : f(ma.right);
@@ -65200,6 +65200,19 @@ var assertOptions = (options2) => {
   assert(!options2.generateRunShell || options2.createEnvironment);
   assert(!options2.createEnvironment || options2.environmentFile !== void 0 || options2.environmentName !== void 0);
 };
+var getRootPrefixFlagForInit = (options2) => {
+  if (options2.micromambaSource._tag === "Left" && options2.micromambaSource.left < "1.4.5-0") {
+    return "-p";
+  }
+  return "-r";
+};
+var checkForKnownIssues = (options2) => {
+  if (options2.initShell && getRootPrefixFlagForInit(options2) === "-p") {
+    core2.warning(
+      "You are using a micromamba version < 1.4.5-0 and initialize the shell. This is behavior is deprecated. Please update the micromamba version. For further informations, see https://github.com/mamba-org/setup-micromamba/pull/107"
+    );
+  }
+};
 var getOptions = () => {
   const inputs = {
     condarcFile: parseOrUndefined("condarc-file", stringType()),
@@ -65227,6 +65240,7 @@ var getOptions = () => {
   validateInputs(inputs);
   const options2 = inferOptions(inputs);
   core2.debug(`Inferred options: ${JSON.stringify(options2)}`);
+  checkForKnownIssues(options2);
   assertOptions(options2);
   return options2;
 };
@@ -65333,9 +65347,13 @@ var copyMambaInitBlockToBashProfile = () => {
 };
 var shellInit = (shell) => {
   core4.startGroup(`Initialize micromamba for ${shell}.`);
+  const rootPrefixFlag = getRootPrefixFlagForInit(options);
   const command = execute(
-    // it should be -r instead of -p, see https://github.com/mamba-org/mamba/issues/2442
-    micromambaCmd(`shell init -s ${shell} -p ${options.micromambaRootPath}`, options.logLevel, options.condarcFile)
+    micromambaCmd(
+      `shell init -s ${shell} ${rootPrefixFlag} ${options.micromambaRootPath}`,
+      options.logLevel,
+      options.condarcFile
+    )
   );
   if (os4.platform() === "linux" && shell === "bash") {
     return command.then(copyMambaInitBlockToBashProfile).finally(core4.endGroup);
