@@ -61,7 +61,8 @@ Because `setup-micromamba` requires an environment name to be specified, config 
     environment-name: ci
 ```
 
-> ⚠️ Beware that `micromamba` does not allow additional packages to be installed into a locked environment and will ignore additional specs added by `create-args`, see [mamba#1760](https://github.com/mamba-org/mamba/issues/1760).
+> [!NOTE]
+> Beware that `micromamba` does not allow additional packages to be installed into a locked environment and will ignore additional specs added by `create-args`, see [mamba#1760](https://github.com/mamba-org/mamba/issues/1760).
 
 #### Create environment from environment specs
 
@@ -82,6 +83,7 @@ You can specify extra environment specs using the `create-args` input.
 
 You can specify custom arguments for the `micromamba create` command using the `create-args` input. See `micromamba create --help` for more information.
 
+> [!NOTE]
 > This is the same argument as in the [previous example](#create-environment-from-environment-specs) but with different semantics. 
 > This is because internally, `setup-micromamba` uses the `micromamba create` command to create the environment from the environment file and there, extra specs are specified by adding them as extra arguments to the `micromamba create` command.
 
@@ -127,10 +129,12 @@ Please read [about login shells](#about-login-shells) for more information about
 With this, you don't need to initialize your shell and activate the environment which may come in handy for self-hosted runners that persist between jobs.
 You can set this behavior by specifying the `generate-run-shell` input (defaults to `true`).
 
+> [!NOTE]
 > Under the hood, this shell wrapper runs `micromamba run -r <root-prefix-path> -n <env-name> <command>` with `<command>` being a file containing the part that you specify in the `run:` section of your workflow. 
 > See the [official documentation](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#custom-shell) and [ADR 0277](https://github.com/actions/runner/blob/main/docs/adrs/0277-run-action-shell-options.md) for more information about how the `shell:` input works in GitHub Actions.
 
-> ⚠️ Only available on macOS and Linux.
+> [!WARNING]
+> Only available on macOS and Linux.
 
 ```yml
 - uses: mamba-org/setup-micromamba@v1
@@ -180,6 +184,7 @@ If you want to cache your micromamba environment or packages, you can do this by
 
 If `cache-environment` is set to `true` and `cache-environment-key` is not specified, `setup-micromamba` will use the default cache key (`micromamba-environment`). Similar behavior applies to `cache-downloads` and `cache-downloads-key`.
 
+> [!NOTE]
 > Note that the specified cache key is only the prefix of the real cache key.
 > `setup-micromamba` will append a hash of the environment file and the `custom-args` as well as the environment name and OS to the cache key.
 
