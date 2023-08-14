@@ -8,3 +8,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    groups:
+      dev-dependencies:
+        patterns:
+          - "*eslint*"
+          - "@types/*"
+          - "prettier"
