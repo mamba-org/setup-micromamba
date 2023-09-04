@@ -65137,7 +65137,7 @@ var parseOrUndefinedList = (key, schema2) => {
   if (input === "") {
     return void 0;
   }
-  return input.split(" ").map((s) => schema2.parse(s));
+  return input.split(" ").map((s) => schema2.parse(s)).filter((s) => s !== "");
 };
 var inferOptions = (inputs) => {
   const createEnvironment2 = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
