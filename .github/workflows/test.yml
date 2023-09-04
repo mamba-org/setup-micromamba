@@ -225,6 +225,16 @@ jobs:
           micromamba list | grep -q pytest
         shell: bash -el {0}
 
+  create-args-no-env-name:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          create-args: >-
+            python
+            cupy
+
   output-environment-path-env-file:
     runs-on: ubuntu-latest
     steps:
