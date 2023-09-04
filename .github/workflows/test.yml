@@ -199,7 +199,7 @@ jobs:
         # micromamba-shell uses the environment-name inferred by setup-micromamba
         shell: micromamba-shell {0}
 
-  create-args-multiple-spaces:
+  create-args-multiple-spaces-1:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -207,6 +207,19 @@ jobs:
         with:
           environment-name: test
           create-args: python  pytest
+      - run: |
+          micromamba list | grep -q python
+          micromamba list | grep -q pytest
+        shell: bash -el {0}
+
+  create-args-multiple-spaces-2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          environment-file: test/environment2.yml
+          create-args: -c bioconda  pytest
       - run: |
           micromamba list | grep -q python
           micromamba list | grep -q pytest
