@@ -61584,6 +61584,9 @@ var validateInputs = (inputs) => {
   if (inputs.initShell?.includes("none") && inputs.initShell.length !== 1) {
     throw new Error("You cannot specify 'none' with other shells.");
   }
+  if (!inputs.environmentName && !inputs.environmentFile && inputs.createArgs?.length) {
+    throw new Error("You need to specify an environment name.");
+  }
 };
 var assertOptions = (options2) => {
   const assert = (condition, message) => {

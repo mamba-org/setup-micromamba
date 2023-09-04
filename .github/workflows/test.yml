@@ -225,16 +225,6 @@ jobs:
           micromamba list | grep -q pytest
         shell: bash -el {0}
 
-  create-args-no-env-name:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          create-args: >-
-            python
-            cupy
-
   output-environment-path-env-file:
     runs-on: ubuntu-latest
     steps:
@@ -281,3 +271,18 @@ jobs:
         id: setup-micromamba
       - run: |
           test "${{ steps.setup-micromamba.outputs.environment-path }}" = ""
+
+  # not properly testable
+  # https://github.com/actions/runner/issues/2347
+  # https://github.com/orgs/community/discussions/15452
+  create-args-no-env-name:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          create-args: >-
+            python
+            pytest
+      - run: exit 1
+        if: success()
