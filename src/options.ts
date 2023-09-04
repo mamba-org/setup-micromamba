@@ -92,7 +92,10 @@ const parseOrUndefinedList = <T>(key: string, schema: z.ZodSchema<T>): T[] | und
   if (input === '') {
     return undefined
   }
-  return input.split(' ').map((s) => schema.parse(s))
+  return input
+    .split(' ')
+    .map((s) => schema.parse(s))
+    .filter((s) => s !== '')
 }
 
 const inferOptions = (inputs: Inputs): Options => {
