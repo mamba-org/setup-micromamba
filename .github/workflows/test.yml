@@ -225,6 +225,19 @@ jobs:
           micromamba list | grep -q pytest
         shell: bash -el {0}
 
+  create-args-multiple-tabs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          environment-name: test
+          create-args: -c python	pytest # whitespace is a tab character
+      - run: |
+          micromamba list | grep -q python
+          micromamba list | grep -q pytest
+        shell: bash -el {0}
+
   output-environment-path-env-file:
     runs-on: ubuntu-latest
     steps:
