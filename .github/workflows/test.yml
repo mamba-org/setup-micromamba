@@ -11,7 +11,7 @@ jobs:
   no-environment-file:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         with:
           environment-name: test
@@ -25,7 +25,7 @@ jobs:
   environment-file:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         with:
           environment-file: 'test/environment.yml'
@@ -36,7 +36,7 @@ jobs:
   no-environment:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
       - run: |
           micromamba info | grep -q "environment : None (not found)"
@@ -45,7 +45,7 @@ jobs:
   micromamba-old-version-1:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         with:
           micromamba-version: 1.4.5-0
@@ -56,7 +56,7 @@ jobs:
   micromamba-old-version-2:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         with:
           micromamba-version: 1.2.0-1 # this will throw a warning
@@ -70,7 +70,7 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         with:
           init-shell: ''
@@ -88,7 +88,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ./
       with:
         init-shell: bash
@@ -100,7 +100,7 @@ jobs:
   multiple-shell-init:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - uses: ./
       with:
         init-shell: >-
@@ -118,7 +118,7 @@ jobs:
   cmd:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         with:
           init-shell: cmd.exe
@@ -134,7 +134,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         with:
           init-shell: powershell
@@ -151,7 +151,7 @@ jobs:
   env-variable:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         with:
           environment-file: 'test/environment.yml'
@@ -163,7 +163,7 @@ jobs:
   custom-condarc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         with:
           environment-file: 'test/environment.yml'
@@ -175,7 +175,7 @@ jobs:
   conda-lock:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         with:
           environment-file: 'test/conda-lock.yml'
@@ -187,7 +187,7 @@ jobs:
   comment-in-environment-file:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         with:
           environment-file: 'test/environment2.yml'
@@ -202,7 +202,7 @@ jobs:
   output-environment-path-env-file:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         id: setup-micromamba
         with:
@@ -214,7 +214,7 @@ jobs:
   output-environment-path-env-name-overwrite:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         id: setup-micromamba
         with:
@@ -227,7 +227,7 @@ jobs:
   output-environment-path-custom-root-prefix:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         id: setup-micromamba
         with:
@@ -240,7 +240,7 @@ jobs:
   output-no-environment-path:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ./
         id: setup-micromamba
       - run: |
