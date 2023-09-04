@@ -198,7 +198,20 @@ jobs:
           python --version | grep -q "Python 3.10.1"
         # micromamba-shell uses the environment-name inferred by setup-micromamba
         shell: micromamba-shell {0}
-    
+
+  create-args-multiple-spaces:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          environment-name: test
+          create-args: python  pytest
+      - run: |
+          micromamba list | grep -q python
+          micromamba list | grep -q pytest
+        shell: bash -el {0}
+
   output-environment-path-env-file:
     runs-on: ubuntu-latest
     steps:
