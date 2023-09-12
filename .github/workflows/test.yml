@@ -170,7 +170,7 @@ jobs:
           condarc-file: 'test/.condarc'
       - run: | # this should only work when the pytorch channel is loaded, i.e., the custom condarc is used
           micromamba search pytorch=2.0.0
-          micromamba search pytorch=2.0.0 | grep -q "pytorch 2.0.0   py3.10_cpu_0                 pytorch"
+          micromamba search pytorch=2.0.0 | grep -q "pytorch 2.0.0 py3.10_cpu_0"
         shell: bash -el {0}
 
   conda-lock:
