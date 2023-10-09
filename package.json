@@ -30,7 +30,7 @@
     "fp-ts": "^2.16.1",
     "js-yaml": "^4.1.0",
     "untildify": "^5.0.0",
-    "zod": "^3.21.4"
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.6",
