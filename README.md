@@ -304,19 +304,19 @@ Please see [this comment for now](https://github.com/mamba-org/provision-with-mi
 
 ## About login shells...
 
-Some shells require special syntax (e.g. `bash -l {0}`). You can set this up with the `defaults` option:
+Some shells require special syntax (e.g. `bash -leo pipefail {0}`). You can set this up with the `defaults` option:
 
 ```yaml
 jobs:
   myjob:
     defaults:
       run:
-        shell: bash -l {0}
+        shell: bash -leo pipefail {0} {0}
 
 # or top-level:
 defaults:
   run:
-    shell: bash -l {0}
+    shell: bash -leo pipefail {0} {0}
 jobs:
   ...
 ```
@@ -324,7 +324,7 @@ jobs:
 Find the reasons below (taken from [setup-miniconda](https://github.com/conda-incubator/setup-miniconda/blob/master/README.md#important)):
 
 - Bash shells do not use `~/.profile` or `~/.bashrc` so these shells need to be
-  explicitly declared as `shell: bash -l {0}` on steps that need to be properly
+  explicitly declared as `shell: bash -leo pipefail {0}` on steps that need to be properly
   activated (or use a default shell). This is because bash shells are executed
   with `bash --noprofile --norc -eo pipefail {0}` thus ignoring updated on bash
   profile files made by `micromamba shell init bash`.

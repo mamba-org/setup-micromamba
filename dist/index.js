@@ -65684,7 +65684,8 @@ var generateEnvironmentKey = (prefix2) => {
   const arch3 = `-${getCondaArch()}`;
   const envName = options.environmentName ? `-${options.environmentName}` : "";
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : "";
-  const key = `${prefix2}${arch3}${envName}${createArgs}`;
+  const rootPrefix = `-root-${sha256Short(options.micromambaRootPath)}`;
+  const key = `${prefix2}${arch3}${envName}${createArgs}${rootPrefix}`;
   if (options.environmentFile) {
     return fs4.readFile(options.environmentFile, "utf-8").then((content) => {
       const keyWithFileSha = `${key}-file-${sha256(content)}`;
