@@ -13,7 +13,6 @@ const core = process.env.MOCKING ? coreMocked : coreDefault
 export const PATHS = {
   micromambaBin: path.join(os.homedir(), 'micromamba-bin', `micromamba${os.platform() === 'win32' ? '.exe' : ''}`),
   micromambaRoot: path.join(os.homedir(), 'micromamba'),
-  micromambaRunShell: '/usr/local/bin/micromamba-shell',
   bashProfile: path.join(os.homedir(), '.bash_profile'),
   bashrc: path.join(os.homedir(), '.bashrc')
 }
@@ -55,6 +54,7 @@ export type Options = Readonly<{
   postCleanup: PostCleanupType
   micromambaRootPath: string
   micromambaBinPath: string
+  micromambaRunShellPath: string
 }>
 
 const postCleanupSchema = z.enum(['none', 'shell-init', 'environment', 'all'])
@@ -126,6 +126,9 @@ const inferOptions = (inputs: Inputs): Options => {
     : inputs.initShell.includes('none')
     ? []
     : (inputs.initShell as ShellType[])
+  const micromambaBinPath = inputs.micromambaBinPath
+    ? path.resolve(untildify(inputs.micromambaBinPath))
+    : PATHS.micromambaBin
 
   return {
     ...inputs,
@@ -144,9 +147,8 @@ const inferOptions = (inputs: Inputs): Options => {
     condarcFile: inputs.condarcFile
       ? path.resolve(untildify(inputs.condarcFile))
       : path.join(path.dirname(PATHS.micromambaBin), '.condarc'), // next to the micromamba binary -> easier cleanup
-    micromambaBinPath: inputs.micromambaBinPath
-      ? path.resolve(untildify(inputs.micromambaBinPath))
-      : PATHS.micromambaBin,
+    micromambaBinPath,
+    micromambaRunShellPath: path.join(path.dirname(micromambaBinPath), 'micromamba-shell'),
     micromambaRootPath: inputs.micromambaRootPath
       ? path.resolve(untildify(inputs.micromambaRootPath))
       : PATHS.micromambaRoot

@@ -3,7 +3,7 @@ import * as os from 'os'
 import path from 'path'
 import * as coreDefault from '@actions/core'
 import { coreMocked } from './mocking'
-import { PATHS, options } from './options'
+import { options } from './options'
 import { determineEnvironmentName } from './util'
 import { shellDeinit } from './shell-init'
 import { saveCacheDownloads } from './cache'
@@ -15,7 +15,7 @@ const removeMicromambaRunShell = () => {
     return Promise.resolve()
   }
   core.info('Removing micromamba run shell ...')
-  return fs.rm(PATHS.micromambaRunShell)
+  return fs.rm(options.micromambaRunShellPath)
 }
 
 const uninstallEnvironment = () => {
