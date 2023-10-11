@@ -281,8 +281,11 @@ jobs:
         with:
           init-shell: none
           generate-run-shell: false
-      - run: which micromamba
-        shell: bash
+      - run: |
+          which micromamba | grep /home/runner/micromamba-bin/micromamba
+          type micromamba | grep "micromamba is /home/runner/micromamba-bin/micromamba"
+          which micromamba-shell | grep /home/runner/micromamba-bin/micromamba-shell
+        shell: bash -el {0}
 
   # not properly testable
   # https://github.com/actions/runner/issues/2347
