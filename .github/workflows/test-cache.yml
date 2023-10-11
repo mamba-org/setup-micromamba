@@ -87,6 +87,44 @@ jobs:
           python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
 
 
+  test-env-changing-root-path1:
+    name: Test env cache with changing root path 1/2
+    timeout-minutes: 10
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          environment-file: test/environment.yml
+          cache-environment-key: env-root-path-key-${{ github.sha }}-${{ github.run_attempt }}
+      - name: test environment name
+        run: |
+          python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
+
+  test-env-changing-root-path2:
+    name: Test env cache with changing root path 2/2
+    timeout-minutes: 10
+    needs: test-env-changing-root-path1
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          environment-file: test/environment.yml
+          cache-environment-key: env-root-path-key-${{ github.sha }}-${{ github.run_attempt }}
+      - name: test environment name
+        run: |
+          python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
+
+
   test-env-then-download1:
     name: Test env then download 1/2
     timeout-minutes: 10
