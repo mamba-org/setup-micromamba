@@ -39,7 +39,8 @@ const generateEnvironmentKey = (prefix: string) => {
   const arch = `-${getCondaArch()}`
   const envName = options.environmentName ? `-${options.environmentName}` : ''
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : ''
-  const key = `${prefix}${arch}${envName}${createArgs}`
+  const rootPrefix = `-root-${sha256Short(options.micromambaRootPath)}`
+  const key = `${prefix}${arch}${envName}${createArgs}${rootPrefix}`
   if (options.environmentFile) {
     return fs.readFile(options.environmentFile, 'utf-8').then((content) => {
       const keyWithFileSha = `${key}-file-${sha256(content)}`
