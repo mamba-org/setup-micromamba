@@ -1,5 +1,6 @@
 import * as path from 'path'
 import * as os from 'os'
+import { exit } from 'process'
 import * as coreDefault from '@actions/core'
 import * as z from 'zod'
 import { left, right } from 'fp-ts/lib/Either'
@@ -68,13 +69,20 @@ export type ShellType = Exclude<ShellTypeWithNone, 'none'>
 
 export type MicromambaSourceType = Either<string, string> // Either<version, url>
 
-const parseOrUndefined = <T>(key: string, schema: z.ZodSchema<T>): T | undefined => {
+const parseOrUndefined = <T>(key: string, schema: z.ZodSchema<T>, errorMessage?: string): T | undefined => {
   const input = core.getInput(key)
   // GitHub actions sets empty inputs to the empty string, but we want undefined
   if (input === '') {
     return undefined
   }
-  return schema.parse(input)
+  const maybeResult = schema.safeParse(input)
+  if (!maybeResult.success) {
+    if (!errorMessage) {
+      throw new Error(`${key} is not valid: ${maybeResult.error.message}`)
+    }
+    throw new Error(errorMessage)
+  }
+  return maybeResult.data
 }
 
 const parseOrUndefinedJSON = <T>(key: string, schema: z.ZodSchema<T>): T | undefined => {
@@ -213,10 +221,15 @@ const getOptions = () => {
     environmentFile: parseOrUndefined('environment-file', z.string()),
     environmentName: parseOrUndefined('environment-name', z.string()),
     createArgs: parseOrUndefinedList('create-args', z.string()),
-    logLevel: parseOrUndefined('log-level', logLevelSchema),
+    logLevel: parseOrUndefined(
+      'log-level',
+      logLevelSchema,
+      'log-level must be either one of `off`, `critical`, `error`, `warning`, `info`, `debug`, `trace`.'
+    ),
     micromambaVersion: parseOrUndefined(
       'micromamba-version',
-      z.union([z.literal('latest'), z.string().regex(/^\d+\.\d+\.\d+-\d+$/)])
+      z.union([z.literal('latest'), z.string().regex(/^\d+\.\d+\.\d+-\d+$/)]),
+      'micromamba-version must be either `latest` or a version matching `1.2.3-0`.'
     ),
     micromambaUrl: parseOrUndefined('micromamba-url', z.string().url()),
     initShell: parseOrUndefinedList('init-shell', shellSchema),
@@ -238,4 +251,21 @@ const getOptions = () => {
   return options
 }
 
-export const options = getOptions()
+let _options: Options
+try {
+  _options = getOptions()
+} catch (error) {
+  if (core.isDebug()) {
+    throw error
+  }
+  if (error instanceof Error) {
+    core.setFailed(error.message)
+    exit(1)
+  } else if (typeof error === 'string') {
+    core.setFailed(error)
+    exit(1)
+  }
+  throw error
+}
+
+export const options = _options
