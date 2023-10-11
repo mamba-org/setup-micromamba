@@ -300,3 +300,23 @@ jobs:
   #           pytest
   #     - run: exit 1
   #       if: success()
+
+  # incorrect-version:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         micromamba-version: '1.2.3'
+  #     - run: exit 1
+  #       if: success()
+
+  # incorrect-log-level:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         log-level: foo
+  #     - run: exit 1
+  #       if: success()

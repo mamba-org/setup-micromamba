@@ -39988,9 +39988,9 @@ var init_requestPolicy = __esm({
       /**
        * The main method to implement that manipulates a request/response.
        */
-      constructor(_nextPolicy, _options) {
+      constructor(_nextPolicy, _options2) {
         this._nextPolicy = _nextPolicy;
-        this._options = _options;
+        this._options = _options2;
       }
       /**
        * Get whether or not a log with the provided log level should be logged.
@@ -46733,10 +46733,10 @@ var init_userAgentPolicy = __esm({
     init_httpHeaders();
     getDefaultUserAgentHeaderName = getDefaultUserAgentKey;
     UserAgentPolicy = class extends BaseRequestPolicy {
-      constructor(_nextPolicy, _options, headerKey, headerValue) {
-        super(_nextPolicy, _options);
+      constructor(_nextPolicy, _options2, headerKey, headerValue) {
+        super(_nextPolicy, _options2);
         this._nextPolicy = _nextPolicy;
-        this._options = _options;
+        this._options = _options2;
         this.headerKey = headerKey;
         this.headerValue = headerValue;
       }
@@ -48162,7 +48162,7 @@ var init_ProxyTracer = __esm({
       ProxyTracer2.prototype.startSpan = function(name, options2, context3) {
         return this._getTracer().startSpan(name, options2, context3);
       };
-      ProxyTracer2.prototype.startActiveSpan = function(_name, _options, _context, _fn) {
+      ProxyTracer2.prototype.startActiveSpan = function(_name, _options2, _context, _fn) {
         var tracer = this._getTracer();
         return Reflect.apply(tracer.startActiveSpan, tracer, arguments);
       };
@@ -48192,7 +48192,7 @@ var init_NoopTracerProvider = __esm({
     function() {
       function NoopTracerProvider2() {
       }
-      NoopTracerProvider2.prototype.getTracer = function(_name, _version, _options) {
+      NoopTracerProvider2.prototype.getTracer = function(_name, _version, _options2) {
         return new NoopTracer();
       };
       return NoopTracerProvider2;
@@ -63394,7 +63394,7 @@ var init_Credential = __esm({
        * @param _nextPolicy -
        * @param _options -
        */
-      create(_nextPolicy, _options) {
+      create(_nextPolicy, _options2) {
         throw new Error("Method should be implemented in children classes.");
       }
     };
@@ -74814,6 +74814,7 @@ var coreMocked = {
 // src/options.ts
 var path = __toESM(require("path"));
 var os2 = __toESM(require("os"));
+var import_process = require("process");
 var coreDefault = __toESM(require_core());
 
 // node_modules/.pnpm/zod@3.22.4/node_modules/zod/lib/index.mjs
@@ -78420,12 +78421,19 @@ var PATHS = {
 var postCleanupSchema = enumType(["none", "shell-init", "environment", "all"]);
 var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
 var shellSchema = enumType(["none", "bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
-var parseOrUndefined = (key, schema2) => {
+var parseOrUndefined = (key, schema2, errorMessage) => {
   const input = core.getInput(key);
   if (input === "") {
     return void 0;
   }
-  return schema2.parse(input);
+  const maybeResult = schema2.safeParse(input);
+  if (!maybeResult.success) {
+    if (!errorMessage) {
+      throw new Error(`${key} is not valid: ${maybeResult.error.message}`);
+    }
+    throw new Error(errorMessage);
+  }
+  return maybeResult.data;
 };
 var parseOrUndefinedJSON = (key, schema2) => {
   const input = core.getInput(key);
@@ -78527,10 +78535,15 @@ var getOptions = () => {
     environmentFile: parseOrUndefined("environment-file", stringType()),
     environmentName: parseOrUndefined("environment-name", stringType()),
     createArgs: parseOrUndefinedList("create-args", stringType()),
-    logLevel: parseOrUndefined("log-level", logLevelSchema),
+    logLevel: parseOrUndefined(
+      "log-level",
+      logLevelSchema,
+      "log-level must be either one of `off`, `critical`, `error`, `warning`, `info`, `debug`, `trace`."
+    ),
     micromambaVersion: parseOrUndefined(
       "micromamba-version",
-      unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)])
+      unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)]),
+      "micromamba-version must be either `latest` or a version matching `1.2.3-0`."
     ),
     micromambaUrl: parseOrUndefined("micromamba-url", stringType().url()),
     initShell: parseOrUndefinedList("init-shell", shellSchema),
@@ -78551,7 +78564,23 @@ var getOptions = () => {
   assertOptions(options2);
   return options2;
 };
-var options = getOptions();
+var _options;
+try {
+  _options = getOptions();
+} catch (error) {
+  if (core.isDebug()) {
+    throw error;
+  }
+  if (error instanceof Error) {
+    core.setFailed(error.message);
+    (0, import_process.exit)(1);
+  } else if (typeof error === "string") {
+    core.setFailed(error);
+    (0, import_process.exit)(1);
+  }
+  throw error;
+}
+var options = _options;
 
 // src/util.ts
 var fs = __toESM(require("fs/promises"));
