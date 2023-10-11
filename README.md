@@ -130,7 +130,7 @@ With this, you don't need to initialize your shell and activate the environment 
 You can set this behavior by specifying the `generate-run-shell` input (defaults to `true`).
 
 > [!NOTE]
-> Under the hood, this shell wrapper runs `micromamba run -r <root-prefix-path> -n <env-name> <command>` with `<command>` being a file containing the part that you specify in the `run:` section of your workflow. 
+> Under the hood, this shell wrapper runs `micromamba run -r <root-prefix-path> -n <env-name> <command>` with `<command>` being a file containing the part that you specify in the `run:` section of your workflow.
 > See the [official documentation](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#custom-shell) and [ADR 0277](https://github.com/actions/runner/blob/main/docs/adrs/0277-run-action-shell-options.md) for more information about how the `shell:` input works in GitHub Actions.
 
 > [!WARNING]

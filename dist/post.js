@@ -78414,7 +78414,6 @@ var core = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
   micromambaBin: path.join(os2.homedir(), "micromamba-bin", `micromamba${os2.platform() === "win32" ? ".exe" : ""}`),
   micromambaRoot: path.join(os2.homedir(), "micromamba"),
-  micromambaRunShell: "/usr/local/bin/micromamba-shell",
   bashProfile: path.join(os2.homedir(), ".bash_profile"),
   bashrc: path.join(os2.homedir(), ".bashrc")
 };
@@ -78448,6 +78447,7 @@ var inferOptions = (inputs) => {
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
   const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;
+  const micromambaBinPath = inputs.micromambaBinPath ? path.resolve(untildify(inputs.micromambaBinPath)) : PATHS.micromambaBin;
   return {
     ...inputs,
     writeToCondarc,
@@ -78463,7 +78463,8 @@ var inferOptions = (inputs) => {
     // use a different path than ~/.condarc to avoid messing up the user's condarc
     condarcFile: inputs.condarcFile ? path.resolve(untildify(inputs.condarcFile)) : path.join(path.dirname(PATHS.micromambaBin), ".condarc"),
     // next to the micromamba binary -> easier cleanup
-    micromambaBinPath: inputs.micromambaBinPath ? path.resolve(untildify(inputs.micromambaBinPath)) : PATHS.micromambaBin,
+    micromambaBinPath,
+    micromambaRunShellPath: path.dirname(micromambaBinPath),
     micromambaRootPath: inputs.micromambaRootPath ? path.resolve(untildify(inputs.micromambaRootPath)) : PATHS.micromambaRoot
   };
 };

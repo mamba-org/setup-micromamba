@@ -83150,7 +83150,6 @@ var core2 = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
   micromambaBin: path.join(os2.homedir(), "micromamba-bin", `micromamba${os2.platform() === "win32" ? ".exe" : ""}`),
   micromambaRoot: path.join(os2.homedir(), "micromamba"),
-  micromambaRunShell: "/usr/local/bin/micromamba-shell",
   bashProfile: path.join(os2.homedir(), ".bash_profile"),
   bashrc: path.join(os2.homedir(), ".bashrc")
 };
@@ -83184,6 +83183,7 @@ var inferOptions = (inputs) => {
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
   const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;
+  const micromambaBinPath = inputs.micromambaBinPath ? path.resolve(untildify(inputs.micromambaBinPath)) : PATHS.micromambaBin;
   return {
     ...inputs,
     writeToCondarc,
@@ -83199,7 +83199,8 @@ var inferOptions = (inputs) => {
     // use a different path than ~/.condarc to avoid messing up the user's condarc
     condarcFile: inputs.condarcFile ? path.resolve(untildify(inputs.condarcFile)) : path.join(path.dirname(PATHS.micromambaBin), ".condarc"),
     // next to the micromamba binary -> easier cleanup
-    micromambaBinPath: inputs.micromambaBinPath ? path.resolve(untildify(inputs.micromambaBinPath)) : PATHS.micromambaBin,
+    micromambaBinPath,
+    micromambaRunShellPath: path.dirname(micromambaBinPath),
     micromambaRootPath: inputs.micromambaRootPath ? path.resolve(untildify(inputs.micromambaRootPath)) : PATHS.micromambaRoot
   };
 };
@@ -83521,7 +83522,7 @@ var core6 = process.env.MOCKING ? coreMocked : coreDefault5;
 var downloadMicromamba = (url2) => {
   core6.startGroup("Install micromamba");
   core6.debug(`Downloading micromamba from ${url2} ...`);
-  return import_promises.default.mkdir(import_path3.default.dirname(options.micromambaBinPath), { recursive: true }).then(() => (0, import_tool_cache.downloadTool)(url2, options.micromambaBinPath)).then((_downloadPath) => import_promises.default.chmod(options.micromambaBinPath, 493)).then(() => core6.info(`micromamba installed to ${options.micromambaBinPath}`)).catch((err) => {
+  return import_promises.default.mkdir(import_path3.default.dirname(options.micromambaBinPath), { recursive: true }).then(() => (0, import_tool_cache.downloadTool)(url2, options.micromambaBinPath)).then((_downloadPath) => import_promises.default.chmod(options.micromambaBinPath, 493)).then(() => core6.addPath(import_path3.default.dirname(options.micromambaBinPath))).then(() => core6.info(`micromamba installed to ${options.micromambaBinPath}`)).catch((err) => {
     core6.error(`Error installing micromamba: ${err.message}`);
     throw err;
   }).finally(core6.endGroup);
@@ -83614,10 +83615,10 @@ $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
 `;
   return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
     const file = micromambaRunShellContents.replace(/\$MAMBA_EXE/g, options.micromambaBinPath).replace(/\$MAMBA_ROOT_PREFIX/g, options.micromambaRootPath).replace(/\$MAMBA_DEFAULT_ENV/g, environmentName);
-    core6.debug(`Writing micromamba run shell to ${PATHS.micromambaRunShell}`);
+    core6.debug(`Writing micromamba run shell to ${options.micromambaRunShellPath}`);
     core6.debug(`File contents:
 "${file}"`);
-    return import_promises.default.writeFile(PATHS.micromambaRunShell, file, { encoding: "utf8", mode: 493 });
+    return import_promises.default.writeFile(options.micromambaRunShellPath, file, { encoding: "utf8", mode: 493 });
   }).finally(core6.endGroup);
 };
 var addEnvironmentPathToOutput = () => {

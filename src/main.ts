@@ -21,6 +21,7 @@ const downloadMicromamba = (url: string) => {
     .mkdir(path.dirname(options.micromambaBinPath), { recursive: true })
     .then(() => downloadTool(url, options.micromambaBinPath))
     .then((_downloadPath) => fs.chmod(options.micromambaBinPath, 0o755))
+    .then(() => core.addPath(path.dirname(options.micromambaBinPath)))
     .then(() => core.info(`micromamba installed to ${options.micromambaBinPath}`))
     .catch((err) => {
       core.error(`Error installing micromamba: ${err.message}`)
@@ -134,9 +135,9 @@ $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
         .replace(/\$MAMBA_EXE/g, options.micromambaBinPath)
         .replace(/\$MAMBA_ROOT_PREFIX/g, options.micromambaRootPath)
         .replace(/\$MAMBA_DEFAULT_ENV/g, environmentName)
-      core.debug(`Writing micromamba run shell to ${PATHS.micromambaRunShell}`)
+      core.debug(`Writing micromamba run shell to ${options.micromambaRunShellPath}`)
       core.debug(`File contents:\n"${file}"`)
-      return fs.writeFile(PATHS.micromambaRunShell, file, { encoding: 'utf8', mode: 0o755 })
+      return fs.writeFile(options.micromambaRunShellPath, file, { encoding: 'utf8', mode: 0o755 })
     })
     .finally(core.endGroup)
 }
