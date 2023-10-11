@@ -280,7 +280,6 @@ jobs:
       - uses: ./
         with:
           init-shell: none
-          generate-run-shell: false
       - run: |
           which micromamba | grep /home/runner/micromamba-bin/micromamba
           type micromamba | grep "micromamba is /home/runner/micromamba-bin/micromamba"
