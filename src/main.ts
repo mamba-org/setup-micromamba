@@ -2,6 +2,7 @@ import fs from 'fs/promises'
 import { constants as fsConstants } from 'fs' // fs.constants is not available in fs/promises for node < 18.4.0
 import os from 'os'
 import path from 'path'
+import { exit } from 'process'
 import * as coreDefault from '@actions/core'
 import * as io from '@actions/io'
 import { downloadTool } from '@actions/tool-cache'
@@ -184,4 +185,16 @@ const run = async () => {
   await generateInfo()
 }
 
-run()
+run().catch((error) => {
+  if (core.isDebug()) {
+    throw error
+  }
+  if (error instanceof Error) {
+    core.setFailed(error.message)
+    exit(1)
+  } else if (typeof error === 'string') {
+    core.setFailed(error)
+    exit(1)
+  }
+  throw error
+})
