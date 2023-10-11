@@ -280,6 +280,7 @@ jobs:
       - uses: ./
         with:
           init-shell: none
+          environment-file: test/environment.yml
       - run: |
           which micromamba | grep /home/runner/micromamba-bin/micromamba
           type micromamba | grep "micromamba is /home/runner/micromamba-bin/micromamba"
