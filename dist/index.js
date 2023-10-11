@@ -83200,7 +83200,7 @@ var inferOptions = (inputs) => {
     condarcFile: inputs.condarcFile ? path.resolve(untildify(inputs.condarcFile)) : path.join(path.dirname(PATHS.micromambaBin), ".condarc"),
     // next to the micromamba binary -> easier cleanup
     micromambaBinPath,
-    micromambaRunShellPath: path.dirname(micromambaBinPath),
+    micromambaRunShellPath: path.join(path.dirname(micromambaBinPath), "micromamba-shell"),
     micromambaRootPath: inputs.micromambaRootPath ? path.resolve(untildify(inputs.micromambaRootPath)) : PATHS.micromambaRoot
   };
 };
