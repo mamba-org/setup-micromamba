@@ -101,6 +101,7 @@ jobs:
         with:
           environment-file: test/environment.yml
           cache-environment-key: env-root-path-key-${{ github.sha }}-${{ github.run_attempt }}
+          micromamba-root-path: ~/micromamba
       - name: test environment name
         run: |
           python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
@@ -120,6 +121,7 @@ jobs:
         with:
           environment-file: test/environment.yml
           cache-environment-key: env-root-path-key-${{ github.sha }}-${{ github.run_attempt }}
+          micromamba-root-path: ~/micromamba2
       - name: test environment name
         run: |
           python -c "import os; env = os.path.basename(os.environ['CONDA_PREFIX']); assert env == 'env-name'"
