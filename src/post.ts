@@ -15,7 +15,7 @@ const removeMicromambaRunShell = () => {
     return Promise.resolve()
   }
   core.info('Removing micromamba run shell ...')
-  return fs.rm(PATHS.micromambaRunShell)
+  return fs.rm(options.micromambaRunShellPath)
 }
 
 const uninstallEnvironment = () => {

@@ -81381,7 +81381,7 @@ var removeMicromambaRunShell = () => {
     return Promise.resolve();
   }
   core6.info("Removing micromamba run shell ...");
-  return fs5.rm(PATHS.micromambaRunShell);
+  return fs5.rm(options.micromambaRunShellPath);
 };
 var uninstallEnvironment = () => {
   return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
