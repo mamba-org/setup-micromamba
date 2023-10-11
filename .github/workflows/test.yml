@@ -273,6 +273,17 @@ jobs:
       - run: |
           test "${{ steps.setup-micromamba.outputs.environment-path }}" = ""
 
+  check-micromamba-on-path:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          init-shell: none
+          generate-run-shell: false
+      - run: which micromamba
+        shell: bash
+
   # not properly testable
   # https://github.com/actions/runner/issues/2347
   # https://github.com/orgs/community/discussions/15452
