@@ -92,6 +92,6 @@ outputs:
     description: Path to the created environment. Only populated if environment was created, i.e., `environment-file` or `environment-name` was specified.
 
 runs:
-  using: 'node16'
-  main: 'dist/index.js'
-  post: 'dist/post.js'
+  using: node20
+  main: dist/index.js
+  post: dist/post.js
