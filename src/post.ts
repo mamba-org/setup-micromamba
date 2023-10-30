@@ -1,14 +1,11 @@
 import * as fs from 'fs/promises'
 import * as os from 'os'
 import path from 'path'
-import * as coreDefault from '@actions/core'
-import { coreMocked } from './mocking'
 import { options } from './options'
 import { determineEnvironmentName } from './util'
 import { shellDeinit } from './shell-init'
 import { saveCacheDownloads } from './cache'
-
-const core = process.env.MOCKING ? coreMocked : coreDefault
+import { core } from './core'
 
 const removeMicromambaRunShell = () => {
   if (!options.generateRunShell || os.platform() === 'win32') {

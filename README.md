@@ -4,6 +4,9 @@
 
 GitHub Action to set up the [micromamba](https://github.com/mamba-org/mamba#micromamba) package manager.
 
+Also useful to download micromamba and create conda environments in npm
+scripts.
+
 ## Usage
 
 ```yml
@@ -366,6 +369,24 @@ Find the reasons below (taken from [setup-miniconda](https://github.com/conda-in
 For further information, see 
 [`jobs.<job_id>.steps[*].shell`](https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstepsshell) 
 and [this thread](https://github.com/orgs/community/discussions/25061).
+
+## Use in NPM scripts
+
+When used in NPM scripts, `setup-micromamba` provides a convenient way to
+download micromamba and create conda environments.
+
+Set options through environment variables in invocation. If micromamba has
+already been downloaded or an environment already exists, it will not be
+recreated.
+
+Example:
+
+```
+  "scripts": {
+  [...]
+    "micromamba": "MICROMAMBA_ROOT_PATH=micromamba CREATE_ENVIRONMENT=true CREATE_ARGS=\"python=3.11\" ENVIRONMENT_NAME=test-env setup-micromamba",
+  [...]
+```
 
 ## Development
 

@@ -1,15 +1,14 @@
 import * as path from 'path'
 import * as os from 'os'
 import { exit } from 'process'
-import * as coreDefault from '@actions/core'
 import * as z from 'zod'
 import { left, right } from 'fp-ts/lib/Either'
 import type { Either } from 'fp-ts/lib/Either'
 import untildify from 'untildify'
 import which from 'which'
-import { coreMocked } from './mocking'
 
-const core = process.env.MOCKING ? coreMocked : coreDefault
+import { core } from './core'
+import { setLogLevel } from './mocking'
 
 export const PATHS = {
   micromambaBin: path.join(os.homedir(), 'micromamba-bin', `micromamba${os.platform() === 'win32' ? '.exe' : ''}`),
@@ -255,6 +254,7 @@ const getOptions = () => {
     micromambaRootPath: parseOrUndefined('micromamba-root-path', z.string()),
     micromambaBinPath: parseOrUndefined('micromamba-binary-path', z.string())
   }
+  setLogLevel(inputs.logLevel)
   core.debug(`Inputs: ${JSON.stringify(inputs)}`)
   validateInputs(inputs)
   const options = inferOptions(inputs)

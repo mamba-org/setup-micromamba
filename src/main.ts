@@ -2,18 +2,15 @@ import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
 import { exit } from 'process'
-import * as coreDefault from '@actions/core'
 import * as io from '@actions/io'
 import { downloadTool } from '@actions/tool-cache'
 import { getMicromambaUrl, micromambaCmd, execute, determineEnvironmentName } from './util'
-import { coreMocked } from './mocking'
 import { PATHS, options } from './options'
 import { addEnvironmentToAutoActivate, shellInit } from './shell-init'
 import { restoreCacheDownloads, restoreCacheEnvironment, saveCacheEnvironment } from './cache'
+import { core } from './core'
 
-const core = process.env.MOCKING ? coreMocked : coreDefault
-
-const downloadMicromamba = (url: string) => {
+export const downloadMicromamba = (url: string) => {
   if (options.downloadMicromamba === false) {
     core.info('Skipping micromamba download.')
     core.addPath(path.dirname(options.micromambaBinPath))
@@ -35,7 +32,7 @@ const downloadMicromamba = (url: string) => {
     .finally(core.endGroup)
 }
 
-const generateCondarc = () => {
+export const generateCondarc = () => {
   if (!options.writeToCondarc) {
     core.debug(`Using condarc file ${options.condarcFile} ...`)
     return fs.access(options.condarcFile, fs.constants.R_OK)
@@ -71,7 +68,7 @@ const createEnvironment = () => {
   return execute(micromambaCmd(commandStr, options.logLevel, options.condarcFile))
 }
 
-const installEnvironment = () => {
+export const installEnvironment = () => {
   return determineEnvironmentName(options.environmentName, options.environmentFile)
     .then((environmentName) =>
       Promise.all([Promise.resolve(environmentName), restoreCacheEnvironment(environmentName)])
@@ -98,7 +95,7 @@ const installEnvironment = () => {
     )
 }
 
-const generateInfo = () => {
+export const generateInfo = () => {
   core.startGroup('micromamba info')
   let command: Promise<number>
   if (!options.createEnvironment) {
@@ -120,7 +117,7 @@ const generateInfo = () => {
   return command.finally(core.endGroup)
 }
 
-const generateMicromambaRunShell = () => {
+export const generateMicromambaRunShell = () => {
   if (!options.generateRunShell) {
     core.debug('Skipping micromamba run shell generation.')
     return Promise.resolve()
@@ -190,16 +187,18 @@ const run = async () => {
   await generateInfo()
 }
 
-run().catch((error) => {
-  if (core.isDebug()) {
+if (process.env.MOCKING || process.env.GITHUB_ACTIONS) {
+  run().catch((error) => {
+    if (core.isDebug()) {
+      throw error
+    }
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+      exit(1)
+    } else if (typeof error === 'string') {
+      core.setFailed(error)
+      exit(1)
+    }
     throw error
-  }
-  if (error instanceof Error) {
-    core.setFailed(error.message)
-    exit(1)
-  } else if (typeof error === 'string') {
-    core.setFailed(error)
-    exit(1)
-  }
-  throw error
-})
+  })
+}

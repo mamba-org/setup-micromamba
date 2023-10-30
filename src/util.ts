@@ -3,16 +3,13 @@ import * as os from 'os'
 import type { BinaryLike } from 'crypto'
 import { createHash } from 'crypto'
 import * as yaml from 'js-yaml'
-import * as coreDefault from '@actions/core'
 import { exec } from '@actions/exec'
 import { match } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
 import * as z from 'zod'
-import { coreMocked } from './mocking'
 import { options } from './options'
 import type { LogLevelType, MicromambaSourceType } from './options'
-
-const core = process.env.MOCKING ? coreMocked : coreDefault
+import { core } from './core'
 
 const getMicromambaUrlFromVersion = (arch: string, version: string) => {
   if (version === 'latest') {

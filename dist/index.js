@@ -60,6 +60,437 @@ var __privateMethod = (obj, member, method) => {
   return method;
 };
 
+// node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io-util.js
+var require_io_util = __commonJS({
+  "node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io-util.js"(exports) {
+    "use strict";
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
+      if (k2 === void 0)
+        k2 = k;
+      Object.defineProperty(o, k2, { enumerable: true, get: function() {
+        return m[k];
+      } });
+    } : function(o, m, k, k2) {
+      if (k2 === void 0)
+        k2 = k;
+      o[k2] = m[k];
+    });
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o, v) {
+      Object.defineProperty(o, "default", { enumerable: true, value: v });
+    } : function(o, v) {
+      o["default"] = v;
+    });
+    var __importStar = exports && exports.__importStar || function(mod) {
+      if (mod && mod.__esModule)
+        return mod;
+      var result = {};
+      if (mod != null) {
+        for (var k in mod)
+          if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+            __createBinding(result, mod, k);
+      }
+      __setModuleDefault(result, mod);
+      return result;
+    };
+    var __awaiter = exports && exports.__awaiter || function(thisArg, _arguments, P, generator) {
+      function adopt(value) {
+        return value instanceof P ? value : new P(function(resolve2) {
+          resolve2(value);
+        });
+      }
+      return new (P || (P = Promise))(function(resolve2, reject) {
+        function fulfilled(value) {
+          try {
+            step(generator.next(value));
+          } catch (e) {
+            reject(e);
+          }
+        }
+        function rejected(value) {
+          try {
+            step(generator["throw"](value));
+          } catch (e) {
+            reject(e);
+          }
+        }
+        function step(result) {
+          result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
+        }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+      });
+    };
+    var _a2;
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
+    var fs6 = __importStar(require("fs"));
+    var path5 = __importStar(require("path"));
+    _a2 = fs6.promises, exports.chmod = _a2.chmod, exports.copyFile = _a2.copyFile, exports.lstat = _a2.lstat, exports.mkdir = _a2.mkdir, exports.open = _a2.open, exports.readdir = _a2.readdir, exports.readlink = _a2.readlink, exports.rename = _a2.rename, exports.rm = _a2.rm, exports.rmdir = _a2.rmdir, exports.stat = _a2.stat, exports.symlink = _a2.symlink, exports.unlink = _a2.unlink;
+    exports.IS_WINDOWS = process.platform === "win32";
+    exports.UV_FS_O_EXLOCK = 268435456;
+    exports.READONLY = fs6.constants.O_RDONLY;
+    function exists(fsPath) {
+      return __awaiter(this, void 0, void 0, function* () {
+        try {
+          yield exports.stat(fsPath);
+        } catch (err) {
+          if (err.code === "ENOENT") {
+            return false;
+          }
+          throw err;
+        }
+        return true;
+      });
+    }
+    exports.exists = exists;
+    function isDirectory(fsPath, useStat = false) {
+      return __awaiter(this, void 0, void 0, function* () {
+        const stats = useStat ? yield exports.stat(fsPath) : yield exports.lstat(fsPath);
+        return stats.isDirectory();
+      });
+    }
+    exports.isDirectory = isDirectory;
+    function isRooted(p) {
+      p = normalizeSeparators(p);
+      if (!p) {
+        throw new Error('isRooted() parameter "p" cannot be empty');
+      }
+      if (exports.IS_WINDOWS) {
+        return p.startsWith("\\") || /^[A-Z]:/i.test(p);
+      }
+      return p.startsWith("/");
+    }
+    exports.isRooted = isRooted;
+    function tryGetExecutablePath(filePath, extensions) {
+      return __awaiter(this, void 0, void 0, function* () {
+        let stats = void 0;
+        try {
+          stats = yield exports.stat(filePath);
+        } catch (err) {
+          if (err.code !== "ENOENT") {
+            console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
+          }
+        }
+        if (stats && stats.isFile()) {
+          if (exports.IS_WINDOWS) {
+            const upperExt = path5.extname(filePath).toUpperCase();
+            if (extensions.some((validExt) => validExt.toUpperCase() === upperExt)) {
+              return filePath;
+            }
+          } else {
+            if (isUnixExecutable(stats)) {
+              return filePath;
+            }
+          }
+        }
+        const originalFilePath = filePath;
+        for (const extension of extensions) {
+          filePath = originalFilePath + extension;
+          stats = void 0;
+          try {
+            stats = yield exports.stat(filePath);
+          } catch (err) {
+            if (err.code !== "ENOENT") {
+              console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
+            }
+          }
+          if (stats && stats.isFile()) {
+            if (exports.IS_WINDOWS) {
+              try {
+                const directory = path5.dirname(filePath);
+                const upperName = path5.basename(filePath).toUpperCase();
+                for (const actualName of yield exports.readdir(directory)) {
+                  if (upperName === actualName.toUpperCase()) {
+                    filePath = path5.join(directory, actualName);
+                    break;
+                  }
+                }
+              } catch (err) {
+                console.log(`Unexpected error attempting to determine the actual case of the file '${filePath}': ${err}`);
+              }
+              return filePath;
+            } else {
+              if (isUnixExecutable(stats)) {
+                return filePath;
+              }
+            }
+          }
+        }
+        return "";
+      });
+    }
+    exports.tryGetExecutablePath = tryGetExecutablePath;
+    function normalizeSeparators(p) {
+      p = p || "";
+      if (exports.IS_WINDOWS) {
+        p = p.replace(/\//g, "\\");
+        return p.replace(/\\\\+/g, "\\");
+      }
+      return p.replace(/\/\/+/g, "/");
+    }
+    function isUnixExecutable(stats) {
+      return (stats.mode & 1) > 0 || (stats.mode & 8) > 0 && stats.gid === process.getgid() || (stats.mode & 64) > 0 && stats.uid === process.getuid();
+    }
+    function getCmdPath() {
+      var _a3;
+      return (_a3 = process.env["COMSPEC"]) !== null && _a3 !== void 0 ? _a3 : `cmd.exe`;
+    }
+    exports.getCmdPath = getCmdPath;
+  }
+});
+
+// node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io.js
+var require_io = __commonJS({
+  "node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io.js"(exports) {
+    "use strict";
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
+      if (k2 === void 0)
+        k2 = k;
+      Object.defineProperty(o, k2, { enumerable: true, get: function() {
+        return m[k];
+      } });
+    } : function(o, m, k, k2) {
+      if (k2 === void 0)
+        k2 = k;
+      o[k2] = m[k];
+    });
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o, v) {
+      Object.defineProperty(o, "default", { enumerable: true, value: v });
+    } : function(o, v) {
+      o["default"] = v;
+    });
+    var __importStar = exports && exports.__importStar || function(mod) {
+      if (mod && mod.__esModule)
+        return mod;
+      var result = {};
+      if (mod != null) {
+        for (var k in mod)
+          if (k !== "default" && Object.hasOwnProperty.call(mod, k))
+            __createBinding(result, mod, k);
+      }
+      __setModuleDefault(result, mod);
+      return result;
+    };
+    var __awaiter = exports && exports.__awaiter || function(thisArg, _arguments, P, generator) {
+      function adopt(value) {
+        return value instanceof P ? value : new P(function(resolve2) {
+          resolve2(value);
+        });
+      }
+      return new (P || (P = Promise))(function(resolve2, reject) {
+        function fulfilled(value) {
+          try {
+            step(generator.next(value));
+          } catch (e) {
+            reject(e);
+          }
+        }
+        function rejected(value) {
+          try {
+            step(generator["throw"](value));
+          } catch (e) {
+            reject(e);
+          }
+        }
+        function step(result) {
+          result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
+        }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+      });
+    };
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.findInPath = exports.which = exports.mkdirP = exports.rmRF = exports.mv = exports.cp = void 0;
+    var assert_1 = require("assert");
+    var path5 = __importStar(require("path"));
+    var ioUtil = __importStar(require_io_util());
+    function cp(source, dest, options2 = {}) {
+      return __awaiter(this, void 0, void 0, function* () {
+        const { force, recursive, copySourceDirectory } = readCopyOptions(options2);
+        const destStat = (yield ioUtil.exists(dest)) ? yield ioUtil.stat(dest) : null;
+        if (destStat && destStat.isFile() && !force) {
+          return;
+        }
+        const newDest = destStat && destStat.isDirectory() && copySourceDirectory ? path5.join(dest, path5.basename(source)) : dest;
+        if (!(yield ioUtil.exists(source))) {
+          throw new Error(`no such file or directory: ${source}`);
+        }
+        const sourceStat = yield ioUtil.stat(source);
+        if (sourceStat.isDirectory()) {
+          if (!recursive) {
+            throw new Error(`Failed to copy. ${source} is a directory, but tried to copy without recursive flag.`);
+          } else {
+            yield cpDirRecursive(source, newDest, 0, force);
+          }
+        } else {
+          if (path5.relative(source, newDest) === "") {
+            throw new Error(`'${newDest}' and '${source}' are the same file`);
+          }
+          yield copyFile(source, newDest, force);
+        }
+      });
+    }
+    exports.cp = cp;
+    function mv(source, dest, options2 = {}) {
+      return __awaiter(this, void 0, void 0, function* () {
+        if (yield ioUtil.exists(dest)) {
+          let destExists = true;
+          if (yield ioUtil.isDirectory(dest)) {
+            dest = path5.join(dest, path5.basename(source));
+            destExists = yield ioUtil.exists(dest);
+          }
+          if (destExists) {
+            if (options2.force == null || options2.force) {
+              yield rmRF(dest);
+            } else {
+              throw new Error("Destination already exists");
+            }
+          }
+        }
+        yield mkdirP(path5.dirname(dest));
+        yield ioUtil.rename(source, dest);
+      });
+    }
+    exports.mv = mv;
+    function rmRF(inputPath) {
+      return __awaiter(this, void 0, void 0, function* () {
+        if (ioUtil.IS_WINDOWS) {
+          if (/[*"<>|]/.test(inputPath)) {
+            throw new Error('File path must not contain `*`, `"`, `<`, `>` or `|` on Windows');
+          }
+        }
+        try {
+          yield ioUtil.rm(inputPath, {
+            force: true,
+            maxRetries: 3,
+            recursive: true,
+            retryDelay: 300
+          });
+        } catch (err) {
+          throw new Error(`File was unable to be removed ${err}`);
+        }
+      });
+    }
+    exports.rmRF = rmRF;
+    function mkdirP(fsPath) {
+      return __awaiter(this, void 0, void 0, function* () {
+        assert_1.ok(fsPath, "a path argument must be provided");
+        yield ioUtil.mkdir(fsPath, { recursive: true });
+      });
+    }
+    exports.mkdirP = mkdirP;
+    function which3(tool, check) {
+      return __awaiter(this, void 0, void 0, function* () {
+        if (!tool) {
+          throw new Error("parameter 'tool' is required");
+        }
+        if (check) {
+          const result = yield which3(tool, false);
+          if (!result) {
+            if (ioUtil.IS_WINDOWS) {
+              throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also verify the file has a valid extension for an executable file.`);
+            } else {
+              throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also check the file mode to verify the file is executable.`);
+            }
+          }
+          return result;
+        }
+        const matches = yield findInPath(tool);
+        if (matches && matches.length > 0) {
+          return matches[0];
+        }
+        return "";
+      });
+    }
+    exports.which = which3;
+    function findInPath(tool) {
+      return __awaiter(this, void 0, void 0, function* () {
+        if (!tool) {
+          throw new Error("parameter 'tool' is required");
+        }
+        const extensions = [];
+        if (ioUtil.IS_WINDOWS && process.env["PATHEXT"]) {
+          for (const extension of process.env["PATHEXT"].split(path5.delimiter)) {
+            if (extension) {
+              extensions.push(extension);
+            }
+          }
+        }
+        if (ioUtil.isRooted(tool)) {
+          const filePath = yield ioUtil.tryGetExecutablePath(tool, extensions);
+          if (filePath) {
+            return [filePath];
+          }
+          return [];
+        }
+        if (tool.includes(path5.sep)) {
+          return [];
+        }
+        const directories = [];
+        if (process.env.PATH) {
+          for (const p of process.env.PATH.split(path5.delimiter)) {
+            if (p) {
+              directories.push(p);
+            }
+          }
+        }
+        const matches = [];
+        for (const directory of directories) {
+          const filePath = yield ioUtil.tryGetExecutablePath(path5.join(directory, tool), extensions);
+          if (filePath) {
+            matches.push(filePath);
+          }
+        }
+        return matches;
+      });
+    }
+    exports.findInPath = findInPath;
+    function readCopyOptions(options2) {
+      const force = options2.force == null ? true : options2.force;
+      const recursive = Boolean(options2.recursive);
+      const copySourceDirectory = options2.copySourceDirectory == null ? true : Boolean(options2.copySourceDirectory);
+      return { force, recursive, copySourceDirectory };
+    }
+    function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
+      return __awaiter(this, void 0, void 0, function* () {
+        if (currentDepth >= 255)
+          return;
+        currentDepth++;
+        yield mkdirP(destDir);
+        const files = yield ioUtil.readdir(sourceDir);
+        for (const fileName of files) {
+          const srcFile = `${sourceDir}/${fileName}`;
+          const destFile = `${destDir}/${fileName}`;
+          const srcFileStat = yield ioUtil.lstat(srcFile);
+          if (srcFileStat.isDirectory()) {
+            yield cpDirRecursive(srcFile, destFile, currentDepth, force);
+          } else {
+            yield copyFile(srcFile, destFile, force);
+          }
+        }
+        yield ioUtil.chmod(destDir, (yield ioUtil.stat(sourceDir)).mode);
+      });
+    }
+    function copyFile(srcFile, destFile, force) {
+      return __awaiter(this, void 0, void 0, function* () {
+        if ((yield ioUtil.lstat(srcFile)).isSymbolicLink()) {
+          try {
+            yield ioUtil.lstat(destFile);
+            yield ioUtil.unlink(destFile);
+          } catch (e) {
+            if (e.code === "EPERM") {
+              yield ioUtil.chmod(destFile, "0666");
+              yield ioUtil.unlink(destFile);
+            }
+          }
+          const symlinkFull = yield ioUtil.readlink(srcFile);
+          yield ioUtil.symlink(symlinkFull, destFile, ioUtil.IS_WINDOWS ? "junction" : null);
+        } else if (!(yield ioUtil.exists(destFile)) || force) {
+          yield ioUtil.copyFile(srcFile, destFile);
+        }
+      });
+    }
+  }
+});
+
 // node_modules/.pnpm/@actions+core@1.10.1/node_modules/@actions/core/lib/utils.js
 var require_utils = __commonJS({
   "node_modules/.pnpm/@actions+core@1.10.1/node_modules/@actions/core/lib/utils.js"(exports) {
@@ -2250,437 +2681,6 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
   }
 });
 
-// node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io-util.js
-var require_io_util = __commonJS({
-  "node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io-util.js"(exports) {
-    "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      Object.defineProperty(o, k2, { enumerable: true, get: function() {
-        return m[k];
-      } });
-    } : function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      o[k2] = m[k];
-    });
-    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o, v) {
-      Object.defineProperty(o, "default", { enumerable: true, value: v });
-    } : function(o, v) {
-      o["default"] = v;
-    });
-    var __importStar = exports && exports.__importStar || function(mod) {
-      if (mod && mod.__esModule)
-        return mod;
-      var result = {};
-      if (mod != null) {
-        for (var k in mod)
-          if (k !== "default" && Object.hasOwnProperty.call(mod, k))
-            __createBinding(result, mod, k);
-      }
-      __setModuleDefault(result, mod);
-      return result;
-    };
-    var __awaiter = exports && exports.__awaiter || function(thisArg, _arguments, P, generator) {
-      function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve2) {
-          resolve2(value);
-        });
-      }
-      return new (P || (P = Promise))(function(resolve2, reject) {
-        function fulfilled(value) {
-          try {
-            step(generator.next(value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function rejected(value) {
-          try {
-            step(generator["throw"](value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function step(result) {
-          result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-        }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-      });
-    };
-    var _a2;
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getCmdPath = exports.tryGetExecutablePath = exports.isRooted = exports.isDirectory = exports.exists = exports.READONLY = exports.UV_FS_O_EXLOCK = exports.IS_WINDOWS = exports.unlink = exports.symlink = exports.stat = exports.rmdir = exports.rm = exports.rename = exports.readlink = exports.readdir = exports.open = exports.mkdir = exports.lstat = exports.copyFile = exports.chmod = void 0;
-    var fs6 = __importStar(require("fs"));
-    var path5 = __importStar(require("path"));
-    _a2 = fs6.promises, exports.chmod = _a2.chmod, exports.copyFile = _a2.copyFile, exports.lstat = _a2.lstat, exports.mkdir = _a2.mkdir, exports.open = _a2.open, exports.readdir = _a2.readdir, exports.readlink = _a2.readlink, exports.rename = _a2.rename, exports.rm = _a2.rm, exports.rmdir = _a2.rmdir, exports.stat = _a2.stat, exports.symlink = _a2.symlink, exports.unlink = _a2.unlink;
-    exports.IS_WINDOWS = process.platform === "win32";
-    exports.UV_FS_O_EXLOCK = 268435456;
-    exports.READONLY = fs6.constants.O_RDONLY;
-    function exists(fsPath) {
-      return __awaiter(this, void 0, void 0, function* () {
-        try {
-          yield exports.stat(fsPath);
-        } catch (err) {
-          if (err.code === "ENOENT") {
-            return false;
-          }
-          throw err;
-        }
-        return true;
-      });
-    }
-    exports.exists = exists;
-    function isDirectory(fsPath, useStat = false) {
-      return __awaiter(this, void 0, void 0, function* () {
-        const stats = useStat ? yield exports.stat(fsPath) : yield exports.lstat(fsPath);
-        return stats.isDirectory();
-      });
-    }
-    exports.isDirectory = isDirectory;
-    function isRooted(p) {
-      p = normalizeSeparators(p);
-      if (!p) {
-        throw new Error('isRooted() parameter "p" cannot be empty');
-      }
-      if (exports.IS_WINDOWS) {
-        return p.startsWith("\\") || /^[A-Z]:/i.test(p);
-      }
-      return p.startsWith("/");
-    }
-    exports.isRooted = isRooted;
-    function tryGetExecutablePath(filePath, extensions) {
-      return __awaiter(this, void 0, void 0, function* () {
-        let stats = void 0;
-        try {
-          stats = yield exports.stat(filePath);
-        } catch (err) {
-          if (err.code !== "ENOENT") {
-            console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
-          }
-        }
-        if (stats && stats.isFile()) {
-          if (exports.IS_WINDOWS) {
-            const upperExt = path5.extname(filePath).toUpperCase();
-            if (extensions.some((validExt) => validExt.toUpperCase() === upperExt)) {
-              return filePath;
-            }
-          } else {
-            if (isUnixExecutable(stats)) {
-              return filePath;
-            }
-          }
-        }
-        const originalFilePath = filePath;
-        for (const extension of extensions) {
-          filePath = originalFilePath + extension;
-          stats = void 0;
-          try {
-            stats = yield exports.stat(filePath);
-          } catch (err) {
-            if (err.code !== "ENOENT") {
-              console.log(`Unexpected error attempting to determine if executable file exists '${filePath}': ${err}`);
-            }
-          }
-          if (stats && stats.isFile()) {
-            if (exports.IS_WINDOWS) {
-              try {
-                const directory = path5.dirname(filePath);
-                const upperName = path5.basename(filePath).toUpperCase();
-                for (const actualName of yield exports.readdir(directory)) {
-                  if (upperName === actualName.toUpperCase()) {
-                    filePath = path5.join(directory, actualName);
-                    break;
-                  }
-                }
-              } catch (err) {
-                console.log(`Unexpected error attempting to determine the actual case of the file '${filePath}': ${err}`);
-              }
-              return filePath;
-            } else {
-              if (isUnixExecutable(stats)) {
-                return filePath;
-              }
-            }
-          }
-        }
-        return "";
-      });
-    }
-    exports.tryGetExecutablePath = tryGetExecutablePath;
-    function normalizeSeparators(p) {
-      p = p || "";
-      if (exports.IS_WINDOWS) {
-        p = p.replace(/\//g, "\\");
-        return p.replace(/\\\\+/g, "\\");
-      }
-      return p.replace(/\/\/+/g, "/");
-    }
-    function isUnixExecutable(stats) {
-      return (stats.mode & 1) > 0 || (stats.mode & 8) > 0 && stats.gid === process.getgid() || (stats.mode & 64) > 0 && stats.uid === process.getuid();
-    }
-    function getCmdPath() {
-      var _a3;
-      return (_a3 = process.env["COMSPEC"]) !== null && _a3 !== void 0 ? _a3 : `cmd.exe`;
-    }
-    exports.getCmdPath = getCmdPath;
-  }
-});
-
-// node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io.js
-var require_io = __commonJS({
-  "node_modules/.pnpm/@actions+io@1.1.3/node_modules/@actions/io/lib/io.js"(exports) {
-    "use strict";
-    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      Object.defineProperty(o, k2, { enumerable: true, get: function() {
-        return m[k];
-      } });
-    } : function(o, m, k, k2) {
-      if (k2 === void 0)
-        k2 = k;
-      o[k2] = m[k];
-    });
-    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o, v) {
-      Object.defineProperty(o, "default", { enumerable: true, value: v });
-    } : function(o, v) {
-      o["default"] = v;
-    });
-    var __importStar = exports && exports.__importStar || function(mod) {
-      if (mod && mod.__esModule)
-        return mod;
-      var result = {};
-      if (mod != null) {
-        for (var k in mod)
-          if (k !== "default" && Object.hasOwnProperty.call(mod, k))
-            __createBinding(result, mod, k);
-      }
-      __setModuleDefault(result, mod);
-      return result;
-    };
-    var __awaiter = exports && exports.__awaiter || function(thisArg, _arguments, P, generator) {
-      function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve2) {
-          resolve2(value);
-        });
-      }
-      return new (P || (P = Promise))(function(resolve2, reject) {
-        function fulfilled(value) {
-          try {
-            step(generator.next(value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function rejected(value) {
-          try {
-            step(generator["throw"](value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function step(result) {
-          result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-        }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-      });
-    };
-    Object.defineProperty(exports, "__esModule", { value: true });
-    exports.findInPath = exports.which = exports.mkdirP = exports.rmRF = exports.mv = exports.cp = void 0;
-    var assert_1 = require("assert");
-    var path5 = __importStar(require("path"));
-    var ioUtil = __importStar(require_io_util());
-    function cp(source, dest, options2 = {}) {
-      return __awaiter(this, void 0, void 0, function* () {
-        const { force, recursive, copySourceDirectory } = readCopyOptions(options2);
-        const destStat = (yield ioUtil.exists(dest)) ? yield ioUtil.stat(dest) : null;
-        if (destStat && destStat.isFile() && !force) {
-          return;
-        }
-        const newDest = destStat && destStat.isDirectory() && copySourceDirectory ? path5.join(dest, path5.basename(source)) : dest;
-        if (!(yield ioUtil.exists(source))) {
-          throw new Error(`no such file or directory: ${source}`);
-        }
-        const sourceStat = yield ioUtil.stat(source);
-        if (sourceStat.isDirectory()) {
-          if (!recursive) {
-            throw new Error(`Failed to copy. ${source} is a directory, but tried to copy without recursive flag.`);
-          } else {
-            yield cpDirRecursive(source, newDest, 0, force);
-          }
-        } else {
-          if (path5.relative(source, newDest) === "") {
-            throw new Error(`'${newDest}' and '${source}' are the same file`);
-          }
-          yield copyFile(source, newDest, force);
-        }
-      });
-    }
-    exports.cp = cp;
-    function mv(source, dest, options2 = {}) {
-      return __awaiter(this, void 0, void 0, function* () {
-        if (yield ioUtil.exists(dest)) {
-          let destExists = true;
-          if (yield ioUtil.isDirectory(dest)) {
-            dest = path5.join(dest, path5.basename(source));
-            destExists = yield ioUtil.exists(dest);
-          }
-          if (destExists) {
-            if (options2.force == null || options2.force) {
-              yield rmRF(dest);
-            } else {
-              throw new Error("Destination already exists");
-            }
-          }
-        }
-        yield mkdirP(path5.dirname(dest));
-        yield ioUtil.rename(source, dest);
-      });
-    }
-    exports.mv = mv;
-    function rmRF(inputPath) {
-      return __awaiter(this, void 0, void 0, function* () {
-        if (ioUtil.IS_WINDOWS) {
-          if (/[*"<>|]/.test(inputPath)) {
-            throw new Error('File path must not contain `*`, `"`, `<`, `>` or `|` on Windows');
-          }
-        }
-        try {
-          yield ioUtil.rm(inputPath, {
-            force: true,
-            maxRetries: 3,
-            recursive: true,
-            retryDelay: 300
-          });
-        } catch (err) {
-          throw new Error(`File was unable to be removed ${err}`);
-        }
-      });
-    }
-    exports.rmRF = rmRF;
-    function mkdirP(fsPath) {
-      return __awaiter(this, void 0, void 0, function* () {
-        assert_1.ok(fsPath, "a path argument must be provided");
-        yield ioUtil.mkdir(fsPath, { recursive: true });
-      });
-    }
-    exports.mkdirP = mkdirP;
-    function which3(tool, check) {
-      return __awaiter(this, void 0, void 0, function* () {
-        if (!tool) {
-          throw new Error("parameter 'tool' is required");
-        }
-        if (check) {
-          const result = yield which3(tool, false);
-          if (!result) {
-            if (ioUtil.IS_WINDOWS) {
-              throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also verify the file has a valid extension for an executable file.`);
-            } else {
-              throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also check the file mode to verify the file is executable.`);
-            }
-          }
-          return result;
-        }
-        const matches = yield findInPath(tool);
-        if (matches && matches.length > 0) {
-          return matches[0];
-        }
-        return "";
-      });
-    }
-    exports.which = which3;
-    function findInPath(tool) {
-      return __awaiter(this, void 0, void 0, function* () {
-        if (!tool) {
-          throw new Error("parameter 'tool' is required");
-        }
-        const extensions = [];
-        if (ioUtil.IS_WINDOWS && process.env["PATHEXT"]) {
-          for (const extension of process.env["PATHEXT"].split(path5.delimiter)) {
-            if (extension) {
-              extensions.push(extension);
-            }
-          }
-        }
-        if (ioUtil.isRooted(tool)) {
-          const filePath = yield ioUtil.tryGetExecutablePath(tool, extensions);
-          if (filePath) {
-            return [filePath];
-          }
-          return [];
-        }
-        if (tool.includes(path5.sep)) {
-          return [];
-        }
-        const directories = [];
-        if (process.env.PATH) {
-          for (const p of process.env.PATH.split(path5.delimiter)) {
-            if (p) {
-              directories.push(p);
-            }
-          }
-        }
-        const matches = [];
-        for (const directory of directories) {
-          const filePath = yield ioUtil.tryGetExecutablePath(path5.join(directory, tool), extensions);
-          if (filePath) {
-            matches.push(filePath);
-          }
-        }
-        return matches;
-      });
-    }
-    exports.findInPath = findInPath;
-    function readCopyOptions(options2) {
-      const force = options2.force == null ? true : options2.force;
-      const recursive = Boolean(options2.recursive);
-      const copySourceDirectory = options2.copySourceDirectory == null ? true : Boolean(options2.copySourceDirectory);
-      return { force, recursive, copySourceDirectory };
-    }
-    function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
-      return __awaiter(this, void 0, void 0, function* () {
-        if (currentDepth >= 255)
-          return;
-        currentDepth++;
-        yield mkdirP(destDir);
-        const files = yield ioUtil.readdir(sourceDir);
-        for (const fileName of files) {
-          const srcFile = `${sourceDir}/${fileName}`;
-          const destFile = `${destDir}/${fileName}`;
-          const srcFileStat = yield ioUtil.lstat(srcFile);
-          if (srcFileStat.isDirectory()) {
-            yield cpDirRecursive(srcFile, destFile, currentDepth, force);
-          } else {
-            yield copyFile(srcFile, destFile, force);
-          }
-        }
-        yield ioUtil.chmod(destDir, (yield ioUtil.stat(sourceDir)).mode);
-      });
-    }
-    function copyFile(srcFile, destFile, force) {
-      return __awaiter(this, void 0, void 0, function* () {
-        if ((yield ioUtil.lstat(srcFile)).isSymbolicLink()) {
-          try {
-            yield ioUtil.lstat(destFile);
-            yield ioUtil.unlink(destFile);
-          } catch (e) {
-            if (e.code === "EPERM") {
-              yield ioUtil.chmod(destFile, "0666");
-              yield ioUtil.unlink(destFile);
-            }
-          }
-          const symlinkFull = yield ioUtil.readlink(srcFile);
-          yield ioUtil.symlink(symlinkFull, destFile, ioUtil.IS_WINDOWS ? "junction" : null);
-        } else if (!(yield ioUtil.exists(destFile)) || force) {
-          yield ioUtil.copyFile(srcFile, destFile);
-        }
-      });
-    }
-  }
-});
-
 // node_modules/.pnpm/semver@6.3.0/node_modules/semver/semver.js
 var require_semver = __commonJS({
   "node_modules/.pnpm/semver@6.3.0/node_modules/semver/semver.js"(exports, module2) {
@@ -4690,7 +4690,7 @@ var require_retry_helper = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.RetryHelper = void 0;
-    var core7 = __importStar(require_core());
+    var core3 = __importStar(require_core());
     var RetryHelper = class {
       constructor(maxAttempts, minSeconds, maxSeconds) {
         if (maxAttempts < 1) {
@@ -4713,10 +4713,10 @@ var require_retry_helper = __commonJS({
               if (isRetryable && !isRetryable(err)) {
                 throw err;
               }
-              core7.info(err.message);
+              core3.info(err.message);
             }
             const seconds = this.getSleepAmount();
-            core7.info(`Waiting ${seconds} seconds before trying again`);
+            core3.info(`Waiting ${seconds} seconds before trying again`);
             yield this.sleep(seconds);
             attempt++;
           }
@@ -4800,7 +4800,7 @@ var require_tool_cache = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.evaluateVersions = exports.isExplicitVersion = exports.findFromManifest = exports.getManifestFromRepo = exports.findAllVersions = exports.find = exports.cacheFile = exports.cacheDir = exports.extractZip = exports.extractXar = exports.extractTar = exports.extract7z = exports.downloadTool = exports.HTTPError = void 0;
-    var core7 = __importStar(require_core());
+    var core3 = __importStar(require_core());
     var io2 = __importStar(require_io());
     var fs6 = __importStar(require("fs"));
     var mm = __importStar(require_manifest());
@@ -4829,8 +4829,8 @@ var require_tool_cache = __commonJS({
       return __awaiter(this, void 0, void 0, function* () {
         dest = dest || path5.join(_getTempDirectory(), v4_1.default());
         yield io2.mkdirP(path5.dirname(dest));
-        core7.debug(`Downloading ${url2}`);
-        core7.debug(`Destination ${dest}`);
+        core3.debug(`Downloading ${url2}`);
+        core3.debug(`Destination ${dest}`);
         const maxAttempts = 3;
         const minSeconds = _getGlobal("TEST_DOWNLOAD_TOOL_RETRY_MIN_SECONDS", 10);
         const maxSeconds = _getGlobal("TEST_DOWNLOAD_TOOL_RETRY_MAX_SECONDS", 20);
@@ -4857,7 +4857,7 @@ var require_tool_cache = __commonJS({
           allowRetries: false
         });
         if (auth) {
-          core7.debug("set auth");
+          core3.debug("set auth");
           if (headers === void 0) {
             headers = {};
           }
@@ -4866,7 +4866,7 @@ var require_tool_cache = __commonJS({
         const response = yield http3.get(url2, headers);
         if (response.message.statusCode !== 200) {
           const err = new HTTPError(response.message.statusCode);
-          core7.debug(`Failed to download from "${url2}". Code(${response.message.statusCode}) Message(${response.message.statusMessage})`);
+          core3.debug(`Failed to download from "${url2}". Code(${response.message.statusCode}) Message(${response.message.statusMessage})`);
           throw err;
         }
         const pipeline = util4.promisify(stream.pipeline);
@@ -4875,16 +4875,16 @@ var require_tool_cache = __commonJS({
         let succeeded = false;
         try {
           yield pipeline(readStream, fs6.createWriteStream(dest));
-          core7.debug("download complete");
+          core3.debug("download complete");
           succeeded = true;
           return dest;
         } finally {
           if (!succeeded) {
-            core7.debug("download failed");
+            core3.debug("download failed");
             try {
               yield io2.rmRF(dest);
             } catch (err) {
-              core7.debug(`Failed to delete '${dest}'. ${err.message}`);
+              core3.debug(`Failed to delete '${dest}'. ${err.message}`);
             }
           }
         }
@@ -4899,10 +4899,10 @@ var require_tool_cache = __commonJS({
         process.chdir(dest);
         if (_7zPath) {
           try {
-            const logLevel = core7.isDebug() ? "-bb1" : "-bb0";
+            const logLevel2 = core3.isDebug() ? "-bb1" : "-bb0";
             const args = [
               "x",
-              logLevel,
+              logLevel2,
               "-bd",
               "-sccUTF-8",
               file
@@ -4949,7 +4949,7 @@ var require_tool_cache = __commonJS({
           throw new Error("parameter 'file' is required");
         }
         dest = yield _createExtractFolder(dest);
-        core7.debug("Checking tar --version");
+        core3.debug("Checking tar --version");
         let versionOutput = "";
         yield exec_1.exec("tar --version", [], {
           ignoreReturnCode: true,
@@ -4959,7 +4959,7 @@ var require_tool_cache = __commonJS({
             stderr: (data) => versionOutput += data.toString()
           }
         });
-        core7.debug(versionOutput.trim());
+        core3.debug(versionOutput.trim());
         const isGnuTar = versionOutput.toUpperCase().includes("GNU TAR");
         let args;
         if (flags instanceof Array) {
@@ -4967,7 +4967,7 @@ var require_tool_cache = __commonJS({
         } else {
           args = [flags];
         }
-        if (core7.isDebug() && !flags.includes("v")) {
+        if (core3.isDebug() && !flags.includes("v")) {
           args.push("-v");
         }
         let destArg = dest;
@@ -4999,7 +4999,7 @@ var require_tool_cache = __commonJS({
           args = [flags];
         }
         args.push("-x", "-C", dest, "-f", file);
-        if (core7.isDebug()) {
+        if (core3.isDebug()) {
           args.push("-v");
         }
         const xarPath = yield io2.which("xar", true);
@@ -5044,7 +5044,7 @@ var require_tool_cache = __commonJS({
             "-Command",
             pwshCommand
           ];
-          core7.debug(`Using pwsh at path: ${pwshPath}`);
+          core3.debug(`Using pwsh at path: ${pwshPath}`);
           yield exec_1.exec(`"${pwshPath}"`, args);
         } else {
           const powershellCommand = [
@@ -5064,7 +5064,7 @@ var require_tool_cache = __commonJS({
             powershellCommand
           ];
           const powershellPath = yield io2.which("powershell", true);
-          core7.debug(`Using powershell at path: ${powershellPath}`);
+          core3.debug(`Using powershell at path: ${powershellPath}`);
           yield exec_1.exec(`"${powershellPath}"`, args);
         }
       });
@@ -5073,7 +5073,7 @@ var require_tool_cache = __commonJS({
       return __awaiter(this, void 0, void 0, function* () {
         const unzipPath = yield io2.which("unzip", true);
         const args = [file];
-        if (!core7.isDebug()) {
+        if (!core3.isDebug()) {
           args.unshift("-q");
         }
         args.unshift("-o");
@@ -5084,8 +5084,8 @@ var require_tool_cache = __commonJS({
       return __awaiter(this, void 0, void 0, function* () {
         version3 = semver.clean(version3) || version3;
         arch3 = arch3 || os8.arch();
-        core7.debug(`Caching tool ${tool} ${version3} ${arch3}`);
-        core7.debug(`source dir: ${sourceDir}`);
+        core3.debug(`Caching tool ${tool} ${version3} ${arch3}`);
+        core3.debug(`source dir: ${sourceDir}`);
         if (!fs6.statSync(sourceDir).isDirectory()) {
           throw new Error("sourceDir is not a directory");
         }
@@ -5103,14 +5103,14 @@ var require_tool_cache = __commonJS({
       return __awaiter(this, void 0, void 0, function* () {
         version3 = semver.clean(version3) || version3;
         arch3 = arch3 || os8.arch();
-        core7.debug(`Caching tool ${tool} ${version3} ${arch3}`);
-        core7.debug(`source file: ${sourceFile}`);
+        core3.debug(`Caching tool ${tool} ${version3} ${arch3}`);
+        core3.debug(`source file: ${sourceFile}`);
         if (!fs6.statSync(sourceFile).isFile()) {
           throw new Error("sourceFile is not a file");
         }
         const destFolder = yield _createToolPath(tool, version3, arch3);
         const destPath = path5.join(destFolder, targetFile);
-        core7.debug(`destination file ${destPath}`);
+        core3.debug(`destination file ${destPath}`);
         yield io2.cp(sourceFile, destPath);
         _completeToolPath(tool, version3, arch3);
         return destFolder;
@@ -5134,12 +5134,12 @@ var require_tool_cache = __commonJS({
       if (versionSpec) {
         versionSpec = semver.clean(versionSpec) || "";
         const cachePath = path5.join(_getCacheDirectory(), toolName, versionSpec, arch3);
-        core7.debug(`checking cache: ${cachePath}`);
+        core3.debug(`checking cache: ${cachePath}`);
         if (fs6.existsSync(cachePath) && fs6.existsSync(`${cachePath}.complete`)) {
-          core7.debug(`Found tool in cache ${toolName} ${versionSpec} ${arch3}`);
+          core3.debug(`Found tool in cache ${toolName} ${versionSpec} ${arch3}`);
           toolPath = cachePath;
         } else {
-          core7.debug("not found");
+          core3.debug("not found");
         }
       }
       return toolPath;
@@ -5170,7 +5170,7 @@ var require_tool_cache = __commonJS({
         const http3 = new httpm.HttpClient("tool-cache");
         const headers = {};
         if (auth) {
-          core7.debug("set auth");
+          core3.debug("set auth");
           headers.authorization = auth;
         }
         const response = yield http3.getJson(treeUrl, headers);
@@ -5191,7 +5191,7 @@ var require_tool_cache = __commonJS({
           try {
             releases = JSON.parse(versionsRaw);
           } catch (_a2) {
-            core7.debug("Invalid json");
+            core3.debug("Invalid json");
           }
         }
         return releases;
@@ -5217,7 +5217,7 @@ var require_tool_cache = __commonJS({
     function _createToolPath(tool, version3, arch3) {
       return __awaiter(this, void 0, void 0, function* () {
         const folderPath = path5.join(_getCacheDirectory(), tool, semver.clean(version3) || version3, arch3 || "");
-        core7.debug(`destination ${folderPath}`);
+        core3.debug(`destination ${folderPath}`);
         const markerPath = `${folderPath}.complete`;
         yield io2.rmRF(folderPath);
         yield io2.rmRF(markerPath);
@@ -5229,19 +5229,19 @@ var require_tool_cache = __commonJS({
       const folderPath = path5.join(_getCacheDirectory(), tool, semver.clean(version3) || version3, arch3 || "");
       const markerPath = `${folderPath}.complete`;
       fs6.writeFileSync(markerPath, "");
-      core7.debug("finished caching tool");
+      core3.debug("finished caching tool");
     }
     function isExplicitVersion(versionSpec) {
       const c = semver.clean(versionSpec) || "";
-      core7.debug(`isExplicit: ${c}`);
+      core3.debug(`isExplicit: ${c}`);
       const valid = semver.valid(c) != null;
-      core7.debug(`explicit? ${valid}`);
+      core3.debug(`explicit? ${valid}`);
       return valid;
     }
     exports.isExplicitVersion = isExplicitVersion;
     function evaluateVersions(versions, versionSpec) {
       let version3 = "";
-      core7.debug(`evaluating ${versions.length} versions`);
+      core3.debug(`evaluating ${versions.length} versions`);
       versions = versions.sort((a, b) => {
         if (semver.gt(a, b)) {
           return 1;
@@ -5257,9 +5257,9 @@ var require_tool_cache = __commonJS({
         }
       }
       if (version3) {
-        core7.debug(`matched: ${version3}`);
+        core3.debug(`matched: ${version3}`);
       } else {
-        core7.debug("match not found");
+        core3.debug("match not found");
       }
       return version3;
     }
@@ -7299,7 +7299,7 @@ var require_internal_glob_options_helper = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getOptions = void 0;
-    var core7 = __importStar(require_core());
+    var core3 = __importStar(require_core());
     function getOptions2(copy) {
       const result = {
         followSymbolicLinks: true,
@@ -7309,15 +7309,15 @@ var require_internal_glob_options_helper = __commonJS({
       if (copy) {
         if (typeof copy.followSymbolicLinks === "boolean") {
           result.followSymbolicLinks = copy.followSymbolicLinks;
-          core7.debug(`followSymbolicLinks '${result.followSymbolicLinks}'`);
+          core3.debug(`followSymbolicLinks '${result.followSymbolicLinks}'`);
         }
         if (typeof copy.implicitDescendants === "boolean") {
           result.implicitDescendants = copy.implicitDescendants;
-          core7.debug(`implicitDescendants '${result.implicitDescendants}'`);
+          core3.debug(`implicitDescendants '${result.implicitDescendants}'`);
         }
         if (typeof copy.omitBrokenSymbolicLinks === "boolean") {
           result.omitBrokenSymbolicLinks = copy.omitBrokenSymbolicLinks;
-          core7.debug(`omitBrokenSymbolicLinks '${result.omitBrokenSymbolicLinks}'`);
+          core3.debug(`omitBrokenSymbolicLinks '${result.omitBrokenSymbolicLinks}'`);
         }
       }
       return result;
@@ -8828,7 +8828,7 @@ var require_internal_globber = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.DefaultGlobber = void 0;
-    var core7 = __importStar(require_core());
+    var core3 = __importStar(require_core());
     var fs6 = __importStar(require("fs"));
     var globOptionsHelper = __importStar(require_internal_glob_options_helper());
     var path5 = __importStar(require("path"));
@@ -8881,7 +8881,7 @@ var require_internal_globber = __commonJS({
           }
           const stack = [];
           for (const searchPath of patternHelper.getSearchPaths(patterns)) {
-            core7.debug(`Search path '${searchPath}'`);
+            core3.debug(`Search path '${searchPath}'`);
             try {
               yield __await2(fs6.promises.lstat(searchPath));
             } catch (err) {
@@ -8953,7 +8953,7 @@ var require_internal_globber = __commonJS({
             } catch (err) {
               if (err.code === "ENOENT") {
                 if (options2.omitBrokenSymbolicLinks) {
-                  core7.debug(`Broken symlink '${item.path}'`);
+                  core3.debug(`Broken symlink '${item.path}'`);
                   return void 0;
                 }
                 throw new Error(`No information found for the path '${item.path}'. This may indicate a broken symbolic link.`);
@@ -8969,7 +8969,7 @@ var require_internal_globber = __commonJS({
               traversalChain.pop();
             }
             if (traversalChain.some((x) => x === realPath)) {
-              core7.debug(`Symlink cycle detected for path '${item.path}' and realpath '${realPath}'`);
+              core3.debug(`Symlink cycle detected for path '${item.path}' and realpath '${realPath}'`);
               return void 0;
             }
             traversalChain.push(realPath);
@@ -10375,7 +10375,7 @@ var require_cacheUtils = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.isGhes = exports.assertDefined = exports.getGnuTarPathOnWindows = exports.getCacheFileName = exports.getCompressionMethod = exports.unlinkFile = exports.resolvePaths = exports.getArchiveFileSizeInBytes = exports.createTempDirectory = void 0;
-    var core7 = __importStar(require_core());
+    var core3 = __importStar(require_core());
     var exec2 = __importStar(require_exec());
     var glob = __importStar(require_glob());
     var io2 = __importStar(require_io());
@@ -10428,7 +10428,7 @@ var require_cacheUtils = __commonJS({
             try {
               const file = _c;
               const relativeFile = path5.relative(workspace, file).replace(new RegExp(`\\${path5.sep}`, "g"), "/");
-              core7.debug(`Matched: ${relativeFile}`);
+              core3.debug(`Matched: ${relativeFile}`);
               if (relativeFile === "") {
                 paths.push(".");
               } else {
@@ -10463,7 +10463,7 @@ var require_cacheUtils = __commonJS({
       return __awaiter(this, void 0, void 0, function* () {
         let versionOutput = "";
         additionalArgs.push("--version");
-        core7.debug(`Checking ${app} ${additionalArgs.join(" ")}`);
+        core3.debug(`Checking ${app} ${additionalArgs.join(" ")}`);
         try {
           yield exec2.exec(`${app}`, additionalArgs, {
             ignoreReturnCode: true,
@@ -10474,10 +10474,10 @@ var require_cacheUtils = __commonJS({
             }
           });
         } catch (err) {
-          core7.debug(err.message);
+          core3.debug(err.message);
         }
         versionOutput = versionOutput.trim();
-        core7.debug(versionOutput);
+        core3.debug(versionOutput);
         return versionOutput;
       });
     }
@@ -10485,7 +10485,7 @@ var require_cacheUtils = __commonJS({
       return __awaiter(this, void 0, void 0, function* () {
         const versionOutput = yield getVersion("zstd", ["--quiet"]);
         const version3 = semver.clean(versionOutput);
-        core7.debug(`zstd version: ${version3}`);
+        core3.debug(`zstd version: ${version3}`);
         if (versionOutput === "") {
           return constants_1.CompressionMethod.Gzip;
         } else {
@@ -38655,7 +38655,7 @@ var init_debug = __esm({
 });
 
 // node_modules/.pnpm/@azure+logger@1.0.4/node_modules/@azure/logger/dist-esm/src/index.js
-function setLogLevel(level) {
+function setLogLevel2(level) {
   if (level && !isAzureLogLevel(level)) {
     throw new Error(`Unknown log level '${level}'. Acceptable values: ${AZURE_LOG_LEVELS.join(",")}`);
   }
@@ -38698,8 +38698,8 @@ function createLogger(parent, level) {
 function shouldEnable(logger3) {
   return Boolean(azureLogLevel && levelMap[logger3.level] <= levelMap[azureLogLevel]);
 }
-function isAzureLogLevel(logLevel) {
-  return AZURE_LOG_LEVELS.includes(logLevel);
+function isAzureLogLevel(logLevel2) {
+  return AZURE_LOG_LEVELS.includes(logLevel2);
 }
 var registeredLoggers, logLevelFromEnv, azureLogLevel, AzureLogger, AZURE_LOG_LEVELS, levelMap;
 var init_src2 = __esm({
@@ -38715,7 +38715,7 @@ var init_src2 = __esm({
     AZURE_LOG_LEVELS = ["verbose", "info", "warning", "error"];
     if (logLevelFromEnv) {
       if (isAzureLogLevel(logLevelFromEnv)) {
-        setLogLevel(logLevelFromEnv);
+        setLogLevel2(logLevelFromEnv);
       } else {
         console.error(`AZURE_LOG_LEVEL set to unknown log level '${logLevelFromEnv}'; logging is not enabled. Acceptable values: ${AZURE_LOG_LEVELS.join(", ")}.`);
       }
@@ -42178,8 +42178,8 @@ var init_requestPolicy = __esm({
        * @param logLevel - The log level of the log that will be logged.
        * @returns Whether or not a log with the provided log level should be logged.
        */
-      shouldLog(logLevel) {
-        return this._options.shouldLog(logLevel);
+      shouldLog(logLevel2) {
+        return this._options.shouldLog(logLevel2);
       }
       /**
        * Attempt to log the provided message to the provided logger. If no logger was provided or if
@@ -42187,8 +42187,8 @@ var init_requestPolicy = __esm({
        * @param logLevel - The log level of this log.
        * @param message - The message of this log.
        */
-      log(logLevel, message) {
-        this._options.log(logLevel, message);
+      log(logLevel2, message) {
+        this._options.log(logLevel2, message);
       }
     };
     RequestPolicyOptions = class {
@@ -42200,8 +42200,8 @@ var init_requestPolicy = __esm({
        * @param logLevel - The log level of the log that will be logged.
        * @returns Whether or not a log with the provided log level should be logged.
        */
-      shouldLog(logLevel) {
-        return !!this._logger && logLevel !== HttpPipelineLogLevel.OFF && logLevel <= this._logger.minimumLogLevel;
+      shouldLog(logLevel2) {
+        return !!this._logger && logLevel2 !== HttpPipelineLogLevel.OFF && logLevel2 <= this._logger.minimumLogLevel;
       }
       /**
        * Attempt to log the provided message to the provided logger. If no logger was provided or if
@@ -42209,9 +42209,9 @@ var init_requestPolicy = __esm({
        * @param logLevel - The log level of this log.
        * @param message - The message of this log.
        */
-      log(logLevel, message) {
-        if (this._logger && this.shouldLog(logLevel)) {
-          this._logger.log(logLevel, message);
+      log(logLevel2, message) {
+        if (this._logger && this.shouldLog(logLevel2)) {
+          this._logger.log(logLevel2, message);
         }
       }
     };
@@ -75617,7 +75617,7 @@ var require_requestUtils = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.retryHttpClientResponse = exports.retryTypedResponse = exports.retry = exports.isRetryableStatusCode = exports.isServerErrorStatusCode = exports.isSuccessStatusCode = void 0;
-    var core7 = __importStar(require_core());
+    var core3 = __importStar(require_core());
     var http_client_1 = require_lib3();
     var constants_1 = require_constants();
     function isSuccessStatusCode(statusCode) {
@@ -75678,9 +75678,9 @@ var require_requestUtils = __commonJS({
             isRetryable = isRetryableStatusCode(statusCode);
             errorMessage = `Cache service responded with ${statusCode}`;
           }
-          core7.debug(`${name} - Attempt ${attempt} of ${maxAttempts} failed with error: ${errorMessage}`);
+          core3.debug(`${name} - Attempt ${attempt} of ${maxAttempts} failed with error: ${errorMessage}`);
           if (!isRetryable) {
-            core7.debug(`${name} - Error is not retryable`);
+            core3.debug(`${name} - Error is not retryable`);
             break;
           }
           yield sleep(delay3);
@@ -75790,7 +75790,7 @@ var require_downloadUtils = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.downloadCacheStorageSDK = exports.downloadCacheHttpClientConcurrent = exports.downloadCacheHttpClient = exports.DownloadProgress = void 0;
-    var core7 = __importStar(require_core());
+    var core3 = __importStar(require_core());
     var http_client_1 = require_lib3();
     var storage_blob_1 = (init_src12(), __toCommonJS(src_exports3));
     var buffer = __importStar(require("buffer"));
@@ -75828,7 +75828,7 @@ var require_downloadUtils = __commonJS({
         this.segmentIndex = this.segmentIndex + 1;
         this.segmentSize = segmentSize;
         this.receivedBytes = 0;
-        core7.debug(`Downloading segment at offset ${this.segmentOffset} with length ${this.segmentSize}...`);
+        core3.debug(`Downloading segment at offset ${this.segmentOffset} with length ${this.segmentSize}...`);
       }
       /**
        * Sets the number of bytes received for the current segment.
@@ -75862,7 +75862,7 @@ var require_downloadUtils = __commonJS({
         const percentage = (100 * (transferredBytes / this.contentLength)).toFixed(1);
         const elapsedTime = Date.now() - this.startTime;
         const downloadSpeed = (transferredBytes / (1024 * 1024) / (elapsedTime / 1e3)).toFixed(1);
-        core7.info(`Received ${transferredBytes} of ${this.contentLength} (${percentage}%), ${downloadSpeed} MBs/sec`);
+        core3.info(`Received ${transferredBytes} of ${this.contentLength} (${percentage}%), ${downloadSpeed} MBs/sec`);
         if (this.isDone()) {
           this.displayedComplete = true;
         }
@@ -75912,7 +75912,7 @@ var require_downloadUtils = __commonJS({
         }));
         downloadResponse.message.socket.setTimeout(constants_1.SocketTimeout, () => {
           downloadResponse.message.destroy();
-          core7.debug(`Aborting download, socket timed out after ${constants_1.SocketTimeout} ms`);
+          core3.debug(`Aborting download, socket timed out after ${constants_1.SocketTimeout} ms`);
         });
         yield pipeResponseToStream(downloadResponse, writeStream);
         const contentLengthHeader = downloadResponse.message.headers["content-length"];
@@ -75923,7 +75923,7 @@ var require_downloadUtils = __commonJS({
             throw new Error(`Incomplete download. Expected file size: ${expectedLength}, actual file size: ${actualLength}`);
           }
         } else {
-          core7.debug("Unable to validate download, no Content-Length header");
+          core3.debug("Unable to validate download, no Content-Length header");
         }
       });
     }
@@ -76043,7 +76043,7 @@ var require_downloadUtils = __commonJS({
         const properties = yield client.getProperties();
         const contentLength2 = (_a2 = properties.contentLength) !== null && _a2 !== void 0 ? _a2 : -1;
         if (contentLength2 < 0) {
-          core7.debug("Unable to determine content length, downloading file with http-client...");
+          core3.debug("Unable to determine content length, downloading file with http-client...");
           yield downloadCacheHttpClient(archiveLocation, archivePath);
         } else {
           const maxSegmentSize = Math.min(134217728, buffer.constants.MAX_LENGTH);
@@ -76128,7 +76128,7 @@ var require_options2 = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.getDownloadOptions = exports.getUploadOptions = void 0;
-    var core7 = __importStar(require_core());
+    var core3 = __importStar(require_core());
     function getUploadOptions(copy) {
       const result = {
         uploadConcurrency: 4,
@@ -76142,8 +76142,8 @@ var require_options2 = __commonJS({
           result.uploadChunkSize = copy.uploadChunkSize;
         }
       }
-      core7.debug(`Upload concurrency: ${result.uploadConcurrency}`);
-      core7.debug(`Upload chunk size: ${result.uploadChunkSize}`);
+      core3.debug(`Upload concurrency: ${result.uploadConcurrency}`);
+      core3.debug(`Upload chunk size: ${result.uploadChunkSize}`);
       return result;
     }
     exports.getUploadOptions = getUploadOptions;
@@ -76180,12 +76180,12 @@ var require_options2 = __commonJS({
       if (segmentDownloadTimeoutMins && !isNaN(Number(segmentDownloadTimeoutMins)) && isFinite(Number(segmentDownloadTimeoutMins))) {
         result.segmentTimeoutInMs = Number(segmentDownloadTimeoutMins) * 60 * 1e3;
       }
-      core7.debug(`Use Azure SDK: ${result.useAzureSdk}`);
-      core7.debug(`Download concurrency: ${result.downloadConcurrency}`);
-      core7.debug(`Request timeout (ms): ${result.timeoutInMs}`);
-      core7.debug(`Cache segment download timeout mins env var: ${process.env["SEGMENT_DOWNLOAD_TIMEOUT_MINS"]}`);
-      core7.debug(`Segment download timeout (ms): ${result.segmentTimeoutInMs}`);
-      core7.debug(`Lookup only: ${result.lookupOnly}`);
+      core3.debug(`Use Azure SDK: ${result.useAzureSdk}`);
+      core3.debug(`Download concurrency: ${result.downloadConcurrency}`);
+      core3.debug(`Request timeout (ms): ${result.timeoutInMs}`);
+      core3.debug(`Cache segment download timeout mins env var: ${process.env["SEGMENT_DOWNLOAD_TIMEOUT_MINS"]}`);
+      core3.debug(`Segment download timeout (ms): ${result.segmentTimeoutInMs}`);
+      core3.debug(`Lookup only: ${result.lookupOnly}`);
       return result;
     }
     exports.getDownloadOptions = getDownloadOptions;
@@ -76257,7 +76257,7 @@ var require_cacheHttpClient = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.saveCache = exports.reserveCache = exports.downloadCache = exports.getCacheEntry = exports.getCacheVersion = void 0;
-    var core7 = __importStar(require_core());
+    var core3 = __importStar(require_core());
     var http_client_1 = require_lib3();
     var auth_1 = require_auth2();
     var crypto4 = __importStar(require("crypto"));
@@ -76274,7 +76274,7 @@ var require_cacheHttpClient = __commonJS({
         throw new Error("Cache Service Url not found, unable to restore cache.");
       }
       const url2 = `${baseUrl}_apis/artifactcache/${resource}`;
-      core7.debug(`Resource Url: ${url2}`);
+      core3.debug(`Resource Url: ${url2}`);
       return url2;
     }
     function createAcceptHeader(type4, apiVersion) {
@@ -76314,7 +76314,7 @@ var require_cacheHttpClient = __commonJS({
           return httpClient.getJson(getCacheApiUrl(resource));
         }));
         if (response.statusCode === 204) {
-          if (core7.isDebug()) {
+          if (core3.isDebug()) {
             yield printCachesListForDiagnostics(keys[0], httpClient, version3);
           }
           return null;
@@ -76327,9 +76327,9 @@ var require_cacheHttpClient = __commonJS({
         if (!cacheDownloadUrl) {
           throw new Error("Cache not found.");
         }
-        core7.setSecret(cacheDownloadUrl);
-        core7.debug(`Cache Result:`);
-        core7.debug(JSON.stringify(cacheResult));
+        core3.setSecret(cacheDownloadUrl);
+        core3.debug(`Cache Result:`);
+        core3.debug(JSON.stringify(cacheResult));
         return cacheResult;
       });
     }
@@ -76344,10 +76344,10 @@ var require_cacheHttpClient = __commonJS({
           const cacheListResult = response.result;
           const totalCount = cacheListResult === null || cacheListResult === void 0 ? void 0 : cacheListResult.totalCount;
           if (totalCount && totalCount > 0) {
-            core7.debug(`No matching cache found for cache key '${key}', version '${version3} and scope ${process.env["GITHUB_REF"]}. There exist one or more cache(s) with similar key but they have different version or scope. See more info on cache matching here: https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#matching-a-cache-key 
+            core3.debug(`No matching cache found for cache key '${key}', version '${version3} and scope ${process.env["GITHUB_REF"]}. There exist one or more cache(s) with similar key but they have different version or scope. See more info on cache matching here: https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#matching-a-cache-key 
 Other caches with similar key:`);
             for (const cacheEntry of (cacheListResult === null || cacheListResult === void 0 ? void 0 : cacheListResult.artifactCaches) || []) {
-              core7.debug(`Cache Key: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.cacheKey}, Cache Version: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.cacheVersion}, Cache Scope: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.scope}, Cache Created: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.creationTime}`);
+              core3.debug(`Cache Key: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.cacheKey}, Cache Version: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.cacheVersion}, Cache Scope: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.scope}, Cache Created: ${cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.creationTime}`);
             }
           }
         }
@@ -76392,7 +76392,7 @@ Other caches with similar key:`);
     }
     function uploadChunk(httpClient, resourceUrl, openStream, start, end) {
       return __awaiter(this, void 0, void 0, function* () {
-        core7.debug(`Uploading chunk of size ${end - start + 1} bytes at offset ${start} with content range: ${getContentRange(start, end)}`);
+        core3.debug(`Uploading chunk of size ${end - start + 1} bytes at offset ${start} with content range: ${getContentRange(start, end)}`);
         const additionalHeaders = {
           "Content-Type": "application/octet-stream",
           "Content-Range": getContentRange(start, end)
@@ -76414,7 +76414,7 @@ Other caches with similar key:`);
         const concurrency = utils.assertDefined("uploadConcurrency", uploadOptions.uploadConcurrency);
         const maxChunkSize = utils.assertDefined("uploadChunkSize", uploadOptions.uploadChunkSize);
         const parallelUploads = [...new Array(concurrency).keys()];
-        core7.debug("Awaiting all uploads");
+        core3.debug("Awaiting all uploads");
         let offset = 0;
         try {
           yield Promise.all(parallelUploads.map(() => __awaiter(this, void 0, void 0, function* () {
@@ -76450,16 +76450,16 @@ Other caches with similar key:`);
     function saveCache3(cacheId, archivePath, options2) {
       return __awaiter(this, void 0, void 0, function* () {
         const httpClient = createHttpClient();
-        core7.debug("Upload cache");
+        core3.debug("Upload cache");
         yield uploadFile(httpClient, cacheId, archivePath, options2);
-        core7.debug("Commiting cache");
+        core3.debug("Commiting cache");
         const cacheSize = utils.getArchiveFileSizeInBytes(archivePath);
-        core7.info(`Cache Size: ~${Math.round(cacheSize / (1024 * 1024))} MB (${cacheSize} B)`);
+        core3.info(`Cache Size: ~${Math.round(cacheSize / (1024 * 1024))} MB (${cacheSize} B)`);
         const commitCacheResponse = yield commitCache(httpClient, cacheId, cacheSize);
         if (!(0, requestUtils_1.isSuccessStatusCode)(commitCacheResponse.statusCode)) {
           throw new Error(`Cache service responded with ${commitCacheResponse.statusCode} during commit cache.`);
         }
-        core7.info("Cache saved successfully");
+        core3.info("Cache saved successfully");
       });
     }
     exports.saveCache = saveCache3;
@@ -76779,7 +76779,7 @@ var require_cache2 = __commonJS({
     };
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.saveCache = exports.restoreCache = exports.isFeatureAvailable = exports.ReserveCacheError = exports.ValidationError = void 0;
-    var core7 = __importStar(require_core());
+    var core3 = __importStar(require_core());
     var path5 = __importStar(require("path"));
     var utils = __importStar(require_cacheUtils());
     var cacheHttpClient = __importStar(require_cacheHttpClient());
@@ -76823,8 +76823,8 @@ var require_cache2 = __commonJS({
         checkPaths(paths);
         restoreKeys = restoreKeys || [];
         const keys = [primaryKey, ...restoreKeys];
-        core7.debug("Resolved Keys:");
-        core7.debug(JSON.stringify(keys));
+        core3.debug("Resolved Keys:");
+        core3.debug(JSON.stringify(keys));
         if (keys.length > 10) {
           throw new ValidationError(`Key Validation Error: Keys are limited to a maximum of 10.`);
         }
@@ -76842,32 +76842,32 @@ var require_cache2 = __commonJS({
             return void 0;
           }
           if (options2 === null || options2 === void 0 ? void 0 : options2.lookupOnly) {
-            core7.info("Lookup only - skipping download");
+            core3.info("Lookup only - skipping download");
             return cacheEntry.cacheKey;
           }
           archivePath = path5.join(yield utils.createTempDirectory(), utils.getCacheFileName(compressionMethod));
-          core7.debug(`Archive Path: ${archivePath}`);
+          core3.debug(`Archive Path: ${archivePath}`);
           yield cacheHttpClient.downloadCache(cacheEntry.archiveLocation, archivePath, options2);
-          if (core7.isDebug()) {
+          if (core3.isDebug()) {
             yield (0, tar_1.listTar)(archivePath, compressionMethod);
           }
           const archiveFileSize = utils.getArchiveFileSizeInBytes(archivePath);
-          core7.info(`Cache Size: ~${Math.round(archiveFileSize / (1024 * 1024))} MB (${archiveFileSize} B)`);
+          core3.info(`Cache Size: ~${Math.round(archiveFileSize / (1024 * 1024))} MB (${archiveFileSize} B)`);
           yield (0, tar_1.extractTar)(archivePath, compressionMethod);
-          core7.info("Cache restored successfully");
+          core3.info("Cache restored successfully");
           return cacheEntry.cacheKey;
         } catch (error) {
           const typedError = error;
           if (typedError.name === ValidationError.name) {
             throw error;
           } else {
-            core7.warning(`Failed to restore: ${error.message}`);
+            core3.warning(`Failed to restore: ${error.message}`);
           }
         } finally {
           try {
             yield utils.unlinkFile(archivePath);
           } catch (error) {
-            core7.debug(`Failed to delete archive: ${error}`);
+            core3.debug(`Failed to delete archive: ${error}`);
           }
         }
         return void 0;
@@ -76882,26 +76882,26 @@ var require_cache2 = __commonJS({
         const compressionMethod = yield utils.getCompressionMethod();
         let cacheId = -1;
         const cachePaths = yield utils.resolvePaths(paths);
-        core7.debug("Cache Paths:");
-        core7.debug(`${JSON.stringify(cachePaths)}`);
+        core3.debug("Cache Paths:");
+        core3.debug(`${JSON.stringify(cachePaths)}`);
         if (cachePaths.length === 0) {
           throw new Error(`Path Validation Error: Path(s) specified in the action for caching do(es) not exist, hence no cache is being saved.`);
         }
         const archiveFolder = yield utils.createTempDirectory();
         const archivePath = path5.join(archiveFolder, utils.getCacheFileName(compressionMethod));
-        core7.debug(`Archive Path: ${archivePath}`);
+        core3.debug(`Archive Path: ${archivePath}`);
         try {
           yield (0, tar_1.createTar)(archiveFolder, cachePaths, compressionMethod);
-          if (core7.isDebug()) {
+          if (core3.isDebug()) {
             yield (0, tar_1.listTar)(archivePath, compressionMethod);
           }
           const fileSizeLimit = 10 * 1024 * 1024 * 1024;
           const archiveFileSize = utils.getArchiveFileSizeInBytes(archivePath);
-          core7.debug(`File Size: ${archiveFileSize}`);
+          core3.debug(`File Size: ${archiveFileSize}`);
           if (archiveFileSize > fileSizeLimit && !utils.isGhes()) {
             throw new Error(`Cache size of ~${Math.round(archiveFileSize / (1024 * 1024))} MB (${archiveFileSize} B) is over the 10GB limit, not saving cache.`);
           }
-          core7.debug("Reserving Cache");
+          core3.debug("Reserving Cache");
           const reserveCacheResponse = yield cacheHttpClient.reserveCache(key, paths, {
             compressionMethod,
             enableCrossOsArchive,
@@ -76914,22 +76914,22 @@ var require_cache2 = __commonJS({
           } else {
             throw new ReserveCacheError(`Unable to reserve cache with key ${key}, another job may be creating this cache. More details: ${(_e = reserveCacheResponse === null || reserveCacheResponse === void 0 ? void 0 : reserveCacheResponse.error) === null || _e === void 0 ? void 0 : _e.message}`);
           }
-          core7.debug(`Saving Cache (ID: ${cacheId})`);
+          core3.debug(`Saving Cache (ID: ${cacheId})`);
           yield cacheHttpClient.saveCache(cacheId, archivePath, options2);
         } catch (error) {
           const typedError = error;
           if (typedError.name === ValidationError.name) {
             throw error;
           } else if (typedError.name === ReserveCacheError.name) {
-            core7.info(`Failed to save: ${typedError.message}`);
+            core3.info(`Failed to save: ${typedError.message}`);
           } else {
-            core7.warning(`Failed to save: ${typedError.message}`);
+            core3.warning(`Failed to save: ${typedError.message}`);
           }
         } finally {
           try {
             yield utils.unlinkFile(archivePath);
           } catch (error) {
-            core7.debug(`Failed to delete archive: ${error}`);
+            core3.debug(`Failed to delete archive: ${error}`);
           }
         }
         return cacheId;
@@ -76940,11 +76940,19 @@ var require_cache2 = __commonJS({
 });
 
 // src/main.ts
+var main_exports = {};
+__export(main_exports, {
+  downloadMicromamba: () => downloadMicromamba,
+  generateCondarc: () => generateCondarc,
+  generateInfo: () => generateInfo,
+  generateMicromambaRunShell: () => generateMicromambaRunShell,
+  installEnvironment: () => installEnvironment
+});
+module.exports = __toCommonJS(main_exports);
 var import_promises = __toESM(require("fs/promises"));
 var import_os2 = __toESM(require("os"));
 var import_path3 = __toESM(require("path"));
 var import_process2 = require("process");
-var coreDefault5 = __toESM(require_core());
 var io = __toESM(require_io());
 var import_tool_cache = __toESM(require_tool_cache());
 
@@ -79611,7 +79619,6 @@ var safeLoadAll = renamed("safeLoadAll", "loadAll");
 var safeDump = renamed("safeDump", "dump");
 
 // src/util.ts
-var coreDefault2 = __toESM(require_core());
 var import_exec = __toESM(require_exec());
 
 // node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/es6/function.js
@@ -83338,16 +83345,103 @@ var nullableType = ZodNullable.create;
 var preprocessType = ZodEffects.createWithPreprocess;
 var pipelineType = ZodPipeline.create;
 
+// src/options.ts
+var path = __toESM(require("path"));
+var os2 = __toESM(require("os"));
+var import_process = require("process");
+var import_Either = __toESM(require_Either());
+
+// node_modules/.pnpm/untildify@5.0.0/node_modules/untildify/index.js
+var import_node_os = __toESM(require("os"), 1);
+var homeDirectory = import_node_os.default.homedir();
+function untildify(pathWithTilde) {
+  if (typeof pathWithTilde !== "string") {
+    throw new TypeError(`Expected a string, got ${typeof pathWithTilde}`);
+  }
+  return homeDirectory ? pathWithTilde.replace(/^~(?=$|\/|\\)/, homeDirectory) : pathWithTilde;
+}
+
+// src/options.ts
+var import_which = __toESM(require_lib2());
+
+// src/core.ts
+var coreDefault = __toESM(require_core());
+
 // src/mocking.ts
+var logLevel = "debug";
+function setLogLevel(level) {
+  logLevel = level;
+}
+function logLevelLessEqual(level) {
+  switch (level) {
+    case "off":
+      return false;
+    case "critical":
+      switch (logLevel) {
+        case "off":
+          return false;
+        default:
+          return true;
+      }
+    case "error":
+      switch (logLevel) {
+        case "off":
+        case "critical":
+          return false;
+        default:
+          return true;
+      }
+    case "warning":
+      switch (logLevel) {
+        case "off":
+        case "critical":
+        case "error":
+          return false;
+        default:
+          return true;
+      }
+    case "info":
+      switch (logLevel) {
+        case "off":
+        case "critical":
+        case "error":
+        case "warning":
+          return false;
+        default:
+          return true;
+      }
+    case "debug":
+      switch (logLevel) {
+        case "off":
+        case "critical":
+        case "error":
+        case "warning":
+        case "info":
+          return false;
+        default:
+          return true;
+      }
+    case "trace":
+      return true;
+    default:
+      throw new Error(`Unsupported log level ${level}`);
+  }
+}
 var coreMocked = {
   setFailed: (msg) => {
     coreMocked.error(msg);
     process.exit(1);
   },
   getInput: (name) => {
-    const value = process.env[`INPUT_${name.replace(/-/g, "_").toUpperCase()}`];
+    let value = process.env[`INPUT_${name.replace(/-/g, "_").toUpperCase()}`];
     if (value === void 0) {
-      throw new Error(`Input required and not supplied: ${name}`);
+      value = process.env[`${name.replace(/-/g, "_").toUpperCase()}`];
+      if (value === void 0) {
+        if (process.env.MOCKING) {
+          throw new Error(`Input required and not supplied: ${name}`);
+        }
+        return "";
+      }
     }
     return value;
   },
@@ -83355,15 +83449,15 @@ var coreMocked = {
   setOutput(name, value) {
     console.log(`::set-output name=${name}::${value}`);
   },
-  info: (msg) => console.log(`\x1B[44m\x1B[37m I \x1B[39m\x1B[49m ` + msg),
+  info: (msg) => logLevelLessEqual("info") && console.log(`\x1B[44m\x1B[37m I \x1B[39m\x1B[49m ` + msg),
   // blue "I"
-  debug: (msg) => console.log(`\x1B[45m\x1B[37m D \x1B[39m\x1B[49m ` + msg),
+  debug: (msg) => logLevelLessEqual("debug") && console.log(`\x1B[45m\x1B[37m D \x1B[39m\x1B[49m ` + msg),
   // magenta "D"
-  warning: (msg) => console.warn(`\x1B[43m\x1B[37m W \x1B[39m\x1B[49m ` + msg),
+  warning: (msg) => logLevelLessEqual("warning") && console.warn(`\x1B[43m\x1B[37m W \x1B[39m\x1B[49m ` + msg),
   // yellow "W"
-  notice: (msg) => console.info(`\x1B[44m\x1B[37m ? \x1B[39m\x1B[49m ` + msg),
+  notice: (msg) => logLevelLessEqual("info") && console.info(`\x1B[44m\x1B[37m ? \x1B[39m\x1B[49m ` + msg),
   // blue "?"
-  error: (msg) => console.error(`\x1B[41m\x1B[37m E \x1B[39m\x1B[49m ` + msg),
+  error: (msg) => logLevelLessEqual("error") && console.error(`\x1B[41m\x1B[37m E \x1B[39m\x1B[49m ` + msg),
   // red "E"
   startGroup: (label) => console.group(`\x1B[47m\x1B[30m \u25BC \x1B[39m\x1B[49m ` + label),
   // white "▼"
@@ -83385,26 +83479,10 @@ var coreMocked = {
   }
 };
 
-// src/options.ts
-var path = __toESM(require("path"));
-var os2 = __toESM(require("os"));
-var import_process = require("process");
-var coreDefault = __toESM(require_core());
-var import_Either = __toESM(require_Either());
-
-// node_modules/.pnpm/untildify@5.0.0/node_modules/untildify/index.js
-var import_node_os = __toESM(require("os"), 1);
-var homeDirectory = import_node_os.default.homedir();
-function untildify(pathWithTilde) {
-  if (typeof pathWithTilde !== "string") {
-    throw new TypeError(`Expected a string, got ${typeof pathWithTilde}`);
-  }
-  return homeDirectory ? pathWithTilde.replace(/^~(?=$|\/|\\)/, homeDirectory) : pathWithTilde;
-}
+// src/core.ts
+var core2 = process.env.MOCKING || !process.env.GITHUB_ACTIONS ? coreMocked : coreDefault;
 
 // src/options.ts
-var import_which = __toESM(require_lib2());
-var core2 = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
   micromambaBin: path.join(os2.homedir(), "micromamba-bin", `micromamba${os2.platform() === "win32" ? ".exe" : ""}`),
   micromambaRoot: path.join(os2.homedir(), "micromamba"),
@@ -83444,7 +83522,7 @@ var parseOrUndefinedList = (key, schema2) => {
 };
 var inferOptions = (inputs) => {
   const createEnvironment2 = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
-  const logLevel = inputs.logLevel || (core2.isDebug() ? "debug" : "warning");
+  const logLevel2 = inputs.logLevel || (core2.isDebug() ? "debug" : "warning");
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
   const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;
@@ -83455,7 +83533,7 @@ var inferOptions = (inputs) => {
     writeToCondarc,
     createEnvironment: createEnvironment2,
     createArgs: inputs.createArgs || [],
-    logLevel,
+    logLevel: logLevel2,
     micromambaSource,
     downloadMicromamba: downloadMicromamba2,
     initShell,
@@ -83555,6 +83633,7 @@ var getOptions = () => {
     micromambaRootPath: parseOrUndefined("micromamba-root-path", stringType()),
     micromambaBinPath: parseOrUndefined("micromamba-binary-path", stringType())
   };
+  setLogLevel(inputs.logLevel);
   core2.debug(`Inputs: ${JSON.stringify(inputs)}`);
   validateInputs(inputs);
   const options2 = inferOptions(inputs);
@@ -83582,7 +83661,6 @@ try {
 var options = _options;
 
 // src/util.ts
-var core3 = process.env.MOCKING ? coreMocked : coreDefault2;
 var getMicromambaUrlFromVersion = (arch3, version3) => {
   if (version3 === "latest") {
     return `https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-${arch3}`;
@@ -83605,15 +83683,15 @@ var getCondaArch = () => {
   return arch3;
 };
 var determineEnvironmentName = (environmentName, environmentFile) => {
-  core3.debug("Determining environment name from inputs.");
-  core3.debug(`environmentName: ${environmentName}`);
-  core3.debug(`environmentFile: ${environmentFile}`);
+  core2.debug("Determining environment name from inputs.");
+  core2.debug(`environmentName: ${environmentName}`);
+  core2.debug(`environmentFile: ${environmentFile}`);
   if (environmentName) {
-    core3.debug(`Determined environment name: ${environmentName}`);
+    core2.debug(`Determined environment name: ${environmentName}`);
     return Promise.resolve(environmentName);
   }
   if (!environmentFile) {
-    core3.error("No environment name or file specified.");
+    core2.error("No environment name or file specified.");
     throw new Error();
   }
   return fs.readFile(environmentFile).then((fileContents) => {
@@ -83621,12 +83699,12 @@ var determineEnvironmentName = (environmentName, environmentFile) => {
       name: stringType()
     });
     const environmentName2 = environmentFileSchema.parse(load(fileContents.toString())).name;
-    core3.debug(`Determined environment name from file ${environmentFile}: ${environmentName2}`);
+    core2.debug(`Determined environment name from file ${environmentFile}: ${environmentName2}`);
     return environmentName2;
   }).catch((error) => {
-    core3.error(`Could not determine environment name from file ${environmentFile}`);
-    core3.error(`Error: ${error}`);
-    core3.error(
+    core2.error(`Could not determine environment name from file ${environmentFile}`);
+    core2.error(`Error: ${error}`);
+    core2.error(
       "If your environment file is not YAML containing `name` at the top level, please specify the environment name directly."
     );
     throw new Error(error);
@@ -83648,10 +83726,10 @@ var sha256 = (s) => {
 var sha256Short = (s) => {
   return sha256(s).slice(0, 7);
 };
-var micromambaCmd = (command, logLevel, condarcFile) => {
+var micromambaCmd = (command, logLevel2, condarcFile) => {
   let commandArray = [options.micromambaBinPath].concat(command.split(" "));
-  if (logLevel) {
-    commandArray = commandArray.concat(["--log-level", logLevel]);
+  if (logLevel2) {
+    commandArray = commandArray.concat(["--log-level", logLevel2]);
   }
   if (condarcFile) {
     commandArray = commandArray.concat(["--rc-file", condarcFile]);
@@ -83659,7 +83737,7 @@ var micromambaCmd = (command, logLevel, condarcFile) => {
   return commandArray;
 };
 var execute = (cmd) => {
-  core3.debug(`Executing: ${cmd.join(" ")}`);
+  core2.debug(`Executing: ${cmd.join(" ")}`);
   return (0, import_exec.exec)(cmd[0], cmd.slice(1));
 };
 
@@ -83667,21 +83745,19 @@ var execute = (cmd) => {
 var fs2 = __toESM(require("fs/promises"));
 var os4 = __toESM(require("os"));
 var import_path = __toESM(require("path"));
-var coreDefault3 = __toESM(require_core());
-var core4 = process.env.MOCKING ? coreMocked : coreDefault3;
 var copyMambaInitBlockToBashProfile = () => {
-  core4.info("Moving mamba initialize block to .bash_profile");
+  core2.info("Moving mamba initialize block to .bash_profile");
   return fs2.readFile(PATHS.bashrc, { encoding: "utf-8" }).then((bashrc) => {
     const matches = bashrc.match(mambaRegexBlock);
     if (!matches) {
       throw new Error("Could not find mamba initialization block in .bashrc");
     }
-    core4.debug(`Adding mamba initialization block to .bash_profile: ${matches[0]}`);
+    core2.debug(`Adding mamba initialization block to .bash_profile: ${matches[0]}`);
     return fs2.appendFile(PATHS.bashProfile, matches[0]);
   });
 };
 var shellInit = (shell) => {
-  core4.startGroup(`Initialize micromamba for ${shell}.`);
+  core2.startGroup(`Initialize micromamba for ${shell}.`);
   const rootPrefixFlag = getRootPrefixFlagForInit(options);
   const command = execute(
     micromambaCmd(
@@ -83691,12 +83767,12 @@ var shellInit = (shell) => {
     )
   );
   if (os4.platform() === "linux" && shell === "bash") {
-    return command.then(copyMambaInitBlockToBashProfile).finally(core4.endGroup);
+    return command.then(copyMambaInitBlockToBashProfile).finally(core2.endGroup);
   }
-  return command.finally(core4.endGroup);
+  return command.finally(core2.endGroup);
 };
 var addEnvironmentToRcFile = (environmentName, rcFile) => {
-  core4.debug(`Adding \`micromamba activate ${environmentName}
+  core2.debug(`Adding \`micromamba activate ${environmentName}
 \` to ${rcFile}`);
   return fs2.appendFile(rcFile, `micromamba activate ${environmentName}
 `);
@@ -83727,12 +83803,12 @@ var addEnvironmentToPowershellProfile = (environmentName) => {
   }
 };
 var addEnvironmentToAutoActivate = (environmentName, shell) => {
-  core4.info(`Adding environment ${environmentName} to auto-activate ${shell} ...`);
+  core2.info(`Adding environment ${environmentName} to auto-activate ${shell} ...`);
   if (shell === "powershell") {
     return addEnvironmentToPowershellProfile(environmentName);
   }
   const rcFilePath = rcFileDict[shell];
-  core4.debug(`Adding \`micromamba activate ${environmentName}\` to ${rcFilePath}`);
+  core2.debug(`Adding \`micromamba activate ${environmentName}\` to ${rcFilePath}`);
   return addEnvironmentToRcFile(environmentName, rcFilePath);
 };
 
@@ -83740,25 +83816,23 @@ var addEnvironmentToAutoActivate = (environmentName, shell) => {
 var import_path2 = __toESM(require("path"));
 var fs4 = __toESM(require("fs/promises"));
 var cache = __toESM(require_cache2());
-var coreDefault4 = __toESM(require_core());
-var core5 = process.env.MOCKING ? coreMocked : coreDefault4;
 var saveCache2 = (cachePath, cacheKey) => {
-  core5.debug(`Saving cache with key \`${cacheKey}\` ...`);
-  core5.debug(`Cache path: ${cachePath}`);
+  core2.debug(`Saving cache with key \`${cacheKey}\` ...`);
+  core2.debug(`Cache path: ${cachePath}`);
   return cache.saveCache([cachePath], cacheKey, void 0, false).then((cacheId) => {
-    core5.info(`Saved cache with ID \`${cacheId}\``);
+    core2.info(`Saved cache with ID \`${cacheId}\``);
   }).catch((err) => {
-    core5.error(`Error saving cache: ${err.message}`);
+    core2.error(`Error saving cache: ${err.message}`);
   });
 };
 var restoreCache2 = (cachePath, cacheKey) => {
-  core5.debug(`Restoring cache with key \`${cacheKey}\` ...`);
-  core5.debug(`Cache path: ${cachePath}`);
+  core2.debug(`Restoring cache with key \`${cacheKey}\` ...`);
+  core2.debug(`Cache path: ${cachePath}`);
   return cache.restoreCache([cachePath], cacheKey, void 0, void 0, false).then((key) => {
     if (key) {
-      core5.info(`Restored cache with key \`${key}\``);
+      core2.info(`Restored cache with key \`${key}\``);
     } else {
-      core5.info(`Cache miss`);
+      core2.info(`Cache miss`);
     }
     return key;
   });
@@ -83772,11 +83846,11 @@ var generateEnvironmentKey = (prefix2) => {
   if (options.environmentFile) {
     return fs4.readFile(options.environmentFile, "utf-8").then((content) => {
       const keyWithFileSha = `${key}-file-${sha256(content)}`;
-      core5.debug(`Generated key \`${keyWithFileSha}\`.`);
+      core2.debug(`Generated key \`${keyWithFileSha}\`.`);
       return keyWithFileSha;
     });
   }
-  core5.debug(`Generated key \`${key}\`.`);
+  core2.debug(`Generated key \`${key}\`.`);
   return Promise.resolve(key);
 };
 var generateDownloadsKey = (prefix2) => {
@@ -83787,63 +83861,62 @@ var saveCacheEnvironment = (environmentName) => {
     return Promise.resolve();
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "envs", environmentName);
-  core5.startGroup(`Caching environment \`${environmentName}\` in \`${cachePath}\` ...`);
-  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => saveCache2(cachePath, key)).finally(core5.endGroup);
+  core2.startGroup(`Caching environment \`${environmentName}\` in \`${cachePath}\` ...`);
+  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => saveCache2(cachePath, key)).finally(core2.endGroup);
 };
 var restoreCacheEnvironment = (environmentName) => {
   if (!options.cacheEnvironmentKey) {
     return Promise.resolve(void 0);
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "envs", environmentName);
-  core5.startGroup(`Restoring environment \`${environmentName}\` from \`${cachePath}\` ...`);
-  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => restoreCache2(cachePath, key)).finally(core5.endGroup);
+  core2.startGroup(`Restoring environment \`${environmentName}\` from \`${cachePath}\` ...`);
+  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => restoreCache2(cachePath, key)).finally(core2.endGroup);
 };
 var restoreCacheDownloads = () => {
-  core5.debug(`Cache downloads key: ${options.cacheDownloadsKey}`);
+  core2.debug(`Cache downloads key: ${options.cacheDownloadsKey}`);
   if (!options.cacheDownloadsKey) {
     return Promise.resolve(void 0);
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "pkgs");
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey);
-  core5.startGroup(`Restoring downloads from \`${cachePath}\` ...`);
-  return restoreCache2(cachePath, cacheDownloadsKey).finally(core5.endGroup);
+  core2.startGroup(`Restoring downloads from \`${cachePath}\` ...`);
+  return restoreCache2(cachePath, cacheDownloadsKey).finally(core2.endGroup);
 };
 
 // src/main.ts
-var core6 = process.env.MOCKING ? coreMocked : coreDefault5;
 var downloadMicromamba = (url2) => {
   if (options.downloadMicromamba === false) {
-    core6.info("Skipping micromamba download.");
-    core6.addPath(import_path3.default.dirname(options.micromambaBinPath));
+    core2.info("Skipping micromamba download.");
+    core2.addPath(import_path3.default.dirname(options.micromambaBinPath));
     return Promise.resolve();
   }
-  core6.startGroup("Install micromamba");
-  core6.debug(`Downloading micromamba from ${url2} ...`);
-  return import_promises.default.mkdir(import_path3.default.dirname(options.micromambaBinPath), { recursive: true }).then(() => (0, import_tool_cache.downloadTool)(url2, options.micromambaBinPath)).then((_downloadPath) => import_promises.default.chmod(options.micromambaBinPath, 493)).then(() => core6.addPath(import_path3.default.dirname(options.micromambaBinPath))).then(() => core6.info(`micromamba installed to ${options.micromambaBinPath}`)).catch((err) => {
-    core6.error(`Error installing micromamba: ${err.message}`);
+  core2.startGroup("Install micromamba");
+  core2.debug(`Downloading micromamba from ${url2} ...`);
+  return import_promises.default.mkdir(import_path3.default.dirname(options.micromambaBinPath), { recursive: true }).then(() => (0, import_tool_cache.downloadTool)(url2, options.micromambaBinPath)).then((_downloadPath) => import_promises.default.chmod(options.micromambaBinPath, 493)).then(() => core2.addPath(import_path3.default.dirname(options.micromambaBinPath))).then(() => core2.info(`micromamba installed to ${options.micromambaBinPath}`)).catch((err) => {
+    core2.error(`Error installing micromamba: ${err.message}`);
     throw err;
-  }).finally(core6.endGroup);
+  }).finally(core2.endGroup);
 };
 var generateCondarc = () => {
   if (!options.writeToCondarc) {
-    core6.debug(`Using condarc file ${options.condarcFile} ...`);
+    core2.debug(`Using condarc file ${options.condarcFile} ...`);
     return import_promises.default.access(options.condarcFile, import_promises.default.constants.R_OK);
   }
-  core6.debug(`Using ${options.condarcFile} as condarc file.`);
+  core2.debug(`Using ${options.condarcFile} as condarc file.`);
   const mkDir = import_promises.default.mkdir(import_path3.default.dirname(options.condarcFile), { recursive: true });
   if (options.condarc) {
-    core6.info(`Writing condarc contents to ${options.condarcFile} ...`);
+    core2.info(`Writing condarc contents to ${options.condarcFile} ...`);
     const condarc = options.condarc;
     return mkDir.then(() => import_promises.default.writeFile(options.condarcFile, condarc));
   }
-  core6.info("Adding conda-forge to condarc channels ...");
+  core2.info("Adding conda-forge to condarc channels ...");
   return mkDir.then(() => import_promises.default.writeFile(options.condarcFile, "channels:\n  - conda-forge"));
 };
 var createEnvironment = () => {
-  core6.debug(`environmentFile: ${options.environmentFile}`);
-  core6.debug(`environmentName: ${options.environmentName}`);
-  core6.debug(`createArgs: ${options.createArgs}`);
-  core6.debug(`condarcFile: ${options.condarcFile}`);
+  core2.debug(`environmentFile: ${options.environmentFile}`);
+  core2.debug(`environmentName: ${options.environmentName}`);
+  core2.debug(`createArgs: ${options.createArgs}`);
+  core2.debug(`condarcFile: ${options.condarcFile}`);
   let commandStr = `create -y -r ${options.micromambaRootPath}`;
   if (options.environmentFile) {
     commandStr += ` -f ${options.environmentFile}`;
@@ -83863,9 +83936,9 @@ var installEnvironment = () => {
     if (cacheKey) {
       return Promise.resolve(environmentName);
     }
-    core6.startGroup(`Install environment \`${environmentName}\``);
+    core2.startGroup(`Install environment \`${environmentName}\``);
     return createEnvironment().then((_exitCode) => {
-      core6.endGroup();
+      core2.endGroup();
       return environmentName;
     }).then(
       (environmentName2) => (
@@ -83878,7 +83951,7 @@ var installEnvironment = () => {
   );
 };
 var generateInfo = () => {
-  core6.startGroup("micromamba info");
+  core2.startGroup("micromamba info");
   let command;
   if (!options.createEnvironment) {
     command = execute(micromambaCmd(`info -r ${options.micromambaRootPath}`));
@@ -83889,63 +83962,63 @@ var generateInfo = () => {
         Promise.resolve(environmentName)
       ])
     ).then(([_exitCode, environmentName]) => {
-      core6.endGroup();
-      core6.startGroup("micromamba list");
+      core2.endGroup();
+      core2.startGroup("micromamba list");
       return execute(micromambaCmd(`list -r ${options.micromambaRootPath} -n ${environmentName}`));
     });
   }
-  return command.finally(core6.endGroup);
+  return command.finally(core2.endGroup);
 };
 var generateMicromambaRunShell = () => {
   if (!options.generateRunShell) {
-    core6.debug("Skipping micromamba run shell generation.");
+    core2.debug("Skipping micromamba run shell generation.");
     return Promise.resolve();
   }
   if (import_os2.default.platform() === "win32") {
-    core6.info("Skipping micromamba run shell on Windows.");
+    core2.info("Skipping micromamba run shell on Windows.");
     return Promise.resolve();
   }
-  core6.info("Generating micromamba run shell.");
+  core2.info("Generating micromamba run shell.");
   const micromambaRunShellContents = `#!/usr/bin/env sh
 chmod +x $1
 $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
 `;
   return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
     const file = micromambaRunShellContents.replace(/\$MAMBA_EXE/g, options.micromambaBinPath).replace(/\$MAMBA_ROOT_PREFIX/g, options.micromambaRootPath).replace(/\$MAMBA_DEFAULT_ENV/g, environmentName);
-    core6.debug(`Writing micromamba run shell to ${options.micromambaRunShellPath}`);
-    core6.debug(`File contents:
+    core2.debug(`Writing micromamba run shell to ${options.micromambaRunShellPath}`);
+    core2.debug(`File contents:
 "${file}"`);
     return import_promises.default.writeFile(options.micromambaRunShellPath, file, { encoding: "utf8", mode: 493 });
-  }).finally(core6.endGroup);
+  }).finally(core2.endGroup);
 };
 var addEnvironmentPathToOutput = () => {
   return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
     const environmentPath = import_path3.default.join(options.micromambaRootPath, "envs", environmentName);
-    core6.debug(`Setting environment-path output to ${environmentPath}`);
-    core6.setOutput("environment-path", environmentPath);
+    core2.debug(`Setting environment-path output to ${environmentPath}`);
+    core2.setOutput("environment-path", environmentPath);
   });
 };
 var setEnvVariables = () => {
-  core6.info("Set environment variables.");
-  core6.debug(`MAMBA_ROOT_PREFIX: ${options.micromambaRootPath}`);
-  core6.exportVariable("MAMBA_ROOT_PREFIX", options.micromambaRootPath);
-  core6.debug(`MAMBA_EXE: ${options.micromambaBinPath}`);
-  core6.exportVariable("MAMBA_EXE", options.micromambaBinPath);
-  core6.debug(`CONDARC: ${options.condarcFile}`);
-  core6.exportVariable("CONDARC", options.condarcFile);
+  core2.info("Set environment variables.");
+  core2.debug(`MAMBA_ROOT_PREFIX: ${options.micromambaRootPath}`);
+  core2.exportVariable("MAMBA_ROOT_PREFIX", options.micromambaRootPath);
+  core2.debug(`MAMBA_EXE: ${options.micromambaBinPath}`);
+  core2.exportVariable("MAMBA_EXE", options.micromambaBinPath);
+  core2.debug(`CONDARC: ${options.condarcFile}`);
+  core2.exportVariable("CONDARC", options.condarcFile);
 };
 var run = async () => {
-  core6.debug(`process.env.HOME: ${process.env.HOME}`);
-  core6.debug(`os.homedir(): ${import_os2.default.homedir()}`);
-  core6.debug(`bashProfile ${PATHS.bashProfile}`);
+  core2.debug(`process.env.HOME: ${process.env.HOME}`);
+  core2.debug(`os.homedir(): ${import_os2.default.homedir()}`);
+  core2.debug(`bashProfile ${PATHS.bashProfile}`);
   if (process.platform === "win32") {
-    core6.addPath(import_path3.default.dirname(await io.which("cygpath", true)));
+    core2.addPath(import_path3.default.dirname(await io.which("cygpath", true)));
   }
   await downloadMicromamba(getMicromambaUrl(options.micromambaSource));
   await generateCondarc();
   await Promise.all(options.initShell.map((shell) => shellInit(shell)));
   const cacheDownloadsKey = await restoreCacheDownloads();
-  core6.saveState("cacheDownloadsCacheHit", cacheDownloadsKey !== void 0);
+  core2.saveState("cacheDownloadsCacheHit", cacheDownloadsKey !== void 0);
   if (options.createEnvironment) {
     await installEnvironment();
     await generateMicromambaRunShell();
@@ -83954,18 +84027,28 @@ var run = async () => {
   setEnvVariables();
   await generateInfo();
 };
-run().catch((error) => {
-  if (core6.isDebug()) {
+if (process.env.MOCKING || process.env.GITHUB_ACTIONS) {
+  run().catch((error) => {
+    if (core2.isDebug()) {
+      throw error;
+    }
+    if (error instanceof Error) {
+      core2.setFailed(error.message);
+      (0, import_process2.exit)(1);
+    } else if (typeof error === "string") {
+      core2.setFailed(error);
+      (0, import_process2.exit)(1);
+    }
     throw error;
-  }
-  if (error instanceof Error) {
-    core6.setFailed(error.message);
-    (0, import_process2.exit)(1);
-  } else if (typeof error === "string") {
-    core6.setFailed(error);
-    (0, import_process2.exit)(1);
-  }
-  throw error;
+  });
+}
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  downloadMicromamba,
+  generateCondarc,
+  generateInfo,
+  generateMicromambaRunShell,
+  installEnvironment
 });
 /*! Bundled license information:
 

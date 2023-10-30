@@ -1,13 +1,10 @@
 import * as fs from 'fs/promises'
 import * as os from 'os'
 import path from 'path'
-import * as coreDefault from '@actions/core'
-import { coreMocked } from './mocking'
 import { execute, mambaRegexBlock, micromambaCmd } from './util'
 import { PATHS, getRootPrefixFlagForInit, options } from './options'
 import type { ShellType } from './options'
-
-const core = process.env.MOCKING ? coreMocked : coreDefault
+import { core } from './core'
 
 const copyMambaInitBlockToBashProfile = () => {
   // By default, micromamba adds the shell hooks to the .bashrc file.
