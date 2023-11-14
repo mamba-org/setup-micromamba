@@ -124,8 +124,8 @@ const inferOptions = (inputs: Inputs): Options => {
   const initShell: ShellType[] = !inputs.initShell
     ? ['bash']
     : inputs.initShell.includes('none')
-    ? []
-    : (inputs.initShell as ShellType[])
+      ? []
+      : (inputs.initShell as ShellType[])
   const micromambaBinPath = inputs.micromambaBinPath
     ? path.resolve(untildify(inputs.micromambaBinPath))
     : PATHS.micromambaBin
