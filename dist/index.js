@@ -45918,7 +45918,7 @@ var require_builder = __commonJS({
           } else {
             rootName = this.options.rootName;
           }
-          render = function(_this) {
+          render = /* @__PURE__ */ function(_this) {
             return function(element, obj) {
               var attr, child, entry, index, key, value;
               if (typeof obj !== "object") {
@@ -47613,7 +47613,7 @@ var require_parser = __commonJS({
             xmlns: this.options.xmlns
           });
           this.saxParser.errThrown = false;
-          this.saxParser.onerror = function(_this) {
+          this.saxParser.onerror = /* @__PURE__ */ function(_this) {
             return function(error) {
               _this.saxParser.resume();
               if (!_this.saxParser.errThrown) {
@@ -47622,7 +47622,7 @@ var require_parser = __commonJS({
               }
             };
           }(this);
-          this.saxParser.onend = function(_this) {
+          this.saxParser.onend = /* @__PURE__ */ function(_this) {
             return function() {
               if (!_this.saxParser.ended) {
                 _this.saxParser.ended = true;
@@ -47636,7 +47636,7 @@ var require_parser = __commonJS({
           stack = [];
           attrkey = this.options.attrkey;
           charkey = this.options.charkey;
-          this.saxParser.onopentag = function(_this) {
+          this.saxParser.onopentag = /* @__PURE__ */ function(_this) {
             return function(node) {
               var key, newValue, obj, processedKey, ref;
               obj = /* @__PURE__ */ Object.create(null);
@@ -47668,7 +47668,7 @@ var require_parser = __commonJS({
               return stack.push(obj);
             };
           }(this);
-          this.saxParser.onclosetag = function(_this) {
+          this.saxParser.onclosetag = /* @__PURE__ */ function(_this) {
             return function() {
               var cdata, emptyStr, key, node, nodeName, obj, objClone, old, s, xpath;
               obj = stack.pop();
@@ -47767,7 +47767,7 @@ var require_parser = __commonJS({
               }
             };
           }(this);
-          ontext = function(_this) {
+          ontext = /* @__PURE__ */ function(_this) {
             return function(text) {
               var charChild, s;
               s = stack[stack.length - 1];
@@ -47789,7 +47789,7 @@ var require_parser = __commonJS({
             };
           }(this);
           this.saxParser.ontext = ontext;
-          return this.saxParser.oncdata = function(_this) {
+          return this.saxParser.oncdata = /* @__PURE__ */ function(_this) {
             return function(text) {
               var s;
               s = ontext(text);
@@ -47835,7 +47835,7 @@ var require_parser = __commonJS({
           }
         };
         Parser2.prototype.parseStringPromise = function(str2) {
-          return new Promise(function(_this) {
+          return new Promise(/* @__PURE__ */ function(_this) {
             return function(resolve2, reject) {
               return _this.parseString(str2, function(err, value) {
                 if (err) {
@@ -49713,7 +49713,7 @@ var init_context = __esm({
   "node_modules/.pnpm/@opentelemetry+api@1.4.1/node_modules/@opentelemetry/api/build/esm/context/context.js"() {
     "use strict";
     BaseContext = /** @class */
-    function() {
+    /* @__PURE__ */ function() {
       function BaseContext2(parentContext) {
         var self = this;
         self._currentContext = parentContext ? new Map(parentContext) : /* @__PURE__ */ new Map();
