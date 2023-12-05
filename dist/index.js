@@ -2567,13 +2567,13 @@ var require_io = __commonJS({
       });
     }
     exports.mkdirP = mkdirP;
-    function which2(tool, check) {
+    function which3(tool, check) {
       return __awaiter(this, void 0, void 0, function* () {
         if (!tool) {
           throw new Error("parameter 'tool' is required");
         }
         if (check) {
-          const result = yield which2(tool, false);
+          const result = yield which3(tool, false);
           if (!result) {
             if (ioUtil.IS_WINDOWS) {
               throw new Error(`Unable to locate executable file: ${tool}. Please verify either the file path exists or the file can be found within a directory specified by the PATH environment variable. Also verify the file has a valid extension for an executable file.`);
@@ -2590,7 +2590,7 @@ var require_io = __commonJS({
         return "";
       });
     }
-    exports.which = which2;
+    exports.which = which3;
     function findInPath(tool) {
       return __awaiter(this, void 0, void 0, function* () {
         if (!tool) {
@@ -7006,6 +7006,262 @@ var require_Either = __commonJS({
       };
     }
     exports.getValidation = getValidation;
+  }
+});
+
+// node_modules/.pnpm/isexe@3.1.1/node_modules/isexe/dist/cjs/posix.js
+var require_posix = __commonJS({
+  "node_modules/.pnpm/isexe@3.1.1/node_modules/isexe/dist/cjs/posix.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.sync = exports.isexe = void 0;
+    var fs_1 = require("fs");
+    var promises_1 = require("fs/promises");
+    var isexe = async (path5, options2 = {}) => {
+      const { ignoreErrors = false } = options2;
+      try {
+        return checkStat(await (0, promises_1.stat)(path5), options2);
+      } catch (e) {
+        const er = e;
+        if (ignoreErrors || er.code === "EACCES")
+          return false;
+        throw er;
+      }
+    };
+    exports.isexe = isexe;
+    var sync = (path5, options2 = {}) => {
+      const { ignoreErrors = false } = options2;
+      try {
+        return checkStat((0, fs_1.statSync)(path5), options2);
+      } catch (e) {
+        const er = e;
+        if (ignoreErrors || er.code === "EACCES")
+          return false;
+        throw er;
+      }
+    };
+    exports.sync = sync;
+    var checkStat = (stat2, options2) => stat2.isFile() && checkMode(stat2, options2);
+    var checkMode = (stat2, options2) => {
+      const myUid = options2.uid ?? process.getuid?.();
+      const myGroups = options2.groups ?? process.getgroups?.() ?? [];
+      const myGid = options2.gid ?? process.getgid?.() ?? myGroups[0];
+      if (myUid === void 0 || myGid === void 0) {
+        throw new Error("cannot get uid or gid");
+      }
+      const groups = /* @__PURE__ */ new Set([myGid, ...myGroups]);
+      const mod = stat2.mode;
+      const uid = stat2.uid;
+      const gid = stat2.gid;
+      const u = parseInt("100", 8);
+      const g = parseInt("010", 8);
+      const o = parseInt("001", 8);
+      const ug = u | g;
+      return !!(mod & o || mod & g && groups.has(gid) || mod & u && uid === myUid || mod & ug && myUid === 0);
+    };
+  }
+});
+
+// node_modules/.pnpm/isexe@3.1.1/node_modules/isexe/dist/cjs/win32.js
+var require_win32 = __commonJS({
+  "node_modules/.pnpm/isexe@3.1.1/node_modules/isexe/dist/cjs/win32.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.sync = exports.isexe = void 0;
+    var fs_1 = require("fs");
+    var promises_1 = require("fs/promises");
+    var isexe = async (path5, options2 = {}) => {
+      const { ignoreErrors = false } = options2;
+      try {
+        return checkStat(await (0, promises_1.stat)(path5), path5, options2);
+      } catch (e) {
+        const er = e;
+        if (ignoreErrors || er.code === "EACCES")
+          return false;
+        throw er;
+      }
+    };
+    exports.isexe = isexe;
+    var sync = (path5, options2 = {}) => {
+      const { ignoreErrors = false } = options2;
+      try {
+        return checkStat((0, fs_1.statSync)(path5), path5, options2);
+      } catch (e) {
+        const er = e;
+        if (ignoreErrors || er.code === "EACCES")
+          return false;
+        throw er;
+      }
+    };
+    exports.sync = sync;
+    var checkPathExt = (path5, options2) => {
+      const { pathExt = process.env.PATHEXT || "" } = options2;
+      const peSplit = pathExt.split(";");
+      if (peSplit.indexOf("") !== -1) {
+        return true;
+      }
+      for (let i = 0; i < peSplit.length; i++) {
+        const p = peSplit[i].toLowerCase();
+        const ext = path5.substring(path5.length - p.length).toLowerCase();
+        if (p && ext === p) {
+          return true;
+        }
+      }
+      return false;
+    };
+    var checkStat = (stat2, path5, options2) => stat2.isFile() && checkPathExt(path5, options2);
+  }
+});
+
+// node_modules/.pnpm/isexe@3.1.1/node_modules/isexe/dist/cjs/options.js
+var require_options = __commonJS({
+  "node_modules/.pnpm/isexe@3.1.1/node_modules/isexe/dist/cjs/options.js"(exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+  }
+});
+
+// node_modules/.pnpm/isexe@3.1.1/node_modules/isexe/dist/cjs/index.js
+var require_cjs = __commonJS({
+  "node_modules/.pnpm/isexe@3.1.1/node_modules/isexe/dist/cjs/index.js"(exports) {
+    "use strict";
+    var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
+      if (k2 === void 0)
+        k2 = k;
+      var desc = Object.getOwnPropertyDescriptor(m, k);
+      if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+        desc = { enumerable: true, get: function() {
+          return m[k];
+        } };
+      }
+      Object.defineProperty(o, k2, desc);
+    } : function(o, m, k, k2) {
+      if (k2 === void 0)
+        k2 = k;
+      o[k2] = m[k];
+    });
+    var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? function(o, v) {
+      Object.defineProperty(o, "default", { enumerable: true, value: v });
+    } : function(o, v) {
+      o["default"] = v;
+    });
+    var __importStar = exports && exports.__importStar || function(mod) {
+      if (mod && mod.__esModule)
+        return mod;
+      var result = {};
+      if (mod != null) {
+        for (var k in mod)
+          if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k))
+            __createBinding(result, mod, k);
+      }
+      __setModuleDefault(result, mod);
+      return result;
+    };
+    var __exportStar = exports && exports.__exportStar || function(m, exports2) {
+      for (var p in m)
+        if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports2, p))
+          __createBinding(exports2, m, p);
+    };
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.sync = exports.isexe = exports.posix = exports.win32 = void 0;
+    var posix = __importStar(require_posix());
+    exports.posix = posix;
+    var win32 = __importStar(require_win32());
+    exports.win32 = win32;
+    __exportStar(require_options(), exports);
+    var platform4 = process.env._ISEXE_TEST_PLATFORM_ || process.platform;
+    var impl = platform4 === "win32" ? win32 : posix;
+    exports.isexe = impl.isexe;
+    exports.sync = impl.sync;
+  }
+});
+
+// node_modules/.pnpm/which@4.0.0/node_modules/which/lib/index.js
+var require_lib2 = __commonJS({
+  "node_modules/.pnpm/which@4.0.0/node_modules/which/lib/index.js"(exports, module2) {
+    "use strict";
+    var { isexe, sync: isexeSync } = require_cjs();
+    var { join: join2, delimiter: delimiter2, sep, posix } = require("path");
+    var isWindows = process.platform === "win32";
+    var rSlash = new RegExp(`[${posix.sep}${sep === posix.sep ? "" : sep}]`.replace(/(\\)/g, "\\$1"));
+    var rRel = new RegExp(`^\\.${rSlash.source}`);
+    var getNotFoundError = (cmd) => Object.assign(new Error(`not found: ${cmd}`), { code: "ENOENT" });
+    var getPathInfo = (cmd, {
+      path: optPath = process.env.PATH,
+      pathExt: optPathExt = process.env.PATHEXT,
+      delimiter: optDelimiter = delimiter2
+    }) => {
+      const pathEnv = cmd.match(rSlash) ? [""] : [
+        // windows always checks the cwd first
+        ...isWindows ? [process.cwd()] : [],
+        ...(optPath || /* istanbul ignore next: very unusual */
+        "").split(optDelimiter)
+      ];
+      if (isWindows) {
+        const pathExtExe = optPathExt || [".EXE", ".CMD", ".BAT", ".COM"].join(optDelimiter);
+        const pathExt = pathExtExe.split(optDelimiter).flatMap((item) => [item, item.toLowerCase()]);
+        if (cmd.includes(".") && pathExt[0] !== "") {
+          pathExt.unshift("");
+        }
+        return { pathEnv, pathExt, pathExtExe };
+      }
+      return { pathEnv, pathExt: [""] };
+    };
+    var getPathPart = (raw, cmd) => {
+      const pathPart = /^".*"$/.test(raw) ? raw.slice(1, -1) : raw;
+      const prefix2 = !pathPart && rRel.test(cmd) ? cmd.slice(0, 2) : "";
+      return prefix2 + join2(pathPart, cmd);
+    };
+    var which3 = async (cmd, opt = {}) => {
+      const { pathEnv, pathExt, pathExtExe } = getPathInfo(cmd, opt);
+      const found = [];
+      for (const envPart of pathEnv) {
+        const p = getPathPart(envPart, cmd);
+        for (const ext of pathExt) {
+          const withExt = p + ext;
+          const is = await isexe(withExt, { pathExt: pathExtExe, ignoreErrors: true });
+          if (is) {
+            if (!opt.all) {
+              return withExt;
+            }
+            found.push(withExt);
+          }
+        }
+      }
+      if (opt.all && found.length) {
+        return found;
+      }
+      if (opt.nothrow) {
+        return null;
+      }
+      throw getNotFoundError(cmd);
+    };
+    var whichSync = (cmd, opt = {}) => {
+      const { pathEnv, pathExt, pathExtExe } = getPathInfo(cmd, opt);
+      const found = [];
+      for (const pathEnvPart of pathEnv) {
+        const p = getPathPart(pathEnvPart, cmd);
+        for (const ext of pathExt) {
+          const withExt = p + ext;
+          const is = isexeSync(withExt, { pathExt: pathExtExe, ignoreErrors: true });
+          if (is) {
+            if (!opt.all) {
+              return withExt;
+            }
+            found.push(withExt);
+          }
+        }
+      }
+      if (opt.all && found.length) {
+        return found;
+      }
+      if (opt.nothrow) {
+        return null;
+      }
+      throw getNotFoundError(cmd);
+    };
+    module2.exports = which3;
+    which3.sync = whichSync;
   }
 });
 
@@ -25981,7 +26237,7 @@ var require_undici = __commonJS({
 });
 
 // node_modules/.pnpm/@actions+http-client@2.2.0/node_modules/@actions/http-client/lib/index.js
-var require_lib2 = __commonJS({
+var require_lib3 = __commonJS({
   "node_modules/.pnpm/@actions+http-client@2.2.0/node_modules/@actions/http-client/lib/index.js"(exports) {
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
@@ -38484,7 +38740,7 @@ var init_log2 = __esm({
 });
 
 // node_modules/.pnpm/webidl-conversions@3.0.1/node_modules/webidl-conversions/lib/index.js
-var require_lib3 = __commonJS({
+var require_lib4 = __commonJS({
   "node_modules/.pnpm/webidl-conversions@3.0.1/node_modules/webidl-conversions/lib/index.js"(exports, module2) {
     "use strict";
     var conversions = {};
@@ -40063,7 +40319,7 @@ var require_URL_impl = __commonJS({
 var require_URL = __commonJS({
   "node_modules/.pnpm/whatwg-url@5.0.0/node_modules/whatwg-url/lib/URL.js"(exports, module2) {
     "use strict";
-    var conversions = require_lib3();
+    var conversions = require_lib4();
     var utils = require_utils3();
     var Impl = require_URL_impl();
     var impl = utils.implSymbol;
@@ -45818,7 +46074,7 @@ var require_XMLStreamWriter = __commonJS({
 });
 
 // node_modules/.pnpm/xmlbuilder@11.0.1/node_modules/xmlbuilder/lib/index.js
-var require_lib4 = __commonJS({
+var require_lib5 = __commonJS({
   "node_modules/.pnpm/xmlbuilder@11.0.1/node_modules/xmlbuilder/lib/index.js"(exports, module2) {
     "use strict";
     (function() {
@@ -45879,7 +46135,7 @@ var require_builder = __commonJS({
     (function() {
       "use strict";
       var builder, defaults, escapeCDATA, requiresCDATA, wrapCDATA, hasProp = {}.hasOwnProperty;
-      builder = require_lib4();
+      builder = require_lib5();
       defaults = require_defaults().defaults;
       requiresCDATA = function(entry) {
         return typeof entry === "string" && (entry.indexOf("&") >= 0 || entry.indexOf(">") >= 0 || entry.indexOf("<") >= 0);
@@ -75362,7 +75618,7 @@ var require_requestUtils = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.retryHttpClientResponse = exports.retryTypedResponse = exports.retry = exports.isRetryableStatusCode = exports.isServerErrorStatusCode = exports.isSuccessStatusCode = void 0;
     var core7 = __importStar(require_core());
-    var http_client_1 = require_lib2();
+    var http_client_1 = require_lib3();
     var constants_1 = require_constants();
     function isSuccessStatusCode(statusCode) {
       if (!statusCode) {
@@ -75535,7 +75791,7 @@ var require_downloadUtils = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.downloadCacheStorageSDK = exports.downloadCacheHttpClientConcurrent = exports.downloadCacheHttpClient = exports.DownloadProgress = void 0;
     var core7 = __importStar(require_core());
-    var http_client_1 = require_lib2();
+    var http_client_1 = require_lib3();
     var storage_blob_1 = (init_src12(), __toCommonJS(src_exports3));
     var buffer = __importStar(require("buffer"));
     var fs6 = __importStar(require("fs"));
@@ -75835,7 +76091,7 @@ var require_downloadUtils = __commonJS({
 });
 
 // node_modules/.pnpm/@actions+cache@3.2.2/node_modules/@actions/cache/lib/options.js
-var require_options = __commonJS({
+var require_options2 = __commonJS({
   "node_modules/.pnpm/@actions+cache@3.2.2/node_modules/@actions/cache/lib/options.js"(exports) {
     "use strict";
     var __createBinding = exports && exports.__createBinding || (Object.create ? function(o, m, k, k2) {
@@ -76002,14 +76258,14 @@ var require_cacheHttpClient = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.saveCache = exports.reserveCache = exports.downloadCache = exports.getCacheEntry = exports.getCacheVersion = void 0;
     var core7 = __importStar(require_core());
-    var http_client_1 = require_lib2();
+    var http_client_1 = require_lib3();
     var auth_1 = require_auth2();
     var crypto4 = __importStar(require("crypto"));
     var fs6 = __importStar(require("fs"));
     var url_1 = require("url");
     var utils = __importStar(require_cacheUtils());
     var downloadUtils_1 = require_downloadUtils();
-    var options_1 = require_options();
+    var options_1 = require_options2();
     var requestUtils_1 = require_requestUtils();
     var versionSalt = "1.0";
     function getCacheApiUrl(resource) {
@@ -76685,7 +76941,6 @@ var require_cache2 = __commonJS({
 
 // src/main.ts
 var import_promises = __toESM(require("fs/promises"));
-var import_fs = require("fs");
 var import_os2 = __toESM(require("os"));
 var import_path3 = __toESM(require("path"));
 var import_process2 = require("process");
@@ -83148,6 +83403,7 @@ function untildify(pathWithTilde) {
 }
 
 // src/options.ts
+var import_which = __toESM(require_lib2());
 var core2 = process.env.MOCKING ? coreMocked : coreDefault;
 var PATHS = {
   micromambaBin: path.join(os2.homedir(), "micromamba-bin", `micromamba${os2.platform() === "win32" ? ".exe" : ""}`),
@@ -83192,7 +83448,8 @@ var inferOptions = (inputs) => {
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
   const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;
-  const micromambaBinPath = inputs.micromambaBinPath ? path.resolve(untildify(inputs.micromambaBinPath)) : PATHS.micromambaBin;
+  const downloadMicromamba2 = inputs.downloadMicromamba !== void 0 ? inputs.downloadMicromamba : true;
+  const micromambaBinPath = inputs.micromambaBinPath ? path.resolve(untildify(inputs.micromambaBinPath)) : inputs.downloadMicromamba === false ? import_which.default.sync("micromamba") : PATHS.micromambaBin;
   return {
     ...inputs,
     writeToCondarc,
@@ -83200,6 +83457,7 @@ var inferOptions = (inputs) => {
     createArgs: inputs.createArgs || [],
     logLevel,
     micromambaSource,
+    downloadMicromamba: downloadMicromamba2,
     initShell,
     generateRunShell: inputs.generateRunShell !== void 0 ? inputs.generateRunShell : createEnvironment2,
     cacheEnvironmentKey: inputs.cacheEnvironmentKey || (inputs.cacheEnvironment ? `micromamba-environment-` : void 0),
@@ -83217,6 +83475,9 @@ var validateInputs = (inputs) => {
   const createEnvironment2 = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
   if (inputs.micromambaUrl && inputs.micromambaVersion) {
     throw new Error("You must specify either a micromamba URL or a micromamba version, not both.");
+  }
+  if (inputs.downloadMicromamba === false && (inputs.micromambaUrl || inputs.micromambaVersion)) {
+    throw new Error("You cannot specify micromamba-url or micromamba-version when download-micromamba is false.");
   }
   if (inputs.generateRunShell && !createEnvironment2) {
     throw new Error("You must create an environment to use 'generate-run-shell'.");
@@ -83283,6 +83544,7 @@ var getOptions = () => {
       "micromamba-version must be either `latest` or a version matching `1.2.3-0`."
     ),
     micromambaUrl: parseOrUndefined("micromamba-url", stringType().url()),
+    downloadMicromamba: parseOrUndefinedJSON("download-micromamba", booleanType()),
     initShell: parseOrUndefinedList("init-shell", shellSchema),
     generateRunShell: parseOrUndefinedJSON("generate-run-shell", booleanType()),
     cacheDownloads: parseOrUndefinedJSON("cache-downloads", booleanType()),
@@ -83550,6 +83812,11 @@ var restoreCacheDownloads = () => {
 // src/main.ts
 var core6 = process.env.MOCKING ? coreMocked : coreDefault5;
 var downloadMicromamba = (url2) => {
+  if (options.downloadMicromamba === false) {
+    core6.info("Skipping micromamba download.");
+    core6.addPath(import_path3.default.dirname(options.micromambaBinPath));
+    return Promise.resolve();
+  }
   core6.startGroup("Install micromamba");
   core6.debug(`Downloading micromamba from ${url2} ...`);
   return import_promises.default.mkdir(import_path3.default.dirname(options.micromambaBinPath), { recursive: true }).then(() => (0, import_tool_cache.downloadTool)(url2, options.micromambaBinPath)).then((_downloadPath) => import_promises.default.chmod(options.micromambaBinPath, 493)).then(() => core6.addPath(import_path3.default.dirname(options.micromambaBinPath))).then(() => core6.info(`micromamba installed to ${options.micromambaBinPath}`)).catch((err) => {
@@ -83560,7 +83827,7 @@ var downloadMicromamba = (url2) => {
 var generateCondarc = () => {
   if (!options.writeToCondarc) {
     core6.debug(`Using condarc file ${options.condarcFile} ...`);
-    return import_promises.default.access(options.condarcFile, import_fs.constants.R_OK);
+    return import_promises.default.access(options.condarcFile, import_promises.default.constants.R_OK);
   }
   core6.debug(`Using ${options.condarcFile} as condarc file.`);
   const mkDir = import_promises.default.mkdir(import_path3.default.dirname(options.condarcFile), { recursive: true });

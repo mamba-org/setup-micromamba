@@ -41,6 +41,10 @@ inputs:
   micromamba-url:
     description: |
       URL to download micromamba from.
+  download-micromamba:
+    description: |
+      If `true` (the default), the action will download micromamba to `micromamba-binary-path`.
+      If `false`, the action will not attempt to download micromamba, and you should provide a micromamba binary at `micromamba-binary-path` if micromamba is not already on PATH.
   init-shell:
     description: |
       Which shells to initialize micromamba in.

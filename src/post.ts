@@ -56,6 +56,10 @@ const removeMicromambaBinaryParentIfEmpty = () => {
 
 const removeMicromambaBinary = () => {
   core.info('Removing micromamba binary ...')
+  if (options.downloadMicromamba === false) {
+    core.debug('Skipping micromamba binary removal.')
+    return Promise.resolve()
+  }
   core.debug(`Deleting ${options.micromambaBinPath}`)
   return fs.rm(options.micromambaBinPath, { force: false })
 }

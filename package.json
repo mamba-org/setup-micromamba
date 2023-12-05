@@ -1,6 +1,6 @@
 {
   "name": "setup-micromamba",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "private": true,
   "description": "Action to setup micromamba",
   "scripts": {
@@ -31,11 +31,13 @@
     "fp-ts": "^2.16.1",
     "js-yaml": "^4.1.0",
     "untildify": "^5.0.0",
+    "which": "^4.0.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.10.3",
+    "@types/which": "^3.0.3",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
     "@typescript-eslint/parser": "^6.13.2",
     "eslint": "^8.55.0",
