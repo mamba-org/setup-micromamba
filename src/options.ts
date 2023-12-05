@@ -6,6 +6,7 @@ import * as z from 'zod'
 import { left, right } from 'fp-ts/lib/Either'
 import type { Either } from 'fp-ts/lib/Either'
 import untildify from 'untildify'
+import which from 'which'
 import { coreMocked } from './mocking'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
@@ -26,6 +27,7 @@ type Inputs = Readonly<{
   logLevel?: LogLevelType
   micromambaVersion?: string
   micromambaUrl?: string
+  downloadMicromamba?: boolean
   initShell?: ShellTypeWithNone[]
   generateRunShell?: boolean
   cacheDownloads?: boolean
@@ -47,6 +49,7 @@ export type Options = Readonly<{
   createArgs: string[]
   logLevel: LogLevelType
   micromambaSource: MicromambaSourceType
+  downloadMicromamba: boolean
   initShell: ShellType[]
   generateRunShell: boolean
   cacheDownloadsKey?: string // undefined if cacheDownloads is false
@@ -126,9 +129,12 @@ const inferOptions = (inputs: Inputs): Options => {
     : inputs.initShell.includes('none')
       ? []
       : (inputs.initShell as ShellType[])
+  const downloadMicromamba = inputs.downloadMicromamba !== undefined ? inputs.downloadMicromamba : true
   const micromambaBinPath = inputs.micromambaBinPath
     ? path.resolve(untildify(inputs.micromambaBinPath))
-    : PATHS.micromambaBin
+    : inputs.downloadMicromamba === false
+      ? which.sync('micromamba')
+      : PATHS.micromambaBin
 
   return {
     ...inputs,
@@ -137,6 +143,7 @@ const inferOptions = (inputs: Inputs): Options => {
     createArgs: inputs.createArgs || [],
     logLevel,
     micromambaSource,
+    downloadMicromamba,
     initShell,
     generateRunShell: inputs.generateRunShell !== undefined ? inputs.generateRunShell : createEnvironment,
     cacheEnvironmentKey:
@@ -159,6 +166,9 @@ const validateInputs = (inputs: Inputs): void => {
   const createEnvironment = inputs.environmentName !== undefined || inputs.environmentFile !== undefined
   if (inputs.micromambaUrl && inputs.micromambaVersion) {
     throw new Error('You must specify either a micromamba URL or a micromamba version, not both.')
+  }
+  if (inputs.downloadMicromamba === false && (inputs.micromambaUrl || inputs.micromambaVersion)) {
+    throw new Error('You cannot specify micromamba-url or micromamba-version when download-micromamba is false.')
   }
   if (inputs.generateRunShell && !createEnvironment) {
     throw new Error("You must create an environment to use 'generate-run-shell'.")
@@ -234,6 +244,7 @@ const getOptions = () => {
       'micromamba-version must be either `latest` or a version matching `1.2.3-0`.'
     ),
     micromambaUrl: parseOrUndefined('micromamba-url', z.string().url()),
+    downloadMicromamba: parseOrUndefinedJSON('download-micromamba', z.boolean()),
     initShell: parseOrUndefinedList('init-shell', shellSchema),
     generateRunShell: parseOrUndefinedJSON('generate-run-shell', z.boolean()),
     cacheDownloads: parseOrUndefinedJSON('cache-downloads', z.boolean()),

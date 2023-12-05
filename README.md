@@ -257,13 +257,17 @@ This can be specified by setting the `log-level` input.
 
 If nothing is specified, `setup-micromamba` will default to `warning` or `debug` depending on if [debug logging is enabled for the action](#debug-logging-of-the-action).
 
-### Post action cleanup
+### Self-hosted runners
 
-On self hosted runners, it may happen that some files are persisted between jobs.
+On self-hosted runners, it may happen that some files are persisted between jobs.
 This can lead to problems when the next job is run.
-To avoid this, you can use the `post-cleanup` input to specify the post cleanup behavior of the action (i.e., what happens _after_ all your commands have been executed).
+
+#### Post-action cleanup
+
+To avoid persistence between jobs, you can use the `post-cleanup` input to specify the post cleanup behavior of the action (i.e., what happens _after_ all your commands have been executed).
 
 There is a total of 4 options:
+
 - `none`: No cleanup is performed.
 - `shell-init`: The shell initialization files are removed by executing `micromamba shell deinit -s <shell>`.
 - `environment`: Shell initialization files and the installed environment are removed.
@@ -276,6 +280,30 @@ If nothing is specified, `setup-micromamba` will default to `shell-init`.
   with:
     environment-file: environment.yml
     post-cleanup: environment
+```
+
+#### Specify the path of the micromamba binary
+
+You also might want to alter the default micromamba installation location to a temporary location. You can use `micromamba-binary-path: ${{ runner.temp }}/bin/micromamba` to do this.
+
+```yml
+- uses: mamba-org/setup-micromamba@v1
+  with:
+    environment-file: environment.yml
+    # ${{ runner.temp }}\Scripts\micromamba.exe on Windows
+    micromamba-binary-path: ${{ runner.temp }}/bin/micromamba
+```
+
+You can also use a pre-installed micromamba binary by setting `micromamba-binary-path` to the path of the binary and specifying `download-micromamba: false`.
+
+```yml
+- uses: mamba-org/setup-micromamba@v1
+  with:
+    environment-file: environment.yml
+    download-micromamba: false
+    # you don't need to specify this if micromamba is already on PATH
+    micromamba-binary-path: /usr/local/bin/micromamba
+    generate-run-shell: false # this would generate a file next to the micromamba binary
 ```
 
 ## More examples

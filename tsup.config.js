@@ -21,6 +21,7 @@ export default defineConfig({
     'untildify',
     'zod',
     'fp-ts',
-    'js-yaml'
+    'js-yaml',
+    'which'
   ]
 })

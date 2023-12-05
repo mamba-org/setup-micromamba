@@ -1,5 +1,4 @@
 import fs from 'fs/promises'
-import { constants as fsConstants } from 'fs' // fs.constants is not available in fs/promises for node < 18.4.0
 import os from 'os'
 import path from 'path'
 import { exit } from 'process'
@@ -15,6 +14,11 @@ import { restoreCacheDownloads, restoreCacheEnvironment, saveCacheEnvironment } 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
 const downloadMicromamba = (url: string) => {
+  if (options.downloadMicromamba === false) {
+    core.info('Skipping micromamba download.')
+    core.addPath(path.dirname(options.micromambaBinPath))
+    return Promise.resolve()
+  }
   core.startGroup('Install micromamba')
   core.debug(`Downloading micromamba from ${url} ...`)
 
@@ -34,7 +38,7 @@ const downloadMicromamba = (url: string) => {
 const generateCondarc = () => {
   if (!options.writeToCondarc) {
     core.debug(`Using condarc file ${options.condarcFile} ...`)
-    return fs.access(options.condarcFile, fsConstants.R_OK)
+    return fs.access(options.condarcFile, fs.constants.R_OK)
   }
   core.debug(`Using ${options.condarcFile} as condarc file.`)
   const mkDir = fs.mkdir(path.dirname(options.condarcFile), { recursive: true })

@@ -287,6 +287,42 @@ jobs:
           which micromamba-shell | grep /home/runner/micromamba-bin/micromamba-shell
         shell: bash -el {0}
 
+  use-micromamba-from-path:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download micromamba
+        run: |
+          curl -Ls https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-linux-64 -o /usr/local/bin/micromamba
+          chmod +x /usr/local/bin/micromamba
+          which micromamba
+      - uses: ./
+        with:
+          environment-file: test/environment.yml
+          download-micromamba: false
+      - run: |
+          micromamba info | grep -q "environment : env-name"
+        shell: bash -elo pipefail {0}
+
+  no-download-with-custom-path:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download micromamba
+        run: |
+          mkdir -p "$HOME/not-on-path/bin"
+          curl -Ls https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-linux-64 -o "$HOME/not-on-path/bin/micromamba"
+          chmod +x "$HOME/not-on-path/bin/micromamba"
+      - uses: ./
+        with:
+          environment-file: test/environment.yml
+          download-micromamba: false
+          micromamba-binary-path: ~/not-on-path/bin/micromamba
+      - run: |
+          micromamba info | grep -q "environment : env-name"
+          which micromamba | grep not-on-path/bin
+        shell: bash -elo pipefail {0}
+
   # not properly testable
   # https://github.com/actions/runner/issues/2347
   # https://github.com/orgs/community/discussions/15452

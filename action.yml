@@ -41,6 +41,9 @@ inputs:
   micromamba-url:
     description: |
       URL to download micromamba from.
+  download-micromamba:
+    description: |
+      If you already have micromamba installed, you can set this to `false`.
   init-shell:
     description: |
       Which shells to initialize micromamba in.
