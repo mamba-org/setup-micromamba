@@ -78801,7 +78801,7 @@ var inferOptions = (inputs) => {
     condarcFile: inputs.condarcFile ? path.resolve(untildify(inputs.condarcFile)) : path.join(path.dirname(PATHS.micromambaBin), ".condarc"),
     // next to the micromamba binary -> easier cleanup
     micromambaBinPath,
-    micromambaRunShellPath: path.join(path.dirname(micromambaBinPath), "micromamba-shell"),
+    micromambaRunShellPath: inputs.micromambaRunShellPath ? path.resolve(untildify(inputs.micromambaRunShellPath)) : path.join(path.dirname(micromambaBinPath), "micromamba-shell"),
     micromambaRootPath: inputs.micromambaRootPath ? path.resolve(untildify(inputs.micromambaRootPath)) : PATHS.micromambaRoot
   };
 };
@@ -78887,7 +78887,8 @@ var getOptions = () => {
     cacheEnvironmentKey: parseOrUndefined("cache-environment-key", stringType()),
     postCleanup: parseOrUndefined("post-cleanup", postCleanupSchema),
     micromambaRootPath: parseOrUndefined("micromamba-root-path", stringType()),
-    micromambaBinPath: parseOrUndefined("micromamba-binary-path", stringType())
+    micromambaBinPath: parseOrUndefined("micromamba-binary-path", stringType()),
+    micromambaRunShellPath: parseOrUndefined("micromamba-run-shell-path", stringType())
   };
   setLogLevel(inputs.logLevel);
   core.debug(`Inputs: ${JSON.stringify(inputs)}`);

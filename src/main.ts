@@ -128,8 +128,8 @@ export const generateMicromambaRunShell = () => {
   }
   core.info('Generating micromamba run shell.')
   const micromambaRunShellContents = `#!/usr/bin/env sh
-chmod +x $1
-$MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
+if test -f "$1"; then chmod +x $1; fi
+$MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV "$@"
 `
   return determineEnvironmentName(options.environmentName, options.environmentFile)
     .then((environmentName) => {
@@ -137,7 +137,7 @@ $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
         .replace(/\$MAMBA_EXE/g, options.micromambaBinPath)
         .replace(/\$MAMBA_ROOT_PREFIX/g, options.micromambaRootPath)
         .replace(/\$MAMBA_DEFAULT_ENV/g, environmentName)
-      core.debug(`Writing micromamba run shell to ${options.micromambaRunShellPath}`)
+      core.debug(`Writing micromamba run shell to ${options.micromambaRunShellPatu}`)
       core.debug(`File contents:\n"${file}"`)
       return fs.writeFile(options.micromambaRunShellPath, file, { encoding: 'utf8', mode: 0o755 })
     })

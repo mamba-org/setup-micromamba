@@ -80724,7 +80724,7 @@ var inferOptions = (inputs) => {
     condarcFile: inputs.condarcFile ? path.resolve(untildify(inputs.condarcFile)) : path.join(path.dirname(PATHS.micromambaBin), ".condarc"),
     // next to the micromamba binary -> easier cleanup
     micromambaBinPath,
-    micromambaRunShellPath: path.join(path.dirname(micromambaBinPath), "micromamba-shell"),
+    micromambaRunShellPath: inputs.micromambaRunShellPath ? path.resolve(untildify(inputs.micromambaRunShellPath)) : path.join(path.dirname(micromambaBinPath), "micromamba-shell"),
     micromambaRootPath: inputs.micromambaRootPath ? path.resolve(untildify(inputs.micromambaRootPath)) : PATHS.micromambaRoot
   };
 };
@@ -80810,7 +80810,8 @@ var getOptions = () => {
     cacheEnvironmentKey: parseOrUndefined("cache-environment-key", stringType()),
     postCleanup: parseOrUndefined("post-cleanup", postCleanupSchema),
     micromambaRootPath: parseOrUndefined("micromamba-root-path", stringType()),
-    micromambaBinPath: parseOrUndefined("micromamba-binary-path", stringType())
+    micromambaBinPath: parseOrUndefined("micromamba-binary-path", stringType()),
+    micromambaRunShellPath: parseOrUndefined("micromamba-run-shell-path", stringType())
   };
   setLogLevel(inputs.logLevel);
   core.debug(`Inputs: ${JSON.stringify(inputs)}`);
@@ -83976,12 +83977,12 @@ var generateMicromambaRunShell = () => {
   }
   core.info("Generating micromamba run shell.");
   const micromambaRunShellContents = `#!/usr/bin/env sh
-chmod +x $1
-$MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
+if test -f "$1"; then chmod +x $1; fi
+$MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV "$@"
 `;
   return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
     const file = micromambaRunShellContents.replace(/\$MAMBA_EXE/g, options.micromambaBinPath).replace(/\$MAMBA_ROOT_PREFIX/g, options.micromambaRootPath).replace(/\$MAMBA_DEFAULT_ENV/g, environmentName);
-    core.debug(`Writing micromamba run shell to ${options.micromambaRunShellPath}`);
+    core.debug(`Writing micromamba run shell to ${options.micromambaRunShellPatu}`);
     core.debug(`File contents:
 "${file}"`);
     return import_promises.default.writeFile(options.micromambaRunShellPath, file, { encoding: "utf8", mode: 493 });

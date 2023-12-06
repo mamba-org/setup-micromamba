@@ -36,6 +36,7 @@ type Inputs = Readonly<{
   postCleanup?: PostCleanupType
   micromambaRootPath?: string
   micromambaBinPath?: string
+  micromambaRunShellPath?: string
 }>
 
 export type Options = Readonly<{
@@ -154,7 +155,9 @@ const inferOptions = (inputs: Inputs): Options => {
       ? path.resolve(untildify(inputs.condarcFile))
       : path.join(path.dirname(PATHS.micromambaBin), '.condarc'), // next to the micromamba binary -> easier cleanup
     micromambaBinPath,
-    micromambaRunShellPath: path.join(path.dirname(micromambaBinPath), 'micromamba-shell'),
+    micromambaRunShellPath: inputs.micromambaRunShellPath
+      ? path.resolve(untildify(inputs.micromambaRunShellPath))
+      : path.join(path.dirname(micromambaBinPath), 'micromamba-shell'),
     micromambaRootPath: inputs.micromambaRootPath
       ? path.resolve(untildify(inputs.micromambaRootPath))
       : PATHS.micromambaRoot
@@ -252,7 +255,8 @@ const getOptions = () => {
     cacheEnvironmentKey: parseOrUndefined('cache-environment-key', z.string()),
     postCleanup: parseOrUndefined('post-cleanup', postCleanupSchema),
     micromambaRootPath: parseOrUndefined('micromamba-root-path', z.string()),
-    micromambaBinPath: parseOrUndefined('micromamba-binary-path', z.string())
+    micromambaBinPath: parseOrUndefined('micromamba-binary-path', z.string()),
+    micromambaRunShellPath: parseOrUndefined('micromamba-run-shell-path', z.string())
   }
   setLogLevel(inputs.logLevel)
   core.debug(`Inputs: ${JSON.stringify(inputs)}`)
