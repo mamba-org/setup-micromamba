@@ -187,7 +187,7 @@ const run = async () => {
   await generateInfo()
 }
 
-if (process.env.MOCKING || process.env.GITHUB_ACTIONS) {
+if (process.env.MOCKING || (process.env.GITHUB_ACTIONS && !process.env.CLI)) {
   run().catch((error) => {
     if (core.isDebug()) {
       throw error

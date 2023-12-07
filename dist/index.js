@@ -83488,7 +83488,7 @@ var coreMocked = {
 };
 
 // src/core.ts
-var core2 = process.env.MOCKING || !process.env.GITHUB_ACTIONS ? coreMocked : coreDefault;
+var core2 = process.env.MOCKING || process.env.CLI || !process.env.GITHUB_ACTIONS ? coreMocked : coreDefault;
 
 // src/options.ts
 var PATHS = {
@@ -84036,7 +84036,7 @@ var run = async () => {
   setEnvVariables();
   await generateInfo();
 };
-if (process.env.MOCKING || process.env.GITHUB_ACTIONS) {
+if (process.env.MOCKING || process.env.GITHUB_ACTIONS && !process.env.CLI) {
   run().catch((error) => {
     if (core2.isDebug()) {
       throw error;

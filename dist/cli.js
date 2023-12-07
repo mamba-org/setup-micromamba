@@ -77068,7 +77068,7 @@ var coreMocked = {
 };
 
 // src/core.ts
-var core = process.env.MOCKING || !process.env.GITHUB_ACTIONS ? coreMocked : coreDefault;
+var core = process.env.MOCKING || process.env.CLI || !process.env.GITHUB_ACTIONS ? coreMocked : coreDefault;
 
 // src/options.ts
 var path = __toESM(require("path"));
@@ -84032,7 +84032,7 @@ var run = async () => {
   setEnvVariables();
   await generateInfo();
 };
-if (process.env.MOCKING || process.env.GITHUB_ACTIONS) {
+if (process.env.MOCKING || process.env.GITHUB_ACTIONS && !process.env.CLI) {
   run().catch((error) => {
     if (core.isDebug()) {
       throw error;
