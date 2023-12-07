@@ -65,6 +65,14 @@ export const coreMocked = {
     process.exit(1)
   },
   getInput: (name: string) => {
+    const optionFlag = `--${name}`
+    const cliFlagIndex = process.argv.indexOf(optionFlag)
+    if (cliFlagIndex > -1) {
+      const value = process.argv[cliFlagIndex + 1]
+      if (typeof value === 'string') {
+        return value
+      }
+    }
     let value = process.env[`INPUT_${name.replace(/-/g, '_').toUpperCase()}`]
     if (value === undefined) {
       value = process.env[`${name.replace(/-/g, '_').toUpperCase()}`]

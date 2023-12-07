@@ -77013,6 +77013,14 @@ var coreMocked = {
     process.exit(1);
   },
   getInput: (name) => {
+    const optionFlag = `--${name}`;
+    const cliFlagIndex = process.argv.indexOf(optionFlag);
+    if (cliFlagIndex > -1) {
+      const value2 = process.argv[cliFlagIndex + 1];
+      if (typeof value2 === "string") {
+        return value2;
+      }
+    }
     let value = process.env[`INPUT_${name.replace(/-/g, "_").toUpperCase()}`];
     if (value === void 0) {
       value = process.env[`${name.replace(/-/g, "_").toUpperCase()}`];
