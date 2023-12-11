@@ -11,7 +11,7 @@ import {
   installEnvironment,
   generateMicromambaRunShell,
   generateInfo
-} from './main'
+} from './operations'
 
 const run = async () => {
   if (process.platform === 'win32') {
