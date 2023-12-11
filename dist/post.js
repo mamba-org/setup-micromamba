@@ -78744,7 +78744,7 @@ var coreMocked = {
 };
 
 // src/core.ts
-var core = process.env.MOCKING || process.env.CLI || !process.env.GITHUB_ACTIONS ? coreMocked : coreDefault;
+var core = process.env.MOCKING || process.env.CLI || process.env.INIT_CWD || !process.env.GITHUB_ACTIONS ? coreMocked : coreDefault;
 
 // src/options.ts
 var PATHS = {
