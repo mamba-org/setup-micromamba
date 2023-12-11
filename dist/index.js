@@ -83477,7 +83477,6 @@ var coreMocked = {
     return process.env[`STATE_${name.replace(/-/g, "_").toUpperCase()}`] || "";
   },
   addPath: (path6) => {
-    console.log(`::add-path::${path6}`);
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   exportVariable: (path6, value) => {

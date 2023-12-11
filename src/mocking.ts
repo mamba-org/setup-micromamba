@@ -112,7 +112,8 @@ export const coreMocked = {
     return process.env[`STATE_${name.replace(/-/g, '_').toUpperCase()}`] || ''
   },
   addPath: (path: string) => {
-    console.log(`::add-path::${path}`)
+    // ::add-path:: is deprecated and will cause an error
+    // console.log(`::add-path::${path}`)
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   exportVariable: (path: string, value: any) => {
