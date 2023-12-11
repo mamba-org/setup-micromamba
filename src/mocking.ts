@@ -1,3 +1,6 @@
+import * as os from 'os'
+import * as path from 'path'
+
 let logLevel = 'debug'
 export function setLogLevel(level: string) {
   logLevel = level
@@ -59,6 +62,14 @@ export function logLevelLessEqual(level: string) {
   }
 }
 
+function addExe(binPath: string) {
+  if (os.platform() !== 'win32') {
+    return binPath
+  }
+  const withExe = path.extname(binPath) === '.exe' ? binPath : `${binPath}.exe`
+  return withExe
+}
+
 export const coreMocked = {
   setFailed: (msg: string) => {
     coreMocked.error(msg)
@@ -70,6 +81,9 @@ export const coreMocked = {
     if (cliFlagIndex > -1) {
       const value = process.argv[cliFlagIndex + 1]
       if (typeof value === 'string') {
+        if (name === 'micromamba-binary-path') {
+          return addExe(value)
+        }
         return value
       }
     }
@@ -82,6 +96,9 @@ export const coreMocked = {
         }
         return ''
       }
+    }
+    if (name === 'micromamba-binary-path') {
+      return addExe(value)
     }
     return value
   },
