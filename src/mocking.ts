@@ -1,12 +1,104 @@
+import * as os from 'os'
+import * as path from 'path'
+
+let logLevel = 'debug'
+export function setLogLevel(level: string) {
+  logLevel = level
+}
+
+export function logLevelLessEqual(level: string) {
+  switch (level) {
+    case 'off':
+      return false
+    case 'critical':
+      switch (logLevel) {
+        case 'off':
+          return false
+        default:
+          return true
+      }
+    case 'error':
+      switch (logLevel) {
+        case 'off':
+        case 'critical':
+          return false
+        default:
+          return true
+      }
+    case 'warning':
+      switch (logLevel) {
+        case 'off':
+        case 'critical':
+        case 'error':
+          return false
+        default:
+          return true
+      }
+    case 'info':
+      switch (logLevel) {
+        case 'off':
+        case 'critical':
+        case 'error':
+        case 'warning':
+          return false
+        default:
+          return true
+      }
+    case 'debug':
+      switch (logLevel) {
+        case 'off':
+        case 'critical':
+        case 'error':
+        case 'warning':
+        case 'info':
+          return false
+        default:
+          return true
+      }
+    case 'trace':
+      return true
+    default:
+      throw new Error(`Unsupported log level ${level}`)
+  }
+}
+
+function addExe(binPath: string) {
+  if (os.platform() !== 'win32') {
+    return binPath
+  }
+  const withExe = path.extname(binPath) === '.exe' ? binPath : `${binPath}.exe`
+  return withExe
+}
+
 export const coreMocked = {
   setFailed: (msg: string) => {
     coreMocked.error(msg)
     process.exit(1)
   },
   getInput: (name: string) => {
-    const value = process.env[`INPUT_${name.replace(/-/g, '_').toUpperCase()}`]
+    const optionFlag = `--${name}`
+    const cliFlagIndex = process.argv.indexOf(optionFlag)
+    if (cliFlagIndex > -1) {
+      const value = process.argv[cliFlagIndex + 1]
+      if (typeof value === 'string') {
+        if (name === 'micromamba-binary-path') {
+          return addExe(value)
+        }
+        return value
+      }
+    }
+    let value = process.env[`INPUT_${name.replace(/-/g, '_').toUpperCase()}`]
     if (value === undefined) {
-      throw new Error(`Input required and not supplied: ${name}`)
+      value = process.env[`${name.replace(/-/g, '_').toUpperCase()}`]
+      if (value === undefined) {
+        if (process.env.MOCKING) {
+          throw new Error(`Input required and not supplied: ${name}`)
+        }
+        return ''
+      }
+    }
+    if (name === 'micromamba-binary-path') {
+      return addExe(value)
     }
     return value
   },
@@ -16,11 +108,15 @@ export const coreMocked = {
     // just using it here to have some sort of consistent output format
     console.log(`::set-output name=${name}::${value}`)
   },
-  info: (msg: string) => console.log(`\u001B[44m\u001B[37m I \u001B[39m\u001B[49m ` + msg), // blue "I"
-  debug: (msg: string) => console.log(`\u001B[45m\u001B[37m D \u001B[39m\u001B[49m ` + msg), // magenta "D"
-  warning: (msg: string) => console.warn(`\u001B[43m\u001B[37m W \u001B[39m\u001B[49m ` + msg), // yellow "W"
-  notice: (msg: string) => console.info(`\u001B[44m\u001B[37m ? \u001B[39m\u001B[49m ` + msg), // blue "?"
-  error: (msg: string) => console.error(`\u001B[41m\u001B[37m E \u001B[39m\u001B[49m ` + msg), // red "E"
+  info: (msg: string) => logLevelLessEqual('info') && console.log(`\u001B[44m\u001B[37m I \u001B[39m\u001B[49m ` + msg), // blue "I"
+  debug: (msg: string) =>
+    logLevelLessEqual('debug') && console.log(`\u001B[45m\u001B[37m D \u001B[39m\u001B[49m ` + msg), // magenta "D"
+  warning: (msg: string) =>
+    logLevelLessEqual('warning') && console.warn(`\u001B[43m\u001B[37m W \u001B[39m\u001B[49m ` + msg), // yellow "W"
+  notice: (msg: string) =>
+    logLevelLessEqual('info') && console.info(`\u001B[44m\u001B[37m ? \u001B[39m\u001B[49m ` + msg), // blue "?"
+  error: (msg: string) =>
+    logLevelLessEqual('error') && console.error(`\u001B[41m\u001B[37m E \u001B[39m\u001B[49m ` + msg), // red "E"
   startGroup: (label: string) => console.group(`\u001B[47m\u001B[30m ▼ \u001B[39m\u001B[49m ` + label), // white "▼"
   endGroup: () => console.groupEnd(),
   isDebug: () => true,
@@ -33,7 +129,8 @@ export const coreMocked = {
     return process.env[`STATE_${name.replace(/-/g, '_').toUpperCase()}`] || ''
   },
   addPath: (path: string) => {
-    console.log(`::add-path::${path}`)
+    // ::add-path:: is deprecated and will cause an error
+    // console.log(`::add-path::${path}`)
   },
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   exportVariable: (path: string, value: any) => {

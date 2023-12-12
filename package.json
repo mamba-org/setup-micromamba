@@ -1,8 +1,10 @@
 {
   "name": "setup-micromamba",
   "version": "1.7.0",
-  "private": true,
-  "description": "Action to setup micromamba",
+  "description": "Setup micromamba to provide conda environments",
+  "bin": {
+    "setup-micromamba": "./dist/cli.js"
+  },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",

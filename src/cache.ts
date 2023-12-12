@@ -2,12 +2,9 @@ import path from 'path'
 import * as fs from 'fs/promises'
 import { existsSync } from 'fs'
 import * as cache from '@actions/cache'
-import * as coreDefault from '@actions/core'
-import { coreMocked } from './mocking'
 import { options } from './options'
 import { getCondaArch, sha256, sha256Short } from './util'
-
-const core = process.env.MOCKING ? coreMocked : coreDefault
+import { core } from './core'
 
 const saveCache = (cachePath: string, cacheKey: string) => {
   core.debug(`Saving cache with key \`${cacheKey}\` ...`)

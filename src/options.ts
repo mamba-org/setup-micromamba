@@ -1,15 +1,14 @@
 import * as path from 'path'
 import * as os from 'os'
 import { exit } from 'process'
-import * as coreDefault from '@actions/core'
 import * as z from 'zod'
 import { left, right } from 'fp-ts/lib/Either'
 import type { Either } from 'fp-ts/lib/Either'
 import untildify from 'untildify'
 import which from 'which'
-import { coreMocked } from './mocking'
 
-const core = process.env.MOCKING ? coreMocked : coreDefault
+import { core } from './core'
+import { setLogLevel } from './mocking'
 
 export const PATHS = {
   micromambaBin: path.join(os.homedir(), 'micromamba-bin', `micromamba${os.platform() === 'win32' ? '.exe' : ''}`),
@@ -37,6 +36,7 @@ type Inputs = Readonly<{
   postCleanup?: PostCleanupType
   micromambaRootPath?: string
   micromambaBinPath?: string
+  micromambaRunShellPath?: string
 }>
 
 export type Options = Readonly<{
@@ -155,7 +155,9 @@ const inferOptions = (inputs: Inputs): Options => {
       ? path.resolve(untildify(inputs.condarcFile))
       : path.join(path.dirname(PATHS.micromambaBin), '.condarc'), // next to the micromamba binary -> easier cleanup
     micromambaBinPath,
-    micromambaRunShellPath: path.join(path.dirname(micromambaBinPath), 'micromamba-shell'),
+    micromambaRunShellPath: inputs.micromambaRunShellPath
+      ? path.resolve(untildify(inputs.micromambaRunShellPath))
+      : path.join(path.dirname(micromambaBinPath), 'micromamba-shell'),
     micromambaRootPath: inputs.micromambaRootPath
       ? path.resolve(untildify(inputs.micromambaRootPath))
       : PATHS.micromambaRoot
@@ -253,8 +255,10 @@ const getOptions = () => {
     cacheEnvironmentKey: parseOrUndefined('cache-environment-key', z.string()),
     postCleanup: parseOrUndefined('post-cleanup', postCleanupSchema),
     micromambaRootPath: parseOrUndefined('micromamba-root-path', z.string()),
-    micromambaBinPath: parseOrUndefined('micromamba-binary-path', z.string())
+    micromambaBinPath: parseOrUndefined('micromamba-binary-path', z.string()),
+    micromambaRunShellPath: parseOrUndefined('micromamba-run-shell-path', z.string())
   }
+  setLogLevel(inputs.logLevel)
   core.debug(`Inputs: ${JSON.stringify(inputs)}`)
   validateInputs(inputs)
   const options = inferOptions(inputs)
