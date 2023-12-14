@@ -327,11 +327,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # this should produce a warning
       - uses: ./
         with:
           condarc-file: test/.condarc.2
       - run: |
-          micromamba search pytorch
+          micromamba info
         shell: bash -elo pipefail {0}
 
   # not properly testable

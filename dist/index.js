@@ -83525,7 +83525,9 @@ var checkForKnownIssues = (options2) => {
       "You are using a micromamba version < 1.4.5-0 and initialize the shell. This is behavior is deprecated. Please update the micromamba version. For further informations, see https://github.com/mamba-org/setup-micromamba/pull/107"
     );
   }
-  if (options2.condarcFile && path.basename(options2.condarcFile) !== ".condarc") {
+  const condarcBasename = path.basename(options2.condarcFile);
+  const hasValidCondarcName = condarcBasename === ".condarc" || condarcBasename === "condarc" || condarcBasename === ".mambarc" || condarcBasename === "mambarc" || condarcBasename.endsWith(".yml") || condarcBasename.endsWith(".yaml");
+  if (!hasValidCondarcName) {
     core2.warning(
       `You are using a condarc file that is not named '.condarc'. This is currently not supported by micromamba, see https://github.com/mamba-org/mamba/issues/1394`
     );
