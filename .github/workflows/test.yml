@@ -323,6 +323,30 @@ jobs:
           which micromamba | grep not-on-path/bin
         shell: bash -elo pipefail {0}
 
+  incorrect-condarc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # this should produce a warning
+      - uses: ./
+        with:
+          condarc-file: test/.condarc.2
+      - run: |
+          ! micromamba info | grep .condarc.2
+        shell: bash -elo pipefail {0}
+
+  correct-condarc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # this should produce a warning
+      - uses: ./
+        with:
+          condarc-file: test/.condarc.yml
+      - run: |
+          micromamba info | grep .condarc.yml
+        shell: bash -elo pipefail {0}
+
   # not properly testable
   # https://github.com/actions/runner/issues/2347
   # https://github.com/orgs/community/discussions/15452
