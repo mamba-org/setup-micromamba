@@ -78790,7 +78790,7 @@ var checkForKnownIssues = (options2) => {
     );
   }
   if (options2.condarcFile && path.basename(options2.condarcFile) !== ".condarc") {
-    throw new Error(
+    core.warning(
       `You are using a condarc file that is not named '.condarc'. This is currently not supported by micromamba, see https://github.com/mamba-org/mamba/issues/1394`
     );
   }

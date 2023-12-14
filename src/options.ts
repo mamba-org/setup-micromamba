@@ -225,7 +225,7 @@ const checkForKnownIssues = (options: Options) => {
     )
   }
   if (options.condarcFile && path.basename(options.condarcFile) !== '.condarc') {
-    throw new Error(
+    core.warning(
       `You are using a condarc file that is not named '.condarc'. This is currently not supported by micromamba, see https://github.com/mamba-org/mamba/issues/1394`
     )
   }
