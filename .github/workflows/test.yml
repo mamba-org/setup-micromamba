@@ -332,7 +332,7 @@ jobs:
         with:
           condarc-file: test/.condarc.2
       - run: |
-          micromamba info
+          ! micromamba info | grep .condarc.2
         shell: bash -elo pipefail {0}
 
   correct-condarc:
@@ -344,7 +344,7 @@ jobs:
         with:
           condarc-file: test/.condarc.yml
       - run: |
-          micromamba info
+          micromamba info | grep .condarc.yml
         shell: bash -elo pipefail {0}
 
   # not properly testable
