@@ -335,6 +335,18 @@ jobs:
           micromamba info
         shell: bash -elo pipefail {0}
 
+  correct-condarc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # this should produce a warning
+      - uses: ./
+        with:
+          condarc-file: test/.condarc.yml
+      - run: |
+          micromamba info
+        shell: bash -elo pipefail {0}
+
   # not properly testable
   # https://github.com/actions/runner/issues/2347
   # https://github.com/orgs/community/discussions/15452

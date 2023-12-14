@@ -225,6 +225,7 @@ const checkForKnownIssues = (options: Options) => {
     )
   }
   const condarcBasename = path.basename(options.condarcFile)
+  // https://github.com/mamba-org/mamba/blob/c54c4b530e6638c8712f6246200d0f5a32410b46/libmamba/src/api/configuration.cpp#L955
   const hasValidCondarcName =
     condarcBasename === '.condarc' ||
     condarcBasename === 'condarc' ||
