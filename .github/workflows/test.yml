@@ -329,7 +329,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./
         with:
-          condarc-file: test/condarc.2
+          condarc-file: test/.condarc.2
       - run: |
           micromamba search pytorch
         shell: bash -elo pipefail {0}
