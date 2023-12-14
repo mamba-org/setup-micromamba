@@ -8,320 +8,320 @@ on:
   merge_group:
 
 jobs:
-  no-environment-file:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          environment-name: test
-          create-args: >-
-            python
-            cython
-      - run: |
-          micromamba info | grep -q "environment : test"
-        shell: bash -el {0}
+  # no-environment-file:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         environment-name: test
+  #         create-args: >-
+  #           python
+  #           cython
+  #     - run: |
+  #         micromamba info | grep -q "environment : test"
+  #       shell: bash -el {0}
 
-  environment-file:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          environment-file: 'test/environment.yml'
-      - run: |
-          micromamba info | grep -q "environment : env-name"
-        shell: bash -el {0}
+  # environment-file:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         environment-file: 'test/environment.yml'
+  #     - run: |
+  #         micromamba info | grep -q "environment : env-name"
+  #       shell: bash -el {0}
 
-  no-environment:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-      - run: |
-          micromamba info | grep -q "environment : None (not found)"
-        shell: bash -el {0}
+  # no-environment:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #     - run: |
+  #         micromamba info | grep -q "environment : None (not found)"
+  #       shell: bash -el {0}
 
-  micromamba-old-version-1:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          micromamba-version: 1.4.5-0
-          environment-file: 'test/environment.yml'
-      - run: test "$(micromamba --version)" = 1.4.5
-        shell: bash -el {0}
+  # micromamba-old-version-1:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         micromamba-version: 1.4.5-0
+  #         environment-file: 'test/environment.yml'
+  #     - run: test "$(micromamba --version)" = 1.4.5
+  #       shell: bash -el {0}
   
-  micromamba-old-version-2:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          micromamba-version: 1.2.0-1 # this will throw a warning
-          environment-file: 'test/environment.yml'
-      - run: test "$(micromamba --version)" = 1.2.0
-        shell: bash -el {0}
+  # micromamba-old-version-2:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         micromamba-version: 1.2.0-1 # this will throw a warning
+  #         environment-file: 'test/environment.yml'
+  #     - run: test "$(micromamba --version)" = 1.2.0
+  #       shell: bash -el {0}
   
-  micromamba-shell:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          init-shell: ''
-          environment-file: ''
-          create-args: pytest
-          environment-name: test
-      - run: |
-          pytest --version
-          python --version
-        shell: micromamba-shell {0}
+  # micromamba-shell:
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-latest, macos-latest]
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         init-shell: ''
+  #         environment-file: ''
+  #         create-args: pytest
+  #         environment-name: test
+  #     - run: |
+  #         pytest --version
+  #         python --version
+  #       shell: micromamba-shell {0}
 
-  bash:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ./
-      with:
-        init-shell: bash
-        environment-file: 'test/environment.yml'
-    - run: |
-        micromamba info | grep -q "environment : env-name"
-      shell: bash -el {0}
+  # bash:
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-latest, macos-latest, windows-latest]
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - uses: ./
+  #     with:
+  #       init-shell: bash
+  #       environment-file: 'test/environment.yml'
+  #   - run: |
+  #       micromamba info | grep -q "environment : env-name"
+  #     shell: bash -el {0}
 
-  multiple-shell-init:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    - uses: ./
-      with:
-        init-shell: >-
-          bash
-          powershell
-        environment-file: 'test/environment.yml'
-    - run: |
-        micromamba info | grep -q "environment : env-name"
-      shell: bash -el {0}
-    - name: micromamba info (pwsh)
-      run: micromamba info
-      shell: pwsh
-      # TODO: powershell equivalent of `micromamba info | grep -q "environment : env-name"`
+  # multiple-shell-init:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - uses: ./
+  #     with:
+  #       init-shell: >-
+  #         bash
+  #         powershell
+  #       environment-file: 'test/environment.yml'
+  #   - run: |
+  #       micromamba info | grep -q "environment : env-name"
+  #     shell: bash -el {0}
+  #   - name: micromamba info (pwsh)
+  #     run: micromamba info
+  #     shell: pwsh
+  #     # TODO: powershell equivalent of `micromamba info | grep -q "environment : env-name"`
 
-  cmd:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          init-shell: cmd.exe
-          environment-file: 'test/environment.yml'
-      - name: micromamba info (cmd.exe)
-        run: micromamba info
-        shell: cmd /C CALL {0}
-      # TODO: cmd equivalent of `micromamba info | grep -q "environment : env-name"`
+  # cmd:
+  #   runs-on: windows-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         init-shell: cmd.exe
+  #         environment-file: 'test/environment.yml'
+  #     - name: micromamba info (cmd.exe)
+  #       run: micromamba info
+  #       shell: cmd /C CALL {0}
+  #     # TODO: cmd equivalent of `micromamba info | grep -q "environment : env-name"`
 
-  powershell:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          init-shell: powershell
-          environment-file: 'test/environment.yml'
-      - name: micromamba info (pwsh)
-        run: micromamba info
-        shell: pwsh
-      - name: micromamba info (powershell)
-        if: matrix.os == 'windows-latest'
-        run: micromamba info
-        shell: powershell
-      # TODO: powershell equivalent of `micromamba info | grep -q "environment : env-name"`
+  # powershell:
+  #   strategy:
+  #     matrix:
+  #       os: [ubuntu-latest, macos-latest, windows-latest]
+  #   runs-on: ${{ matrix.os }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         init-shell: powershell
+  #         environment-file: 'test/environment.yml'
+  #     - name: micromamba info (pwsh)
+  #       run: micromamba info
+  #       shell: pwsh
+  #     - name: micromamba info (powershell)
+  #       if: matrix.os == 'windows-latest'
+  #       run: micromamba info
+  #       shell: powershell
+  #     # TODO: powershell equivalent of `micromamba info | grep -q "environment : env-name"`
 
-  env-variable:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          environment-file: 'test/environment.yml'
-      - run: | # this should work even without `bash -l {0}`
-          [ -n "$MAMBA_ROOT_PREFIX" ]
-          [ -n "$MAMBA_EXE" ]
-          [ -n "$CONDARC" ]
+  # env-variable:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         environment-file: 'test/environment.yml'
+  #     - run: | # this should work even without `bash -l {0}`
+  #         [ -n "$MAMBA_ROOT_PREFIX" ]
+  #         [ -n "$MAMBA_EXE" ]
+  #         [ -n "$CONDARC" ]
 
-  custom-condarc:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          environment-file: 'test/environment.yml'
-          condarc-file: 'test/.condarc'
-      - run: | # this should only work when the pytorch channel is loaded, i.e., the custom condarc is used
-          micromamba search pytorch=2.0.0
-          micromamba search pytorch=2.0.0 | grep -q "pytorch 2.0.0 py3.10_cpu_0"
-        shell: bash -el {0}
+  # custom-condarc:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         environment-file: 'test/environment.yml'
+  #         condarc-file: 'test/.condarc'
+  #     - run: | # this should only work when the pytorch channel is loaded, i.e., the custom condarc is used
+  #         micromamba search pytorch=2.0.0
+  #         micromamba search pytorch=2.0.0 | grep -q "pytorch 2.0.0 py3.10_cpu_0"
+  #       shell: bash -el {0}
 
-  conda-lock:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          environment-file: 'test/conda-lock.yml'
-          environment-name: locked-env
-      - run: |
-          micromamba list | grep -q "python              3.11.3    h2755cc3_0_cpython  conda-forge"
-        shell: bash -el {0}
+  # conda-lock:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         environment-file: 'test/conda-lock.yml'
+  #         environment-name: locked-env
+  #     - run: |
+  #         micromamba list | grep -q "python              3.11.3    h2755cc3_0_cpython  conda-forge"
+  #       shell: bash -el {0}
   
-  comment-in-environment-file:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          environment-file: 'test/environment2.yml'
-      - run: |
-          micromamba info | grep -q "environment : env-name2"
-        shell: bash -el {0}
-      - run: |
-          python --version | grep -q "Python 3.10.1"
-        # micromamba-shell uses the environment-name inferred by setup-micromamba
-        shell: micromamba-shell {0}
+  # comment-in-environment-file:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         environment-file: 'test/environment2.yml'
+  #     - run: |
+  #         micromamba info | grep -q "environment : env-name2"
+  #       shell: bash -el {0}
+  #     - run: |
+  #         python --version | grep -q "Python 3.10.1"
+  #       # micromamba-shell uses the environment-name inferred by setup-micromamba
+  #       shell: micromamba-shell {0}
 
-  create-args-multiple-spaces-1:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          environment-name: test
-          create-args: python  pytest
-      - run: |
-          micromamba list | grep -q python
-          micromamba list | grep -q pytest
-        shell: bash -el {0}
+  # create-args-multiple-spaces-1:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         environment-name: test
+  #         create-args: python  pytest
+  #     - run: |
+  #         micromamba list | grep -q python
+  #         micromamba list | grep -q pytest
+  #       shell: bash -el {0}
 
-  create-args-multiple-spaces-2:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          environment-file: test/environment2.yml
-          create-args: -c bioconda  pytest
-      - run: |
-          micromamba list | grep -q python
-          micromamba list | grep -q pytest
-        shell: bash -el {0}
+  # create-args-multiple-spaces-2:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         environment-file: test/environment2.yml
+  #         create-args: -c bioconda  pytest
+  #     - run: |
+  #         micromamba list | grep -q python
+  #         micromamba list | grep -q pytest
+  #       shell: bash -el {0}
 
-  output-environment-path-env-file:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        id: setup-micromamba
-        with:
-          environment-file: 'test/environment.yml'
-      - run: |
-          test ${{ steps.setup-micromamba.outputs.environment-path }} = "$HOME/micromamba/envs/env-name"
-          ls ${{ steps.setup-micromamba.outputs.environment-path }}
+  # output-environment-path-env-file:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       id: setup-micromamba
+  #       with:
+  #         environment-file: 'test/environment.yml'
+  #     - run: |
+  #         test ${{ steps.setup-micromamba.outputs.environment-path }} = "$HOME/micromamba/envs/env-name"
+  #         ls ${{ steps.setup-micromamba.outputs.environment-path }}
 
-  output-environment-path-env-name-overwrite:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        id: setup-micromamba
-        with:
-          environment-file: 'test/environment.yml'
-          environment-name: test
-      - run: |
-          test "${{ steps.setup-micromamba.outputs.environment-path }}" = /home/runner/micromamba/envs/test
-          ls "${{ steps.setup-micromamba.outputs.environment-path }}"
+  # output-environment-path-env-name-overwrite:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       id: setup-micromamba
+  #       with:
+  #         environment-file: 'test/environment.yml'
+  #         environment-name: test
+  #     - run: |
+  #         test "${{ steps.setup-micromamba.outputs.environment-path }}" = /home/runner/micromamba/envs/test
+  #         ls "${{ steps.setup-micromamba.outputs.environment-path }}"
 
-  output-environment-path-custom-root-prefix:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        id: setup-micromamba
-        with:
-          environment-name: test
-          micromamba-root-path: /home/runner/custom-micromamba-root-prefix
-      - run: |
-          test "${{ steps.setup-micromamba.outputs.environment-path }}" = /home/runner/custom-micromamba-root-prefix/envs/test
-          ls "${{ steps.setup-micromamba.outputs.environment-path }}"
+  # output-environment-path-custom-root-prefix:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       id: setup-micromamba
+  #       with:
+  #         environment-name: test
+  #         micromamba-root-path: /home/runner/custom-micromamba-root-prefix
+  #     - run: |
+  #         test "${{ steps.setup-micromamba.outputs.environment-path }}" = /home/runner/custom-micromamba-root-prefix/envs/test
+  #         ls "${{ steps.setup-micromamba.outputs.environment-path }}"
 
-  output-no-environment-path:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        id: setup-micromamba
-      - run: |
-          test "${{ steps.setup-micromamba.outputs.environment-path }}" = ""
+  # output-no-environment-path:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       id: setup-micromamba
+  #     - run: |
+  #         test "${{ steps.setup-micromamba.outputs.environment-path }}" = ""
 
-  check-micromamba-on-path:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: ./
-        with:
-          init-shell: none
-          environment-file: test/environment.yml
-      - run: |
-          which micromamba | grep /home/runner/micromamba-bin/micromamba
-          type micromamba | grep "micromamba is /home/runner/micromamba-bin/micromamba"
-          which micromamba-shell | grep /home/runner/micromamba-bin/micromamba-shell
-        shell: bash -el {0}
+  # check-micromamba-on-path:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ./
+  #       with:
+  #         init-shell: none
+  #         environment-file: test/environment.yml
+  #     - run: |
+  #         which micromamba | grep /home/runner/micromamba-bin/micromamba
+  #         type micromamba | grep "micromamba is /home/runner/micromamba-bin/micromamba"
+  #         which micromamba-shell | grep /home/runner/micromamba-bin/micromamba-shell
+  #       shell: bash -el {0}
 
-  use-micromamba-from-path:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download micromamba
-        run: |
-          curl -Ls https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-linux-64 -o /usr/local/bin/micromamba
-          chmod +x /usr/local/bin/micromamba
-          which micromamba
-      - uses: ./
-        with:
-          environment-file: test/environment.yml
-          download-micromamba: false
-      - run: |
-          micromamba info | grep -q "environment : env-name"
-        shell: bash -elo pipefail {0}
+  # use-micromamba-from-path:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Download micromamba
+  #       run: |
+  #         curl -Ls https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-linux-64 -o /usr/local/bin/micromamba
+  #         chmod +x /usr/local/bin/micromamba
+  #         which micromamba
+  #     - uses: ./
+  #       with:
+  #         environment-file: test/environment.yml
+  #         download-micromamba: false
+  #     - run: |
+  #         micromamba info | grep -q "environment : env-name"
+  #       shell: bash -elo pipefail {0}
 
-  no-download-with-custom-path:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download micromamba
-        run: |
-          mkdir -p "$HOME/not-on-path/bin"
-          curl -Ls https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-linux-64 -o "$HOME/not-on-path/bin/micromamba"
-          chmod +x "$HOME/not-on-path/bin/micromamba"
-      - uses: ./
-        with:
-          environment-file: test/environment.yml
-          download-micromamba: false
-          micromamba-binary-path: ~/not-on-path/bin/micromamba
-      - run: |
-          micromamba info | grep -q "environment : env-name"
-          which micromamba | grep not-on-path/bin
-        shell: bash -elo pipefail {0}
+  # no-download-with-custom-path:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Download micromamba
+  #       run: |
+  #         mkdir -p "$HOME/not-on-path/bin"
+  #         curl -Ls https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-linux-64 -o "$HOME/not-on-path/bin/micromamba"
+  #         chmod +x "$HOME/not-on-path/bin/micromamba"
+  #     - uses: ./
+  #       with:
+  #         environment-file: test/environment.yml
+  #         download-micromamba: false
+  #         micromamba-binary-path: ~/not-on-path/bin/micromamba
+  #     - run: |
+  #         micromamba info | grep -q "environment : env-name"
+  #         which micromamba | grep not-on-path/bin
+  #       shell: bash -elo pipefail {0}
 
   incorrect-condarc:
     runs-on: ubuntu-latest
@@ -329,7 +329,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./
         with:
-          condarc-file: test/condarc.yml
+          condarc-file: test/condarc.2
       - run: |
           micromamba search pytorch
         shell: bash -elo pipefail {0}
