@@ -6439,8 +6439,8 @@ var require_internal_path = __commonJS({
             let remaining = itemPath;
             let dir = pathHelper.dirname(remaining);
             while (dir !== remaining) {
-              const basename = path5.basename(remaining);
-              this.segments.unshift(basename);
+              const basename2 = path5.basename(remaining);
+              this.segments.unshift(basename2);
               remaining = dir;
               dir = pathHelper.dirname(remaining);
             }
@@ -10052,7 +10052,7 @@ var require_parseParams = __commonJS({
 var require_basename = __commonJS({
   "node_modules/.pnpm/@fastify+busboy@2.0.0/node_modules/@fastify/busboy/lib/utils/basename.js"(exports, module2) {
     "use strict";
-    module2.exports = function basename(path5) {
+    module2.exports = function basename2(path5) {
       if (typeof path5 !== "string") {
         return "";
       }
@@ -10078,7 +10078,7 @@ var require_multipart = __commonJS({
     var Dicer = require_Dicer();
     var parseParams = require_parseParams();
     var decodeText = require_decodeText();
-    var basename = require_basename();
+    var basename2 = require_basename();
     var getLimit = require_getLimit();
     var RE_BOUNDARY = /^boundary$/i;
     var RE_FIELD = /^form-data$/i;
@@ -10195,7 +10195,7 @@ var require_multipart = __commonJS({
               } else if (RE_FILENAME.test(parsed[i][0])) {
                 filename = parsed[i][1];
                 if (!preservePath) {
-                  filename = basename(filename);
+                  filename = basename2(filename);
                 }
               }
             }
@@ -78787,6 +78787,11 @@ var checkForKnownIssues = (options2) => {
   if (options2.initShell && getRootPrefixFlagForInit(options2) === "-p") {
     core.warning(
       "You are using a micromamba version < 1.4.5-0 and initialize the shell. This is behavior is deprecated. Please update the micromamba version. For further informations, see https://github.com/mamba-org/setup-micromamba/pull/107"
+    );
+  }
+  if (options2.condarcFile && path.basename(options2.condarcFile) !== ".condarc") {
+    core.warning(
+      `You are using a condarc file that is not named '.condarc'. This is currently not supported by micromamba, see https://github.com/mamba-org/mamba/issues/1394`
     );
   }
 };
