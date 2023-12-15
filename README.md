@@ -296,7 +296,7 @@ You also might want to alter the default micromamba installation location to a t
 
 You can control the download behavior of micromamba with the options `download-micromamba` and `micromamba-binary-path`.
 
-| Micromamba on $PATH | `download-micromamba` | `micromamba-binary-path` | Behavior                        |
+| Micromamba on `$PATH` | `download-micromamba` | `micromamba-binary-path` | Behavior                        |
 |----------------|-----------------------|--------------------------|------------------------------------|
 | No             | unset                 | unset                    | Download to default location       |
 | No             | unset                 | set                      | Download to specified path         |
