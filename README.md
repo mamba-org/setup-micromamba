@@ -298,10 +298,14 @@ You can control the download behavior of micromamba with the options `download-m
 
 | Micromamba on $PATH | `download-micromamba` | `micromamba-binary-path` | Behavior                        |
 |----------------|-----------------------|--------------------------|------------------------------------|
+| No             | unset                 | unset                    | Download to default location       |
+| No             | unset                 | set                      | Download to specified path         |
 | No             | false                 | unset                    | Error                              |
 | No             | false                 | set                      | Use binary (absolute path)         |
 | No             | true                  | unset                    | Download to default location       |
 | No             | true                  | set                      | Download to specified path         |
+| Yes            | unset                 | unset                    | Use binary (from PATH)             |
+| Yes            | unset                 | set                      | Download to specified path         |
 | Yes            | false                 | unset                    | Use binary (from PATH)             |
 | Yes            | false                 | set                      | Use binary (specified path)        |
 | Yes            | true                  | unset                    | Download to default location       |
