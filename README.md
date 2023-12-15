@@ -294,9 +294,18 @@ You also might want to alter the default micromamba installation location to a t
     micromamba-binary-path: ${{ runner.temp }}/bin/micromamba
 ```
 
-If a micromamba binary is already present on the `$PATH` and `download-micromamba` is set to `false`, `setup-micromamba` will use the binary on `$PATH` instead of downloading a new one.
-To force the download of a new binary, you can set `download-micromamba` to `true`.
-You can also define a custom path for the downloaded binary by setting `micromamba-binary-path`.
+You can control the download behavior of micromamba with the options `download-micromamba` and `micromamba-binary-path`.
+
+| Micromamba on $PATH | `download-micromamba` | `micromamba-binary-path` | Behavior                        |
+|----------------|-----------------------|--------------------------|------------------------------------|
+| No             | false                 | unset                    | Error                              |
+| No             | false                 | set                      | Use binary (absolute path)         |
+| No             | true                  | unset                    | Download to default location       |
+| No             | true                  | set                      | Download to specified path         |
+| Yes            | false                 | unset                    | Use binary (from PATH)             |
+| Yes            | false                 | set                      | Use binary (specified path)        |
+| Yes            | true                  | unset                    | Download to default location       |
+| Yes            | true                  | set                      | Download to specified path         |
 
 ```yml
 - uses: mamba-org/setup-micromamba@v1

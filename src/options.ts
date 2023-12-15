@@ -112,15 +112,15 @@ const parseOrUndefinedList = <T>(key: string, schema: z.ZodSchema<T>): T[] | und
 const determineMicromambaInstallation = (micromambaBinPath?: string, downloadMicromamba?: boolean) => {
   const preinstalledMicromamba = which.sync('micromamba', { nothrow: true })
   if (preinstalledMicromamba) {
-    core.info(`Found preinstalled micromamba at ${preinstalledMicromamba}`)
+    core.debug(`Found pre-installed micromamba at ${preinstalledMicromamba}`)
   }
 
   if (micromambaBinPath) {
-    core.info(`Using micromamba binary path ${micromambaBinPath}`)
+    core.debug(`Using micromamba binary path ${micromambaBinPath}`)
 
     try {
       const resolvedPath = path.resolve(untildify(micromambaBinPath))
-      return { downloadMicromamba: false, micromambaBinPath: resolvedPath }
+      return { downloadMicromamba: downloadMicromamba !== false, micromambaBinPath: resolvedPath }
     } catch (error) {
       throw new Error(`Could not resolve micromamba binary path ${micromambaBinPath}`)
     }
@@ -131,11 +131,9 @@ const determineMicromambaInstallation = (micromambaBinPath?: string, downloadMic
   }
 
   if (!downloadMicromamba && preinstalledMicromamba) {
-    core.info(`Using preinstalled micromamba at ${preinstalledMicromamba}`)
     return { downloadMicromamba: false, micromambaBinPath: preinstalledMicromamba }
   }
 
-  core.info(`Downloading micromamba to ${PATHS.micromambaBin}`)
   return { downloadMicromamba: true, micromambaBinPath: PATHS.micromambaBin }
 }
 
@@ -164,6 +162,12 @@ const inferOptions = (inputs: Inputs): Options => {
     inputs.micromambaBinPath,
     inputs.downloadMicromamba
   )
+
+  if (downloadMicromamba) {
+    core.info(`Will download micromamba to ${micromambaBinPath}`)
+  } else {
+    core.info(`Will use pre-installed micromamba at ${micromambaBinPath}`)
+  }
 
   return {
     ...inputs,

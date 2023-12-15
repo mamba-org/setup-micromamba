@@ -83445,13 +83445,13 @@ var parseOrUndefinedList = (key, schema2) => {
 var determineMicromambaInstallation = (micromambaBinPath, downloadMicromamba2) => {
   const preinstalledMicromamba = import_which.default.sync("micromamba", { nothrow: true });
   if (preinstalledMicromamba) {
-    core2.info(`Found preinstalled micromamba at ${preinstalledMicromamba}`);
+    core2.debug(`Found pre-installed micromamba at ${preinstalledMicromamba}`);
   }
   if (micromambaBinPath) {
-    core2.info(`Using micromamba binary path ${micromambaBinPath}`);
+    core2.debug(`Using micromamba binary path ${micromambaBinPath}`);
     try {
       const resolvedPath = path.resolve(untildify(micromambaBinPath));
-      return { downloadMicromamba: false, micromambaBinPath: resolvedPath };
+      return { downloadMicromamba: downloadMicromamba2 !== false, micromambaBinPath: resolvedPath };
     } catch (error) {
       throw new Error(`Could not resolve micromamba binary path ${micromambaBinPath}`);
     }
@@ -83460,10 +83460,8 @@ var determineMicromambaInstallation = (micromambaBinPath, downloadMicromamba2) =
     throw new Error("Could not find a pre-installed micromamba installation and `download-micromamba` is false.");
   }
   if (!downloadMicromamba2 && preinstalledMicromamba) {
-    core2.info(`Using preinstalled micromamba at ${preinstalledMicromamba}`);
     return { downloadMicromamba: false, micromambaBinPath: preinstalledMicromamba };
   }
-  core2.info(`Downloading micromamba to ${PATHS.micromambaBin}`);
   return { downloadMicromamba: true, micromambaBinPath: PATHS.micromambaBin };
 };
 var inferOptions = (inputs) => {
@@ -83476,6 +83474,11 @@ var inferOptions = (inputs) => {
     inputs.micromambaBinPath,
     inputs.downloadMicromamba
   );
+  if (downloadMicromamba2) {
+    core2.info(`Will download micromamba to ${micromambaBinPath}`);
+  } else {
+    core2.info(`Will use pre-installed micromamba at ${micromambaBinPath}`);
+  }
   return {
     ...inputs,
     writeToCondarc,
