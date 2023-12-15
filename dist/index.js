@@ -83447,9 +83447,6 @@ var determineMicromambaInstallation = (micromambaBinPath, downloadMicromamba2) =
   if (preinstalledMicromamba) {
     core2.info(`Found preinstalled micromamba at ${preinstalledMicromamba}`);
   }
-  if (downloadMicromamba2 === false && !preinstalledMicromamba) {
-    throw new Error("Could not find a pre-installed micromamba installation and `download-micromamba` is false.");
-  }
   if (micromambaBinPath) {
     core2.info(`Using micromamba binary path ${micromambaBinPath}`);
     try {
@@ -83458,6 +83455,9 @@ var determineMicromambaInstallation = (micromambaBinPath, downloadMicromamba2) =
     } catch (error) {
       throw new Error(`Could not resolve micromamba binary path ${micromambaBinPath}`);
     }
+  }
+  if (downloadMicromamba2 === false && !preinstalledMicromamba) {
+    throw new Error("Could not find a pre-installed micromamba installation and `download-micromamba` is false.");
   }
   if (!downloadMicromamba2 && preinstalledMicromamba) {
     core2.info(`Using preinstalled micromamba at ${preinstalledMicromamba}`);
@@ -83472,7 +83472,10 @@ var inferOptions = (inputs) => {
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
   const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;
-  const { downloadMicromamba: downloadMicromamba2, micromambaBinPath } = determineMicromambaInstallation(inputs.micromambaBinPath, inputs.downloadMicromamba);
+  const { downloadMicromamba: downloadMicromamba2, micromambaBinPath } = determineMicromambaInstallation(
+    inputs.micromambaBinPath,
+    inputs.downloadMicromamba
+  );
   return {
     ...inputs,
     writeToCondarc,

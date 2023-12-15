@@ -115,10 +115,6 @@ const determineMicromambaInstallation = (micromambaBinPath?: string, downloadMic
     core.info(`Found preinstalled micromamba at ${preinstalledMicromamba}`)
   }
 
-  if (downloadMicromamba === false && !preinstalledMicromamba) {
-    throw new Error('Could not find a pre-installed micromamba installation and `download-micromamba` is false.')
-  }
-
   if (micromambaBinPath) {
     core.info(`Using micromamba binary path ${micromambaBinPath}`)
 
@@ -128,6 +124,10 @@ const determineMicromambaInstallation = (micromambaBinPath?: string, downloadMic
     } catch (error) {
       throw new Error(`Could not resolve micromamba binary path ${micromambaBinPath}`)
     }
+  }
+
+  if (downloadMicromamba === false && !preinstalledMicromamba) {
+    throw new Error('Could not find a pre-installed micromamba installation and `download-micromamba` is false.')
   }
 
   if (!downloadMicromamba && preinstalledMicromamba) {
