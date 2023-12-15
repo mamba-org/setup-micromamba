@@ -110,7 +110,7 @@ const parseOrUndefinedList = <T>(key: string, schema: z.ZodSchema<T>): T[] | und
 }
 
 const determineMicromambaInstallation = (micromambaBinPath?: string, downloadMicromamba?: boolean) => {
-  const preinstalledMicromamba = which.sync('micromamba', { nothrow: true });
+  const preinstalledMicromamba = which.sync('micromamba', { nothrow: true })
   if (preinstalledMicromamba) {
     core.info(`Found preinstalled micromamba at ${preinstalledMicromamba}`)
   }
@@ -160,7 +160,10 @@ const inferOptions = (inputs: Inputs): Options => {
       ? []
       : (inputs.initShell as ShellType[])
 
-  const { downloadMicromamba, micromambaBinPath } = determineMicromambaInstallation(inputs.micromambaBinPath, inputs.downloadMicromamba)
+  const { downloadMicromamba, micromambaBinPath } = determineMicromambaInstallation(
+    inputs.micromambaBinPath,
+    inputs.downloadMicromamba
+  )
 
   return {
     ...inputs,
