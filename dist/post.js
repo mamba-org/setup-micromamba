@@ -78706,14 +78706,37 @@ var parseOrUndefinedList = (key, schema2) => {
   }
   return input.split(" ").map((s) => schema2.parse(s)).filter((s) => s !== "");
 };
+var determineMicromambaInstallation = (micromambaBinPath, downloadMicromamba) => {
+  const preinstalledMicromamba = import_which.default.sync("micromamba", { nothrow: true });
+  if (preinstalledMicromamba) {
+    core.info(`Found preinstalled micromamba at ${preinstalledMicromamba}`);
+  }
+  if (downloadMicromamba === false && !preinstalledMicromamba) {
+    throw new Error("Could not find a pre-installed micromamba installation and `download-micromamba` is false.");
+  }
+  if (micromambaBinPath) {
+    core.info(`Using micromamba binary path ${micromambaBinPath}`);
+    try {
+      const resolvedPath = path.resolve(untildify(micromambaBinPath));
+      return { downloadMicromamba: false, micromambaBinPath: resolvedPath };
+    } catch (error) {
+      throw new Error(`Could not resolve micromamba binary path ${micromambaBinPath}`);
+    }
+  }
+  if (!downloadMicromamba && preinstalledMicromamba) {
+    core.info(`Using preinstalled micromamba at ${preinstalledMicromamba}`);
+    return { downloadMicromamba: false, micromambaBinPath: preinstalledMicromamba };
+  }
+  core.info(`Downloading micromamba to ${PATHS.micromambaBin}`);
+  return { downloadMicromamba: true, micromambaBinPath: PATHS.micromambaBin };
+};
 var inferOptions = (inputs) => {
   const createEnvironment = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
   const logLevel = inputs.logLevel || (core.isDebug() ? "debug" : "warning");
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
   const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;
-  const downloadMicromamba = inputs.downloadMicromamba !== void 0 ? inputs.downloadMicromamba : true;
-  const micromambaBinPath = inputs.micromambaBinPath ? path.resolve(untildify(inputs.micromambaBinPath)) : inputs.downloadMicromamba === false ? import_which.default.sync("micromamba") : PATHS.micromambaBin;
+  const { downloadMicromamba, micromambaBinPath } = determineMicromambaInstallation(inputs.micromambaBinPath, inputs.downloadMicromamba);
   return {
     ...inputs,
     writeToCondarc,

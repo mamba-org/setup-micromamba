@@ -109,6 +109,36 @@ const parseOrUndefinedList = <T>(key: string, schema: z.ZodSchema<T>): T[] | und
     .filter((s) => s !== '')
 }
 
+const determineMicromambaInstallation = (micromambaBinPath?: string, downloadMicromamba?: boolean) => {
+  const preinstalledMicromamba = which.sync('micromamba', { nothrow: true });
+  if (preinstalledMicromamba) {
+    core.info(`Found preinstalled micromamba at ${preinstalledMicromamba}`)
+  }
+
+  if (downloadMicromamba === false && !preinstalledMicromamba) {
+    throw new Error('Could not find a pre-installed micromamba installation and `download-micromamba` is false.')
+  }
+
+  if (micromambaBinPath) {
+    core.info(`Using micromamba binary path ${micromambaBinPath}`)
+
+    try {
+      const resolvedPath = path.resolve(untildify(micromambaBinPath))
+      return { downloadMicromamba: false, micromambaBinPath: resolvedPath }
+    } catch (error) {
+      throw new Error(`Could not resolve micromamba binary path ${micromambaBinPath}`)
+    }
+  }
+
+  if (!downloadMicromamba && preinstalledMicromamba) {
+    core.info(`Using preinstalled micromamba at ${preinstalledMicromamba}`)
+    return { downloadMicromamba: false, micromambaBinPath: preinstalledMicromamba }
+  }
+
+  core.info(`Downloading micromamba to ${PATHS.micromambaBin}`)
+  return { downloadMicromamba: true, micromambaBinPath: PATHS.micromambaBin }
+}
+
 const inferOptions = (inputs: Inputs): Options => {
   const createEnvironment = inputs.environmentName !== undefined || inputs.environmentFile !== undefined
 
@@ -129,12 +159,8 @@ const inferOptions = (inputs: Inputs): Options => {
     : inputs.initShell.includes('none')
       ? []
       : (inputs.initShell as ShellType[])
-  const downloadMicromamba = inputs.downloadMicromamba !== undefined ? inputs.downloadMicromamba : true
-  const micromambaBinPath = inputs.micromambaBinPath
-    ? path.resolve(untildify(inputs.micromambaBinPath))
-    : inputs.downloadMicromamba === false
-      ? which.sync('micromamba')
-      : PATHS.micromambaBin
+
+  const { downloadMicromamba, micromambaBinPath } = determineMicromambaInstallation(inputs.micromambaBinPath, inputs.downloadMicromamba)
 
   return {
     ...inputs,
