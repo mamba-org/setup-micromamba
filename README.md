@@ -339,12 +339,12 @@ jobs:
   myjob:
     defaults:
       run:
-        shell: bash -leo pipefail {0} {0}
+        shell: bash -leo pipefail {0}
 
 # or top-level:
 defaults:
   run:
-    shell: bash -leo pipefail {0} {0}
+    shell: bash -leo pipefail {0}
 jobs:
   ...
 ```
