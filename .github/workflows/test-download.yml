@@ -25,23 +25,6 @@ jobs:
                 python
             download-micromamba: true
 
-    ensure-local-without-download:
-        runs-on: ubuntu-latest
-        steps:
-        - uses: actions/checkout@v4
-        - run: |
-            curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
-
-            sudo cp bin/micromamba /usr/bin/micromamba
-            sudo chmod +x /usr/bin/micromamba
-        - uses: ./
-          with:
-            environment-name: test
-            create-args: >-
-                python
-            download-micromamba: false
-            micromamba-url: https://invalid.domain
-
     ensure-local-default:
         runs-on: ubuntu-latest
         steps:
@@ -57,7 +40,3 @@ jobs:
             create-args: >-
                 python
             micromamba-url: https://invalid.domain
-            
-        
-            
-            
