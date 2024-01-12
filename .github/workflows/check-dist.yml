@@ -22,7 +22,7 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           cache: pnpm
 
       - name: Install dependencies
@@ -30,6 +30,9 @@ jobs:
 
       - name: Rebuild the dist/ directory
         run: pnpm build
+
+      - name: Generate third party license disclaimer
+        run: pnpm run generate-third-party-license-disclaimer
 
       - name: Compare the expected and actual dist/ directories
         run: |

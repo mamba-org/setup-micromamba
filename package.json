@@ -8,7 +8,8 @@
     "dev": "tsup --watch",
     "lint": "tsc --noEmit && eslint ./src --ext ts",
     "lint:fix": "eslint ./src --ext ts --fix",
-    "all": "npm run build && npm run lint"
+    "all": "npm run build && npm run lint",
+    "generate-third-party-license-disclaimer": "pnpm licenses list --prod --json | npx @quantco/pnpm-licenses generate-disclaimer --json-input --output-file dist/licenses.txt"
   },
   "repository": {
     "type": "git",
