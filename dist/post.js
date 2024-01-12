@@ -81756,9 +81756,10 @@ var cleanup = (options) => {
     case "none":
       return Promise.resolve();
     case "shell-init":
-      return Promise.all([removeMicromambaRunShell(options), ...options.initShell.map((shell) => shellDeinit(options, shell))]).then(
-        () => Promise.resolve()
-      );
+      return Promise.all([
+        removeMicromambaRunShell(options),
+        ...options.initShell.map((shell) => shellDeinit(options, shell))
+      ]).then(() => Promise.resolve());
     case "environment":
       return Promise.all([
         uninstallEnvironment(options),
@@ -81769,7 +81770,12 @@ var cleanup = (options) => {
       return Promise.all(options.initShell.map((shell) => shellDeinit(options, shell))).then(
         () => (
           // uninstallEnvironment is not called, because it is not needed if the root is removed
-          Promise.all([removeRoot(options), removeMicromambaRunShell(options), removeMicromambaBinary(options), removeCustomCondarc(options)])
+          Promise.all([
+            removeRoot(options),
+            removeMicromambaRunShell(options),
+            removeMicromambaBinary(options),
+            removeCustomCondarc(options)
+          ])
         )
       ).then(() => removeMicromambaBinaryParentIfEmpty(options));
     default:
