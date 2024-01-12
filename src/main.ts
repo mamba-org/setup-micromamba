@@ -7,7 +7,7 @@ import * as io from '@actions/io'
 import { downloadTool } from '@actions/tool-cache'
 import { getMicromambaUrl, micromambaCmd, execute, determineEnvironmentName } from './util'
 import { coreMocked } from './mocking'
-import { PATHS, type Options, actuallyGetOptions } from './options'
+import { PATHS, type Options, getOptions } from './options'
 import { addEnvironmentToAutoActivate, shellInit } from './shell-init'
 import { restoreCacheDownloads, restoreCacheEnvironment, saveCacheEnvironment } from './cache'
 
@@ -17,7 +17,7 @@ const downloadMicromamba = (options: Options, url: string) => {
   if (options.downloadMicromamba === false) {
     core.info('Skipping micromamba download.')
     core.addPath(options.micromambaBinPath)
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   core.startGroup('Install micromamba')
   core.debug(`Downloading micromamba from ${url} ...`)
@@ -40,14 +40,17 @@ const generateCondarc = (options: Options) => {
     core.debug(`Using condarc file ${options.condarcFile} ...`)
     return fs.access(options.condarcFile, fs.constants.R_OK)
   }
+
   core.debug(`Using ${options.condarcFile} as condarc file.`)
   const mkDir = fs.mkdir(path.dirname(options.condarcFile), { recursive: true })
+
   if (options.condarc) {
     core.info(`Writing condarc contents to ${options.condarcFile} ...`)
     // if we don't put this into a variable, typescript complains
     const condarc = options.condarc
     return mkDir.then(() => fs.writeFile(options.condarcFile, condarc))
   }
+
   // default: condarc contains conda-forge channel
   core.info('Adding conda-forge to condarc channels ...')
   return mkDir.then(() => fs.writeFile(options.condarcFile, 'channels:\n  - conda-forge'))
@@ -58,7 +61,9 @@ const createEnvironment = (options: Options) => {
   core.debug(`environmentName: ${options.environmentName}`)
   core.debug(`createArgs: ${options.createArgs}`)
   core.debug(`condarcFile: ${options.condarcFile}`)
+
   let commandStr = `create -y -r ${options.micromambaRootPath}`
+
   if (options.environmentFile) {
     commandStr += ` -f ${options.environmentFile}`
   }
@@ -68,6 +73,7 @@ const createEnvironment = (options: Options) => {
   if (options.createArgs) {
     commandStr += ` ${options.createArgs.join(' ')}`
   }
+
   return execute(micromambaCmd(options, commandStr, options.logLevel, options.condarcFile))
 }
 
@@ -123,11 +129,11 @@ const generateInfo = (options: Options) => {
 const generateMicromambaRunShell = (options: Options) => {
   if (!options.generateRunShell) {
     core.debug('Skipping micromamba run shell generation.')
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   if (os.platform() === 'win32') {
     core.info('Skipping micromamba run shell on Windows.')
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   core.info('Generating micromamba run shell.')
   const micromambaRunShellContents = `#!/usr/bin/env sh
@@ -167,7 +173,7 @@ const setEnvVariables = (options: Options) => {
 }
 
 const run = async () => {
-  const options = actuallyGetOptions()
+  const options = getOptions()
 
   core.debug(`process.env.HOME: ${process.env.HOME}`)
   core.debug(`os.homedir(): ${os.homedir()}`)

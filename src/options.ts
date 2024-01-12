@@ -233,15 +233,16 @@ const validateInputs = (inputs: Inputs): void => {
 }
 
 const assertOptions = (options: Options) => {
-  const assert = (condition: boolean, message?: string) => {
-    if (!condition) {
-      throw new Error(message)
-    }
+  // generate-run-shell => create-env specified
+  if (options.generateRunShell && !options.createEnvironment) {
+    throw new Error("If you specify 'generate-run-shell', you must also specify 'create-env'")
   }
-  // generate-run-shell => create-env
-  assert(!options.generateRunShell || options.createEnvironment)
+
+  // TODO: is this an XOR or a regular OR?
   // create-env => env-file or env-name specified
-  assert(!options.createEnvironment || options.environmentFile !== undefined || options.environmentName !== undefined)
+  if (options.createEnvironment && options.environmentFile === undefined && options.environmentName === undefined) {
+    throw new Error("If you specify 'create-env' you must specify either 'env-file' or 'env-name'")
+  }
 }
 
 export const getRootPrefixFlagForInit = (options: Options) => {
@@ -269,6 +270,7 @@ const checkForKnownIssues = (options: Options) => {
     condarcBasename === 'mambarc' ||
     condarcBasename.endsWith('.yml') ||
     condarcBasename.endsWith('.yaml')
+
   if (!hasValidCondarcName) {
     core.warning(
       `You are using a condarc file that is not named '.condarc'. This is currently not supported by micromamba, see https://github.com/mamba-org/mamba/issues/1394`
@@ -276,7 +278,7 @@ const checkForKnownIssues = (options: Options) => {
   }
 }
 
-const getOptions = () => {
+export const getOptions = () => {
   const inputs: Inputs = {
     condarcFile: parseOrUndefined('condarc-file', z.string()),
     condarc: parseOrUndefined('condarc', z.string()),
@@ -305,27 +307,21 @@ const getOptions = () => {
     micromambaRootPath: parseOrUndefined('micromamba-root-path', z.string()),
     micromambaBinPath: parseOrUndefined('micromamba-binary-path', z.string())
   }
-  core.debug(`Inputs: ${JSON.stringify(inputs)}`)
-  validateInputs(inputs)
-  const options = inferOptions(inputs)
-  core.debug(`Inferred options: ${JSON.stringify(options)}`)
-  checkForKnownIssues(options)
-  assertOptions(options)
-  return options
-}
 
-export const actuallyGetOptions = () => {
   try {
-    return getOptions()
+    core.debug(`Inputs: ${JSON.stringify(inputs)}`)
+    validateInputs(inputs)
+    const options = inferOptions(inputs)
+    core.debug(`Inferred options: ${JSON.stringify(options)}`)
+
+    checkForKnownIssues(options)
+    assertOptions(options)
+
+    return options
   } catch (error) {
-    if (core.isDebug()) {
-      throw error
-    }
-    if (error instanceof Error) {
-      core.setFailed(error.message)
-      exit(1)
-    } else if (typeof error === 'string') {
-      core.setFailed(error)
+    if (!core.isDebug()) {
+      const message = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error'
+      core.setFailed(message)
       exit(1)
     }
     throw error

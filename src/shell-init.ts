@@ -47,6 +47,7 @@ export const shellInit = (options: Options, shell: string) => {
       options.condarcFile
     )
   )
+
   if (os.platform() === 'linux' && shell === 'bash') {
     return command.then(copyMambaInitBlockToBashProfile).finally(core.endGroup)
   }
@@ -97,7 +98,7 @@ const addEnvironmentToPowershellProfile = (options: Options, environmentName: st
       return Promise.all([
         addEnvironmentToRcFile(environmentName, rcFileDict.powershell),
         addEnvironmentToRcFile(environmentName, rcFileDict.pwshWin)
-      ]).then(() => Promise.resolve())
+      ]).then(() => undefined)
     case 'linux':
     case 'darwin':
       return addEnvironmentToRcFile(environmentName, rcFileDict.pwshUnix)
@@ -111,6 +112,7 @@ export const addEnvironmentToAutoActivate = (options: Options, environmentName: 
   if (shell === 'powershell') {
     return addEnvironmentToPowershellProfile(options, environmentName)
   }
+
   const rcFilePath = getRcFileDict(options)[shell]
   core.debug(`Adding \`micromamba activate ${environmentName}\` to ${rcFilePath}`)
   return addEnvironmentToRcFile(environmentName, rcFilePath)
@@ -120,9 +122,11 @@ export const removeEnvironmentFromAutoActivate = (options: Options, environmentN
   core.info(`Removing environment ${environmentName} from auto-activate ${shell} ...`)
   if (shell === 'powershell') {
     core.warning('powershell is not supported')
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
+
   const rcFilePath = getRcFileDict(options)[shell]
+
   return fs.readFile(rcFilePath, { encoding: 'utf-8' }).then((rcFile) => {
     const matches = rcFile.match(new RegExp(`micromamba activate ${environmentName}`))
     if (!matches) {

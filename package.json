@@ -1,6 +1,6 @@
 {
   "name": "setup-micromamba",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "private": true,
   "description": "Action to setup micromamba",
   "scripts": {
@@ -8,7 +8,7 @@
     "dev": "tsup --watch",
     "lint": "tsc --noEmit && eslint ./src --ext ts",
     "lint:fix": "eslint ./src --ext ts --fix",
-    "all": "npm run build && npm run lint",
+    "all": "npm run build && npm run lint && npm run generate-third-party-license-disclaimer",
     "generate-third-party-license-disclaimer": "pnpm licenses list --prod --json | npx @quantco/pnpm-licenses generate-disclaimer --json-input --output-file dist/licenses.txt"
   },
   "repository": {
@@ -24,12 +24,12 @@
   "author": "Pavel Zwerschke <pavel.zwerschke@quantco.com>",
   "license": "MIT",
   "dependencies": {
-    "@actions/cache": "^3.2.2",
+    "@actions/cache": "^3.2.3",
     "@actions/core": "^1.10.1",
     "@actions/exec": "^1.1.1",
     "@actions/io": "^1.1.3",
     "@actions/tool-cache": "^2.0.1",
-    "fp-ts": "^2.16.1",
+    "fp-ts": "^2.16.2",
     "js-yaml": "^4.1.0",
     "untildify": "^5.0.0",
     "which": "^4.0.0",
@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.10.7",
+    "@types/node": "^20.11.0",
     "@types/which": "^3.0.3",
     "@typescript-eslint/eslint-plugin": "^6.18.1",
     "@typescript-eslint/parser": "^6.18.1",
@@ -46,7 +46,7 @@
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-n": "^16.6.2",
-    "eslint-plugin-prettier": "^5.1.2",
+    "eslint-plugin-prettier": "^5.1.3",
     "eslint-plugin-promise": "^6.1.1",
     "prettier": "^3.1.1",
     "tsup": "^8.0.1",

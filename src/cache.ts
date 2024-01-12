@@ -41,6 +41,7 @@ const generateEnvironmentKey = (options: Options, prefix: string) => {
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : ''
   const rootPrefix = `-root-${sha256Short(options.micromambaRootPath)}`
   const key = `${prefix}${arch}${envName}${createArgs}${rootPrefix}`
+
   if (options.environmentFile) {
     return fs.readFile(options.environmentFile, 'utf-8').then((content) => {
       const keyWithFileSha = `${key}-file-${sha256(content)}`
@@ -48,17 +49,16 @@ const generateEnvironmentKey = (options: Options, prefix: string) => {
       return keyWithFileSha
     })
   }
+
   core.debug(`Generated key \`${key}\`.`)
   return Promise.resolve(key)
 }
 
-const generateDownloadsKey = (prefix: string) => {
-  return `${prefix}-${getCondaArch()}`
-}
+const generateDownloadsKey = (prefix: string) => `${prefix}-${getCondaArch()}`
 
 export const saveCacheEnvironment = (options: Options, environmentName: string) => {
   if (!options.cacheEnvironmentKey) {
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   const cachePath = path.join(options.micromambaRootPath, 'envs', environmentName)
   core.startGroup(`Caching environment \`${environmentName}\` in \`${cachePath}\` ...`)
@@ -115,13 +115,13 @@ const trimPkgsCacheFolder = (cacheFolder: string) => {
 export const saveCacheDownloads = (options: Options) => {
   core.debug(`Cache downloads key: ${options.cacheDownloadsKey}`)
   if (!options.cacheDownloadsKey) {
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   const cachePath = path.join(options.micromambaRootPath, 'pkgs')
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey)
   if (!existsSync(cachePath)) {
     core.debug(`Cache folder \`${cachePath}\` doesn't exist, skipping cache saving.`)
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   return trimPkgsCacheFolder(cachePath)
     .then(() => {
