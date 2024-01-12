@@ -7366,7 +7366,7 @@ var require_internal_path_helper = __commonJS({
     var path5 = __importStar(require("path"));
     var assert_1 = __importDefault(require("assert"));
     var IS_WINDOWS = process.platform === "win32";
-    function dirname2(p) {
+    function dirname(p) {
       p = safeTrimTrailingSeparator(p);
       if (IS_WINDOWS && /^\\\\[^\\]+(\\[^\\]+)?$/.test(p)) {
         return p;
@@ -7377,7 +7377,7 @@ var require_internal_path_helper = __commonJS({
       }
       return result;
     }
-    exports.dirname = dirname2;
+    exports.dirname = dirname;
     function ensureAbsoluteRoot(root, itemPath) {
       assert_1.default(root, `ensureAbsoluteRoot parameter 'root' must not be empty`);
       assert_1.default(itemPath, `ensureAbsoluteRoot parameter 'itemPath' must not be empty`);
@@ -38505,12 +38505,12 @@ var init_sanitizer = __esm({
 });
 
 // node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/util/inspect.js
-var import_util2, custom;
+var import_util3, custom;
 var init_inspect = __esm({
   "node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/util/inspect.js"() {
     "use strict";
-    import_util2 = require("util");
-    custom = import_util2.inspect.custom;
+    import_util3 = require("util");
+    custom = import_util3.inspect.custom;
   }
 });
 
@@ -38547,14 +38547,14 @@ var init_restError = __esm({
 
 // node_modules/.pnpm/@azure+logger@1.0.4/node_modules/@azure/logger/dist-esm/src/log.js
 function log(message, ...args) {
-  process.stderr.write(`${import_util3.default.format(message, ...args)}${import_os.EOL}`);
+  process.stderr.write(`${import_util4.default.format(message, ...args)}${import_os.EOL}`);
 }
-var import_os, import_util3;
+var import_os, import_util4;
 var init_log = __esm({
   "node_modules/.pnpm/@azure+logger@1.0.4/node_modules/@azure/logger/dist-esm/src/log.js"() {
     "use strict";
     import_os = require("os");
-    import_util3 = __toESM(require("util"));
+    import_util4 = __toESM(require("util"));
   }
 });
 
@@ -83479,6 +83479,7 @@ var inferOptions = (inputs) => {
   } else {
     core2.info(`Will use pre-installed micromamba at ${micromambaBinPath}`);
   }
+  const tempDirectory = getTempDirectory();
   return {
     ...inputs,
     writeToCondarc,
@@ -83493,10 +83494,10 @@ var inferOptions = (inputs) => {
     cacheDownloadsKey: inputs.cacheDownloadsKey || (inputs.cacheDownloads ? `micromamba-downloads-` : void 0),
     postCleanup: inputs.postCleanup || "shell-init",
     // use a different path than ~/.condarc to avoid messing up the user's condarc
-    condarcFile: inputs.condarcFile ? path.resolve(untildify(inputs.condarcFile)) : path.join(path.dirname(PATHS.micromambaBin), ".condarc"),
+    condarcFile: inputs.condarcFile ? path.resolve(untildify(inputs.condarcFile)) : path.join(tempDirectory, ".condarc"),
     // next to the micromamba binary -> easier cleanup
     micromambaBinPath,
-    micromambaRunShellPath: path.join(path.dirname(micromambaBinPath), "micromamba-shell"),
+    micromambaRunShellPath: path.join(tempDirectory, "micromamba-shell"),
     micromambaRootPath: inputs.micromambaRootPath ? path.resolve(untildify(inputs.micromambaRootPath)) : PATHS.micromambaRoot
   };
 };
@@ -83698,6 +83699,13 @@ var execute = (cmd) => {
   core3.debug(`Executing: ${cmd.join(" ")}`);
   return (0, import_exec.exec)(cmd[0], cmd.slice(1));
 };
+var getTempDirectory = () => {
+  const tempDirectory = process.env.RUNNER_TEMP;
+  if (!tempDirectory) {
+    throw new Error("Expected RUNNER_TEMP to be defined");
+  }
+  return tempDirectory;
+};
 
 // src/shell-init.ts
 var fs2 = __toESM(require("fs/promises"));
@@ -83850,12 +83858,12 @@ var core6 = process.env.MOCKING ? coreMocked : coreDefault5;
 var downloadMicromamba = (url2) => {
   if (options.downloadMicromamba === false) {
     core6.info("Skipping micromamba download.");
-    core6.addPath(import_path3.default.dirname(options.micromambaBinPath));
+    core6.addPath(options.micromambaBinPath);
     return Promise.resolve();
   }
   core6.startGroup("Install micromamba");
   core6.debug(`Downloading micromamba from ${url2} ...`);
-  return import_promises.default.mkdir(import_path3.default.dirname(options.micromambaBinPath), { recursive: true }).then(() => (0, import_tool_cache.downloadTool)(url2, options.micromambaBinPath)).then((_downloadPath) => import_promises.default.chmod(options.micromambaBinPath, 493)).then(() => core6.addPath(import_path3.default.dirname(options.micromambaBinPath))).then(() => core6.info(`micromamba installed to ${options.micromambaBinPath}`)).catch((err) => {
+  return import_promises.default.mkdir(import_path3.default.dirname(options.micromambaBinPath), { recursive: true }).then(() => (0, import_tool_cache.downloadTool)(url2, options.micromambaBinPath)).then((_downloadPath) => import_promises.default.chmod(options.micromambaBinPath, 493)).then(() => core6.addPath(options.micromambaBinPath)).then(() => core6.info(`micromamba installed to ${options.micromambaBinPath}`)).catch((err) => {
     core6.error(`Error installing micromamba: ${err.message}`);
     throw err;
   }).finally(core6.endGroup);
@@ -83952,7 +83960,7 @@ $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
     core6.debug(`File contents:
 "${file}"`);
     return import_promises.default.writeFile(options.micromambaRunShellPath, file, { encoding: "utf8", mode: 493 });
-  }).finally(core6.endGroup);
+  }).then(() => core6.addPath(import_path3.default.dirname(options.micromambaRunShellPath))).finally(core6.endGroup);
 };
 var addEnvironmentPathToOutput = () => {
   return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
