@@ -34,9 +34,11 @@ jobs:
       - name: Generate third party license disclaimer
         run: pnpm run generate-third-party-license-disclaimer
 
+        # Cannot compare license.txt file at the moment as the output of pnpm is non-deterministic
+        # https://github.com/pnpm/pnpm/issues/7224
       - name: Compare the expected and actual dist/ directories
         run: |
-          if [ "$(git diff --ignore-space-at-eol dist/* | wc -l)" -gt "0" ]; then
+          if [ "$(git diff --ignore-space-at-eol dist/*.{js,js.map} | wc -l)" -gt "0" ]; then
             echo "Detected uncommitted changes after build.  See status below:"
             git diff
             exit 1
