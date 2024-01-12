@@ -170,7 +170,6 @@ const inferOptions = (inputs: Inputs): Options => {
     core.info(`Will use pre-installed micromamba at ${micromambaBinPath}`)
   }
 
-  core.info(typeof getTempDirectory)
   const tempDirectory = getTempDirectory()
 
   return {
@@ -315,21 +314,20 @@ const getOptions = () => {
   return options
 }
 
-let _options: Options
-try {
-  _options = getOptions()
-} catch (error) {
-  if (core.isDebug()) {
+export const actuallyGetOptions = () => {
+  try {
+    return getOptions()
+  } catch (error) {
+    if (core.isDebug()) {
+      throw error
+    }
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+      exit(1)
+    } else if (typeof error === 'string') {
+      core.setFailed(error)
+      exit(1)
+    }
     throw error
   }
-  if (error instanceof Error) {
-    core.setFailed(error.message)
-    exit(1)
-  } else if (typeof error === 'string') {
-    core.setFailed(error)
-    exit(1)
-  }
-  throw error
 }
-
-export const options = _options

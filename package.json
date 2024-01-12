@@ -4,9 +4,9 @@
   "private": true,
   "description": "Action to setup micromamba",
   "scripts": {
-    "build": "tsup",
+    "build": "tsc --noEmit && tsup",
     "dev": "tsup --watch",
-    "lint": "eslint ./src --ext ts",
+    "lint": "tsc --noEmit && eslint ./src --ext ts",
     "lint:fix": "eslint ./src --ext ts --fix",
     "all": "npm run build && npm run lint"
   },

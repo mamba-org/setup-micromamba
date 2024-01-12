@@ -9,8 +9,7 @@ import { match } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
 import * as z from 'zod'
 import { coreMocked } from './mocking'
-import { options } from './options'
-import type { LogLevelType, MicromambaSourceType } from './options'
+import type { LogLevelType, MicromambaSourceType, Options } from './options'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -92,7 +91,7 @@ export const sha256Short = (s: BinaryLike) => {
   return sha256(s).slice(0, 7)
 }
 
-export const micromambaCmd = (command: string, logLevel?: LogLevelType, condarcFile?: string) => {
+export const micromambaCmd = (options: Options, command: string, logLevel?: LogLevelType, condarcFile?: string) => {
   let commandArray = [options.micromambaBinPath].concat(command.split(' '))
   if (logLevel) {
     commandArray = commandArray.concat(['--log-level', logLevel])

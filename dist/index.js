@@ -241,14 +241,14 @@ var init_stringify = __esm({
 });
 
 // node_modules/.pnpm/uuid@8.3.2/node_modules/uuid/dist/esm-node/v1.js
-function v1(options2, buf, offset) {
+function v1(options, buf, offset) {
   let i = buf && offset || 0;
   const b = buf || new Array(16);
-  options2 = options2 || {};
-  let node = options2.node || _nodeId;
-  let clockseq = options2.clockseq !== void 0 ? options2.clockseq : _clockseq;
+  options = options || {};
+  let node = options.node || _nodeId;
+  let clockseq = options.clockseq !== void 0 ? options.clockseq : _clockseq;
   if (node == null || clockseq == null) {
-    const seedBytes = options2.random || (options2.rng || rng)();
+    const seedBytes = options.random || (options.rng || rng)();
     if (node == null) {
       node = _nodeId = [seedBytes[0] | 1, seedBytes[1], seedBytes[2], seedBytes[3], seedBytes[4], seedBytes[5]];
     }
@@ -256,13 +256,13 @@ function v1(options2, buf, offset) {
       clockseq = _clockseq = (seedBytes[6] << 8 | seedBytes[7]) & 16383;
     }
   }
-  let msecs = options2.msecs !== void 0 ? options2.msecs : Date.now();
-  let nsecs = options2.nsecs !== void 0 ? options2.nsecs : _lastNSecs + 1;
+  let msecs = options.msecs !== void 0 ? options.msecs : Date.now();
+  let nsecs = options.nsecs !== void 0 ? options.nsecs : _lastNSecs + 1;
   const dt = msecs - _lastMSecs + (nsecs - _lastNSecs) / 1e4;
-  if (dt < 0 && options2.clockseq === void 0) {
+  if (dt < 0 && options.clockseq === void 0) {
     clockseq = clockseq + 1 & 16383;
   }
-  if ((dt < 0 || msecs > _lastMSecs) && options2.nsecs === void 0) {
+  if ((dt < 0 || msecs > _lastMSecs) && options.nsecs === void 0) {
     nsecs = 0;
   }
   if (nsecs >= 1e4) {
@@ -420,9 +420,9 @@ var init_v3 = __esm({
 });
 
 // node_modules/.pnpm/uuid@8.3.2/node_modules/uuid/dist/esm-node/v4.js
-function v4(options2, buf, offset) {
-  options2 = options2 || {};
-  const rnds = options2.random || (options2.rng || rng)();
+function v4(options, buf, offset) {
+  options = options || {};
+  const rnds = options.random || (options.rng || rng)();
   rnds[6] = rnds[6] & 15 | 64;
   rnds[8] = rnds[8] & 63 | 128;
   if (buf) {
@@ -672,42 +672,42 @@ var require_tunnel = __commonJS({
     exports.httpsOverHttp = httpsOverHttp2;
     exports.httpOverHttps = httpOverHttps2;
     exports.httpsOverHttps = httpsOverHttps2;
-    function httpOverHttp2(options2) {
-      var agent = new TunnelingAgent(options2);
+    function httpOverHttp2(options) {
+      var agent = new TunnelingAgent(options);
       agent.request = http3.request;
       return agent;
     }
-    function httpsOverHttp2(options2) {
-      var agent = new TunnelingAgent(options2);
+    function httpsOverHttp2(options) {
+      var agent = new TunnelingAgent(options);
       agent.request = http3.request;
       agent.createSocket = createSecureSocket;
       agent.defaultPort = 443;
       return agent;
     }
-    function httpOverHttps2(options2) {
-      var agent = new TunnelingAgent(options2);
+    function httpOverHttps2(options) {
+      var agent = new TunnelingAgent(options);
       agent.request = https3.request;
       return agent;
     }
-    function httpsOverHttps2(options2) {
-      var agent = new TunnelingAgent(options2);
+    function httpsOverHttps2(options) {
+      var agent = new TunnelingAgent(options);
       agent.request = https3.request;
       agent.createSocket = createSecureSocket;
       agent.defaultPort = 443;
       return agent;
     }
-    function TunnelingAgent(options2) {
+    function TunnelingAgent(options) {
       var self = this;
-      self.options = options2 || {};
+      self.options = options || {};
       self.proxyOptions = self.options.proxy || {};
       self.maxSockets = self.options.maxSockets || http3.Agent.defaultMaxSockets;
       self.requests = [];
       self.sockets = [];
       self.on("free", function onFree(socket, host, port, localAddress) {
-        var options3 = toOptions(host, port, localAddress);
+        var options2 = toOptions(host, port, localAddress);
         for (var i = 0, len = self.requests.length; i < len; ++i) {
           var pending = self.requests[i];
-          if (pending.host === options3.host && pending.port === options3.port) {
+          if (pending.host === options2.host && pending.port === options2.port) {
             self.requests.splice(i, 1);
             pending.request.onSocket(socket);
             return;
@@ -720,18 +720,18 @@ var require_tunnel = __commonJS({
     util4.inherits(TunnelingAgent, events.EventEmitter);
     TunnelingAgent.prototype.addRequest = function addRequest(req, host, port, localAddress) {
       var self = this;
-      var options2 = mergeOptions({ request: req }, self.options, toOptions(host, port, localAddress));
+      var options = mergeOptions({ request: req }, self.options, toOptions(host, port, localAddress));
       if (self.sockets.length >= this.maxSockets) {
-        self.requests.push(options2);
+        self.requests.push(options);
         return;
       }
-      self.createSocket(options2, function(socket) {
+      self.createSocket(options, function(socket) {
         socket.on("free", onFree);
         socket.on("close", onCloseOrRemove);
         socket.on("agentRemove", onCloseOrRemove);
         req.onSocket(socket);
         function onFree() {
-          self.emit("free", socket, options2);
+          self.emit("free", socket, options);
         }
         function onCloseOrRemove(err) {
           self.removeSocket(socket);
@@ -741,20 +741,20 @@ var require_tunnel = __commonJS({
         }
       });
     };
-    TunnelingAgent.prototype.createSocket = function createSocket(options2, cb) {
+    TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
       var self = this;
       var placeholder = {};
       self.sockets.push(placeholder);
       var connectOptions = mergeOptions({}, self.proxyOptions, {
         method: "CONNECT",
-        path: options2.host + ":" + options2.port,
+        path: options.host + ":" + options.port,
         agent: false,
         headers: {
-          host: options2.host + ":" + options2.port
+          host: options.host + ":" + options.port
         }
       });
-      if (options2.localAddress) {
-        connectOptions.localAddress = options2.localAddress;
+      if (options.localAddress) {
+        connectOptions.localAddress = options.localAddress;
       }
       if (connectOptions.proxyAuth) {
         connectOptions.headers = connectOptions.headers || {};
@@ -787,7 +787,7 @@ var require_tunnel = __commonJS({
           socket.destroy();
           var error = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
           error.code = "ECONNRESET";
-          options2.request.emit("error", error);
+          options.request.emit("error", error);
           self.removeSocket(placeholder);
           return;
         }
@@ -796,7 +796,7 @@ var require_tunnel = __commonJS({
           socket.destroy();
           var error = new Error("got illegal response body from proxy");
           error.code = "ECONNRESET";
-          options2.request.emit("error", error);
+          options.request.emit("error", error);
           self.removeSocket(placeholder);
           return;
         }
@@ -813,7 +813,7 @@ var require_tunnel = __commonJS({
         );
         var error = new Error("tunneling socket could not be established, cause=" + cause.message);
         error.code = "ECONNRESET";
-        options2.request.emit("error", error);
+        options.request.emit("error", error);
         self.removeSocket(placeholder);
       }
     };
@@ -830,13 +830,13 @@ var require_tunnel = __commonJS({
         });
       }
     };
-    function createSecureSocket(options2, cb) {
+    function createSecureSocket(options, cb) {
       var self = this;
-      TunnelingAgent.prototype.createSocket.call(self, options2, function(socket) {
-        var hostHeader = options2.request.getHeader("host");
+      TunnelingAgent.prototype.createSocket.call(self, options, function(socket) {
+        var hostHeader = options.request.getHeader("host");
         var tlsOptions = mergeOptions({}, self.options, {
           socket,
-          servername: hostHeader ? hostHeader.replace(/:.*$/, "") : options2.host
+          servername: hostHeader ? hostHeader.replace(/:.*$/, "") : options.host
         });
         var secureSocket = tls.connect(0, tlsOptions);
         self.sockets[self.sockets.indexOf(socket)] = secureSocket;
@@ -1394,8 +1394,8 @@ var require_lib = __commonJS({
           this._proxyAgent = agent;
         }
         if (this._keepAlive && !agent) {
-          const options2 = { keepAlive: this._keepAlive, maxSockets };
-          agent = usingSsl ? new https3.Agent(options2) : new http3.Agent(options2);
+          const options = { keepAlive: this._keepAlive, maxSockets };
+          agent = usingSsl ? new https3.Agent(options) : new http3.Agent(options);
           this._agent = agent;
         }
         if (!agent) {
@@ -1415,7 +1415,7 @@ var require_lib = __commonJS({
           return new Promise((resolve2) => setTimeout(() => resolve2(), ms));
         });
       }
-      _processResponse(res, options2) {
+      _processResponse(res, options) {
         return __awaiter(this, void 0, void 0, function* () {
           return new Promise((resolve2, reject) => __awaiter(this, void 0, void 0, function* () {
             const statusCode = res.message.statusCode || 0;
@@ -1441,7 +1441,7 @@ var require_lib = __commonJS({
             try {
               contents = yield res.readBody();
               if (contents && contents.length > 0) {
-                if (options2 && options2.deserializeDates) {
+                if (options && options.deserializeDates) {
                   obj = JSON.parse(contents, dateTimeDeserializer);
                 } else {
                   obj = JSON.parse(contents);
@@ -1513,11 +1513,11 @@ var require_auth = __commonJS({
         this.username = username;
         this.password = password;
       }
-      prepareRequest(options2) {
-        if (!options2.headers) {
+      prepareRequest(options) {
+        if (!options.headers) {
           throw Error("The request has no headers");
         }
-        options2.headers["Authorization"] = `Basic ${Buffer.from(`${this.username}:${this.password}`).toString("base64")}`;
+        options.headers["Authorization"] = `Basic ${Buffer.from(`${this.username}:${this.password}`).toString("base64")}`;
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -1536,11 +1536,11 @@ var require_auth = __commonJS({
       }
       // currently implements pre-authorization
       // TODO: support preAuth = false where it hooks on 401
-      prepareRequest(options2) {
-        if (!options2.headers) {
+      prepareRequest(options) {
+        if (!options.headers) {
           throw Error("The request has no headers");
         }
-        options2.headers["Authorization"] = `Bearer ${this.token}`;
+        options.headers["Authorization"] = `Bearer ${this.token}`;
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -1559,11 +1559,11 @@ var require_auth = __commonJS({
       }
       // currently implements pre-authorization
       // TODO: support preAuth = false where it hooks on 401
-      prepareRequest(options2) {
-        if (!options2.headers) {
+      prepareRequest(options) {
+        if (!options.headers) {
           throw Error("The request has no headers");
         }
-        options2.headers["Authorization"] = `Basic ${Buffer.from(`PAT:${this.token}`).toString("base64")}`;
+        options.headers["Authorization"] = `Basic ${Buffer.from(`PAT:${this.token}`).toString("base64")}`;
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -1766,9 +1766,9 @@ var require_summary = __commonJS({
        *
        * @returns {Promise<Summary>} summary instance
        */
-      write(options2) {
+      write(options) {
         return __awaiter(this, void 0, void 0, function* () {
-          const overwrite = !!(options2 === null || options2 === void 0 ? void 0 : options2.overwrite);
+          const overwrite = !!(options === null || options === void 0 ? void 0 : options.overwrite);
           const filePath = yield this.filePath();
           const writeFunc = overwrite ? writeFile2 : appendFile2;
           yield writeFunc(filePath, this._buffer, { encoding: "utf8" });
@@ -1901,8 +1901,8 @@ var require_summary = __commonJS({
        *
        * @returns {Summary} summary instance
        */
-      addImage(src, alt, options2) {
-        const { width, height } = options2 || {};
+      addImage(src, alt, options) {
+        const { width, height } = options || {};
         const attrs = Object.assign(Object.assign({}, width && { width }), height && { height });
         const element = this.wrap("img", null, Object.assign({ src, alt }, attrs));
         return this.addRaw(element).addEOL();
@@ -2117,29 +2117,29 @@ var require_core = __commonJS({
       process.env["PATH"] = `${inputPath}${path5.delimiter}${process.env["PATH"]}`;
     }
     exports.addPath = addPath;
-    function getInput(name, options2) {
+    function getInput(name, options) {
       const val = process.env[`INPUT_${name.replace(/ /g, "_").toUpperCase()}`] || "";
-      if (options2 && options2.required && !val) {
+      if (options && options.required && !val) {
         throw new Error(`Input required and not supplied: ${name}`);
       }
-      if (options2 && options2.trimWhitespace === false) {
+      if (options && options.trimWhitespace === false) {
         return val;
       }
       return val.trim();
     }
     exports.getInput = getInput;
-    function getMultilineInput(name, options2) {
-      const inputs = getInput(name, options2).split("\n").filter((x) => x !== "");
-      if (options2 && options2.trimWhitespace === false) {
+    function getMultilineInput(name, options) {
+      const inputs = getInput(name, options).split("\n").filter((x) => x !== "");
+      if (options && options.trimWhitespace === false) {
         return inputs;
       }
       return inputs.map((input) => input.trim());
     }
     exports.getMultilineInput = getMultilineInput;
-    function getBooleanInput(name, options2) {
+    function getBooleanInput(name, options) {
       const trueValue = ["true", "True", "TRUE"];
       const falseValue = ["false", "False", "FALSE"];
-      const val = getInput(name, options2);
+      const val = getInput(name, options);
       if (trueValue.includes(val))
         return true;
       if (falseValue.includes(val))
@@ -2492,9 +2492,9 @@ var require_io = __commonJS({
     var assert_1 = require("assert");
     var path5 = __importStar(require("path"));
     var ioUtil = __importStar(require_io_util());
-    function cp(source, dest, options2 = {}) {
+    function cp(source, dest, options = {}) {
       return __awaiter(this, void 0, void 0, function* () {
-        const { force, recursive, copySourceDirectory } = readCopyOptions(options2);
+        const { force, recursive, copySourceDirectory } = readCopyOptions(options);
         const destStat = (yield ioUtil.exists(dest)) ? yield ioUtil.stat(dest) : null;
         if (destStat && destStat.isFile() && !force) {
           return;
@@ -2519,7 +2519,7 @@ var require_io = __commonJS({
       });
     }
     exports.cp = cp;
-    function mv(source, dest, options2 = {}) {
+    function mv(source, dest, options = {}) {
       return __awaiter(this, void 0, void 0, function* () {
         if (yield ioUtil.exists(dest)) {
           let destExists = true;
@@ -2528,7 +2528,7 @@ var require_io = __commonJS({
             destExists = yield ioUtil.exists(dest);
           }
           if (destExists) {
-            if (options2.force == null || options2.force) {
+            if (options.force == null || options.force) {
               yield rmRF(dest);
             } else {
               throw new Error("Destination already exists");
@@ -2633,10 +2633,10 @@ var require_io = __commonJS({
       });
     }
     exports.findInPath = findInPath;
-    function readCopyOptions(options2) {
-      const force = options2.force == null ? true : options2.force;
-      const recursive = Boolean(options2.recursive);
-      const copySourceDirectory = options2.copySourceDirectory == null ? true : Boolean(options2.copySourceDirectory);
+    function readCopyOptions(options) {
+      const force = options.force == null ? true : options.force;
+      const recursive = Boolean(options.recursive);
+      const copySourceDirectory = options.copySourceDirectory == null ? true : Boolean(options.copySourceDirectory);
       return { force, recursive, copySourceDirectory };
     }
     function cpDirRecursive(sourceDir, destDir, currentDepth, force) {
@@ -2799,10 +2799,10 @@ var require_semver = __commonJS({
     }
     var i;
     exports.parse = parse3;
-    function parse3(version3, options2) {
-      if (!options2 || typeof options2 !== "object") {
-        options2 = {
-          loose: !!options2,
+    function parse3(version3, options) {
+      if (!options || typeof options !== "object") {
+        options = {
+          loose: !!options,
           includePrerelease: false
         };
       }
@@ -2815,36 +2815,36 @@ var require_semver = __commonJS({
       if (version3.length > MAX_LENGTH) {
         return null;
       }
-      var r = options2.loose ? re2[t.LOOSE] : re2[t.FULL];
+      var r = options.loose ? re2[t.LOOSE] : re2[t.FULL];
       if (!r.test(version3)) {
         return null;
       }
       try {
-        return new SemVer(version3, options2);
+        return new SemVer(version3, options);
       } catch (er) {
         return null;
       }
     }
     exports.valid = valid;
-    function valid(version3, options2) {
-      var v = parse3(version3, options2);
+    function valid(version3, options) {
+      var v = parse3(version3, options);
       return v ? v.version : null;
     }
     exports.clean = clean;
-    function clean(version3, options2) {
-      var s = parse3(version3.trim().replace(/^[=v]+/, ""), options2);
+    function clean(version3, options) {
+      var s = parse3(version3.trim().replace(/^[=v]+/, ""), options);
       return s ? s.version : null;
     }
     exports.SemVer = SemVer;
-    function SemVer(version3, options2) {
-      if (!options2 || typeof options2 !== "object") {
-        options2 = {
-          loose: !!options2,
+    function SemVer(version3, options) {
+      if (!options || typeof options !== "object") {
+        options = {
+          loose: !!options,
           includePrerelease: false
         };
       }
       if (version3 instanceof SemVer) {
-        if (version3.loose === options2.loose) {
+        if (version3.loose === options.loose) {
           return version3;
         } else {
           version3 = version3.version;
@@ -2856,12 +2856,12 @@ var require_semver = __commonJS({
         throw new TypeError("version is longer than " + MAX_LENGTH + " characters");
       }
       if (!(this instanceof SemVer)) {
-        return new SemVer(version3, options2);
+        return new SemVer(version3, options);
       }
-      debug("SemVer", version3, options2);
-      this.options = options2;
-      this.loose = !!options2.loose;
-      var m = version3.trim().match(options2.loose ? re2[t.LOOSE] : re2[t.FULL]);
+      debug("SemVer", version3, options);
+      this.options = options;
+      this.loose = !!options.loose;
+      var m = version3.trim().match(options.loose ? re2[t.LOOSE] : re2[t.FULL]);
       if (!m) {
         throw new TypeError("Invalid Version: " + version3);
       }
@@ -3196,26 +3196,26 @@ var require_semver = __commonJS({
       }
     }
     exports.Comparator = Comparator;
-    function Comparator(comp26, options2) {
-      if (!options2 || typeof options2 !== "object") {
-        options2 = {
-          loose: !!options2,
+    function Comparator(comp26, options) {
+      if (!options || typeof options !== "object") {
+        options = {
+          loose: !!options,
           includePrerelease: false
         };
       }
       if (comp26 instanceof Comparator) {
-        if (comp26.loose === !!options2.loose) {
+        if (comp26.loose === !!options.loose) {
           return comp26;
         } else {
           comp26 = comp26.value;
         }
       }
       if (!(this instanceof Comparator)) {
-        return new Comparator(comp26, options2);
+        return new Comparator(comp26, options);
       }
-      debug("comparator", comp26, options2);
-      this.options = options2;
-      this.loose = !!options2.loose;
+      debug("comparator", comp26, options);
+      this.options = options;
+      this.loose = !!options.loose;
       this.parse(comp26);
       if (this.semver === ANY) {
         this.value = "";
@@ -3258,13 +3258,13 @@ var require_semver = __commonJS({
       }
       return cmp(version3, this.operator, this.semver, this.options);
     };
-    Comparator.prototype.intersects = function(comp26, options2) {
+    Comparator.prototype.intersects = function(comp26, options) {
       if (!(comp26 instanceof Comparator)) {
         throw new TypeError("a Comparator is required");
       }
-      if (!options2 || typeof options2 !== "object") {
-        options2 = {
-          loose: !!options2,
+      if (!options || typeof options !== "object") {
+        options = {
+          loose: !!options,
           includePrerelease: false
         };
       }
@@ -3273,47 +3273,47 @@ var require_semver = __commonJS({
         if (this.value === "") {
           return true;
         }
-        rangeTmp = new Range(comp26.value, options2);
-        return satisfies(this.value, rangeTmp, options2);
+        rangeTmp = new Range(comp26.value, options);
+        return satisfies(this.value, rangeTmp, options);
       } else if (comp26.operator === "") {
         if (comp26.value === "") {
           return true;
         }
-        rangeTmp = new Range(this.value, options2);
-        return satisfies(comp26.semver, rangeTmp, options2);
+        rangeTmp = new Range(this.value, options);
+        return satisfies(comp26.semver, rangeTmp, options);
       }
       var sameDirectionIncreasing = (this.operator === ">=" || this.operator === ">") && (comp26.operator === ">=" || comp26.operator === ">");
       var sameDirectionDecreasing = (this.operator === "<=" || this.operator === "<") && (comp26.operator === "<=" || comp26.operator === "<");
       var sameSemVer = this.semver.version === comp26.semver.version;
       var differentDirectionsInclusive = (this.operator === ">=" || this.operator === "<=") && (comp26.operator === ">=" || comp26.operator === "<=");
-      var oppositeDirectionsLessThan = cmp(this.semver, "<", comp26.semver, options2) && ((this.operator === ">=" || this.operator === ">") && (comp26.operator === "<=" || comp26.operator === "<"));
-      var oppositeDirectionsGreaterThan = cmp(this.semver, ">", comp26.semver, options2) && ((this.operator === "<=" || this.operator === "<") && (comp26.operator === ">=" || comp26.operator === ">"));
+      var oppositeDirectionsLessThan = cmp(this.semver, "<", comp26.semver, options) && ((this.operator === ">=" || this.operator === ">") && (comp26.operator === "<=" || comp26.operator === "<"));
+      var oppositeDirectionsGreaterThan = cmp(this.semver, ">", comp26.semver, options) && ((this.operator === "<=" || this.operator === "<") && (comp26.operator === ">=" || comp26.operator === ">"));
       return sameDirectionIncreasing || sameDirectionDecreasing || sameSemVer && differentDirectionsInclusive || oppositeDirectionsLessThan || oppositeDirectionsGreaterThan;
     };
     exports.Range = Range;
-    function Range(range2, options2) {
-      if (!options2 || typeof options2 !== "object") {
-        options2 = {
-          loose: !!options2,
+    function Range(range2, options) {
+      if (!options || typeof options !== "object") {
+        options = {
+          loose: !!options,
           includePrerelease: false
         };
       }
       if (range2 instanceof Range) {
-        if (range2.loose === !!options2.loose && range2.includePrerelease === !!options2.includePrerelease) {
+        if (range2.loose === !!options.loose && range2.includePrerelease === !!options.includePrerelease) {
           return range2;
         } else {
-          return new Range(range2.raw, options2);
+          return new Range(range2.raw, options);
         }
       }
       if (range2 instanceof Comparator) {
-        return new Range(range2.value, options2);
+        return new Range(range2.value, options);
       }
       if (!(this instanceof Range)) {
-        return new Range(range2, options2);
+        return new Range(range2, options);
       }
-      this.options = options2;
-      this.loose = !!options2.loose;
-      this.includePrerelease = !!options2.includePrerelease;
+      this.options = options;
+      this.loose = !!options.loose;
+      this.includePrerelease = !!options.includePrerelease;
       this.raw = range2;
       this.set = range2.split(/\s*\|\|\s*/).map(function(range3) {
         return this.parseRange(range3.trim());
@@ -3359,62 +3359,62 @@ var require_semver = __commonJS({
       }, this);
       return set2;
     };
-    Range.prototype.intersects = function(range2, options2) {
+    Range.prototype.intersects = function(range2, options) {
       if (!(range2 instanceof Range)) {
         throw new TypeError("a Range is required");
       }
       return this.set.some(function(thisComparators) {
-        return isSatisfiable(thisComparators, options2) && range2.set.some(function(rangeComparators) {
-          return isSatisfiable(rangeComparators, options2) && thisComparators.every(function(thisComparator) {
+        return isSatisfiable(thisComparators, options) && range2.set.some(function(rangeComparators) {
+          return isSatisfiable(rangeComparators, options) && thisComparators.every(function(thisComparator) {
             return rangeComparators.every(function(rangeComparator) {
-              return thisComparator.intersects(rangeComparator, options2);
+              return thisComparator.intersects(rangeComparator, options);
             });
           });
         });
       });
     };
-    function isSatisfiable(comparators, options2) {
+    function isSatisfiable(comparators, options) {
       var result = true;
       var remainingComparators = comparators.slice();
       var testComparator = remainingComparators.pop();
       while (result && remainingComparators.length) {
         result = remainingComparators.every(function(otherComparator) {
-          return testComparator.intersects(otherComparator, options2);
+          return testComparator.intersects(otherComparator, options);
         });
         testComparator = remainingComparators.pop();
       }
       return result;
     }
     exports.toComparators = toComparators;
-    function toComparators(range2, options2) {
-      return new Range(range2, options2).set.map(function(comp26) {
+    function toComparators(range2, options) {
+      return new Range(range2, options).set.map(function(comp26) {
         return comp26.map(function(c) {
           return c.value;
         }).join(" ").trim().split(" ");
       });
     }
-    function parseComparator(comp26, options2) {
-      debug("comp", comp26, options2);
-      comp26 = replaceCarets(comp26, options2);
+    function parseComparator(comp26, options) {
+      debug("comp", comp26, options);
+      comp26 = replaceCarets(comp26, options);
       debug("caret", comp26);
-      comp26 = replaceTildes(comp26, options2);
+      comp26 = replaceTildes(comp26, options);
       debug("tildes", comp26);
-      comp26 = replaceXRanges(comp26, options2);
+      comp26 = replaceXRanges(comp26, options);
       debug("xrange", comp26);
-      comp26 = replaceStars(comp26, options2);
+      comp26 = replaceStars(comp26, options);
       debug("stars", comp26);
       return comp26;
     }
     function isX(id) {
       return !id || id.toLowerCase() === "x" || id === "*";
     }
-    function replaceTildes(comp26, options2) {
+    function replaceTildes(comp26, options) {
       return comp26.trim().split(/\s+/).map(function(comp27) {
-        return replaceTilde(comp27, options2);
+        return replaceTilde(comp27, options);
       }).join(" ");
     }
-    function replaceTilde(comp26, options2) {
-      var r = options2.loose ? re2[t.TILDELOOSE] : re2[t.TILDE];
+    function replaceTilde(comp26, options) {
+      var r = options.loose ? re2[t.TILDELOOSE] : re2[t.TILDE];
       return comp26.replace(r, function(_, M, m, p, pr) {
         debug("tilde", comp26, _, M, m, p, pr);
         var ret;
@@ -3434,14 +3434,14 @@ var require_semver = __commonJS({
         return ret;
       });
     }
-    function replaceCarets(comp26, options2) {
+    function replaceCarets(comp26, options) {
       return comp26.trim().split(/\s+/).map(function(comp27) {
-        return replaceCaret(comp27, options2);
+        return replaceCaret(comp27, options);
       }).join(" ");
     }
-    function replaceCaret(comp26, options2) {
-      debug("caret", comp26, options2);
-      var r = options2.loose ? re2[t.CARETLOOSE] : re2[t.CARET];
+    function replaceCaret(comp26, options) {
+      debug("caret", comp26, options);
+      var r = options.loose ? re2[t.CARETLOOSE] : re2[t.CARET];
       return comp26.replace(r, function(_, M, m, p, pr) {
         debug("caret", comp26, _, M, m, p, pr);
         var ret;
@@ -3482,15 +3482,15 @@ var require_semver = __commonJS({
         return ret;
       });
     }
-    function replaceXRanges(comp26, options2) {
-      debug("replaceXRanges", comp26, options2);
+    function replaceXRanges(comp26, options) {
+      debug("replaceXRanges", comp26, options);
       return comp26.split(/\s+/).map(function(comp27) {
-        return replaceXRange(comp27, options2);
+        return replaceXRange(comp27, options);
       }).join(" ");
     }
-    function replaceXRange(comp26, options2) {
+    function replaceXRange(comp26, options) {
       comp26 = comp26.trim();
-      var r = options2.loose ? re2[t.XRANGELOOSE] : re2[t.XRANGE];
+      var r = options.loose ? re2[t.XRANGELOOSE] : re2[t.XRANGE];
       return comp26.replace(r, function(ret, gtlt, M, m, p, pr) {
         debug("xRange", comp26, ret, gtlt, M, m, p, pr);
         var xM = isX(M);
@@ -3500,7 +3500,7 @@ var require_semver = __commonJS({
         if (gtlt === "=" && anyX) {
           gtlt = "";
         }
-        pr = options2.includePrerelease ? "-0" : "";
+        pr = options.includePrerelease ? "-0" : "";
         if (xM) {
           if (gtlt === ">" || gtlt === "<") {
             ret = "<0.0.0-0";
@@ -3540,8 +3540,8 @@ var require_semver = __commonJS({
         return ret;
       });
     }
-    function replaceStars(comp26, options2) {
-      debug("replaceStars", comp26, options2);
+    function replaceStars(comp26, options) {
+      debug("replaceStars", comp26, options);
       return comp26.trim().replace(re2[t.STAR], "");
     }
     function hyphenReplace($0, from, fM, fm, fp, fpr, fb, to, tM, tm, tp, tpr, tb) {
@@ -3585,13 +3585,13 @@ var require_semver = __commonJS({
       }
       return false;
     };
-    function testSet(set2, version3, options2) {
+    function testSet(set2, version3, options) {
       for (var i2 = 0; i2 < set2.length; i2++) {
         if (!set2[i2].test(version3)) {
           return false;
         }
       }
-      if (version3.prerelease.length && !options2.includePrerelease) {
+      if (version3.prerelease.length && !options.includePrerelease) {
         for (i2 = 0; i2 < set2.length; i2++) {
           debug(set2[i2].semver);
           if (set2[i2].semver === ANY) {
@@ -3609,20 +3609,20 @@ var require_semver = __commonJS({
       return true;
     }
     exports.satisfies = satisfies;
-    function satisfies(version3, range2, options2) {
+    function satisfies(version3, range2, options) {
       try {
-        range2 = new Range(range2, options2);
+        range2 = new Range(range2, options);
       } catch (er) {
         return false;
       }
       return range2.test(version3);
     }
     exports.maxSatisfying = maxSatisfying;
-    function maxSatisfying(versions, range2, options2) {
+    function maxSatisfying(versions, range2, options) {
       var max = null;
       var maxSV = null;
       try {
-        var rangeObj = new Range(range2, options2);
+        var rangeObj = new Range(range2, options);
       } catch (er) {
         return null;
       }
@@ -3630,18 +3630,18 @@ var require_semver = __commonJS({
         if (rangeObj.test(v)) {
           if (!max || maxSV.compare(v) === -1) {
             max = v;
-            maxSV = new SemVer(max, options2);
+            maxSV = new SemVer(max, options);
           }
         }
       });
       return max;
     }
     exports.minSatisfying = minSatisfying;
-    function minSatisfying(versions, range2, options2) {
+    function minSatisfying(versions, range2, options) {
       var min = null;
       var minSV = null;
       try {
-        var rangeObj = new Range(range2, options2);
+        var rangeObj = new Range(range2, options);
       } catch (er) {
         return null;
       }
@@ -3649,7 +3649,7 @@ var require_semver = __commonJS({
         if (rangeObj.test(v)) {
           if (!min || minSV.compare(v) === 1) {
             min = v;
-            minSV = new SemVer(min, options2);
+            minSV = new SemVer(min, options);
           }
         }
       });
@@ -3699,25 +3699,25 @@ var require_semver = __commonJS({
       return null;
     }
     exports.validRange = validRange;
-    function validRange(range2, options2) {
+    function validRange(range2, options) {
       try {
-        return new Range(range2, options2).range || "*";
+        return new Range(range2, options).range || "*";
       } catch (er) {
         return null;
       }
     }
     exports.ltr = ltr;
-    function ltr(version3, range2, options2) {
-      return outside(version3, range2, "<", options2);
+    function ltr(version3, range2, options) {
+      return outside(version3, range2, "<", options);
     }
     exports.gtr = gtr;
-    function gtr(version3, range2, options2) {
-      return outside(version3, range2, ">", options2);
+    function gtr(version3, range2, options) {
+      return outside(version3, range2, ">", options);
     }
     exports.outside = outside;
-    function outside(version3, range2, hilo, options2) {
-      version3 = new SemVer(version3, options2);
-      range2 = new Range(range2, options2);
+    function outside(version3, range2, hilo, options) {
+      version3 = new SemVer(version3, options);
+      range2 = new Range(range2, options);
       var gtfn, ltefn, ltfn, comp26, ecomp;
       switch (hilo) {
         case ">":
@@ -3737,7 +3737,7 @@ var require_semver = __commonJS({
         default:
           throw new TypeError('Must provide a hilo val of "<" or ">"');
       }
-      if (satisfies(version3, range2, options2)) {
+      if (satisfies(version3, range2, options)) {
         return false;
       }
       for (var i2 = 0; i2 < range2.set.length; ++i2) {
@@ -3750,9 +3750,9 @@ var require_semver = __commonJS({
           }
           high = high || comparator;
           low = low || comparator;
-          if (gtfn(comparator.semver, high.semver, options2)) {
+          if (gtfn(comparator.semver, high.semver, options)) {
             high = comparator;
-          } else if (ltfn(comparator.semver, low.semver, options2)) {
+          } else if (ltfn(comparator.semver, low.semver, options)) {
             low = comparator;
           }
         });
@@ -3768,18 +3768,18 @@ var require_semver = __commonJS({
       return true;
     }
     exports.prerelease = prerelease;
-    function prerelease(version3, options2) {
-      var parsed = parse3(version3, options2);
+    function prerelease(version3, options) {
+      var parsed = parse3(version3, options);
       return parsed && parsed.prerelease.length ? parsed.prerelease : null;
     }
     exports.intersects = intersects;
-    function intersects(r1, r2, options2) {
-      r1 = new Range(r1, options2);
-      r2 = new Range(r2, options2);
+    function intersects(r1, r2, options) {
+      r1 = new Range(r1, options);
+      r2 = new Range(r2, options);
       return r1.intersects(r2);
     }
     exports.coerce = coerce;
-    function coerce(version3, options2) {
+    function coerce(version3, options) {
       if (version3 instanceof SemVer) {
         return version3;
       }
@@ -3789,9 +3789,9 @@ var require_semver = __commonJS({
       if (typeof version3 !== "string") {
         return null;
       }
-      options2 = options2 || {};
+      options = options || {};
       var match2 = null;
-      if (!options2.rtl) {
+      if (!options.rtl) {
         match2 = version3.match(re2[t.COERCE]);
       } else {
         var next;
@@ -3806,7 +3806,7 @@ var require_semver = __commonJS({
       if (match2 === null) {
         return null;
       }
-      return parse3(match2[2] + "." + (match2[3] || "0") + "." + (match2[4] || "0"), options2);
+      return parse3(match2[2] + "." + (match2[3] || "0") + "." + (match2[4] || "0"), options);
     }
   }
 });
@@ -4007,14 +4007,14 @@ var require_v4 = __commonJS({
     "use strict";
     var rng2 = require_rng();
     var bytesToUuid = require_bytesToUuid();
-    function v42(options2, buf, offset) {
+    function v42(options, buf, offset) {
       var i = buf && offset || 0;
-      if (typeof options2 == "string") {
-        buf = options2 === "binary" ? new Array(16) : null;
-        options2 = null;
+      if (typeof options == "string") {
+        buf = options === "binary" ? new Array(16) : null;
+        options = null;
       }
-      options2 = options2 || {};
-      var rnds = options2.random || (options2.rng || rng2)();
+      options = options || {};
+      var rnds = options.random || (options.rng || rng2)();
       rnds[6] = rnds[6] & 15 | 64;
       rnds[8] = rnds[8] & 63 | 128;
       if (buf) {
@@ -4098,23 +4098,23 @@ var require_toolrunner = __commonJS({
     var timers_1 = require("timers");
     var IS_WINDOWS = process.platform === "win32";
     var ToolRunner = class extends events.EventEmitter {
-      constructor(toolPath, args, options2) {
+      constructor(toolPath, args, options) {
         super();
         if (!toolPath) {
           throw new Error("Parameter 'toolPath' cannot be null or empty.");
         }
         this.toolPath = toolPath;
         this.args = args || [];
-        this.options = options2 || {};
+        this.options = options || {};
       }
       _debug(message) {
         if (this.options.listeners && this.options.listeners.debug) {
           this.options.listeners.debug(message);
         }
       }
-      _getCommandString(options2, noPrefix) {
+      _getCommandString(options, noPrefix) {
         const toolPath = this._getSpawnFileName();
-        const args = this._getSpawnArgs(options2);
+        const args = this._getSpawnArgs(options);
         let cmd = noPrefix ? "" : "[command]";
         if (IS_WINDOWS) {
           if (this._isCmdFile()) {
@@ -4122,7 +4122,7 @@ var require_toolrunner = __commonJS({
             for (const a of args) {
               cmd += ` ${a}`;
             }
-          } else if (options2.windowsVerbatimArguments) {
+          } else if (options.windowsVerbatimArguments) {
             cmd += `"${toolPath}"`;
             for (const a of args) {
               cmd += ` ${a}`;
@@ -4165,13 +4165,13 @@ var require_toolrunner = __commonJS({
         }
         return this.toolPath;
       }
-      _getSpawnArgs(options2) {
+      _getSpawnArgs(options) {
         if (IS_WINDOWS) {
           if (this._isCmdFile()) {
             let argline = `/D /S /C "${this._windowsQuoteCmdArg(this.toolPath)}`;
             for (const a of this.args) {
               argline += " ";
-              argline += options2.windowsVerbatimArguments ? a : this._windowsQuoteCmdArg(a);
+              argline += options.windowsVerbatimArguments ? a : this._windowsQuoteCmdArg(a);
             }
             argline += '"';
             return [argline];
@@ -4269,28 +4269,28 @@ var require_toolrunner = __commonJS({
         reverse += '"';
         return reverse.split("").reverse().join("");
       }
-      _cloneExecOptions(options2) {
-        options2 = options2 || {};
+      _cloneExecOptions(options) {
+        options = options || {};
         const result = {
-          cwd: options2.cwd || process.cwd(),
-          env: options2.env || process.env,
-          silent: options2.silent || false,
-          windowsVerbatimArguments: options2.windowsVerbatimArguments || false,
-          failOnStdErr: options2.failOnStdErr || false,
-          ignoreReturnCode: options2.ignoreReturnCode || false,
-          delay: options2.delay || 1e4
+          cwd: options.cwd || process.cwd(),
+          env: options.env || process.env,
+          silent: options.silent || false,
+          windowsVerbatimArguments: options.windowsVerbatimArguments || false,
+          failOnStdErr: options.failOnStdErr || false,
+          ignoreReturnCode: options.ignoreReturnCode || false,
+          delay: options.delay || 1e4
         };
-        result.outStream = options2.outStream || process.stdout;
-        result.errStream = options2.errStream || process.stderr;
+        result.outStream = options.outStream || process.stdout;
+        result.errStream = options.errStream || process.stderr;
         return result;
       }
-      _getSpawnOptions(options2, toolPath) {
-        options2 = options2 || {};
+      _getSpawnOptions(options, toolPath) {
+        options = options || {};
         const result = {};
-        result.cwd = options2.cwd;
-        result.env = options2.env;
-        result["windowsVerbatimArguments"] = options2.windowsVerbatimArguments || this._isCmdFile();
-        if (options2.windowsVerbatimArguments) {
+        result.cwd = options.cwd;
+        result.env = options.env;
+        result["windowsVerbatimArguments"] = options.windowsVerbatimArguments || this._isCmdFile();
+        if (options.windowsVerbatimArguments) {
           result.argv0 = `"${toolPath}"`;
         }
         return result;
@@ -4453,7 +4453,7 @@ var require_toolrunner = __commonJS({
     }
     exports.argStringToArray = argStringToArray;
     var ExecState = class _ExecState extends events.EventEmitter {
-      constructor(options2, toolPath) {
+      constructor(options, toolPath) {
         super();
         this.processClosed = false;
         this.processError = "";
@@ -4466,10 +4466,10 @@ var require_toolrunner = __commonJS({
         if (!toolPath) {
           throw new Error("toolPath must not be empty");
         }
-        this.options = options2;
+        this.options = options;
         this.toolPath = toolPath;
-        if (options2.delay) {
-          this.delay = options2.delay;
+        if (options.delay) {
+          this.delay = options.delay;
         }
       }
       CheckComplete() {
@@ -4580,7 +4580,7 @@ var require_exec = __commonJS({
     exports.getExecOutput = exports.exec = void 0;
     var string_decoder_1 = require("string_decoder");
     var tr = __importStar(require_toolrunner());
-    function exec2(commandLine, args, options2) {
+    function exec2(commandLine, args, options) {
       return __awaiter(this, void 0, void 0, function* () {
         const commandArgs = tr.argStringToArray(commandLine);
         if (commandArgs.length === 0) {
@@ -4588,20 +4588,20 @@ var require_exec = __commonJS({
         }
         const toolPath = commandArgs[0];
         args = commandArgs.slice(1).concat(args || []);
-        const runner = new tr.ToolRunner(toolPath, args, options2);
+        const runner = new tr.ToolRunner(toolPath, args, options);
         return runner.exec();
       });
     }
     exports.exec = exec2;
-    function getExecOutput(commandLine, args, options2) {
+    function getExecOutput(commandLine, args, options) {
       var _a2, _b;
       return __awaiter(this, void 0, void 0, function* () {
         let stdout = "";
         let stderr = "";
         const stdoutDecoder = new string_decoder_1.StringDecoder("utf8");
         const stderrDecoder = new string_decoder_1.StringDecoder("utf8");
-        const originalStdoutListener = (_a2 = options2 === null || options2 === void 0 ? void 0 : options2.listeners) === null || _a2 === void 0 ? void 0 : _a2.stdout;
-        const originalStdErrListener = (_b = options2 === null || options2 === void 0 ? void 0 : options2.listeners) === null || _b === void 0 ? void 0 : _b.stderr;
+        const originalStdoutListener = (_a2 = options === null || options === void 0 ? void 0 : options.listeners) === null || _a2 === void 0 ? void 0 : _a2.stdout;
+        const originalStdErrListener = (_b = options === null || options === void 0 ? void 0 : options.listeners) === null || _b === void 0 ? void 0 : _b.stderr;
         const stdErrListener = (data) => {
           stderr += stderrDecoder.write(data);
           if (originalStdErrListener) {
@@ -4614,8 +4614,8 @@ var require_exec = __commonJS({
             originalStdoutListener(data);
           }
         };
-        const listeners = Object.assign(Object.assign({}, options2 === null || options2 === void 0 ? void 0 : options2.listeners), { stdout: stdOutListener, stderr: stdErrListener });
-        const exitCode = yield exec2(commandLine, args, Object.assign(Object.assign({}, options2), { listeners }));
+        const listeners = Object.assign(Object.assign({}, options === null || options === void 0 ? void 0 : options.listeners), { stdout: stdOutListener, stderr: stdErrListener });
+        const exitCode = yield exec2(commandLine, args, Object.assign(Object.assign({}, options), { listeners }));
         stdout += stdoutDecoder.end();
         stderr += stderrDecoder.end();
         return {
@@ -4907,10 +4907,10 @@ var require_tool_cache = __commonJS({
               "-sccUTF-8",
               file
             ];
-            const options2 = {
+            const options = {
               silent: true
             };
-            yield exec_1.exec(`"${_7zPath}"`, args, options2);
+            yield exec_1.exec(`"${_7zPath}"`, args, options);
           } finally {
             process.chdir(originalCwd);
           }
@@ -4929,12 +4929,12 @@ var require_tool_cache = __commonJS({
             "-Command",
             command
           ];
-          const options2 = {
+          const options = {
             silent: true
           };
           try {
             const powershellPath = yield io2.which("powershell", true);
-            yield exec_1.exec(`"${powershellPath}"`, args, options2);
+            yield exec_1.exec(`"${powershellPath}"`, args, options);
           } finally {
             process.chdir(originalCwd);
           }
@@ -7017,10 +7017,10 @@ var require_posix = __commonJS({
     exports.sync = exports.isexe = void 0;
     var fs_1 = require("fs");
     var promises_1 = require("fs/promises");
-    var isexe = async (path5, options2 = {}) => {
-      const { ignoreErrors = false } = options2;
+    var isexe = async (path5, options = {}) => {
+      const { ignoreErrors = false } = options;
       try {
-        return checkStat(await (0, promises_1.stat)(path5), options2);
+        return checkStat(await (0, promises_1.stat)(path5), options);
       } catch (e) {
         const er = e;
         if (ignoreErrors || er.code === "EACCES")
@@ -7029,10 +7029,10 @@ var require_posix = __commonJS({
       }
     };
     exports.isexe = isexe;
-    var sync = (path5, options2 = {}) => {
-      const { ignoreErrors = false } = options2;
+    var sync = (path5, options = {}) => {
+      const { ignoreErrors = false } = options;
       try {
-        return checkStat((0, fs_1.statSync)(path5), options2);
+        return checkStat((0, fs_1.statSync)(path5), options);
       } catch (e) {
         const er = e;
         if (ignoreErrors || er.code === "EACCES")
@@ -7041,11 +7041,11 @@ var require_posix = __commonJS({
       }
     };
     exports.sync = sync;
-    var checkStat = (stat2, options2) => stat2.isFile() && checkMode(stat2, options2);
-    var checkMode = (stat2, options2) => {
-      const myUid = options2.uid ?? process.getuid?.();
-      const myGroups = options2.groups ?? process.getgroups?.() ?? [];
-      const myGid = options2.gid ?? process.getgid?.() ?? myGroups[0];
+    var checkStat = (stat2, options) => stat2.isFile() && checkMode(stat2, options);
+    var checkMode = (stat2, options) => {
+      const myUid = options.uid ?? process.getuid?.();
+      const myGroups = options.groups ?? process.getgroups?.() ?? [];
+      const myGid = options.gid ?? process.getgid?.() ?? myGroups[0];
       if (myUid === void 0 || myGid === void 0) {
         throw new Error("cannot get uid or gid");
       }
@@ -7070,10 +7070,10 @@ var require_win32 = __commonJS({
     exports.sync = exports.isexe = void 0;
     var fs_1 = require("fs");
     var promises_1 = require("fs/promises");
-    var isexe = async (path5, options2 = {}) => {
-      const { ignoreErrors = false } = options2;
+    var isexe = async (path5, options = {}) => {
+      const { ignoreErrors = false } = options;
       try {
-        return checkStat(await (0, promises_1.stat)(path5), path5, options2);
+        return checkStat(await (0, promises_1.stat)(path5), path5, options);
       } catch (e) {
         const er = e;
         if (ignoreErrors || er.code === "EACCES")
@@ -7082,10 +7082,10 @@ var require_win32 = __commonJS({
       }
     };
     exports.isexe = isexe;
-    var sync = (path5, options2 = {}) => {
-      const { ignoreErrors = false } = options2;
+    var sync = (path5, options = {}) => {
+      const { ignoreErrors = false } = options;
       try {
-        return checkStat((0, fs_1.statSync)(path5), path5, options2);
+        return checkStat((0, fs_1.statSync)(path5), path5, options);
       } catch (e) {
         const er = e;
         if (ignoreErrors || er.code === "EACCES")
@@ -7094,8 +7094,8 @@ var require_win32 = __commonJS({
       }
     };
     exports.sync = sync;
-    var checkPathExt = (path5, options2) => {
-      const { pathExt = process.env.PATHEXT || "" } = options2;
+    var checkPathExt = (path5, options) => {
+      const { pathExt = process.env.PATHEXT || "" } = options;
       const peSplit = pathExt.split(";");
       if (peSplit.indexOf("") !== -1) {
         return true;
@@ -7109,7 +7109,7 @@ var require_win32 = __commonJS({
       }
       return false;
     };
-    var checkStat = (stat2, path5, options2) => stat2.isFile() && checkPathExt(path5, options2);
+    var checkStat = (stat2, path5, options) => stat2.isFile() && checkPathExt(path5, options);
   }
 });
 
@@ -7830,10 +7830,10 @@ var require_minimatch = __commonJS({
     }
     var slashSplit = /\/+/;
     minimatch.filter = filter;
-    function filter(pattern, options2) {
-      options2 = options2 || {};
+    function filter(pattern, options) {
+      options = options || {};
       return function(p, i, list) {
-        return minimatch(p, pattern, options2);
+        return minimatch(p, pattern, options);
       };
     }
     function ext(a, b) {
@@ -7852,63 +7852,63 @@ var require_minimatch = __commonJS({
         return minimatch;
       }
       var orig = minimatch;
-      var m = function minimatch2(p, pattern, options2) {
-        return orig(p, pattern, ext(def, options2));
+      var m = function minimatch2(p, pattern, options) {
+        return orig(p, pattern, ext(def, options));
       };
-      m.Minimatch = function Minimatch2(pattern, options2) {
-        return new orig.Minimatch(pattern, ext(def, options2));
+      m.Minimatch = function Minimatch2(pattern, options) {
+        return new orig.Minimatch(pattern, ext(def, options));
       };
-      m.Minimatch.defaults = function defaults(options2) {
-        return orig.defaults(ext(def, options2)).Minimatch;
+      m.Minimatch.defaults = function defaults(options) {
+        return orig.defaults(ext(def, options)).Minimatch;
       };
-      m.filter = function filter2(pattern, options2) {
-        return orig.filter(pattern, ext(def, options2));
+      m.filter = function filter2(pattern, options) {
+        return orig.filter(pattern, ext(def, options));
       };
-      m.defaults = function defaults(options2) {
-        return orig.defaults(ext(def, options2));
+      m.defaults = function defaults(options) {
+        return orig.defaults(ext(def, options));
       };
-      m.makeRe = function makeRe2(pattern, options2) {
-        return orig.makeRe(pattern, ext(def, options2));
+      m.makeRe = function makeRe2(pattern, options) {
+        return orig.makeRe(pattern, ext(def, options));
       };
-      m.braceExpand = function braceExpand2(pattern, options2) {
-        return orig.braceExpand(pattern, ext(def, options2));
+      m.braceExpand = function braceExpand2(pattern, options) {
+        return orig.braceExpand(pattern, ext(def, options));
       };
-      m.match = function(list, pattern, options2) {
-        return orig.match(list, pattern, ext(def, options2));
+      m.match = function(list, pattern, options) {
+        return orig.match(list, pattern, ext(def, options));
       };
       return m;
     };
     Minimatch.defaults = function(def) {
       return minimatch.defaults(def).Minimatch;
     };
-    function minimatch(p, pattern, options2) {
+    function minimatch(p, pattern, options) {
       assertValidPattern(pattern);
-      if (!options2)
-        options2 = {};
-      if (!options2.nocomment && pattern.charAt(0) === "#") {
+      if (!options)
+        options = {};
+      if (!options.nocomment && pattern.charAt(0) === "#") {
         return false;
       }
-      return new Minimatch(pattern, options2).match(p);
+      return new Minimatch(pattern, options).match(p);
     }
-    function Minimatch(pattern, options2) {
+    function Minimatch(pattern, options) {
       if (!(this instanceof Minimatch)) {
-        return new Minimatch(pattern, options2);
+        return new Minimatch(pattern, options);
       }
       assertValidPattern(pattern);
-      if (!options2)
-        options2 = {};
+      if (!options)
+        options = {};
       pattern = pattern.trim();
-      if (!options2.allowWindowsEscape && path5.sep !== "/") {
+      if (!options.allowWindowsEscape && path5.sep !== "/") {
         pattern = pattern.split(path5.sep).join("/");
       }
-      this.options = options2;
+      this.options = options;
       this.set = [];
       this.pattern = pattern;
       this.regexp = null;
       this.negate = false;
       this.comment = false;
       this.empty = false;
-      this.partial = !!options2.partial;
+      this.partial = !!options.partial;
       this.make();
     }
     Minimatch.prototype.debug = function() {
@@ -7916,8 +7916,8 @@ var require_minimatch = __commonJS({
     Minimatch.prototype.make = make;
     function make() {
       var pattern = this.pattern;
-      var options2 = this.options;
-      if (!options2.nocomment && pattern.charAt(0) === "#") {
+      var options = this.options;
+      if (!options.nocomment && pattern.charAt(0) === "#") {
         this.comment = true;
         return;
       }
@@ -7927,7 +7927,7 @@ var require_minimatch = __commonJS({
       }
       this.parseNegate();
       var set2 = this.globSet = this.braceExpand();
-      if (options2.debug)
+      if (options.debug)
         this.debug = function debug() {
           console.error.apply(console, arguments);
         };
@@ -7950,9 +7950,9 @@ var require_minimatch = __commonJS({
     function parseNegate() {
       var pattern = this.pattern;
       var negate = false;
-      var options2 = this.options;
+      var options = this.options;
       var negateOffset = 0;
-      if (options2.nonegate)
+      if (options.nonegate)
         return;
       for (var i = 0, l = pattern.length; i < l && pattern.charAt(i) === "!"; i++) {
         negate = !negate;
@@ -7962,21 +7962,21 @@ var require_minimatch = __commonJS({
         this.pattern = pattern.substr(negateOffset);
       this.negate = negate;
     }
-    minimatch.braceExpand = function(pattern, options2) {
-      return braceExpand(pattern, options2);
+    minimatch.braceExpand = function(pattern, options) {
+      return braceExpand(pattern, options);
     };
     Minimatch.prototype.braceExpand = braceExpand;
-    function braceExpand(pattern, options2) {
-      if (!options2) {
+    function braceExpand(pattern, options) {
+      if (!options) {
         if (this instanceof Minimatch) {
-          options2 = this.options;
+          options = this.options;
         } else {
-          options2 = {};
+          options = {};
         }
       }
       pattern = typeof pattern === "undefined" ? this.pattern : pattern;
       assertValidPattern(pattern);
-      if (options2.nobrace || !/\{(?:(?!\{).)*\}/.test(pattern)) {
+      if (options.nobrace || !/\{(?:(?!\{).)*\}/.test(pattern)) {
         return [pattern];
       }
       return expand(pattern);
@@ -7994,9 +7994,9 @@ var require_minimatch = __commonJS({
     var SUBPARSE = {};
     function parse3(pattern, isSub) {
       assertValidPattern(pattern);
-      var options2 = this.options;
+      var options = this.options;
       if (pattern === "**") {
-        if (!options2.noglobstar)
+        if (!options.noglobstar)
           return GLOBSTAR;
         else
           pattern = "*";
@@ -8004,7 +8004,7 @@ var require_minimatch = __commonJS({
       if (pattern === "")
         return "";
       var re2 = "";
-      var hasMagic = !!options2.nocase;
+      var hasMagic = !!options.nocase;
       var escaping = false;
       var patternListStack = [];
       var negativeLists = [];
@@ -8012,7 +8012,7 @@ var require_minimatch = __commonJS({
       var inClass = false;
       var reClassStart = -1;
       var classStart = -1;
-      var patternStart = pattern.charAt(0) === "." ? "" : options2.dot ? "(?!(?:^|\\/)\\.{1,2}(?:$|\\/))" : "(?!\\.)";
+      var patternStart = pattern.charAt(0) === "." ? "" : options.dot ? "(?!(?:^|\\/)\\.{1,2}(?:$|\\/))" : "(?!\\.)";
       var self = this;
       function clearStateChar() {
         if (stateChar) {
@@ -8064,7 +8064,7 @@ var require_minimatch = __commonJS({
             self.debug("call clearStateChar %j", stateChar);
             clearStateChar();
             stateChar = c;
-            if (options2.noext)
+            if (options.noext)
               clearStateChar();
             continue;
           case "(":
@@ -8214,7 +8214,7 @@ var require_minimatch = __commonJS({
       if (!hasMagic) {
         return globUnescape(pattern);
       }
-      var flags = options2.nocase ? "i" : "";
+      var flags = options.nocase ? "i" : "";
       try {
         var regExp = new RegExp("^" + re2 + "$", flags);
       } catch (er) {
@@ -8224,8 +8224,8 @@ var require_minimatch = __commonJS({
       regExp._src = re2;
       return regExp;
     }
-    minimatch.makeRe = function(pattern, options2) {
-      return new Minimatch(pattern, options2 || {}).makeRe();
+    minimatch.makeRe = function(pattern, options) {
+      return new Minimatch(pattern, options || {}).makeRe();
     };
     Minimatch.prototype.makeRe = makeRe;
     function makeRe() {
@@ -8236,9 +8236,9 @@ var require_minimatch = __commonJS({
         this.regexp = false;
         return this.regexp;
       }
-      var options2 = this.options;
-      var twoStar = options2.noglobstar ? star : options2.dot ? twoStarDot : twoStarNoDot;
-      var flags = options2.nocase ? "i" : "";
+      var options = this.options;
+      var twoStar = options.noglobstar ? star : options.dot ? twoStarDot : twoStarNoDot;
+      var flags = options.nocase ? "i" : "";
       var re2 = set2.map(function(pattern) {
         return pattern.map(function(p) {
           return p === GLOBSTAR ? twoStar : typeof p === "string" ? regExpEscape(p) : p._src;
@@ -8254,9 +8254,9 @@ var require_minimatch = __commonJS({
       }
       return this.regexp;
     }
-    minimatch.match = function(list, pattern, options2) {
-      options2 = options2 || {};
-      var mm = new Minimatch(pattern, options2);
+    minimatch.match = function(list, pattern, options) {
+      options = options || {};
+      var mm = new Minimatch(pattern, options);
       list = list.filter(function(f) {
         return mm.match(f);
       });
@@ -8275,7 +8275,7 @@ var require_minimatch = __commonJS({
         return f === "";
       if (f === "/" && partial)
         return true;
-      var options2 = this.options;
+      var options = this.options;
       if (path5.sep !== "/") {
         f = f.split(path5.sep).join("/");
       }
@@ -8293,22 +8293,22 @@ var require_minimatch = __commonJS({
       for (i = 0; i < set2.length; i++) {
         var pattern = set2[i];
         var file = f;
-        if (options2.matchBase && pattern.length === 1) {
+        if (options.matchBase && pattern.length === 1) {
           file = [filename];
         }
         var hit = this.matchOne(file, pattern, partial);
         if (hit) {
-          if (options2.flipNegate)
+          if (options.flipNegate)
             return true;
           return !this.negate;
         }
       }
-      if (options2.flipNegate)
+      if (options.flipNegate)
         return false;
       return this.negate;
     };
     Minimatch.prototype.matchOne = function(file, pattern, partial) {
-      var options2 = this.options;
+      var options = this.options;
       this.debug(
         "matchOne",
         { "this": this, file, pattern }
@@ -8328,7 +8328,7 @@ var require_minimatch = __commonJS({
           if (pr === pl) {
             this.debug("** at the end");
             for (; fi < fl; fi++) {
-              if (file[fi] === "." || file[fi] === ".." || !options2.dot && file[fi].charAt(0) === ".")
+              if (file[fi] === "." || file[fi] === ".." || !options.dot && file[fi].charAt(0) === ".")
                 return false;
             }
             return true;
@@ -8340,7 +8340,7 @@ var require_minimatch = __commonJS({
               this.debug("globstar found match!", fr, fl, swallowee);
               return true;
             } else {
-              if (swallowee === "." || swallowee === ".." || !options2.dot && swallowee.charAt(0) === ".") {
+              if (swallowee === "." || swallowee === ".." || !options.dot && swallowee.charAt(0) === ".") {
                 this.debug("dot detected!", file, fr, pattern, pr);
                 break;
               }
@@ -8838,10 +8838,10 @@ var require_internal_globber = __commonJS({
     var internal_search_state_1 = require_internal_search_state();
     var IS_WINDOWS = process.platform === "win32";
     var DefaultGlobber = class _DefaultGlobber {
-      constructor(options2) {
+      constructor(options) {
         this.patterns = [];
         this.searchPaths = [];
-        this.options = globOptionsHelper.getOptions(options2);
+        this.options = globOptionsHelper.getOptions(options);
       }
       getSearchPaths() {
         return this.searchPaths.slice();
@@ -8871,11 +8871,11 @@ var require_internal_globber = __commonJS({
       }
       globGenerator() {
         return __asyncGenerator2(this, arguments, function* globGenerator_1() {
-          const options2 = globOptionsHelper.getOptions(this.options);
+          const options = globOptionsHelper.getOptions(this.options);
           const patterns = [];
           for (const pattern of this.patterns) {
             patterns.push(pattern);
-            if (options2.implicitDescendants && (pattern.trailingSeparator || pattern.segments[pattern.segments.length - 1] !== "**")) {
+            if (options.implicitDescendants && (pattern.trailingSeparator || pattern.segments[pattern.segments.length - 1] !== "**")) {
               patterns.push(new internal_pattern_1.Pattern(pattern.negate, true, pattern.segments.concat("**")));
             }
           }
@@ -8901,7 +8901,7 @@ var require_internal_globber = __commonJS({
               continue;
             }
             const stats = yield __await2(
-              _DefaultGlobber.stat(item, options2, traversalChain)
+              _DefaultGlobber.stat(item, options, traversalChain)
               // Broken symlink, or symlink cycle detected, or no longer exists
             );
             if (!stats) {
@@ -8925,9 +8925,9 @@ var require_internal_globber = __commonJS({
       /**
        * Constructs a DefaultGlobber
        */
-      static create(patterns, options2) {
+      static create(patterns, options) {
         return __awaiter(this, void 0, void 0, function* () {
-          const result = new _DefaultGlobber(options2);
+          const result = new _DefaultGlobber(options);
           if (IS_WINDOWS) {
             patterns = patterns.replace(/\r\n/g, "\n");
             patterns = patterns.replace(/\r/g, "\n");
@@ -8944,15 +8944,15 @@ var require_internal_globber = __commonJS({
           return result;
         });
       }
-      static stat(item, options2, traversalChain) {
+      static stat(item, options, traversalChain) {
         return __awaiter(this, void 0, void 0, function* () {
           let stats;
-          if (options2.followSymbolicLinks) {
+          if (options.followSymbolicLinks) {
             try {
               stats = yield fs6.promises.stat(item.path);
             } catch (err) {
               if (err.code === "ENOENT") {
-                if (options2.omitBrokenSymbolicLinks) {
+                if (options.omitBrokenSymbolicLinks) {
                   core7.debug(`Broken symlink '${item.path}'`);
                   return void 0;
                 }
@@ -8963,7 +8963,7 @@ var require_internal_globber = __commonJS({
           } else {
             stats = yield fs6.promises.lstat(item.path);
           }
-          if (stats.isDirectory() && options2.followSymbolicLinks) {
+          if (stats.isDirectory() && options.followSymbolicLinks) {
             const realPath = yield fs6.promises.realpath(item.path);
             while (traversalChain.length >= item.level) {
               traversalChain.pop();
@@ -9016,9 +9016,9 @@ var require_glob = __commonJS({
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.create = void 0;
     var internal_globber_1 = require_internal_globber();
-    function create(patterns, options2) {
+    function create(patterns, options) {
       return __awaiter(this, void 0, void 0, function* () {
-        return yield internal_globber_1.DefaultGlobber.create(patterns, options2);
+        return yield internal_globber_1.DefaultGlobber.create(patterns, options);
       });
     }
     exports.create = create;
@@ -9164,10 +9164,10 @@ var require_semver2 = __commonJS({
     }
     var i;
     exports.parse = parse3;
-    function parse3(version3, options2) {
-      if (!options2 || typeof options2 !== "object") {
-        options2 = {
-          loose: !!options2,
+    function parse3(version3, options) {
+      if (!options || typeof options !== "object") {
+        options = {
+          loose: !!options,
           includePrerelease: false
         };
       }
@@ -9180,36 +9180,36 @@ var require_semver2 = __commonJS({
       if (version3.length > MAX_LENGTH) {
         return null;
       }
-      var r = options2.loose ? safeRe[t.LOOSE] : safeRe[t.FULL];
+      var r = options.loose ? safeRe[t.LOOSE] : safeRe[t.FULL];
       if (!r.test(version3)) {
         return null;
       }
       try {
-        return new SemVer(version3, options2);
+        return new SemVer(version3, options);
       } catch (er) {
         return null;
       }
     }
     exports.valid = valid;
-    function valid(version3, options2) {
-      var v = parse3(version3, options2);
+    function valid(version3, options) {
+      var v = parse3(version3, options);
       return v ? v.version : null;
     }
     exports.clean = clean;
-    function clean(version3, options2) {
-      var s = parse3(version3.trim().replace(/^[=v]+/, ""), options2);
+    function clean(version3, options) {
+      var s = parse3(version3.trim().replace(/^[=v]+/, ""), options);
       return s ? s.version : null;
     }
     exports.SemVer = SemVer;
-    function SemVer(version3, options2) {
-      if (!options2 || typeof options2 !== "object") {
-        options2 = {
-          loose: !!options2,
+    function SemVer(version3, options) {
+      if (!options || typeof options !== "object") {
+        options = {
+          loose: !!options,
           includePrerelease: false
         };
       }
       if (version3 instanceof SemVer) {
-        if (version3.loose === options2.loose) {
+        if (version3.loose === options.loose) {
           return version3;
         } else {
           version3 = version3.version;
@@ -9221,12 +9221,12 @@ var require_semver2 = __commonJS({
         throw new TypeError("version is longer than " + MAX_LENGTH + " characters");
       }
       if (!(this instanceof SemVer)) {
-        return new SemVer(version3, options2);
+        return new SemVer(version3, options);
       }
-      debug("SemVer", version3, options2);
-      this.options = options2;
-      this.loose = !!options2.loose;
-      var m = version3.trim().match(options2.loose ? safeRe[t.LOOSE] : safeRe[t.FULL]);
+      debug("SemVer", version3, options);
+      this.options = options;
+      this.loose = !!options.loose;
+      var m = version3.trim().match(options.loose ? safeRe[t.LOOSE] : safeRe[t.FULL]);
       if (!m) {
         throw new TypeError("Invalid Version: " + version3);
       }
@@ -9561,27 +9561,27 @@ var require_semver2 = __commonJS({
       }
     }
     exports.Comparator = Comparator;
-    function Comparator(comp26, options2) {
-      if (!options2 || typeof options2 !== "object") {
-        options2 = {
-          loose: !!options2,
+    function Comparator(comp26, options) {
+      if (!options || typeof options !== "object") {
+        options = {
+          loose: !!options,
           includePrerelease: false
         };
       }
       if (comp26 instanceof Comparator) {
-        if (comp26.loose === !!options2.loose) {
+        if (comp26.loose === !!options.loose) {
           return comp26;
         } else {
           comp26 = comp26.value;
         }
       }
       if (!(this instanceof Comparator)) {
-        return new Comparator(comp26, options2);
+        return new Comparator(comp26, options);
       }
       comp26 = comp26.trim().split(/\s+/).join(" ");
-      debug("comparator", comp26, options2);
-      this.options = options2;
-      this.loose = !!options2.loose;
+      debug("comparator", comp26, options);
+      this.options = options;
+      this.loose = !!options.loose;
       this.parse(comp26);
       if (this.semver === ANY) {
         this.value = "";
@@ -9624,13 +9624,13 @@ var require_semver2 = __commonJS({
       }
       return cmp(version3, this.operator, this.semver, this.options);
     };
-    Comparator.prototype.intersects = function(comp26, options2) {
+    Comparator.prototype.intersects = function(comp26, options) {
       if (!(comp26 instanceof Comparator)) {
         throw new TypeError("a Comparator is required");
       }
-      if (!options2 || typeof options2 !== "object") {
-        options2 = {
-          loose: !!options2,
+      if (!options || typeof options !== "object") {
+        options = {
+          loose: !!options,
           includePrerelease: false
         };
       }
@@ -9639,47 +9639,47 @@ var require_semver2 = __commonJS({
         if (this.value === "") {
           return true;
         }
-        rangeTmp = new Range(comp26.value, options2);
-        return satisfies(this.value, rangeTmp, options2);
+        rangeTmp = new Range(comp26.value, options);
+        return satisfies(this.value, rangeTmp, options);
       } else if (comp26.operator === "") {
         if (comp26.value === "") {
           return true;
         }
-        rangeTmp = new Range(this.value, options2);
-        return satisfies(comp26.semver, rangeTmp, options2);
+        rangeTmp = new Range(this.value, options);
+        return satisfies(comp26.semver, rangeTmp, options);
       }
       var sameDirectionIncreasing = (this.operator === ">=" || this.operator === ">") && (comp26.operator === ">=" || comp26.operator === ">");
       var sameDirectionDecreasing = (this.operator === "<=" || this.operator === "<") && (comp26.operator === "<=" || comp26.operator === "<");
       var sameSemVer = this.semver.version === comp26.semver.version;
       var differentDirectionsInclusive = (this.operator === ">=" || this.operator === "<=") && (comp26.operator === ">=" || comp26.operator === "<=");
-      var oppositeDirectionsLessThan = cmp(this.semver, "<", comp26.semver, options2) && ((this.operator === ">=" || this.operator === ">") && (comp26.operator === "<=" || comp26.operator === "<"));
-      var oppositeDirectionsGreaterThan = cmp(this.semver, ">", comp26.semver, options2) && ((this.operator === "<=" || this.operator === "<") && (comp26.operator === ">=" || comp26.operator === ">"));
+      var oppositeDirectionsLessThan = cmp(this.semver, "<", comp26.semver, options) && ((this.operator === ">=" || this.operator === ">") && (comp26.operator === "<=" || comp26.operator === "<"));
+      var oppositeDirectionsGreaterThan = cmp(this.semver, ">", comp26.semver, options) && ((this.operator === "<=" || this.operator === "<") && (comp26.operator === ">=" || comp26.operator === ">"));
       return sameDirectionIncreasing || sameDirectionDecreasing || sameSemVer && differentDirectionsInclusive || oppositeDirectionsLessThan || oppositeDirectionsGreaterThan;
     };
     exports.Range = Range;
-    function Range(range2, options2) {
-      if (!options2 || typeof options2 !== "object") {
-        options2 = {
-          loose: !!options2,
+    function Range(range2, options) {
+      if (!options || typeof options !== "object") {
+        options = {
+          loose: !!options,
           includePrerelease: false
         };
       }
       if (range2 instanceof Range) {
-        if (range2.loose === !!options2.loose && range2.includePrerelease === !!options2.includePrerelease) {
+        if (range2.loose === !!options.loose && range2.includePrerelease === !!options.includePrerelease) {
           return range2;
         } else {
-          return new Range(range2.raw, options2);
+          return new Range(range2.raw, options);
         }
       }
       if (range2 instanceof Comparator) {
-        return new Range(range2.value, options2);
+        return new Range(range2.value, options);
       }
       if (!(this instanceof Range)) {
-        return new Range(range2, options2);
+        return new Range(range2, options);
       }
-      this.options = options2;
-      this.loose = !!options2.loose;
-      this.includePrerelease = !!options2.includePrerelease;
+      this.options = options;
+      this.loose = !!options.loose;
+      this.includePrerelease = !!options.includePrerelease;
       this.raw = range2.trim().split(/\s+/).join(" ");
       this.set = this.raw.split("||").map(function(range3) {
         return this.parseRange(range3.trim());
@@ -9724,62 +9724,62 @@ var require_semver2 = __commonJS({
       }, this);
       return set2;
     };
-    Range.prototype.intersects = function(range2, options2) {
+    Range.prototype.intersects = function(range2, options) {
       if (!(range2 instanceof Range)) {
         throw new TypeError("a Range is required");
       }
       return this.set.some(function(thisComparators) {
-        return isSatisfiable(thisComparators, options2) && range2.set.some(function(rangeComparators) {
-          return isSatisfiable(rangeComparators, options2) && thisComparators.every(function(thisComparator) {
+        return isSatisfiable(thisComparators, options) && range2.set.some(function(rangeComparators) {
+          return isSatisfiable(rangeComparators, options) && thisComparators.every(function(thisComparator) {
             return rangeComparators.every(function(rangeComparator) {
-              return thisComparator.intersects(rangeComparator, options2);
+              return thisComparator.intersects(rangeComparator, options);
             });
           });
         });
       });
     };
-    function isSatisfiable(comparators, options2) {
+    function isSatisfiable(comparators, options) {
       var result = true;
       var remainingComparators = comparators.slice();
       var testComparator = remainingComparators.pop();
       while (result && remainingComparators.length) {
         result = remainingComparators.every(function(otherComparator) {
-          return testComparator.intersects(otherComparator, options2);
+          return testComparator.intersects(otherComparator, options);
         });
         testComparator = remainingComparators.pop();
       }
       return result;
     }
     exports.toComparators = toComparators;
-    function toComparators(range2, options2) {
-      return new Range(range2, options2).set.map(function(comp26) {
+    function toComparators(range2, options) {
+      return new Range(range2, options).set.map(function(comp26) {
         return comp26.map(function(c) {
           return c.value;
         }).join(" ").trim().split(" ");
       });
     }
-    function parseComparator(comp26, options2) {
-      debug("comp", comp26, options2);
-      comp26 = replaceCarets(comp26, options2);
+    function parseComparator(comp26, options) {
+      debug("comp", comp26, options);
+      comp26 = replaceCarets(comp26, options);
       debug("caret", comp26);
-      comp26 = replaceTildes(comp26, options2);
+      comp26 = replaceTildes(comp26, options);
       debug("tildes", comp26);
-      comp26 = replaceXRanges(comp26, options2);
+      comp26 = replaceXRanges(comp26, options);
       debug("xrange", comp26);
-      comp26 = replaceStars(comp26, options2);
+      comp26 = replaceStars(comp26, options);
       debug("stars", comp26);
       return comp26;
     }
     function isX(id) {
       return !id || id.toLowerCase() === "x" || id === "*";
     }
-    function replaceTildes(comp26, options2) {
+    function replaceTildes(comp26, options) {
       return comp26.trim().split(/\s+/).map(function(comp27) {
-        return replaceTilde(comp27, options2);
+        return replaceTilde(comp27, options);
       }).join(" ");
     }
-    function replaceTilde(comp26, options2) {
-      var r = options2.loose ? safeRe[t.TILDELOOSE] : safeRe[t.TILDE];
+    function replaceTilde(comp26, options) {
+      var r = options.loose ? safeRe[t.TILDELOOSE] : safeRe[t.TILDE];
       return comp26.replace(r, function(_, M, m, p, pr) {
         debug("tilde", comp26, _, M, m, p, pr);
         var ret;
@@ -9799,14 +9799,14 @@ var require_semver2 = __commonJS({
         return ret;
       });
     }
-    function replaceCarets(comp26, options2) {
+    function replaceCarets(comp26, options) {
       return comp26.trim().split(/\s+/).map(function(comp27) {
-        return replaceCaret(comp27, options2);
+        return replaceCaret(comp27, options);
       }).join(" ");
     }
-    function replaceCaret(comp26, options2) {
-      debug("caret", comp26, options2);
-      var r = options2.loose ? safeRe[t.CARETLOOSE] : safeRe[t.CARET];
+    function replaceCaret(comp26, options) {
+      debug("caret", comp26, options);
+      var r = options.loose ? safeRe[t.CARETLOOSE] : safeRe[t.CARET];
       return comp26.replace(r, function(_, M, m, p, pr) {
         debug("caret", comp26, _, M, m, p, pr);
         var ret;
@@ -9847,15 +9847,15 @@ var require_semver2 = __commonJS({
         return ret;
       });
     }
-    function replaceXRanges(comp26, options2) {
-      debug("replaceXRanges", comp26, options2);
+    function replaceXRanges(comp26, options) {
+      debug("replaceXRanges", comp26, options);
       return comp26.split(/\s+/).map(function(comp27) {
-        return replaceXRange(comp27, options2);
+        return replaceXRange(comp27, options);
       }).join(" ");
     }
-    function replaceXRange(comp26, options2) {
+    function replaceXRange(comp26, options) {
       comp26 = comp26.trim();
-      var r = options2.loose ? safeRe[t.XRANGELOOSE] : safeRe[t.XRANGE];
+      var r = options.loose ? safeRe[t.XRANGELOOSE] : safeRe[t.XRANGE];
       return comp26.replace(r, function(ret, gtlt, M, m, p, pr) {
         debug("xRange", comp26, ret, gtlt, M, m, p, pr);
         var xM = isX(M);
@@ -9865,7 +9865,7 @@ var require_semver2 = __commonJS({
         if (gtlt === "=" && anyX) {
           gtlt = "";
         }
-        pr = options2.includePrerelease ? "-0" : "";
+        pr = options.includePrerelease ? "-0" : "";
         if (xM) {
           if (gtlt === ">" || gtlt === "<") {
             ret = "<0.0.0-0";
@@ -9905,8 +9905,8 @@ var require_semver2 = __commonJS({
         return ret;
       });
     }
-    function replaceStars(comp26, options2) {
-      debug("replaceStars", comp26, options2);
+    function replaceStars(comp26, options) {
+      debug("replaceStars", comp26, options);
       return comp26.trim().replace(safeRe[t.STAR], "");
     }
     function hyphenReplace($0, from, fM, fm, fp, fpr, fb, to, tM, tm, tp, tpr, tb) {
@@ -9950,13 +9950,13 @@ var require_semver2 = __commonJS({
       }
       return false;
     };
-    function testSet(set2, version3, options2) {
+    function testSet(set2, version3, options) {
       for (var i2 = 0; i2 < set2.length; i2++) {
         if (!set2[i2].test(version3)) {
           return false;
         }
       }
-      if (version3.prerelease.length && !options2.includePrerelease) {
+      if (version3.prerelease.length && !options.includePrerelease) {
         for (i2 = 0; i2 < set2.length; i2++) {
           debug(set2[i2].semver);
           if (set2[i2].semver === ANY) {
@@ -9974,20 +9974,20 @@ var require_semver2 = __commonJS({
       return true;
     }
     exports.satisfies = satisfies;
-    function satisfies(version3, range2, options2) {
+    function satisfies(version3, range2, options) {
       try {
-        range2 = new Range(range2, options2);
+        range2 = new Range(range2, options);
       } catch (er) {
         return false;
       }
       return range2.test(version3);
     }
     exports.maxSatisfying = maxSatisfying;
-    function maxSatisfying(versions, range2, options2) {
+    function maxSatisfying(versions, range2, options) {
       var max = null;
       var maxSV = null;
       try {
-        var rangeObj = new Range(range2, options2);
+        var rangeObj = new Range(range2, options);
       } catch (er) {
         return null;
       }
@@ -9995,18 +9995,18 @@ var require_semver2 = __commonJS({
         if (rangeObj.test(v)) {
           if (!max || maxSV.compare(v) === -1) {
             max = v;
-            maxSV = new SemVer(max, options2);
+            maxSV = new SemVer(max, options);
           }
         }
       });
       return max;
     }
     exports.minSatisfying = minSatisfying;
-    function minSatisfying(versions, range2, options2) {
+    function minSatisfying(versions, range2, options) {
       var min = null;
       var minSV = null;
       try {
-        var rangeObj = new Range(range2, options2);
+        var rangeObj = new Range(range2, options);
       } catch (er) {
         return null;
       }
@@ -10014,7 +10014,7 @@ var require_semver2 = __commonJS({
         if (rangeObj.test(v)) {
           if (!min || minSV.compare(v) === 1) {
             min = v;
-            minSV = new SemVer(min, options2);
+            minSV = new SemVer(min, options);
           }
         }
       });
@@ -10064,25 +10064,25 @@ var require_semver2 = __commonJS({
       return null;
     }
     exports.validRange = validRange;
-    function validRange(range2, options2) {
+    function validRange(range2, options) {
       try {
-        return new Range(range2, options2).range || "*";
+        return new Range(range2, options).range || "*";
       } catch (er) {
         return null;
       }
     }
     exports.ltr = ltr;
-    function ltr(version3, range2, options2) {
-      return outside(version3, range2, "<", options2);
+    function ltr(version3, range2, options) {
+      return outside(version3, range2, "<", options);
     }
     exports.gtr = gtr;
-    function gtr(version3, range2, options2) {
-      return outside(version3, range2, ">", options2);
+    function gtr(version3, range2, options) {
+      return outside(version3, range2, ">", options);
     }
     exports.outside = outside;
-    function outside(version3, range2, hilo, options2) {
-      version3 = new SemVer(version3, options2);
-      range2 = new Range(range2, options2);
+    function outside(version3, range2, hilo, options) {
+      version3 = new SemVer(version3, options);
+      range2 = new Range(range2, options);
       var gtfn, ltefn, ltfn, comp26, ecomp;
       switch (hilo) {
         case ">":
@@ -10102,7 +10102,7 @@ var require_semver2 = __commonJS({
         default:
           throw new TypeError('Must provide a hilo val of "<" or ">"');
       }
-      if (satisfies(version3, range2, options2)) {
+      if (satisfies(version3, range2, options)) {
         return false;
       }
       for (var i2 = 0; i2 < range2.set.length; ++i2) {
@@ -10115,9 +10115,9 @@ var require_semver2 = __commonJS({
           }
           high = high || comparator;
           low = low || comparator;
-          if (gtfn(comparator.semver, high.semver, options2)) {
+          if (gtfn(comparator.semver, high.semver, options)) {
             high = comparator;
-          } else if (ltfn(comparator.semver, low.semver, options2)) {
+          } else if (ltfn(comparator.semver, low.semver, options)) {
             low = comparator;
           }
         });
@@ -10133,18 +10133,18 @@ var require_semver2 = __commonJS({
       return true;
     }
     exports.prerelease = prerelease;
-    function prerelease(version3, options2) {
-      var parsed = parse3(version3, options2);
+    function prerelease(version3, options) {
+      var parsed = parse3(version3, options);
       return parsed && parsed.prerelease.length ? parsed.prerelease : null;
     }
     exports.intersects = intersects;
-    function intersects(r1, r2, options2) {
-      r1 = new Range(r1, options2);
-      r2 = new Range(r2, options2);
+    function intersects(r1, r2, options) {
+      r1 = new Range(r1, options);
+      r2 = new Range(r2, options);
       return r1.intersects(r2);
     }
     exports.coerce = coerce;
-    function coerce(version3, options2) {
+    function coerce(version3, options) {
       if (version3 instanceof SemVer) {
         return version3;
       }
@@ -10154,9 +10154,9 @@ var require_semver2 = __commonJS({
       if (typeof version3 !== "string") {
         return null;
       }
-      options2 = options2 || {};
+      options = options || {};
       var match2 = null;
-      if (!options2.rtl) {
+      if (!options.rtl) {
         match2 = version3.match(safeRe[t.COERCE]);
       } else {
         var next;
@@ -10171,7 +10171,7 @@ var require_semver2 = __commonJS({
       if (match2 === null) {
         return null;
       }
-      return parse3(match2[2] + "." + (match2[3] || "0") + "." + (match2[4] || "0"), options2);
+      return parse3(match2[2] + "." + (match2[3] || "0") + "." + (match2[4] || "0"), options);
     }
   }
 });
@@ -10186,12 +10186,12 @@ var require_v1 = __commonJS({
     var _clockseq2;
     var _lastMSecs2 = 0;
     var _lastNSecs2 = 0;
-    function v12(options2, buf, offset) {
+    function v12(options, buf, offset) {
       var i = buf && offset || 0;
       var b = buf || [];
-      options2 = options2 || {};
-      var node = options2.node || _nodeId2;
-      var clockseq = options2.clockseq !== void 0 ? options2.clockseq : _clockseq2;
+      options = options || {};
+      var node = options.node || _nodeId2;
+      var clockseq = options.clockseq !== void 0 ? options.clockseq : _clockseq2;
       if (node == null || clockseq == null) {
         var seedBytes = rng2();
         if (node == null) {
@@ -10208,13 +10208,13 @@ var require_v1 = __commonJS({
           clockseq = _clockseq2 = (seedBytes[6] << 8 | seedBytes[7]) & 16383;
         }
       }
-      var msecs = options2.msecs !== void 0 ? options2.msecs : (/* @__PURE__ */ new Date()).getTime();
-      var nsecs = options2.nsecs !== void 0 ? options2.nsecs : _lastNSecs2 + 1;
+      var msecs = options.msecs !== void 0 ? options.msecs : (/* @__PURE__ */ new Date()).getTime();
+      var nsecs = options.nsecs !== void 0 ? options.nsecs : _lastNSecs2 + 1;
       var dt = msecs - _lastMSecs2 + (nsecs - _lastNSecs2) / 1e4;
-      if (dt < 0 && options2.clockseq === void 0) {
+      if (dt < 0 && options.clockseq === void 0) {
         clockseq = clockseq + 1 & 16383;
       }
-      if ((dt < 0 || msecs > _lastMSecs2) && options2.nsecs === void 0) {
+      if ((dt < 0 || msecs > _lastMSecs2) && options.nsecs === void 0) {
         nsecs = 0;
       }
       if (nsecs >= 1e4) {
@@ -12899,7 +12899,7 @@ var require_constants2 = __commonJS({
     var channel;
     var structuredClone = globalThis.structuredClone ?? // https://github.com/nodejs/node/blob/b27ae24dcc4251bad726d9d84baf678d1f707fed/lib/internal/structured_clone.js
     // structuredClone was added in v17.0.0, but fetch supports v16.8
-    function structuredClone2(value, options2 = void 0) {
+    function structuredClone2(value, options = void 0) {
       if (arguments.length === 0) {
         throw new TypeError("missing argument");
       }
@@ -12908,7 +12908,7 @@ var require_constants2 = __commonJS({
       }
       channel.port1.unref();
       channel.port2.unref();
-      channel.port1.postMessage(value, options2?.transfer);
+      channel.port1.postMessage(value, options?.transfer);
       return receiveMessageOnPort(channel.port2).message;
     };
     module2.exports = {
@@ -13726,8 +13726,8 @@ var require_webidl = __commonJS({
             message: `Expected ${dictionary} to be one of: Null, Undefined, Object.`
           });
         }
-        for (const options2 of converters) {
-          const { key, defaultValue, required, converter } = options2;
+        for (const options of converters) {
+          const { key, defaultValue, required, converter } = options;
           if (required === true) {
             if (!hasOwn(dictionary, key)) {
               throw webidl.errors.exception({
@@ -13737,16 +13737,16 @@ var require_webidl = __commonJS({
             }
           }
           let value = dictionary[key];
-          const hasDefault = hasOwn(options2, "defaultValue");
+          const hasDefault = hasOwn(options, "defaultValue");
           if (hasDefault && value !== null) {
             value = value ?? defaultValue;
           }
           if (required || hasDefault || value !== void 0) {
             value = converter(value);
-            if (options2.allowedValues && !options2.allowedValues.includes(value)) {
+            if (options.allowedValues && !options.allowedValues.includes(value)) {
               throw webidl.errors.exception({
                 header: "Dictionary",
-                message: `${value} is not an accepted type. Expected one of ${options2.allowedValues.join(", ")}.`
+                message: `${value} is not an accepted type. Expected one of ${options.allowedValues.join(", ")}.`
               });
             }
             dict[key] = value;
@@ -14188,13 +14188,13 @@ var require_file = __commonJS({
     var { parseMIMEType, serializeAMimeType } = require_dataURL();
     var { kEnumerableProperty } = require_util();
     var File = class _File extends Blob4 {
-      constructor(fileBits, fileName, options2 = {}) {
+      constructor(fileBits, fileName, options = {}) {
         webidl.argumentLengthCheck(arguments, 2, { header: "File constructor" });
         fileBits = webidl.converters["sequence<BlobPart>"](fileBits);
         fileName = webidl.converters.USVString(fileName);
-        options2 = webidl.converters.FilePropertyBag(options2);
+        options = webidl.converters.FilePropertyBag(options);
         const n = fileName;
-        let t = options2.type;
+        let t = options.type;
         let d;
         substep: {
           if (t) {
@@ -14205,9 +14205,9 @@ var require_file = __commonJS({
             }
             t = serializeAMimeType(t).toLowerCase();
           }
-          d = options2.lastModified;
+          d = options.lastModified;
         }
-        super(processBlobParts(fileBits, options2), { type: t });
+        super(processBlobParts(fileBits, options), { type: t });
         this[kState] = {
           name: n,
           lastModified: d,
@@ -14228,10 +14228,10 @@ var require_file = __commonJS({
       }
     };
     var FileLike = class _FileLike {
-      constructor(blobLike, fileName, options2 = {}) {
+      constructor(blobLike, fileName, options = {}) {
         const n = fileName;
-        const t = options2.type;
-        const d = options2.lastModified ?? Date.now();
+        const t = options.type;
+        const d = options.lastModified ?? Date.now();
         this[kState] = {
           blobLike,
           name: n,
@@ -14324,12 +14324,12 @@ var require_file = __commonJS({
         defaultValue: "transparent"
       }
     ]);
-    function processBlobParts(parts, options2) {
+    function processBlobParts(parts, options) {
       const bytes = [];
       for (const element of parts) {
         if (typeof element === "string") {
           let s = element;
-          if (options2.endings === "native") {
+          if (options.endings === "native") {
             s = convertLineEndingsNative(s);
           }
           bytes.push(new TextEncoder().encode(s));
@@ -14504,11 +14504,11 @@ var require_formdata = __commonJS({
           value = value instanceof Blob4 ? new File([value], "blob", { type: value.type }) : new FileLike(value, "blob", { type: value.type });
         }
         if (filename !== void 0) {
-          const options2 = {
+          const options = {
             type: value.type,
             lastModified: value.lastModified
           };
-          value = NativeFile && value instanceof NativeFile || value instanceof UndiciFile ? new File([value], filename, options2) : new FileLike(value, filename, options2);
+          value = NativeFile && value instanceof NativeFile || value instanceof UndiciFile ? new File([value], filename, options) : new FileLike(value, filename, options);
         }
       }
       return { name, value };
@@ -15461,7 +15461,7 @@ var require_connect = __commonJS({
       if (maxCachedSessions != null && (!Number.isInteger(maxCachedSessions) || maxCachedSessions < 0)) {
         throw new InvalidArgumentError("maxCachedSessions must be a positive integer or zero");
       }
-      const options2 = { path: socketPath, ...opts };
+      const options = { path: socketPath, ...opts };
       const sessionCache = new SessionCache(maxCachedSessions == null ? 100 : maxCachedSessions);
       timeout = timeout == null ? 1e4 : timeout;
       allowH2 = allowH2 != null ? allowH2 : false;
@@ -15471,14 +15471,14 @@ var require_connect = __commonJS({
           if (!tls) {
             tls = require("tls");
           }
-          servername = servername || options2.servername || util4.getServerName(host) || null;
+          servername = servername || options.servername || util4.getServerName(host) || null;
           const sessionKey = servername || hostname;
           const session = sessionCache.get(sessionKey) || null;
           assert(sessionKey);
           socket = tls.connect({
             highWaterMark: 16384,
             // TLS in node can't have bigger HWM anyway...
-            ...options2,
+            ...options,
             servername,
             session,
             localAddress,
@@ -15497,14 +15497,14 @@ var require_connect = __commonJS({
           socket = net.connect({
             highWaterMark: 64 * 1024,
             // Same as nodejs fs streams.
-            ...options2,
+            ...options,
             localAddress,
             port: port || 80,
             host: hostname
           });
         }
-        if (options2.keepAlive == null || options2.keepAlive) {
-          const keepAliveInitialDelay = options2.keepAliveInitialDelay === void 0 ? 6e4 : options2.keepAliveInitialDelay;
+        if (options.keepAlive == null || options.keepAlive) {
+          const keepAliveInitialDelay = options.keepAliveInitialDelay === void 0 ? 6e4 : options.keepAliveInitialDelay;
           socket.setKeepAlive(true, keepAliveInitialDelay);
         }
         const cancelTimeout = setupTimeout(() => onConnectTimeout(socket), timeout);
@@ -18078,7 +18078,7 @@ var require_pool = __commonJS({
         autoSelectFamily,
         autoSelectFamilyAttemptTimeout,
         allowH2,
-        ...options2
+        ...options
       } = {}) {
         super();
         if (connections != null && (!Number.isFinite(connections) || connections < 0)) {
@@ -18101,11 +18101,11 @@ var require_pool = __commonJS({
             ...connect
           });
         }
-        this[kInterceptors] = options2.interceptors && options2.interceptors.Pool && Array.isArray(options2.interceptors.Pool) ? options2.interceptors.Pool : [];
+        this[kInterceptors] = options.interceptors && options.interceptors.Pool && Array.isArray(options.interceptors.Pool) ? options.interceptors.Pool : [];
         this[kConnections] = connections || null;
         this[kUrl] = util4.parseOrigin(origin);
-        this[kOptions] = { ...util4.deepClone(options2), connect, allowH2 };
-        this[kOptions].interceptors = options2.interceptors ? { ...options2.interceptors } : void 0;
+        this[kOptions] = { ...util4.deepClone(options), connect, allowH2 };
+        this[kOptions].interceptors = options.interceptors ? { ...options.interceptors } : void 0;
         this[kFactory] = factory;
       }
       [kGetDispatcher]() {
@@ -18326,7 +18326,7 @@ var require_agent = __commonJS({
       return opts && opts.connections === 1 ? new Client(origin, opts) : new Pool(origin, opts);
     }
     var Agent3 = class extends DispatcherBase {
-      constructor({ factory = defaultFactory, maxRedirections = 0, connect, ...options2 } = {}) {
+      constructor({ factory = defaultFactory, maxRedirections = 0, connect, ...options } = {}) {
         super();
         if (typeof factory !== "function") {
           throw new InvalidArgumentError("factory must be a function.");
@@ -18340,9 +18340,9 @@ var require_agent = __commonJS({
         if (connect && typeof connect !== "function") {
           connect = { ...connect };
         }
-        this[kInterceptors] = options2.interceptors && options2.interceptors.Agent && Array.isArray(options2.interceptors.Agent) ? options2.interceptors.Agent : [createRedirectInterceptor({ maxRedirections })];
-        this[kOptions] = { ...util4.deepClone(options2), connect };
-        this[kOptions].interceptors = options2.interceptors ? { ...options2.interceptors } : void 0;
+        this[kInterceptors] = options.interceptors && options.interceptors.Agent && Array.isArray(options.interceptors.Agent) ? options.interceptors.Agent : [createRedirectInterceptor({ maxRedirections })];
+        this[kOptions] = { ...util4.deepClone(options), connect };
+        this[kOptions].interceptors = options.interceptors ? { ...options.interceptors } : void 0;
         this[kMaxRedirections] = maxRedirections;
         this[kFactory] = factory;
         this[kClients] = /* @__PURE__ */ new Map();
@@ -23795,27 +23795,27 @@ var require_cache = __commonJS({
         }
         __privateSet(this, _relevantRequestResponseList, arguments[1]);
       }
-      async match(request, options2 = {}) {
+      async match(request, options = {}) {
         webidl.brandCheck(this, _Cache);
         webidl.argumentLengthCheck(arguments, 1, { header: "Cache.match" });
         request = webidl.converters.RequestInfo(request);
-        options2 = webidl.converters.CacheQueryOptions(options2);
-        const p = await this.matchAll(request, options2);
+        options = webidl.converters.CacheQueryOptions(options);
+        const p = await this.matchAll(request, options);
         if (p.length === 0) {
           return;
         }
         return p[0];
       }
-      async matchAll(request = void 0, options2 = {}) {
+      async matchAll(request = void 0, options = {}) {
         webidl.brandCheck(this, _Cache);
         if (request !== void 0)
           request = webidl.converters.RequestInfo(request);
-        options2 = webidl.converters.CacheQueryOptions(options2);
+        options = webidl.converters.CacheQueryOptions(options);
         let r = null;
         if (request !== void 0) {
           if (request instanceof Request2) {
             r = request[kState];
-            if (r.method !== "GET" && !options2.ignoreMethod) {
+            if (r.method !== "GET" && !options.ignoreMethod) {
               return [];
             }
           } else if (typeof request === "string") {
@@ -23828,7 +23828,7 @@ var require_cache = __commonJS({
             responses.push(requestResponse[1]);
           }
         } else {
-          const requestResponses = __privateMethod(this, _queryCache, queryCache_fn).call(this, r, options2);
+          const requestResponses = __privateMethod(this, _queryCache, queryCache_fn).call(this, r, options);
           for (const requestResponse of requestResponses) {
             responses.push(requestResponse[1]);
           }
@@ -24031,15 +24031,15 @@ var require_cache = __commonJS({
         });
         return cacheJobPromise.promise;
       }
-      async delete(request, options2 = {}) {
+      async delete(request, options = {}) {
         webidl.brandCheck(this, _Cache);
         webidl.argumentLengthCheck(arguments, 1, { header: "Cache.delete" });
         request = webidl.converters.RequestInfo(request);
-        options2 = webidl.converters.CacheQueryOptions(options2);
+        options = webidl.converters.CacheQueryOptions(options);
         let r = null;
         if (request instanceof Request2) {
           r = request[kState];
-          if (r.method !== "GET" && !options2.ignoreMethod) {
+          if (r.method !== "GET" && !options.ignoreMethod) {
             return false;
           }
         } else {
@@ -24050,7 +24050,7 @@ var require_cache = __commonJS({
         const operation = {
           type: "delete",
           request: r,
-          options: options2
+          options
         };
         operations.push(operation);
         const cacheJobPromise = createDeferredPromise();
@@ -24076,16 +24076,16 @@ var require_cache = __commonJS({
        * @param {import('../../types/cache').CacheQueryOptions} options
        * @returns {readonly Request[]}
        */
-      async keys(request = void 0, options2 = {}) {
+      async keys(request = void 0, options = {}) {
         webidl.brandCheck(this, _Cache);
         if (request !== void 0)
           request = webidl.converters.RequestInfo(request);
-        options2 = webidl.converters.CacheQueryOptions(options2);
+        options = webidl.converters.CacheQueryOptions(options);
         let r = null;
         if (request !== void 0) {
           if (request instanceof Request2) {
             r = request[kState];
-            if (r.method !== "GET" && !options2.ignoreMethod) {
+            if (r.method !== "GET" && !options.ignoreMethod) {
               return [];
             }
           } else if (typeof request === "string") {
@@ -24099,7 +24099,7 @@ var require_cache = __commonJS({
             requests.push(requestResponse[0]);
           }
         } else {
-          const requestResponses = __privateMethod(this, _queryCache, queryCache_fn).call(this, r, options2);
+          const requestResponses = __privateMethod(this, _queryCache, queryCache_fn).call(this, r, options);
           for (const requestResponse of requestResponses) {
             requests.push(requestResponse[0]);
           }
@@ -24199,29 +24199,29 @@ var require_cache = __commonJS({
       }
     };
     _queryCache = new WeakSet();
-    queryCache_fn = function(requestQuery, options2, targetStorage) {
+    queryCache_fn = function(requestQuery, options, targetStorage) {
       const resultList = [];
       const storage = targetStorage ?? __privateGet(this, _relevantRequestResponseList);
       for (const requestResponse of storage) {
         const [cachedRequest, cachedResponse] = requestResponse;
-        if (__privateMethod(this, _requestMatchesCachedItem, requestMatchesCachedItem_fn).call(this, requestQuery, cachedRequest, cachedResponse, options2)) {
+        if (__privateMethod(this, _requestMatchesCachedItem, requestMatchesCachedItem_fn).call(this, requestQuery, cachedRequest, cachedResponse, options)) {
           resultList.push(requestResponse);
         }
       }
       return resultList;
     };
     _requestMatchesCachedItem = new WeakSet();
-    requestMatchesCachedItem_fn = function(requestQuery, request, response = null, options2) {
+    requestMatchesCachedItem_fn = function(requestQuery, request, response = null, options) {
       const queryURL = new URL(requestQuery.url);
       const cachedURL = new URL(request.url);
-      if (options2?.ignoreSearch) {
+      if (options?.ignoreSearch) {
         cachedURL.search = "";
         queryURL.search = "";
       }
       if (!urlEquals(queryURL, cachedURL, true)) {
         return false;
       }
-      if (response == null || options2?.ignoreVary || !response.headersList.contains("vary")) {
+      if (response == null || options?.ignoreVary || !response.headersList.contains("vary")) {
         return true;
       }
       const fieldValues = getFieldValues(response.headersList.get("vary"));
@@ -24306,21 +24306,21 @@ var require_cachestorage = __commonJS({
           webidl.illegalConstructor();
         }
       }
-      async match(request, options2 = {}) {
+      async match(request, options = {}) {
         webidl.brandCheck(this, _CacheStorage);
         webidl.argumentLengthCheck(arguments, 1, { header: "CacheStorage.match" });
         request = webidl.converters.RequestInfo(request);
-        options2 = webidl.converters.MultiCacheQueryOptions(options2);
-        if (options2.cacheName != null) {
-          if (__privateGet(this, _caches).has(options2.cacheName)) {
-            const cacheList = __privateGet(this, _caches).get(options2.cacheName);
+        options = webidl.converters.MultiCacheQueryOptions(options);
+        if (options.cacheName != null) {
+          if (__privateGet(this, _caches).has(options.cacheName)) {
+            const cacheList = __privateGet(this, _caches).get(options.cacheName);
             const cache2 = new Cache(kConstruct, cacheList);
-            return await cache2.match(request, options2);
+            return await cache2.match(request, options);
           }
         } else {
           for (const cacheList of __privateGet(this, _caches).values()) {
             const cache2 = new Cache(kConstruct, cacheList);
-            const response = await cache2.match(request, options2);
+            const response = await cache2.match(request, options);
             if (response !== void 0) {
               return response;
             }
@@ -25266,7 +25266,7 @@ var require_connection = __commonJS({
       crypto4 = require("crypto");
     } catch {
     }
-    function establishWebSocketConnection(url2, protocols, ws, onEstablish, options2) {
+    function establishWebSocketConnection(url2, protocols, ws, onEstablish, options) {
       const requestURL = url2;
       requestURL.protocol = url2.protocol === "ws:" ? "http:" : "https:";
       const request = makeRequest({
@@ -25278,8 +25278,8 @@ var require_connection = __commonJS({
         cache: "no-store",
         redirect: "error"
       });
-      if (options2.headers) {
-        const headersList = new Headers2(options2.headers)[kHeadersList];
+      if (options.headers) {
+        const headersList = new Headers2(options.headers)[kHeadersList];
         request.headersList = headersList;
       }
       const keyValue = crypto4.randomBytes(16).toString("base64");
@@ -25292,7 +25292,7 @@ var require_connection = __commonJS({
       const controller = fetching({
         request,
         useParallelQueue: true,
-        dispatcher: options2.dispatcher ?? getGlobalDispatcher(),
+        dispatcher: options.dispatcher ?? getGlobalDispatcher(),
         processResponse(response) {
           if (response.type === "error" || response.status !== 101) {
             failWebsocketConnection(ws, "Received network error or non-101 status code.");
@@ -25740,9 +25740,9 @@ var require_websocket = __commonJS({
             code: "UNDICI-WS"
           });
         }
-        const options2 = webidl.converters["DOMString or sequence<DOMString> or WebSocketInit"](protocols);
+        const options = webidl.converters["DOMString or sequence<DOMString> or WebSocketInit"](protocols);
         url2 = webidl.converters.USVString(url2);
-        protocols = options2.protocols;
+        protocols = options.protocols;
         const baseURL = getGlobalOrigin();
         let urlRecord;
         try {
@@ -25779,7 +25779,7 @@ var require_websocket = __commonJS({
           protocols,
           this,
           (response) => __privateMethod(this, _onConnectionEstablished, onConnectionEstablished_fn).call(this, response),
-          options2
+          options
         );
         this[kReadyState] = _WebSocket.CONNECTING;
         this[kBinaryType] = "blob";
@@ -26762,8 +26762,8 @@ var require_lib3 = __commonJS({
           this._proxyAgent = agent;
         }
         if (this._keepAlive && !agent) {
-          const options2 = { keepAlive: this._keepAlive, maxSockets };
-          agent = usingSsl ? new https3.Agent(options2) : new http3.Agent(options2);
+          const options = { keepAlive: this._keepAlive, maxSockets };
+          agent = usingSsl ? new https3.Agent(options) : new http3.Agent(options);
           this._agent = agent;
         }
         if (!agent) {
@@ -26803,7 +26803,7 @@ var require_lib3 = __commonJS({
           return new Promise((resolve2) => setTimeout(() => resolve2(), ms));
         });
       }
-      _processResponse(res, options2) {
+      _processResponse(res, options) {
         return __awaiter(this, void 0, void 0, function* () {
           return new Promise((resolve2, reject) => __awaiter(this, void 0, void 0, function* () {
             const statusCode = res.message.statusCode || 0;
@@ -26829,7 +26829,7 @@ var require_lib3 = __commonJS({
             try {
               contents = yield res.readBody();
               if (contents && contents.length > 0) {
-                if (options2 && options2.deserializeDates) {
+                if (options && options.deserializeDates) {
                   obj = JSON.parse(contents, dateTimeDeserializer);
                 } else {
                   obj = JSON.parse(contents);
@@ -26901,11 +26901,11 @@ var require_auth2 = __commonJS({
         this.username = username;
         this.password = password;
       }
-      prepareRequest(options2) {
-        if (!options2.headers) {
+      prepareRequest(options) {
+        if (!options.headers) {
           throw Error("The request has no headers");
         }
-        options2.headers["Authorization"] = `Basic ${Buffer.from(`${this.username}:${this.password}`).toString("base64")}`;
+        options.headers["Authorization"] = `Basic ${Buffer.from(`${this.username}:${this.password}`).toString("base64")}`;
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -26924,11 +26924,11 @@ var require_auth2 = __commonJS({
       }
       // currently implements pre-authorization
       // TODO: support preAuth = false where it hooks on 401
-      prepareRequest(options2) {
-        if (!options2.headers) {
+      prepareRequest(options) {
+        if (!options.headers) {
           throw Error("The request has no headers");
         }
-        options2.headers["Authorization"] = `Bearer ${this.token}`;
+        options.headers["Authorization"] = `Bearer ${this.token}`;
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -26947,11 +26947,11 @@ var require_auth2 = __commonJS({
       }
       // currently implements pre-authorization
       // TODO: support preAuth = false where it hooks on 401
-      prepareRequest(options2) {
-        if (!options2.headers) {
+      prepareRequest(options) {
+        if (!options.headers) {
           throw Error("The request has no headers");
         }
-        options2.headers["Authorization"] = `Basic ${Buffer.from(`PAT:${this.token}`).toString("base64")}`;
+        options.headers["Authorization"] = `Basic ${Buffer.from(`PAT:${this.token}`).toString("base64")}`;
       }
       // This handler cannot handle 401
       canHandleAuthentication() {
@@ -27071,9 +27071,9 @@ var init_httpHeaders = __esm({
       /**
        * Get the JSON object representation of this HTTP header collection.
        */
-      toJson(options2 = {}) {
+      toJson(options = {}) {
         const result = {};
-        if (options2.preserveCase) {
+        if (options.preserveCase) {
           for (const headerKey in this._headersMap) {
             const header = this._headersMap[headerKey];
             result[header.name] = header.value;
@@ -27408,7 +27408,7 @@ function serializeDateTypes(typeName, value, objectName) {
   }
   return value;
 }
-function serializeSequenceType(serializer4, mapper, object, objectName, isXml, options2) {
+function serializeSequenceType(serializer4, mapper, object, objectName, isXml, options) {
   if (!Array.isArray(object)) {
     throw new Error(`${objectName} must be of type Array.`);
   }
@@ -27418,7 +27418,7 @@ function serializeSequenceType(serializer4, mapper, object, objectName, isXml, o
   }
   const tempArray = [];
   for (let i = 0; i < object.length; i++) {
-    const serializedValue = serializer4.serialize(elementType, object[i], objectName, options2);
+    const serializedValue = serializer4.serialize(elementType, object[i], objectName, options);
     if (isXml && elementType.xmlNamespace) {
       const xmlnsKey = elementType.xmlNamespacePrefix ? `xmlns:${elementType.xmlNamespacePrefix}` : "xmlns";
       if (elementType.type.name === "Composite") {
@@ -27426,7 +27426,7 @@ function serializeSequenceType(serializer4, mapper, object, objectName, isXml, o
         tempArray[i][XML_ATTRKEY] = { [xmlnsKey]: elementType.xmlNamespace };
       } else {
         tempArray[i] = {};
-        tempArray[i][options2.xmlCharKey] = serializedValue;
+        tempArray[i][options.xmlCharKey] = serializedValue;
         tempArray[i][XML_ATTRKEY] = { [xmlnsKey]: elementType.xmlNamespace };
       }
     } else {
@@ -27435,7 +27435,7 @@ function serializeSequenceType(serializer4, mapper, object, objectName, isXml, o
   }
   return tempArray;
 }
-function serializeDictionaryType(serializer4, mapper, object, objectName, isXml, options2) {
+function serializeDictionaryType(serializer4, mapper, object, objectName, isXml, options) {
   if (typeof object !== "object") {
     throw new Error(`${objectName} must be of type object.`);
   }
@@ -27445,8 +27445,8 @@ function serializeDictionaryType(serializer4, mapper, object, objectName, isXml,
   }
   const tempDictionary = {};
   for (const key of Object.keys(object)) {
-    const serializedValue = serializer4.serialize(valueType, object[key], objectName, options2);
-    tempDictionary[key] = getXmlObjectValue(valueType, serializedValue, isXml, options2);
+    const serializedValue = serializer4.serialize(valueType, object[key], objectName, options);
+    tempDictionary[key] = getXmlObjectValue(valueType, serializedValue, isXml, options);
   }
   if (isXml && mapper.xmlNamespace) {
     const xmlnsKey = mapper.xmlNamespacePrefix ? `xmlns:${mapper.xmlNamespacePrefix}` : "xmlns";
@@ -27485,7 +27485,7 @@ function resolveModelProperties(serializer4, mapper, objectName) {
   }
   return modelProps;
 }
-function serializeCompositeType(serializer4, mapper, object, objectName, isXml, options2) {
+function serializeCompositeType(serializer4, mapper, object, objectName, isXml, options) {
   if (getPolymorphicDiscriminatorRecursively(serializer4, mapper)) {
     mapper = getPolymorphicMapper(serializer4, mapper, object, "clientName");
   }
@@ -27527,9 +27527,9 @@ function serializeCompositeType(serializer4, mapper, object, objectName, isXml, 
         if (polymorphicDiscriminator && polymorphicDiscriminator.clientName === key && toSerialize == void 0) {
           toSerialize = mapper.serializedName;
         }
-        const serializedValue = serializer4.serialize(propertyMapper, toSerialize, propertyObjectName, options2);
+        const serializedValue = serializer4.serialize(propertyMapper, toSerialize, propertyObjectName, options);
         if (serializedValue !== void 0 && propName != void 0) {
-          const value = getXmlObjectValue(propertyMapper, serializedValue, isXml, options2);
+          const value = getXmlObjectValue(propertyMapper, serializedValue, isXml, options);
           if (isXml && propertyMapper.xmlIsAttribute) {
             parentObject[XML_ATTRKEY] = parentObject[XML_ATTRKEY] || {};
             parentObject[XML_ATTRKEY][propName] = serializedValue;
@@ -27547,7 +27547,7 @@ function serializeCompositeType(serializer4, mapper, object, objectName, isXml, 
       for (const clientPropName in object) {
         const isAdditionalProperty = propNames.every((pn) => pn !== clientPropName);
         if (isAdditionalProperty) {
-          payload[clientPropName] = serializer4.serialize(additionalPropertiesMapper, object[clientPropName], objectName + '["' + clientPropName + '"]', options2);
+          payload[clientPropName] = serializer4.serialize(additionalPropertiesMapper, object[clientPropName], objectName + '["' + clientPropName + '"]', options);
         }
       }
     }
@@ -27555,7 +27555,7 @@ function serializeCompositeType(serializer4, mapper, object, objectName, isXml, 
   }
   return object;
 }
-function getXmlObjectValue(propertyMapper, serializedValue, isXml, options2) {
+function getXmlObjectValue(propertyMapper, serializedValue, isXml, options) {
   if (!isXml || !propertyMapper.xmlNamespace) {
     return serializedValue;
   }
@@ -27571,16 +27571,16 @@ function getXmlObjectValue(propertyMapper, serializedValue, isXml, options2) {
     }
   }
   const result = {};
-  result[options2.xmlCharKey] = serializedValue;
+  result[options.xmlCharKey] = serializedValue;
   result[XML_ATTRKEY] = xmlNamespace;
   return result;
 }
-function isSpecialXmlProperty(propertyName, options2) {
-  return [XML_ATTRKEY, options2.xmlCharKey].includes(propertyName);
+function isSpecialXmlProperty(propertyName, options) {
+  return [XML_ATTRKEY, options.xmlCharKey].includes(propertyName);
 }
-function deserializeCompositeType(serializer4, mapper, responseBody, objectName, options2) {
+function deserializeCompositeType(serializer4, mapper, responseBody, objectName, options) {
   var _a2, _b;
-  const xmlCharKey = (_a2 = options2.xmlCharKey) !== null && _a2 !== void 0 ? _a2 : XML_CHARKEY;
+  const xmlCharKey = (_a2 = options.xmlCharKey) !== null && _a2 !== void 0 ? _a2 : XML_CHARKEY;
   if (getPolymorphicDiscriminatorRecursively(serializer4, mapper)) {
     mapper = getPolymorphicMapper(serializer4, mapper, responseBody, "serializedName");
   }
@@ -27601,14 +27601,14 @@ function deserializeCompositeType(serializer4, mapper, responseBody, objectName,
       const dictionary = {};
       for (const headerKey of Object.keys(responseBody)) {
         if (headerKey.startsWith(headerCollectionPrefix)) {
-          dictionary[headerKey.substring(headerCollectionPrefix.length)] = serializer4.deserialize(propertyMapper.type.value, responseBody[headerKey], propertyObjectName, options2);
+          dictionary[headerKey.substring(headerCollectionPrefix.length)] = serializer4.deserialize(propertyMapper.type.value, responseBody[headerKey], propertyObjectName, options);
         }
         handledPropertyNames.push(headerKey);
       }
       instance[key] = dictionary;
     } else if (serializer4.isXML) {
       if (propertyMapper.xmlIsAttribute && responseBody[XML_ATTRKEY]) {
-        instance[key] = serializer4.deserialize(propertyMapper, responseBody[XML_ATTRKEY][xmlName], propertyObjectName, options2);
+        instance[key] = serializer4.deserialize(propertyMapper, responseBody[XML_ATTRKEY][xmlName], propertyObjectName, options);
       } else if (propertyMapper.xmlIsMsText) {
         if (responseBody[xmlCharKey] !== void 0) {
           instance[key] = responseBody[xmlCharKey];
@@ -27620,11 +27620,11 @@ function deserializeCompositeType(serializer4, mapper, responseBody, objectName,
         if (propertyMapper.xmlIsWrapped) {
           const wrapped = responseBody[xmlName];
           const elementList = (_b = wrapped === null || wrapped === void 0 ? void 0 : wrapped[xmlElementName]) !== null && _b !== void 0 ? _b : [];
-          instance[key] = serializer4.deserialize(propertyMapper, elementList, propertyObjectName, options2);
+          instance[key] = serializer4.deserialize(propertyMapper, elementList, propertyObjectName, options);
           handledPropertyNames.push(xmlName);
         } else {
           const property = responseBody[propertyName];
-          instance[key] = serializer4.deserialize(propertyMapper, property, propertyObjectName, options2);
+          instance[key] = serializer4.deserialize(propertyMapper, property, propertyObjectName, options);
           handledPropertyNames.push(propertyName);
         }
       }
@@ -27644,7 +27644,7 @@ function deserializeCompositeType(serializer4, mapper, responseBody, objectName,
       let serializedValue;
       if (Array.isArray(responseBody[key]) && modelProps[key].serializedName === "") {
         propertyInstance = responseBody[key];
-        const arrayInstance = serializer4.deserialize(propertyMapper, propertyInstance, propertyObjectName, options2);
+        const arrayInstance = serializer4.deserialize(propertyMapper, propertyInstance, propertyObjectName, options);
         for (const [k, v] of Object.entries(instance)) {
           if (!Object.prototype.hasOwnProperty.call(arrayInstance, k)) {
             arrayInstance[k] = v;
@@ -27652,7 +27652,7 @@ function deserializeCompositeType(serializer4, mapper, responseBody, objectName,
         }
         instance = arrayInstance;
       } else if (propertyInstance !== void 0 || propertyMapper.defaultValue !== void 0) {
-        serializedValue = serializer4.deserialize(propertyMapper, propertyInstance, propertyObjectName, options2);
+        serializedValue = serializer4.deserialize(propertyMapper, propertyInstance, propertyObjectName, options);
         instance[key] = serializedValue;
       }
     }
@@ -27670,19 +27670,19 @@ function deserializeCompositeType(serializer4, mapper, responseBody, objectName,
     };
     for (const responsePropName in responseBody) {
       if (isAdditionalProperty(responsePropName)) {
-        instance[responsePropName] = serializer4.deserialize(additionalPropertiesMapper, responseBody[responsePropName], objectName + '["' + responsePropName + '"]', options2);
+        instance[responsePropName] = serializer4.deserialize(additionalPropertiesMapper, responseBody[responsePropName], objectName + '["' + responsePropName + '"]', options);
       }
     }
   } else if (responseBody) {
     for (const key of Object.keys(responseBody)) {
-      if (instance[key] === void 0 && !handledPropertyNames.includes(key) && !isSpecialXmlProperty(key, options2)) {
+      if (instance[key] === void 0 && !handledPropertyNames.includes(key) && !isSpecialXmlProperty(key, options)) {
         instance[key] = responseBody[key];
       }
     }
   }
   return instance;
 }
-function deserializeDictionaryType(serializer4, mapper, responseBody, objectName, options2) {
+function deserializeDictionaryType(serializer4, mapper, responseBody, objectName, options) {
   const value = mapper.type.value;
   if (!value || typeof value !== "object") {
     throw new Error(`"value" metadata for a Dictionary must be defined in the mapper and it must of type "object" in ${objectName}`);
@@ -27690,13 +27690,13 @@ function deserializeDictionaryType(serializer4, mapper, responseBody, objectName
   if (responseBody) {
     const tempDictionary = {};
     for (const key of Object.keys(responseBody)) {
-      tempDictionary[key] = serializer4.deserialize(value, responseBody[key], objectName, options2);
+      tempDictionary[key] = serializer4.deserialize(value, responseBody[key], objectName, options);
     }
     return tempDictionary;
   }
   return responseBody;
 }
-function deserializeSequenceType(serializer4, mapper, responseBody, objectName, options2) {
+function deserializeSequenceType(serializer4, mapper, responseBody, objectName, options) {
   const element = mapper.type.element;
   if (!element || typeof element !== "object") {
     throw new Error(`element" metadata for an Array must be defined in the mapper and it must of type "object" in ${objectName}`);
@@ -27707,7 +27707,7 @@ function deserializeSequenceType(serializer4, mapper, responseBody, objectName, 
     }
     const tempArray = [];
     for (let i = 0; i < responseBody.length; i++) {
-      tempArray[i] = serializer4.deserialize(element, responseBody[i], `${objectName}[${i}]`, options2);
+      tempArray[i] = serializer4.deserialize(element, responseBody[i], `${objectName}[${i}]`, options);
     }
     return tempArray;
   }
@@ -27818,12 +27818,12 @@ var init_serializer = __esm({
        * @param options - additional options to deserialization.
        * @returns A valid serialized Javascript object.
        */
-      serialize(mapper, object, objectName, options2 = {}) {
+      serialize(mapper, object, objectName, options = {}) {
         var _a2, _b, _c;
         const updatedOptions = {
-          rootName: (_a2 = options2.rootName) !== null && _a2 !== void 0 ? _a2 : "",
-          includeRoot: (_b = options2.includeRoot) !== null && _b !== void 0 ? _b : false,
-          xmlCharKey: (_c = options2.xmlCharKey) !== null && _c !== void 0 ? _c : XML_CHARKEY
+          rootName: (_a2 = options.rootName) !== null && _a2 !== void 0 ? _a2 : "",
+          includeRoot: (_b = options.includeRoot) !== null && _b !== void 0 ? _b : false,
+          xmlCharKey: (_c = options.xmlCharKey) !== null && _c !== void 0 ? _c : XML_CHARKEY
         };
         let payload = {};
         const mapperType = mapper.type.name;
@@ -27881,12 +27881,12 @@ var init_serializer = __esm({
        * @param options - Controls behavior of XML parser and builder.
        * @returns A valid deserialized Javascript object.
        */
-      deserialize(mapper, responseBody, objectName, options2 = {}) {
+      deserialize(mapper, responseBody, objectName, options = {}) {
         var _a2, _b, _c;
         const updatedOptions = {
-          rootName: (_a2 = options2.rootName) !== null && _a2 !== void 0 ? _a2 : "",
-          includeRoot: (_b = options2.includeRoot) !== null && _b !== void 0 ? _b : false,
-          xmlCharKey: (_c = options2.xmlCharKey) !== null && _c !== void 0 ? _c : XML_CHARKEY
+          rootName: (_a2 = options.rootName) !== null && _a2 !== void 0 ? _a2 : "",
+          includeRoot: (_b = options.includeRoot) !== null && _b !== void 0 ? _b : false,
+          xmlCharKey: (_c = options.xmlCharKey) !== null && _c !== void 0 ? _c : XML_CHARKEY
         };
         if (responseBody == void 0) {
           if (this.isXML && mapper.type.name === "Sequence" && !mapper.xmlIsWrapped) {
@@ -28023,41 +28023,41 @@ var init_webResource = __esm({
        * @param options - Options to provide for preparing the request.
        * @returns Returns the prepared WebResource (HTTP Request) object that needs to be given to the request pipeline.
        */
-      prepare(options2) {
-        if (!options2) {
+      prepare(options) {
+        if (!options) {
           throw new Error("options object is required");
         }
-        if (options2.method === void 0 || options2.method === null || typeof options2.method.valueOf() !== "string") {
+        if (options.method === void 0 || options.method === null || typeof options.method.valueOf() !== "string") {
           throw new Error("options.method must be a string.");
         }
-        if (options2.url && options2.pathTemplate) {
+        if (options.url && options.pathTemplate) {
           throw new Error("options.url and options.pathTemplate are mutually exclusive. Please provide exactly one of them.");
         }
-        if ((options2.pathTemplate === void 0 || options2.pathTemplate === null || typeof options2.pathTemplate.valueOf() !== "string") && (options2.url === void 0 || options2.url === null || typeof options2.url.valueOf() !== "string")) {
+        if ((options.pathTemplate === void 0 || options.pathTemplate === null || typeof options.pathTemplate.valueOf() !== "string") && (options.url === void 0 || options.url === null || typeof options.url.valueOf() !== "string")) {
           throw new Error("Please provide exactly one of options.pathTemplate or options.url.");
         }
-        if (options2.url) {
-          if (typeof options2.url !== "string") {
+        if (options.url) {
+          if (typeof options.url !== "string") {
             throw new Error('options.url must be of type "string".');
           }
-          this.url = options2.url;
+          this.url = options.url;
         }
-        if (options2.method) {
+        if (options.method) {
           const validMethods = ["GET", "PUT", "HEAD", "DELETE", "OPTIONS", "POST", "PATCH", "TRACE"];
-          if (validMethods.indexOf(options2.method.toUpperCase()) === -1) {
-            throw new Error('The provided method "' + options2.method + '" is invalid. Supported HTTP methods are: ' + JSON.stringify(validMethods));
+          if (validMethods.indexOf(options.method.toUpperCase()) === -1) {
+            throw new Error('The provided method "' + options.method + '" is invalid. Supported HTTP methods are: ' + JSON.stringify(validMethods));
           }
         }
-        this.method = options2.method.toUpperCase();
-        if (options2.pathTemplate) {
-          const { pathTemplate, pathParameters } = options2;
+        this.method = options.method.toUpperCase();
+        if (options.pathTemplate) {
+          const { pathTemplate, pathParameters } = options;
           if (typeof pathTemplate !== "string") {
             throw new Error('options.pathTemplate must be of type "string".');
           }
-          if (!options2.baseUrl) {
-            options2.baseUrl = "https://management.azure.com";
+          if (!options.baseUrl) {
+            options.baseUrl = "https://management.azure.com";
           }
-          const baseUrl = options2.baseUrl;
+          const baseUrl = options.baseUrl;
           let url2 = baseUrl + (baseUrl.endsWith("/") ? "" : "/") + (pathTemplate.startsWith("/") ? pathTemplate.slice(1) : pathTemplate);
           const segments = url2.match(/({[\w-]*\s*[\w-]*})/gi);
           if (segments && segments.length) {
@@ -28088,8 +28088,8 @@ var init_webResource = __esm({
           }
           this.url = url2;
         }
-        if (options2.queryParameters) {
-          const queryParameters = options2.queryParameters;
+        if (options.queryParameters) {
+          const queryParameters = options.queryParameters;
           if (typeof queryParameters !== "object") {
             throw new Error(`options.queryParameters must be of type object. It should be a JSON object of "query-parameter-name" as the key and the "query-parameter-value" as the value. The "query-parameter-value" may be fo type "string" or an "object" of the form { value: "query-parameter-value", skipUrlEncoding: true }.`);
           }
@@ -28120,24 +28120,24 @@ var init_webResource = __esm({
           }
           this.url += queryParams.join("&");
         }
-        if (options2.headers) {
-          const headers = options2.headers;
-          for (const headerName of Object.keys(options2.headers)) {
+        if (options.headers) {
+          const headers = options.headers;
+          for (const headerName of Object.keys(options.headers)) {
             this.headers.set(headerName, headers[headerName]);
           }
         }
         if (!this.headers.get("accept-language")) {
           this.headers.set("accept-language", "en-US");
         }
-        if (!this.headers.get("x-ms-client-request-id") && !options2.disableClientRequestId) {
+        if (!this.headers.get("x-ms-client-request-id") && !options.disableClientRequestId) {
           this.headers.set("x-ms-client-request-id", this.requestId);
         }
         if (!this.headers.get("Content-Type")) {
           this.headers.set("Content-Type", "application/json; charset=utf-8");
         }
-        this.body = options2.body;
-        if (options2.body !== void 0 && options2.body !== null) {
-          if (options2.bodyIsStream) {
+        this.body = options.body;
+        if (options.body !== void 0 && options.body !== null) {
+          if (options.bodyIsStream) {
             if (!this.headers.get("Transfer-Encoding")) {
               this.headers.set("Transfer-Encoding", "chunked");
             }
@@ -28145,23 +28145,23 @@ var init_webResource = __esm({
               this.headers.set("Content-Type", "application/octet-stream");
             }
           } else {
-            if (options2.serializationMapper) {
-              this.body = new Serializer(options2.mappers).serialize(options2.serializationMapper, options2.body, "requestBody");
+            if (options.serializationMapper) {
+              this.body = new Serializer(options.mappers).serialize(options.serializationMapper, options.body, "requestBody");
             }
-            if (!options2.disableJsonStringifyOnBody) {
-              this.body = JSON.stringify(options2.body);
+            if (!options.disableJsonStringifyOnBody) {
+              this.body = JSON.stringify(options.body);
             }
           }
         }
-        if (options2.spanOptions) {
-          this.spanOptions = options2.spanOptions;
+        if (options.spanOptions) {
+          this.spanOptions = options.spanOptions;
         }
-        if (options2.tracingContext) {
-          this.tracingContext = options2.tracingContext;
+        if (options.tracingContext) {
+          this.tracingContext = options.tracingContext;
         }
-        this.abortSignal = options2.abortSignal;
-        this.onDownloadProgress = options2.onDownloadProgress;
-        this.onUploadProgress = options2.onUploadProgress;
+        this.abortSignal = options.abortSignal;
+        this.onDownloadProgress = options.onDownloadProgress;
+        this.onUploadProgress = options.onUploadProgress;
         return this;
       }
       /**
@@ -28959,11 +28959,11 @@ var require_delayed_stream = __commonJS({
       this._bufferedEvents = [];
     }
     util4.inherits(DelayedStream, Stream2);
-    DelayedStream.create = function(source, options2) {
+    DelayedStream.create = function(source, options) {
       var delayedStream = new this();
-      options2 = options2 || {};
-      for (var option in options2) {
-        delayedStream[option] = options2[option];
+      options = options || {};
+      for (var option in options) {
+        delayedStream[option] = options[option];
       }
       delayedStream.source = source;
       var realEmit = source.emit;
@@ -29055,11 +29055,11 @@ var require_combined_stream = __commonJS({
       this._pendingNext = false;
     }
     util4.inherits(CombinedStream, Stream2);
-    CombinedStream.create = function(options2) {
+    CombinedStream.create = function(options) {
       var combinedStream = new this();
-      options2 = options2 || {};
-      for (var option in options2) {
-        combinedStream[option] = options2[option];
+      options = options || {};
+      for (var option in options) {
+        combinedStream[option] = options[option];
       }
       return combinedStream;
     };
@@ -29085,8 +29085,8 @@ var require_combined_stream = __commonJS({
       this._streams.push(stream);
       return this;
     };
-    CombinedStream.prototype.pipe = function(dest, options2) {
-      Stream2.prototype.pipe.call(this, dest, options2);
+    CombinedStream.prototype.pipe = function(dest, options) {
+      Stream2.prototype.pipe.call(this, dest, options);
       this.resume();
       return dest;
     };
@@ -38079,25 +38079,25 @@ var require_form_data = __commonJS({
     var populate = require_populate();
     module2.exports = FormData2;
     util4.inherits(FormData2, CombinedStream);
-    function FormData2(options2) {
+    function FormData2(options) {
       if (!(this instanceof FormData2)) {
-        return new FormData2(options2);
+        return new FormData2(options);
       }
       this._overheadLength = 0;
       this._valueLength = 0;
       this._valuesToMeasure = [];
       CombinedStream.call(this);
-      options2 = options2 || {};
-      for (var option in options2) {
-        this[option] = options2[option];
+      options = options || {};
+      for (var option in options) {
+        this[option] = options[option];
       }
     }
     FormData2.LINE_BREAK = "\r\n";
     FormData2.DEFAULT_CONTENT_TYPE = "application/octet-stream";
-    FormData2.prototype.append = function(field, value, options2) {
-      options2 = options2 || {};
-      if (typeof options2 == "string") {
-        options2 = { filename: options2 };
+    FormData2.prototype.append = function(field, value, options) {
+      options = options || {};
+      if (typeof options == "string") {
+        options = { filename: options };
       }
       var append = CombinedStream.prototype.append.bind(this);
       if (typeof value == "number") {
@@ -38107,17 +38107,17 @@ var require_form_data = __commonJS({
         this._error(new Error("Arrays are not supported."));
         return;
       }
-      var header = this._multiPartHeader(field, value, options2);
+      var header = this._multiPartHeader(field, value, options);
       var footer = this._multiPartFooter();
       append(header);
       append(value);
       append(footer);
-      this._trackLength(header, value, options2);
+      this._trackLength(header, value, options);
     };
-    FormData2.prototype._trackLength = function(header, value, options2) {
+    FormData2.prototype._trackLength = function(header, value, options) {
       var valueLength = 0;
-      if (options2.knownLength != null) {
-        valueLength += +options2.knownLength;
+      if (options.knownLength != null) {
+        valueLength += +options.knownLength;
       } else if (Buffer.isBuffer(value)) {
         valueLength = value.length;
       } else if (typeof value === "string") {
@@ -38128,7 +38128,7 @@ var require_form_data = __commonJS({
       if (!value || !value.path && !(value.readable && value.hasOwnProperty("httpVersion")) && !(value instanceof Stream2)) {
         return;
       }
-      if (!options2.knownLength) {
+      if (!options.knownLength) {
         this._valuesToMeasure.push(value);
       }
     };
@@ -38159,12 +38159,12 @@ var require_form_data = __commonJS({
         callback("Unknown stream");
       }
     };
-    FormData2.prototype._multiPartHeader = function(field, value, options2) {
-      if (typeof options2.header == "string") {
-        return options2.header;
+    FormData2.prototype._multiPartHeader = function(field, value, options) {
+      if (typeof options.header == "string") {
+        return options.header;
       }
-      var contentDisposition = this._getContentDisposition(value, options2);
-      var contentType2 = this._getContentType(value, options2);
+      var contentDisposition = this._getContentDisposition(value, options);
+      var contentType2 = this._getContentType(value, options);
       var contents = "";
       var headers = {
         // add custom disposition as third element or keep it two elements if not
@@ -38172,8 +38172,8 @@ var require_form_data = __commonJS({
         // if no content type. allow it to be empty array
         "Content-Type": [].concat(contentType2 || [])
       };
-      if (typeof options2.header == "object") {
-        populate(headers, options2.header);
+      if (typeof options.header == "object") {
+        populate(headers, options.header);
       }
       var header;
       for (var prop in headers) {
@@ -38192,12 +38192,12 @@ var require_form_data = __commonJS({
       }
       return "--" + this.getBoundary() + FormData2.LINE_BREAK + contents + FormData2.LINE_BREAK;
     };
-    FormData2.prototype._getContentDisposition = function(value, options2) {
+    FormData2.prototype._getContentDisposition = function(value, options) {
       var filename, contentDisposition;
-      if (typeof options2.filepath === "string") {
-        filename = path5.normalize(options2.filepath).replace(/\\/g, "/");
-      } else if (options2.filename || value.name || value.path) {
-        filename = path5.basename(options2.filename || value.name || value.path);
+      if (typeof options.filepath === "string") {
+        filename = path5.normalize(options.filepath).replace(/\\/g, "/");
+      } else if (options.filename || value.name || value.path) {
+        filename = path5.basename(options.filename || value.name || value.path);
       } else if (value.readable && value.hasOwnProperty("httpVersion")) {
         filename = path5.basename(value.client._httpMessage.path || "");
       }
@@ -38206,8 +38206,8 @@ var require_form_data = __commonJS({
       }
       return contentDisposition;
     };
-    FormData2.prototype._getContentType = function(value, options2) {
-      var contentType2 = options2.contentType;
+    FormData2.prototype._getContentType = function(value, options) {
+      var contentType2 = options.contentType;
       if (!contentType2 && value.name) {
         contentType2 = mime.lookup(value.name);
       }
@@ -38217,8 +38217,8 @@ var require_form_data = __commonJS({
       if (!contentType2 && value.readable && value.hasOwnProperty("httpVersion")) {
         contentType2 = value.headers["content-type"];
       }
-      if (!contentType2 && (options2.filepath || options2.filename)) {
-        contentType2 = mime.lookup(options2.filepath || options2.filename);
+      if (!contentType2 && (options.filepath || options.filename)) {
+        contentType2 = mime.lookup(options.filepath || options.filename);
       }
       if (!contentType2 && typeof value == "object") {
         contentType2 = FormData2.DEFAULT_CONTENT_TYPE;
@@ -38321,26 +38321,26 @@ var require_form_data = __commonJS({
       });
     };
     FormData2.prototype.submit = function(params, cb) {
-      var request, options2, defaults = { method: "post" };
+      var request, options, defaults = { method: "post" };
       if (typeof params == "string") {
         params = parseUrl(params);
-        options2 = populate({
+        options = populate({
           port: params.port,
           path: params.pathname,
           host: params.hostname,
           protocol: params.protocol
         }, defaults);
       } else {
-        options2 = populate(params, defaults);
-        if (!options2.port) {
-          options2.port = options2.protocol == "https:" ? 443 : 80;
+        options = populate(params, defaults);
+        if (!options.port) {
+          options.port = options.protocol == "https:" ? 443 : 80;
         }
       }
-      options2.headers = this.getHeaders(params.headers);
-      if (options2.protocol == "https:") {
-        request = https3.request(options2);
+      options.headers = this.getHeaders(params.headers);
+      if (options.protocol == "https:") {
+        request = https3.request(options);
       } else {
-        request = http3.request(options2);
+        request = http3.request(options);
       }
       this.getLength(function(err, length) {
         if (err && err !== "Unknown stream") {
@@ -40120,11 +40120,11 @@ var require_url_state_machine = __commonJS({
           return "null";
       }
     };
-    module2.exports.basicURLParse = function(input, options2) {
-      if (options2 === void 0) {
-        options2 = {};
+    module2.exports.basicURLParse = function(input, options) {
+      if (options === void 0) {
+        options = {};
       }
-      const usm = new URLStateMachine(input, options2.baseURL, options2.encodingOverride, options2.url, options2.stateOverride);
+      const usm = new URLStateMachine(input, options.baseURL, options.encodingOverride, options.url, options.stateOverride);
       if (usm.failure) {
         return "failure";
       }
@@ -40149,11 +40149,11 @@ var require_url_state_machine = __commonJS({
     module2.exports.serializeInteger = function(integer) {
       return String(integer);
     };
-    module2.exports.parseURL = function(input, options2) {
-      if (options2 === void 0) {
-        options2 = {};
+    module2.exports.parseURL = function(input, options) {
+      if (options === void 0) {
+        options = {};
       }
-      return module2.exports.basicURLParse(input, { baseURL: options2.baseURL, encodingOverride: options2.encodingOverride });
+      return module2.exports.basicURLParse(input, { baseURL: options.baseURL, encodingOverride: options.encodingOverride });
     };
   }
 });
@@ -40888,8 +40888,8 @@ function fetch(url2, opts) {
   Body.Promise = fetch.Promise;
   return new fetch.Promise(function(resolve2, reject) {
     const request = new Request(url2, opts);
-    const options2 = getNodeRequestOptions(request);
-    const send = (options2.protocol === "https:" ? import_https.default : import_http.default).request;
+    const options = getNodeRequestOptions(request);
+    const send = (options.protocol === "https:" ? import_https.default : import_http.default).request;
     const signal = request.signal;
     let response = null;
     const abort = function abort2() {
@@ -40910,7 +40910,7 @@ function fetch(url2, opts) {
       abort();
       finalize();
     };
-    const req = send(options2);
+    const req = send(options);
     let reqTimeout;
     if (signal) {
       signal.addEventListener("abort", abortAndFinalize);
@@ -41131,7 +41131,7 @@ var init_lib = __esm({
       constructor() {
         this[TYPE] = "";
         const blobParts = arguments[0];
-        const options2 = arguments[1];
+        const options = arguments[1];
         const buffers = [];
         let size = 0;
         if (blobParts) {
@@ -41156,7 +41156,7 @@ var init_lib = __esm({
           }
         }
         this[BUFFER] = Buffer.concat(buffers);
-        let type4 = options2 && options2.type !== void 0 && String(options2.type).toLowerCase();
+        let type4 = options && options.type !== void 0 && String(options.type).toLowerCase();
         if (type4 && !/[^\u0020-\u007E]/.test(type4)) {
           this[TYPE] = type4;
         }
@@ -42169,9 +42169,9 @@ var init_requestPolicy = __esm({
       /**
        * The main method to implement that manipulates a request/response.
        */
-      constructor(_nextPolicy, _options2) {
+      constructor(_nextPolicy, _options) {
         this._nextPolicy = _nextPolicy;
-        this._options = _options2;
+        this._options = _options;
       }
       /**
        * Get whether or not a log with the provided log level should be logged.
@@ -42597,8 +42597,8 @@ var require_XMLAttribute = __commonJS({
         XMLAttribute2.prototype.clone = function() {
           return Object.create(this);
         };
-        XMLAttribute2.prototype.toString = function(options2) {
-          return this.options.writer.attribute(this, this.options.writer.filterOptions(options2));
+        XMLAttribute2.prototype.toString = function(options) {
+          return this.options.writer.attribute(this, this.options.writer.filterOptions(options));
         };
         XMLAttribute2.prototype.debugInfo = function(name) {
           name = name || this.name;
@@ -42840,8 +42840,8 @@ var require_XMLElement = __commonJS({
           }
           return this;
         };
-        XMLElement2.prototype.toString = function(options2) {
-          return this.options.writer.element(this, this.options.writer.filterOptions(options2));
+        XMLElement2.prototype.toString = function(options) {
+          return this.options.writer.element(this, this.options.writer.filterOptions(options));
         };
         XMLElement2.prototype.att = function(name, value) {
           return this.attribute(name, value);
@@ -43064,8 +43064,8 @@ var require_XMLCData = __commonJS({
         XMLCData2.prototype.clone = function() {
           return Object.create(this);
         };
-        XMLCData2.prototype.toString = function(options2) {
-          return this.options.writer.cdata(this, this.options.writer.filterOptions(options2));
+        XMLCData2.prototype.toString = function(options) {
+          return this.options.writer.cdata(this, this.options.writer.filterOptions(options));
         };
         return XMLCData2;
       }(XMLCharacterData);
@@ -43107,8 +43107,8 @@ var require_XMLComment = __commonJS({
         XMLComment2.prototype.clone = function() {
           return Object.create(this);
         };
-        XMLComment2.prototype.toString = function(options2) {
-          return this.options.writer.comment(this, this.options.writer.filterOptions(options2));
+        XMLComment2.prototype.toString = function(options) {
+          return this.options.writer.comment(this, this.options.writer.filterOptions(options));
         };
         return XMLComment2;
       }(XMLCharacterData);
@@ -43157,8 +43157,8 @@ var require_XMLDeclaration = __commonJS({
             this.standalone = this.stringify.xmlStandalone(standalone);
           }
         }
-        XMLDeclaration2.prototype.toString = function(options2) {
-          return this.options.writer.declaration(this, this.options.writer.filterOptions(options2));
+        XMLDeclaration2.prototype.toString = function(options) {
+          return this.options.writer.declaration(this, this.options.writer.filterOptions(options));
         };
         return XMLDeclaration2;
       }(XMLNode);
@@ -43220,8 +43220,8 @@ var require_XMLDTDAttList = __commonJS({
           }
           this.defaultValueType = defaultValueType;
         }
-        XMLDTDAttList2.prototype.toString = function(options2) {
-          return this.options.writer.dtdAttList(this, this.options.writer.filterOptions(options2));
+        XMLDTDAttList2.prototype.toString = function(options) {
+          return this.options.writer.dtdAttList(this, this.options.writer.filterOptions(options));
         };
         return XMLDTDAttList2;
       }(XMLNode);
@@ -43318,8 +43318,8 @@ var require_XMLDTDEntity = __commonJS({
             return null;
           }
         });
-        XMLDTDEntity2.prototype.toString = function(options2) {
-          return this.options.writer.dtdEntity(this, this.options.writer.filterOptions(options2));
+        XMLDTDEntity2.prototype.toString = function(options) {
+          return this.options.writer.dtdEntity(this, this.options.writer.filterOptions(options));
         };
         return XMLDTDEntity2;
       }(XMLNode);
@@ -43364,8 +43364,8 @@ var require_XMLDTDElement = __commonJS({
           this.type = NodeType.ElementDeclaration;
           this.value = this.stringify.dtdElementValue(value);
         }
-        XMLDTDElement2.prototype.toString = function(options2) {
-          return this.options.writer.dtdElement(this, this.options.writer.filterOptions(options2));
+        XMLDTDElement2.prototype.toString = function(options) {
+          return this.options.writer.dtdElement(this, this.options.writer.filterOptions(options));
         };
         return XMLDTDElement2;
       }(XMLNode);
@@ -43422,8 +43422,8 @@ var require_XMLDTDNotation = __commonJS({
             return this.sysID;
           }
         });
-        XMLDTDNotation2.prototype.toString = function(options2) {
-          return this.options.writer.dtdNotation(this, this.options.writer.filterOptions(options2));
+        XMLDTDNotation2.prototype.toString = function(options) {
+          return this.options.writer.dtdNotation(this, this.options.writer.filterOptions(options));
         };
         return XMLDTDNotation2;
       }(XMLNode);
@@ -43560,8 +43560,8 @@ var require_XMLDocType = __commonJS({
           this.children.push(child);
           return this;
         };
-        XMLDocType2.prototype.toString = function(options2) {
-          return this.options.writer.docType(this, this.options.writer.filterOptions(options2));
+        XMLDocType2.prototype.toString = function(options) {
+          return this.options.writer.docType(this, this.options.writer.filterOptions(options));
         };
         XMLDocType2.prototype.ele = function(name, value) {
           return this.element(name, value);
@@ -43635,8 +43635,8 @@ var require_XMLRaw = __commonJS({
         XMLRaw2.prototype.clone = function() {
           return Object.create(this);
         };
-        XMLRaw2.prototype.toString = function(options2) {
-          return this.options.writer.raw(this, this.options.writer.filterOptions(options2));
+        XMLRaw2.prototype.toString = function(options) {
+          return this.options.writer.raw(this, this.options.writer.filterOptions(options));
         };
         return XMLRaw2;
       }(XMLNode);
@@ -43701,8 +43701,8 @@ var require_XMLText = __commonJS({
         XMLText2.prototype.clone = function() {
           return Object.create(this);
         };
-        XMLText2.prototype.toString = function(options2) {
-          return this.options.writer.text(this, this.options.writer.filterOptions(options2));
+        XMLText2.prototype.toString = function(options) {
+          return this.options.writer.text(this, this.options.writer.filterOptions(options));
         };
         XMLText2.prototype.splitText = function(offset) {
           throw new Error("This DOM method is not implemented." + this.debugInfo());
@@ -43753,8 +43753,8 @@ var require_XMLProcessingInstruction = __commonJS({
         XMLProcessingInstruction2.prototype.clone = function() {
           return Object.create(this);
         };
-        XMLProcessingInstruction2.prototype.toString = function(options2) {
-          return this.options.writer.processingInstruction(this, this.options.writer.filterOptions(options2));
+        XMLProcessingInstruction2.prototype.toString = function(options) {
+          return this.options.writer.processingInstruction(this, this.options.writer.filterOptions(options));
         };
         XMLProcessingInstruction2.prototype.isEqualNode = function(node) {
           if (!XMLProcessingInstruction2.__super__.isEqualNode.apply(this, arguments).isEqualNode(node)) {
@@ -43800,7 +43800,7 @@ var require_XMLDummy = __commonJS({
         XMLDummy2.prototype.clone = function() {
           return Object.create(this);
         };
-        XMLDummy2.prototype.toString = function(options2) {
+        XMLDummy2.prototype.toString = function(options) {
           return "";
         };
         return XMLDummy2;
@@ -44293,8 +44293,8 @@ var require_XMLNode = __commonJS({
             }
           }
         };
-        XMLNode2.prototype.end = function(options2) {
-          return this.document().end(options2);
+        XMLNode2.prototype.end = function(options) {
+          return this.document().end(options);
         };
         XMLNode2.prototype.prev = function() {
           var i;
@@ -44560,16 +44560,16 @@ var require_XMLStringifier = __commonJS({
         };
       }, hasProp = {}.hasOwnProperty;
       module2.exports = XMLStringifier = function() {
-        function XMLStringifier2(options2) {
+        function XMLStringifier2(options) {
           this.assertLegalName = bind2(this.assertLegalName, this);
           this.assertLegalChar = bind2(this.assertLegalChar, this);
           var key, ref, value;
-          options2 || (options2 = {});
-          this.options = options2;
+          options || (options = {});
+          this.options = options;
           if (!this.options.version) {
             this.options.version = "1.0";
           }
-          ref = options2.stringify || {};
+          ref = options.stringify || {};
           for (key in ref) {
             if (!hasProp.call(ref, key))
               continue;
@@ -44804,11 +44804,11 @@ var require_XMLWriterBase = __commonJS({
       XMLDTDNotation = require_XMLDTDNotation();
       WriterState = require_WriterState();
       module2.exports = XMLWriterBase = function() {
-        function XMLWriterBase2(options2) {
+        function XMLWriterBase2(options) {
           var key, ref, value;
-          options2 || (options2 = {});
-          this.options = options2;
-          ref = options2.writer || {};
+          options || (options = {});
+          this.options = options;
+          ref = options.writer || {};
           for (key in ref) {
             if (!hasProp.call(ref, key))
               continue;
@@ -44817,20 +44817,20 @@ var require_XMLWriterBase = __commonJS({
             this[key] = value;
           }
         }
-        XMLWriterBase2.prototype.filterOptions = function(options2) {
+        XMLWriterBase2.prototype.filterOptions = function(options) {
           var filteredOptions, ref, ref1, ref2, ref3, ref4, ref5, ref6;
-          options2 || (options2 = {});
-          options2 = assign({}, this.options, options2);
+          options || (options = {});
+          options = assign({}, this.options, options);
           filteredOptions = {
             writer: this
           };
-          filteredOptions.pretty = options2.pretty || false;
-          filteredOptions.allowEmpty = options2.allowEmpty || false;
-          filteredOptions.indent = (ref = options2.indent) != null ? ref : "  ";
-          filteredOptions.newline = (ref1 = options2.newline) != null ? ref1 : "\n";
-          filteredOptions.offset = (ref2 = options2.offset) != null ? ref2 : 0;
-          filteredOptions.dontPrettyTextNodes = (ref3 = (ref4 = options2.dontPrettyTextNodes) != null ? ref4 : options2.dontprettytextnodes) != null ? ref3 : 0;
-          filteredOptions.spaceBeforeSlash = (ref5 = (ref6 = options2.spaceBeforeSlash) != null ? ref6 : options2.spacebeforeslash) != null ? ref5 : "";
+          filteredOptions.pretty = options.pretty || false;
+          filteredOptions.allowEmpty = options.allowEmpty || false;
+          filteredOptions.indent = (ref = options.indent) != null ? ref : "  ";
+          filteredOptions.newline = (ref1 = options.newline) != null ? ref1 : "\n";
+          filteredOptions.offset = (ref2 = options.offset) != null ? ref2 : 0;
+          filteredOptions.dontPrettyTextNodes = (ref3 = (ref4 = options.dontPrettyTextNodes) != null ? ref4 : options.dontprettytextnodes) != null ? ref3 : 0;
+          filteredOptions.spaceBeforeSlash = (ref5 = (ref6 = options.spaceBeforeSlash) != null ? ref6 : options.spacebeforeslash) != null ? ref5 : "";
           if (filteredOptions.spaceBeforeSlash === true) {
             filteredOptions.spaceBeforeSlash = " ";
           }
@@ -44839,64 +44839,64 @@ var require_XMLWriterBase = __commonJS({
           filteredOptions.state = WriterState.None;
           return filteredOptions;
         };
-        XMLWriterBase2.prototype.indent = function(node, options2, level) {
+        XMLWriterBase2.prototype.indent = function(node, options, level) {
           var indentLevel;
-          if (!options2.pretty || options2.suppressPrettyCount) {
+          if (!options.pretty || options.suppressPrettyCount) {
             return "";
-          } else if (options2.pretty) {
-            indentLevel = (level || 0) + options2.offset + 1;
+          } else if (options.pretty) {
+            indentLevel = (level || 0) + options.offset + 1;
             if (indentLevel > 0) {
-              return new Array(indentLevel).join(options2.indent);
+              return new Array(indentLevel).join(options.indent);
             }
           }
           return "";
         };
-        XMLWriterBase2.prototype.endline = function(node, options2, level) {
-          if (!options2.pretty || options2.suppressPrettyCount) {
+        XMLWriterBase2.prototype.endline = function(node, options, level) {
+          if (!options.pretty || options.suppressPrettyCount) {
             return "";
           } else {
-            return options2.newline;
+            return options.newline;
           }
         };
-        XMLWriterBase2.prototype.attribute = function(att, options2, level) {
+        XMLWriterBase2.prototype.attribute = function(att, options, level) {
           var r;
-          this.openAttribute(att, options2, level);
+          this.openAttribute(att, options, level);
           r = " " + att.name + '="' + att.value + '"';
-          this.closeAttribute(att, options2, level);
+          this.closeAttribute(att, options, level);
           return r;
         };
-        XMLWriterBase2.prototype.cdata = function(node, options2, level) {
+        XMLWriterBase2.prototype.cdata = function(node, options, level) {
           var r;
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          r = this.indent(node, options2, level) + "<![CDATA[";
-          options2.state = WriterState.InsideTag;
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          r = this.indent(node, options, level) + "<![CDATA[";
+          options.state = WriterState.InsideTag;
           r += node.value;
-          options2.state = WriterState.CloseTag;
-          r += "]]>" + this.endline(node, options2, level);
-          options2.state = WriterState.None;
-          this.closeNode(node, options2, level);
+          options.state = WriterState.CloseTag;
+          r += "]]>" + this.endline(node, options, level);
+          options.state = WriterState.None;
+          this.closeNode(node, options, level);
           return r;
         };
-        XMLWriterBase2.prototype.comment = function(node, options2, level) {
+        XMLWriterBase2.prototype.comment = function(node, options, level) {
           var r;
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          r = this.indent(node, options2, level) + "<!-- ";
-          options2.state = WriterState.InsideTag;
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          r = this.indent(node, options, level) + "<!-- ";
+          options.state = WriterState.InsideTag;
           r += node.value;
-          options2.state = WriterState.CloseTag;
-          r += " -->" + this.endline(node, options2, level);
-          options2.state = WriterState.None;
-          this.closeNode(node, options2, level);
+          options.state = WriterState.CloseTag;
+          r += " -->" + this.endline(node, options, level);
+          options.state = WriterState.None;
+          this.closeNode(node, options, level);
           return r;
         };
-        XMLWriterBase2.prototype.declaration = function(node, options2, level) {
+        XMLWriterBase2.prototype.declaration = function(node, options, level) {
           var r;
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          r = this.indent(node, options2, level) + "<?xml";
-          options2.state = WriterState.InsideTag;
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          r = this.indent(node, options, level) + "<?xml";
+          options.state = WriterState.InsideTag;
           r += ' version="' + node.version + '"';
           if (node.encoding != null) {
             r += ' encoding="' + node.encoding + '"';
@@ -44904,19 +44904,19 @@ var require_XMLWriterBase = __commonJS({
           if (node.standalone != null) {
             r += ' standalone="' + node.standalone + '"';
           }
-          options2.state = WriterState.CloseTag;
-          r += options2.spaceBeforeSlash + "?>";
-          r += this.endline(node, options2, level);
-          options2.state = WriterState.None;
-          this.closeNode(node, options2, level);
+          options.state = WriterState.CloseTag;
+          r += options.spaceBeforeSlash + "?>";
+          r += this.endline(node, options, level);
+          options.state = WriterState.None;
+          this.closeNode(node, options, level);
           return r;
         };
-        XMLWriterBase2.prototype.docType = function(node, options2, level) {
+        XMLWriterBase2.prototype.docType = function(node, options, level) {
           var child, i, len, r, ref;
           level || (level = 0);
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          r = this.indent(node, options2, level);
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          r = this.indent(node, options, level);
           r += "<!DOCTYPE " + node.root().name;
           if (node.pubID && node.sysID) {
             r += ' PUBLIC "' + node.pubID + '" "' + node.sysID + '"';
@@ -44925,172 +44925,172 @@ var require_XMLWriterBase = __commonJS({
           }
           if (node.children.length > 0) {
             r += " [";
-            r += this.endline(node, options2, level);
-            options2.state = WriterState.InsideTag;
+            r += this.endline(node, options, level);
+            options.state = WriterState.InsideTag;
             ref = node.children;
             for (i = 0, len = ref.length; i < len; i++) {
               child = ref[i];
-              r += this.writeChildNode(child, options2, level + 1);
+              r += this.writeChildNode(child, options, level + 1);
             }
-            options2.state = WriterState.CloseTag;
+            options.state = WriterState.CloseTag;
             r += "]";
           }
-          options2.state = WriterState.CloseTag;
-          r += options2.spaceBeforeSlash + ">";
-          r += this.endline(node, options2, level);
-          options2.state = WriterState.None;
-          this.closeNode(node, options2, level);
+          options.state = WriterState.CloseTag;
+          r += options.spaceBeforeSlash + ">";
+          r += this.endline(node, options, level);
+          options.state = WriterState.None;
+          this.closeNode(node, options, level);
           return r;
         };
-        XMLWriterBase2.prototype.element = function(node, options2, level) {
+        XMLWriterBase2.prototype.element = function(node, options, level) {
           var att, child, childNodeCount, firstChildNode, i, j, len, len1, name, prettySuppressed, r, ref, ref1, ref2;
           level || (level = 0);
           prettySuppressed = false;
           r = "";
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          r += this.indent(node, options2, level) + "<" + node.name;
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          r += this.indent(node, options, level) + "<" + node.name;
           ref = node.attribs;
           for (name in ref) {
             if (!hasProp.call(ref, name))
               continue;
             att = ref[name];
-            r += this.attribute(att, options2, level);
+            r += this.attribute(att, options, level);
           }
           childNodeCount = node.children.length;
           firstChildNode = childNodeCount === 0 ? null : node.children[0];
           if (childNodeCount === 0 || node.children.every(function(e) {
             return (e.type === NodeType.Text || e.type === NodeType.Raw) && e.value === "";
           })) {
-            if (options2.allowEmpty) {
+            if (options.allowEmpty) {
               r += ">";
-              options2.state = WriterState.CloseTag;
-              r += "</" + node.name + ">" + this.endline(node, options2, level);
+              options.state = WriterState.CloseTag;
+              r += "</" + node.name + ">" + this.endline(node, options, level);
             } else {
-              options2.state = WriterState.CloseTag;
-              r += options2.spaceBeforeSlash + "/>" + this.endline(node, options2, level);
+              options.state = WriterState.CloseTag;
+              r += options.spaceBeforeSlash + "/>" + this.endline(node, options, level);
             }
-          } else if (options2.pretty && childNodeCount === 1 && (firstChildNode.type === NodeType.Text || firstChildNode.type === NodeType.Raw) && firstChildNode.value != null) {
+          } else if (options.pretty && childNodeCount === 1 && (firstChildNode.type === NodeType.Text || firstChildNode.type === NodeType.Raw) && firstChildNode.value != null) {
             r += ">";
-            options2.state = WriterState.InsideTag;
-            options2.suppressPrettyCount++;
+            options.state = WriterState.InsideTag;
+            options.suppressPrettyCount++;
             prettySuppressed = true;
-            r += this.writeChildNode(firstChildNode, options2, level + 1);
-            options2.suppressPrettyCount--;
+            r += this.writeChildNode(firstChildNode, options, level + 1);
+            options.suppressPrettyCount--;
             prettySuppressed = false;
-            options2.state = WriterState.CloseTag;
-            r += "</" + node.name + ">" + this.endline(node, options2, level);
+            options.state = WriterState.CloseTag;
+            r += "</" + node.name + ">" + this.endline(node, options, level);
           } else {
-            if (options2.dontPrettyTextNodes) {
+            if (options.dontPrettyTextNodes) {
               ref1 = node.children;
               for (i = 0, len = ref1.length; i < len; i++) {
                 child = ref1[i];
                 if ((child.type === NodeType.Text || child.type === NodeType.Raw) && child.value != null) {
-                  options2.suppressPrettyCount++;
+                  options.suppressPrettyCount++;
                   prettySuppressed = true;
                   break;
                 }
               }
             }
-            r += ">" + this.endline(node, options2, level);
-            options2.state = WriterState.InsideTag;
+            r += ">" + this.endline(node, options, level);
+            options.state = WriterState.InsideTag;
             ref2 = node.children;
             for (j = 0, len1 = ref2.length; j < len1; j++) {
               child = ref2[j];
-              r += this.writeChildNode(child, options2, level + 1);
+              r += this.writeChildNode(child, options, level + 1);
             }
-            options2.state = WriterState.CloseTag;
-            r += this.indent(node, options2, level) + "</" + node.name + ">";
+            options.state = WriterState.CloseTag;
+            r += this.indent(node, options, level) + "</" + node.name + ">";
             if (prettySuppressed) {
-              options2.suppressPrettyCount--;
+              options.suppressPrettyCount--;
             }
-            r += this.endline(node, options2, level);
-            options2.state = WriterState.None;
+            r += this.endline(node, options, level);
+            options.state = WriterState.None;
           }
-          this.closeNode(node, options2, level);
+          this.closeNode(node, options, level);
           return r;
         };
-        XMLWriterBase2.prototype.writeChildNode = function(node, options2, level) {
+        XMLWriterBase2.prototype.writeChildNode = function(node, options, level) {
           switch (node.type) {
             case NodeType.CData:
-              return this.cdata(node, options2, level);
+              return this.cdata(node, options, level);
             case NodeType.Comment:
-              return this.comment(node, options2, level);
+              return this.comment(node, options, level);
             case NodeType.Element:
-              return this.element(node, options2, level);
+              return this.element(node, options, level);
             case NodeType.Raw:
-              return this.raw(node, options2, level);
+              return this.raw(node, options, level);
             case NodeType.Text:
-              return this.text(node, options2, level);
+              return this.text(node, options, level);
             case NodeType.ProcessingInstruction:
-              return this.processingInstruction(node, options2, level);
+              return this.processingInstruction(node, options, level);
             case NodeType.Dummy:
               return "";
             case NodeType.Declaration:
-              return this.declaration(node, options2, level);
+              return this.declaration(node, options, level);
             case NodeType.DocType:
-              return this.docType(node, options2, level);
+              return this.docType(node, options, level);
             case NodeType.AttributeDeclaration:
-              return this.dtdAttList(node, options2, level);
+              return this.dtdAttList(node, options, level);
             case NodeType.ElementDeclaration:
-              return this.dtdElement(node, options2, level);
+              return this.dtdElement(node, options, level);
             case NodeType.EntityDeclaration:
-              return this.dtdEntity(node, options2, level);
+              return this.dtdEntity(node, options, level);
             case NodeType.NotationDeclaration:
-              return this.dtdNotation(node, options2, level);
+              return this.dtdNotation(node, options, level);
             default:
               throw new Error("Unknown XML node type: " + node.constructor.name);
           }
         };
-        XMLWriterBase2.prototype.processingInstruction = function(node, options2, level) {
+        XMLWriterBase2.prototype.processingInstruction = function(node, options, level) {
           var r;
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          r = this.indent(node, options2, level) + "<?";
-          options2.state = WriterState.InsideTag;
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          r = this.indent(node, options, level) + "<?";
+          options.state = WriterState.InsideTag;
           r += node.target;
           if (node.value) {
             r += " " + node.value;
           }
-          options2.state = WriterState.CloseTag;
-          r += options2.spaceBeforeSlash + "?>";
-          r += this.endline(node, options2, level);
-          options2.state = WriterState.None;
-          this.closeNode(node, options2, level);
+          options.state = WriterState.CloseTag;
+          r += options.spaceBeforeSlash + "?>";
+          r += this.endline(node, options, level);
+          options.state = WriterState.None;
+          this.closeNode(node, options, level);
           return r;
         };
-        XMLWriterBase2.prototype.raw = function(node, options2, level) {
+        XMLWriterBase2.prototype.raw = function(node, options, level) {
           var r;
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          r = this.indent(node, options2, level);
-          options2.state = WriterState.InsideTag;
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          r = this.indent(node, options, level);
+          options.state = WriterState.InsideTag;
           r += node.value;
-          options2.state = WriterState.CloseTag;
-          r += this.endline(node, options2, level);
-          options2.state = WriterState.None;
-          this.closeNode(node, options2, level);
+          options.state = WriterState.CloseTag;
+          r += this.endline(node, options, level);
+          options.state = WriterState.None;
+          this.closeNode(node, options, level);
           return r;
         };
-        XMLWriterBase2.prototype.text = function(node, options2, level) {
+        XMLWriterBase2.prototype.text = function(node, options, level) {
           var r;
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          r = this.indent(node, options2, level);
-          options2.state = WriterState.InsideTag;
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          r = this.indent(node, options, level);
+          options.state = WriterState.InsideTag;
           r += node.value;
-          options2.state = WriterState.CloseTag;
-          r += this.endline(node, options2, level);
-          options2.state = WriterState.None;
-          this.closeNode(node, options2, level);
+          options.state = WriterState.CloseTag;
+          r += this.endline(node, options, level);
+          options.state = WriterState.None;
+          this.closeNode(node, options, level);
           return r;
         };
-        XMLWriterBase2.prototype.dtdAttList = function(node, options2, level) {
+        XMLWriterBase2.prototype.dtdAttList = function(node, options, level) {
           var r;
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          r = this.indent(node, options2, level) + "<!ATTLIST";
-          options2.state = WriterState.InsideTag;
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          r = this.indent(node, options, level) + "<!ATTLIST";
+          options.state = WriterState.InsideTag;
           r += " " + node.elementName + " " + node.attributeName + " " + node.attributeType;
           if (node.defaultValueType !== "#DEFAULT") {
             r += " " + node.defaultValueType;
@@ -45098,31 +45098,31 @@ var require_XMLWriterBase = __commonJS({
           if (node.defaultValue) {
             r += ' "' + node.defaultValue + '"';
           }
-          options2.state = WriterState.CloseTag;
-          r += options2.spaceBeforeSlash + ">" + this.endline(node, options2, level);
-          options2.state = WriterState.None;
-          this.closeNode(node, options2, level);
+          options.state = WriterState.CloseTag;
+          r += options.spaceBeforeSlash + ">" + this.endline(node, options, level);
+          options.state = WriterState.None;
+          this.closeNode(node, options, level);
           return r;
         };
-        XMLWriterBase2.prototype.dtdElement = function(node, options2, level) {
+        XMLWriterBase2.prototype.dtdElement = function(node, options, level) {
           var r;
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          r = this.indent(node, options2, level) + "<!ELEMENT";
-          options2.state = WriterState.InsideTag;
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          r = this.indent(node, options, level) + "<!ELEMENT";
+          options.state = WriterState.InsideTag;
           r += " " + node.name + " " + node.value;
-          options2.state = WriterState.CloseTag;
-          r += options2.spaceBeforeSlash + ">" + this.endline(node, options2, level);
-          options2.state = WriterState.None;
-          this.closeNode(node, options2, level);
+          options.state = WriterState.CloseTag;
+          r += options.spaceBeforeSlash + ">" + this.endline(node, options, level);
+          options.state = WriterState.None;
+          this.closeNode(node, options, level);
           return r;
         };
-        XMLWriterBase2.prototype.dtdEntity = function(node, options2, level) {
+        XMLWriterBase2.prototype.dtdEntity = function(node, options, level) {
           var r;
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          r = this.indent(node, options2, level) + "<!ENTITY";
-          options2.state = WriterState.InsideTag;
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          r = this.indent(node, options, level) + "<!ENTITY";
+          options.state = WriterState.InsideTag;
           if (node.pe) {
             r += " %";
           }
@@ -45139,18 +45139,18 @@ var require_XMLWriterBase = __commonJS({
               r += " NDATA " + node.nData;
             }
           }
-          options2.state = WriterState.CloseTag;
-          r += options2.spaceBeforeSlash + ">" + this.endline(node, options2, level);
-          options2.state = WriterState.None;
-          this.closeNode(node, options2, level);
+          options.state = WriterState.CloseTag;
+          r += options.spaceBeforeSlash + ">" + this.endline(node, options, level);
+          options.state = WriterState.None;
+          this.closeNode(node, options, level);
           return r;
         };
-        XMLWriterBase2.prototype.dtdNotation = function(node, options2, level) {
+        XMLWriterBase2.prototype.dtdNotation = function(node, options, level) {
           var r;
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          r = this.indent(node, options2, level) + "<!NOTATION";
-          options2.state = WriterState.InsideTag;
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          r = this.indent(node, options, level) + "<!NOTATION";
+          options.state = WriterState.InsideTag;
           r += " " + node.name;
           if (node.pubID && node.sysID) {
             r += ' PUBLIC "' + node.pubID + '" "' + node.sysID + '"';
@@ -45159,19 +45159,19 @@ var require_XMLWriterBase = __commonJS({
           } else if (node.sysID) {
             r += ' SYSTEM "' + node.sysID + '"';
           }
-          options2.state = WriterState.CloseTag;
-          r += options2.spaceBeforeSlash + ">" + this.endline(node, options2, level);
-          options2.state = WriterState.None;
-          this.closeNode(node, options2, level);
+          options.state = WriterState.CloseTag;
+          r += options.spaceBeforeSlash + ">" + this.endline(node, options, level);
+          options.state = WriterState.None;
+          this.closeNode(node, options, level);
           return r;
         };
-        XMLWriterBase2.prototype.openNode = function(node, options2, level) {
+        XMLWriterBase2.prototype.openNode = function(node, options, level) {
         };
-        XMLWriterBase2.prototype.closeNode = function(node, options2, level) {
+        XMLWriterBase2.prototype.closeNode = function(node, options, level) {
         };
-        XMLWriterBase2.prototype.openAttribute = function(att, options2, level) {
+        XMLWriterBase2.prototype.openAttribute = function(att, options, level) {
         };
-        XMLWriterBase2.prototype.closeAttribute = function(att, options2, level) {
+        XMLWriterBase2.prototype.closeAttribute = function(att, options, level) {
         };
         return XMLWriterBase2;
       }();
@@ -45200,20 +45200,20 @@ var require_XMLStringWriter = __commonJS({
       XMLWriterBase = require_XMLWriterBase();
       module2.exports = XMLStringWriter = function(superClass) {
         extend4(XMLStringWriter2, superClass);
-        function XMLStringWriter2(options2) {
-          XMLStringWriter2.__super__.constructor.call(this, options2);
+        function XMLStringWriter2(options) {
+          XMLStringWriter2.__super__.constructor.call(this, options);
         }
-        XMLStringWriter2.prototype.document = function(doc, options2) {
+        XMLStringWriter2.prototype.document = function(doc, options) {
           var child, i, len, r, ref;
-          options2 = this.filterOptions(options2);
+          options = this.filterOptions(options);
           r = "";
           ref = doc.children;
           for (i = 0, len = ref.length; i < len; i++) {
             child = ref[i];
-            r += this.writeChildNode(child, options2, 0);
+            r += this.writeChildNode(child, options, 0);
           }
-          if (options2.pretty && r.slice(-options2.newline.length) === options2.newline) {
-            r = r.slice(0, -options2.newline.length);
+          if (options.pretty && r.slice(-options.newline.length) === options.newline) {
+            r = r.slice(0, -options.newline.length);
           }
           return r;
         };
@@ -45250,18 +45250,18 @@ var require_XMLDocument = __commonJS({
       XMLStringWriter = require_XMLStringWriter();
       module2.exports = XMLDocument = function(superClass) {
         extend4(XMLDocument2, superClass);
-        function XMLDocument2(options2) {
+        function XMLDocument2(options) {
           XMLDocument2.__super__.constructor.call(this, null);
           this.name = "#document";
           this.type = NodeType.Document;
           this.documentURI = null;
           this.domConfig = new XMLDOMConfiguration();
-          options2 || (options2 = {});
-          if (!options2.writer) {
-            options2.writer = new XMLStringWriter();
+          options || (options = {});
+          if (!options.writer) {
+            options.writer = new XMLStringWriter();
           }
-          this.options = options2;
-          this.stringify = new XMLStringifier(options2);
+          this.options = options;
+          this.stringify = new XMLStringifier(options);
         }
         Object.defineProperty(XMLDocument2.prototype, "implementation", {
           value: new XMLDOMImplementation()
@@ -45357,8 +45357,8 @@ var require_XMLDocument = __commonJS({
           }
           return writer.document(this, writer.filterOptions(writerOptions));
         };
-        XMLDocument2.prototype.toString = function(options2) {
-          return this.options.writer.document(this, this.options.writer.filterOptions(options2));
+        XMLDocument2.prototype.toString = function(options) {
+          return this.options.writer.document(this, this.options.writer.filterOptions(options));
         };
         XMLDocument2.prototype.createElement = function(tagName) {
           throw new Error("This DOM method is not implemented." + this.debugInfo());
@@ -45458,22 +45458,22 @@ var require_XMLDocumentCB = __commonJS({
       XMLStringWriter = require_XMLStringWriter();
       WriterState = require_WriterState();
       module2.exports = XMLDocumentCB = function() {
-        function XMLDocumentCB2(options2, onData, onEnd) {
+        function XMLDocumentCB2(options, onData, onEnd) {
           var writerOptions;
           this.name = "?xml";
           this.type = NodeType.Document;
-          options2 || (options2 = {});
+          options || (options = {});
           writerOptions = {};
-          if (!options2.writer) {
-            options2.writer = new XMLStringWriter();
-          } else if (isPlainObject(options2.writer)) {
-            writerOptions = options2.writer;
-            options2.writer = new XMLStringWriter();
+          if (!options.writer) {
+            options.writer = new XMLStringWriter();
+          } else if (isPlainObject(options.writer)) {
+            writerOptions = options.writer;
+            options.writer = new XMLStringWriter();
           }
-          this.options = options2;
-          this.writer = options2.writer;
+          this.options = options;
+          this.writer = options.writer;
           this.writerOptions = this.writer.filterOptions(writerOptions);
-          this.stringify = new XMLStringifier(options2);
+          this.stringify = new XMLStringifier(options);
           this.onDataCallback = onData || function() {
           };
           this.onEndCallback = onEnd || function() {
@@ -45926,51 +45926,51 @@ var require_XMLStreamWriter = __commonJS({
       WriterState = require_WriterState();
       module2.exports = XMLStreamWriter = function(superClass) {
         extend4(XMLStreamWriter2, superClass);
-        function XMLStreamWriter2(stream, options2) {
+        function XMLStreamWriter2(stream, options) {
           this.stream = stream;
-          XMLStreamWriter2.__super__.constructor.call(this, options2);
+          XMLStreamWriter2.__super__.constructor.call(this, options);
         }
-        XMLStreamWriter2.prototype.endline = function(node, options2, level) {
-          if (node.isLastRootNode && options2.state === WriterState.CloseTag) {
+        XMLStreamWriter2.prototype.endline = function(node, options, level) {
+          if (node.isLastRootNode && options.state === WriterState.CloseTag) {
             return "";
           } else {
-            return XMLStreamWriter2.__super__.endline.call(this, node, options2, level);
+            return XMLStreamWriter2.__super__.endline.call(this, node, options, level);
           }
         };
-        XMLStreamWriter2.prototype.document = function(doc, options2) {
+        XMLStreamWriter2.prototype.document = function(doc, options) {
           var child, i, j, k, len, len1, ref, ref1, results;
           ref = doc.children;
           for (i = j = 0, len = ref.length; j < len; i = ++j) {
             child = ref[i];
             child.isLastRootNode = i === doc.children.length - 1;
           }
-          options2 = this.filterOptions(options2);
+          options = this.filterOptions(options);
           ref1 = doc.children;
           results = [];
           for (k = 0, len1 = ref1.length; k < len1; k++) {
             child = ref1[k];
-            results.push(this.writeChildNode(child, options2, 0));
+            results.push(this.writeChildNode(child, options, 0));
           }
           return results;
         };
-        XMLStreamWriter2.prototype.attribute = function(att, options2, level) {
-          return this.stream.write(XMLStreamWriter2.__super__.attribute.call(this, att, options2, level));
+        XMLStreamWriter2.prototype.attribute = function(att, options, level) {
+          return this.stream.write(XMLStreamWriter2.__super__.attribute.call(this, att, options, level));
         };
-        XMLStreamWriter2.prototype.cdata = function(node, options2, level) {
-          return this.stream.write(XMLStreamWriter2.__super__.cdata.call(this, node, options2, level));
+        XMLStreamWriter2.prototype.cdata = function(node, options, level) {
+          return this.stream.write(XMLStreamWriter2.__super__.cdata.call(this, node, options, level));
         };
-        XMLStreamWriter2.prototype.comment = function(node, options2, level) {
-          return this.stream.write(XMLStreamWriter2.__super__.comment.call(this, node, options2, level));
+        XMLStreamWriter2.prototype.comment = function(node, options, level) {
+          return this.stream.write(XMLStreamWriter2.__super__.comment.call(this, node, options, level));
         };
-        XMLStreamWriter2.prototype.declaration = function(node, options2, level) {
-          return this.stream.write(XMLStreamWriter2.__super__.declaration.call(this, node, options2, level));
+        XMLStreamWriter2.prototype.declaration = function(node, options, level) {
+          return this.stream.write(XMLStreamWriter2.__super__.declaration.call(this, node, options, level));
         };
-        XMLStreamWriter2.prototype.docType = function(node, options2, level) {
+        XMLStreamWriter2.prototype.docType = function(node, options, level) {
           var child, j, len, ref;
           level || (level = 0);
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          this.stream.write(this.indent(node, options2, level));
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          this.stream.write(this.indent(node, options, level));
           this.stream.write("<!DOCTYPE " + node.root().name);
           if (node.pubID && node.sysID) {
             this.stream.write(' PUBLIC "' + node.pubID + '" "' + node.sysID + '"');
@@ -45979,93 +45979,93 @@ var require_XMLStreamWriter = __commonJS({
           }
           if (node.children.length > 0) {
             this.stream.write(" [");
-            this.stream.write(this.endline(node, options2, level));
-            options2.state = WriterState.InsideTag;
+            this.stream.write(this.endline(node, options, level));
+            options.state = WriterState.InsideTag;
             ref = node.children;
             for (j = 0, len = ref.length; j < len; j++) {
               child = ref[j];
-              this.writeChildNode(child, options2, level + 1);
+              this.writeChildNode(child, options, level + 1);
             }
-            options2.state = WriterState.CloseTag;
+            options.state = WriterState.CloseTag;
             this.stream.write("]");
           }
-          options2.state = WriterState.CloseTag;
-          this.stream.write(options2.spaceBeforeSlash + ">");
-          this.stream.write(this.endline(node, options2, level));
-          options2.state = WriterState.None;
-          return this.closeNode(node, options2, level);
+          options.state = WriterState.CloseTag;
+          this.stream.write(options.spaceBeforeSlash + ">");
+          this.stream.write(this.endline(node, options, level));
+          options.state = WriterState.None;
+          return this.closeNode(node, options, level);
         };
-        XMLStreamWriter2.prototype.element = function(node, options2, level) {
+        XMLStreamWriter2.prototype.element = function(node, options, level) {
           var att, child, childNodeCount, firstChildNode, j, len, name, prettySuppressed, ref, ref1;
           level || (level = 0);
-          this.openNode(node, options2, level);
-          options2.state = WriterState.OpenTag;
-          this.stream.write(this.indent(node, options2, level) + "<" + node.name);
+          this.openNode(node, options, level);
+          options.state = WriterState.OpenTag;
+          this.stream.write(this.indent(node, options, level) + "<" + node.name);
           ref = node.attribs;
           for (name in ref) {
             if (!hasProp.call(ref, name))
               continue;
             att = ref[name];
-            this.attribute(att, options2, level);
+            this.attribute(att, options, level);
           }
           childNodeCount = node.children.length;
           firstChildNode = childNodeCount === 0 ? null : node.children[0];
           if (childNodeCount === 0 || node.children.every(function(e) {
             return (e.type === NodeType.Text || e.type === NodeType.Raw) && e.value === "";
           })) {
-            if (options2.allowEmpty) {
+            if (options.allowEmpty) {
               this.stream.write(">");
-              options2.state = WriterState.CloseTag;
+              options.state = WriterState.CloseTag;
               this.stream.write("</" + node.name + ">");
             } else {
-              options2.state = WriterState.CloseTag;
-              this.stream.write(options2.spaceBeforeSlash + "/>");
+              options.state = WriterState.CloseTag;
+              this.stream.write(options.spaceBeforeSlash + "/>");
             }
-          } else if (options2.pretty && childNodeCount === 1 && (firstChildNode.type === NodeType.Text || firstChildNode.type === NodeType.Raw) && firstChildNode.value != null) {
+          } else if (options.pretty && childNodeCount === 1 && (firstChildNode.type === NodeType.Text || firstChildNode.type === NodeType.Raw) && firstChildNode.value != null) {
             this.stream.write(">");
-            options2.state = WriterState.InsideTag;
-            options2.suppressPrettyCount++;
+            options.state = WriterState.InsideTag;
+            options.suppressPrettyCount++;
             prettySuppressed = true;
-            this.writeChildNode(firstChildNode, options2, level + 1);
-            options2.suppressPrettyCount--;
+            this.writeChildNode(firstChildNode, options, level + 1);
+            options.suppressPrettyCount--;
             prettySuppressed = false;
-            options2.state = WriterState.CloseTag;
+            options.state = WriterState.CloseTag;
             this.stream.write("</" + node.name + ">");
           } else {
-            this.stream.write(">" + this.endline(node, options2, level));
-            options2.state = WriterState.InsideTag;
+            this.stream.write(">" + this.endline(node, options, level));
+            options.state = WriterState.InsideTag;
             ref1 = node.children;
             for (j = 0, len = ref1.length; j < len; j++) {
               child = ref1[j];
-              this.writeChildNode(child, options2, level + 1);
+              this.writeChildNode(child, options, level + 1);
             }
-            options2.state = WriterState.CloseTag;
-            this.stream.write(this.indent(node, options2, level) + "</" + node.name + ">");
+            options.state = WriterState.CloseTag;
+            this.stream.write(this.indent(node, options, level) + "</" + node.name + ">");
           }
-          this.stream.write(this.endline(node, options2, level));
-          options2.state = WriterState.None;
-          return this.closeNode(node, options2, level);
+          this.stream.write(this.endline(node, options, level));
+          options.state = WriterState.None;
+          return this.closeNode(node, options, level);
         };
-        XMLStreamWriter2.prototype.processingInstruction = function(node, options2, level) {
-          return this.stream.write(XMLStreamWriter2.__super__.processingInstruction.call(this, node, options2, level));
+        XMLStreamWriter2.prototype.processingInstruction = function(node, options, level) {
+          return this.stream.write(XMLStreamWriter2.__super__.processingInstruction.call(this, node, options, level));
         };
-        XMLStreamWriter2.prototype.raw = function(node, options2, level) {
-          return this.stream.write(XMLStreamWriter2.__super__.raw.call(this, node, options2, level));
+        XMLStreamWriter2.prototype.raw = function(node, options, level) {
+          return this.stream.write(XMLStreamWriter2.__super__.raw.call(this, node, options, level));
         };
-        XMLStreamWriter2.prototype.text = function(node, options2, level) {
-          return this.stream.write(XMLStreamWriter2.__super__.text.call(this, node, options2, level));
+        XMLStreamWriter2.prototype.text = function(node, options, level) {
+          return this.stream.write(XMLStreamWriter2.__super__.text.call(this, node, options, level));
         };
-        XMLStreamWriter2.prototype.dtdAttList = function(node, options2, level) {
-          return this.stream.write(XMLStreamWriter2.__super__.dtdAttList.call(this, node, options2, level));
+        XMLStreamWriter2.prototype.dtdAttList = function(node, options, level) {
+          return this.stream.write(XMLStreamWriter2.__super__.dtdAttList.call(this, node, options, level));
         };
-        XMLStreamWriter2.prototype.dtdElement = function(node, options2, level) {
-          return this.stream.write(XMLStreamWriter2.__super__.dtdElement.call(this, node, options2, level));
+        XMLStreamWriter2.prototype.dtdElement = function(node, options, level) {
+          return this.stream.write(XMLStreamWriter2.__super__.dtdElement.call(this, node, options, level));
         };
-        XMLStreamWriter2.prototype.dtdEntity = function(node, options2, level) {
-          return this.stream.write(XMLStreamWriter2.__super__.dtdEntity.call(this, node, options2, level));
+        XMLStreamWriter2.prototype.dtdEntity = function(node, options, level) {
+          return this.stream.write(XMLStreamWriter2.__super__.dtdEntity.call(this, node, options, level));
         };
-        XMLStreamWriter2.prototype.dtdNotation = function(node, options2, level) {
-          return this.stream.write(XMLStreamWriter2.__super__.dtdNotation.call(this, node, options2, level));
+        XMLStreamWriter2.prototype.dtdNotation = function(node, options, level) {
+          return this.stream.write(XMLStreamWriter2.__super__.dtdNotation.call(this, node, options, level));
         };
         return XMLStreamWriter2;
       }(XMLWriterBase);
@@ -46087,39 +46087,39 @@ var require_lib5 = __commonJS({
       XMLStreamWriter = require_XMLStreamWriter();
       NodeType = require_NodeType();
       WriterState = require_WriterState();
-      module2.exports.create = function(name, xmldec, doctype, options2) {
+      module2.exports.create = function(name, xmldec, doctype, options) {
         var doc, root;
         if (name == null) {
           throw new Error("Root element needs a name.");
         }
-        options2 = assign({}, xmldec, doctype, options2);
-        doc = new XMLDocument(options2);
+        options = assign({}, xmldec, doctype, options);
+        doc = new XMLDocument(options);
         root = doc.element(name);
-        if (!options2.headless) {
-          doc.declaration(options2);
-          if (options2.pubID != null || options2.sysID != null) {
-            doc.dtd(options2);
+        if (!options.headless) {
+          doc.declaration(options);
+          if (options.pubID != null || options.sysID != null) {
+            doc.dtd(options);
           }
         }
         return root;
       };
-      module2.exports.begin = function(options2, onData, onEnd) {
+      module2.exports.begin = function(options, onData, onEnd) {
         var ref1;
-        if (isFunction(options2)) {
-          ref1 = [options2, onData], onData = ref1[0], onEnd = ref1[1];
-          options2 = {};
+        if (isFunction(options)) {
+          ref1 = [options, onData], onData = ref1[0], onEnd = ref1[1];
+          options = {};
         }
         if (onData) {
-          return new XMLDocumentCB(options2, onData, onEnd);
+          return new XMLDocumentCB(options, onData, onEnd);
         } else {
-          return new XMLDocument(options2);
+          return new XMLDocument(options);
         }
       };
-      module2.exports.stringWriter = function(options2) {
-        return new XMLStringWriter(options2);
+      module2.exports.stringWriter = function(options) {
+        return new XMLStringWriter(options);
       };
-      module2.exports.streamWriter = function(stream, options2) {
-        return new XMLStreamWriter(stream, options2);
+      module2.exports.streamWriter = function(stream, options) {
+        return new XMLStreamWriter(stream, options);
       };
       module2.exports.implementation = new XMLDOMImplementation();
       module2.exports.nodeType = NodeType;
@@ -48106,29 +48106,29 @@ var require_parser = __commonJS({
         return Parser2;
       }(events);
       exports.parseString = function(str2, a, b) {
-        var cb, options2, parser;
+        var cb, options, parser;
         if (b != null) {
           if (typeof b === "function") {
             cb = b;
           }
           if (typeof a === "object") {
-            options2 = a;
+            options = a;
           }
         } else {
           if (typeof a === "function") {
             cb = a;
           }
-          options2 = {};
+          options = {};
         }
-        parser = new exports.Parser(options2);
+        parser = new exports.Parser(options);
         return parser.parseString(str2, cb);
       };
       exports.parseStringPromise = function(str2, a) {
-        var options2, parser;
+        var options, parser;
         if (typeof a === "object") {
-          options2 = a;
+          options = a;
         }
-        parser = new exports.Parser(options2);
+        parser = new exports.Parser(options);
         return parser.parseStringPromise(str2);
       };
     }).call(exports);
@@ -48261,8 +48261,8 @@ var init_xml = __esm({
 // node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/policies/deserializationPolicy.js
 function deserializationPolicy(deserializationContentTypes, parsingOptions) {
   return {
-    create: (nextPolicy, options2) => {
-      return new DeserializationPolicy(nextPolicy, options2, deserializationContentTypes, parsingOptions);
+    create: (nextPolicy, options) => {
+      return new DeserializationPolicy(nextPolicy, options, deserializationContentTypes, parsingOptions);
     }
   };
 }
@@ -48292,12 +48292,12 @@ function shouldDeserializeResponse(parsedResponse) {
   }
   return result;
 }
-function deserializeResponseBody(jsonContentTypes, xmlContentTypes, response, options2 = {}) {
+function deserializeResponseBody(jsonContentTypes, xmlContentTypes, response, options = {}) {
   var _a2, _b, _c;
   const updatedOptions = {
-    rootName: (_a2 = options2.rootName) !== null && _a2 !== void 0 ? _a2 : "",
-    includeRoot: (_b = options2.includeRoot) !== null && _b !== void 0 ? _b : false,
-    xmlCharKey: (_c = options2.xmlCharKey) !== null && _c !== void 0 ? _c : XML_CHARKEY
+    rootName: (_a2 = options.rootName) !== null && _a2 !== void 0 ? _a2 : "",
+    includeRoot: (_b = options.includeRoot) !== null && _b !== void 0 ? _b : false,
+    xmlCharKey: (_c = options.xmlCharKey) !== null && _c !== void 0 ? _c : XML_CHARKEY
   };
   return parse2(jsonContentTypes, xmlContentTypes, response, updatedOptions).then((parsedResponse) => {
     if (!shouldDeserializeResponse(parsedResponse)) {
@@ -48321,7 +48321,7 @@ function deserializeResponseBody(jsonContentTypes, xmlContentTypes, response, op
           valueToDeserialize = typeof valueToDeserialize === "object" ? valueToDeserialize[responseSpec.bodyMapper.xmlElementName] : [];
         }
         try {
-          parsedResponse.parsedBody = operationSpec.serializer.deserialize(responseSpec.bodyMapper, valueToDeserialize, "operationRes.parsedBody", options2);
+          parsedResponse.parsedBody = operationSpec.serializer.deserialize(responseSpec.bodyMapper, valueToDeserialize, "operationRes.parsedBody", options);
         } catch (innerError) {
           const restError = new RestError(`Error ${innerError} occurred in deserializing the responseBody - ${parsedResponse.bodyAsText}`, void 0, parsedResponse.status, parsedResponse.request, parsedResponse);
           throw restError;
@@ -48330,7 +48330,7 @@ function deserializeResponseBody(jsonContentTypes, xmlContentTypes, response, op
         parsedResponse.parsedBody = response.status >= 200 && response.status < 300;
       }
       if (responseSpec.headersMapper) {
-        parsedResponse.parsedHeaders = operationSpec.serializer.deserialize(responseSpec.headersMapper, parsedResponse.headers.toJson(), "operationRes.parsedHeaders", options2);
+        parsedResponse.parsedHeaders = operationSpec.serializer.deserialize(responseSpec.headersMapper, parsedResponse.headers.toJson(), "operationRes.parsedHeaders", options);
       }
     }
     return parsedResponse;
@@ -48448,8 +48448,8 @@ var init_deserializationPolicy = __esm({
 // node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/policies/keepAlivePolicy.js
 function keepAlivePolicy(keepAliveOptions) {
   return {
-    create: (nextPolicy, options2) => {
-      return new KeepAlivePolicy(nextPolicy, options2, keepAliveOptions || DefaultKeepAliveOptions);
+    create: (nextPolicy, options) => {
+      return new KeepAlivePolicy(nextPolicy, options, keepAliveOptions || DefaultKeepAliveOptions);
     }
   };
 }
@@ -48469,8 +48469,8 @@ var init_keepAlivePolicy = __esm({
        * @param options -
        * @param keepAliveOptions -
        */
-      constructor(nextPolicy, options2, keepAliveOptions) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, keepAliveOptions) {
+        super(nextPolicy, options);
         this.keepAliveOptions = keepAliveOptions;
       }
       /**
@@ -48490,8 +48490,8 @@ var init_keepAlivePolicy = __esm({
 // node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/policies/redirectPolicy.js
 function redirectPolicy(maximumRetries = 20) {
   return {
-    create: (nextPolicy, options2) => {
-      return new RedirectPolicy(nextPolicy, options2, maximumRetries);
+    create: (nextPolicy, options) => {
+      return new RedirectPolicy(nextPolicy, options, maximumRetries);
     }
   };
 }
@@ -48518,8 +48518,8 @@ var init_redirectPolicy = __esm({
     init_url();
     allowedRedirect = ["GET", "HEAD"];
     RedirectPolicy = class extends BaseRequestPolicy {
-      constructor(nextPolicy, options2, maxRetries = 20) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, maxRetries = 20) {
+        super(nextPolicy, options);
         this.maxRetries = maxRetries;
       }
       sendRequest(request) {
@@ -48574,8 +48574,8 @@ var init_isNode = __esm({
 });
 
 // node_modules/.pnpm/@azure+core-util@1.3.2/node_modules/@azure/core-util/dist-esm/src/createAbortablePromise.js
-function createAbortablePromise(buildPromise, options2) {
-  const { cleanupBeforeAbort, abortSignal: abortSignal2, abortErrorMsg } = options2 !== null && options2 !== void 0 ? options2 : {};
+function createAbortablePromise(buildPromise, options) {
+  const { cleanupBeforeAbort, abortSignal: abortSignal2, abortErrorMsg } = options !== null && options !== void 0 ? options : {};
   return new Promise((resolve2, reject) => {
     function rejectOnAbort() {
       reject(new AbortError(abortErrorMsg !== null && abortErrorMsg !== void 0 ? abortErrorMsg : "The operation was aborted."));
@@ -48613,9 +48613,9 @@ var init_createAbortablePromise = __esm({
 });
 
 // node_modules/.pnpm/@azure+core-util@1.3.2/node_modules/@azure/core-util/dist-esm/src/delay.js
-function delay(timeInMs, options2) {
+function delay(timeInMs, options) {
   let token;
-  const { abortSignal: abortSignal2, abortErrorMsg } = options2 !== null && options2 !== void 0 ? options2 : {};
+  const { abortSignal: abortSignal2, abortErrorMsg } = options !== null && options !== void 0 ? options : {};
   return createAbortablePromise((resolve2) => {
     token = setTimeout(resolve2, timeInMs);
   }, {
@@ -48645,8 +48645,8 @@ var init_src3 = __esm({
 // node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/policies/exponentialRetryPolicy.js
 function exponentialRetryPolicy(retryCount, retryInterval, maxRetryInterval) {
   return {
-    create: (nextPolicy, options2) => {
-      return new ExponentialRetryPolicy(nextPolicy, options2, retryCount, retryInterval, maxRetryInterval);
+    create: (nextPolicy, options) => {
+      return new ExponentialRetryPolicy(nextPolicy, options, retryCount, retryInterval, maxRetryInterval);
     }
   };
 }
@@ -48705,8 +48705,8 @@ var init_exponentialRetryPolicy = __esm({
        * @param minRetryInterval - The minimum retry interval, in milliseconds.
        * @param maxRetryInterval - The maximum retry interval, in milliseconds.
        */
-      constructor(nextPolicy, options2, retryCount, retryInterval, maxRetryInterval) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, retryCount, retryInterval, maxRetryInterval) {
+        super(nextPolicy, options);
         this.retryCount = isNumber(retryCount) ? retryCount : DEFAULT_CLIENT_RETRY_COUNT;
         this.retryInterval = isNumber(retryInterval) ? retryInterval : DEFAULT_CLIENT_RETRY_INTERVAL;
         this.maxRetryInterval = isNumber(maxRetryInterval) ? maxRetryInterval : DEFAULT_CLIENT_MAX_RETRY_INTERVAL;
@@ -48721,8 +48721,8 @@ var init_exponentialRetryPolicy = __esm({
 // node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/policies/logPolicy.js
 function logPolicy(loggingOptions = {}) {
   return {
-    create: (nextPolicy, options2) => {
-      return new LogPolicy(nextPolicy, options2, loggingOptions);
+    create: (nextPolicy, options) => {
+      return new LogPolicy(nextPolicy, options, loggingOptions);
     }
   };
 }
@@ -48734,8 +48734,8 @@ var init_logPolicy = __esm({
     init_sanitizer();
     init_log2();
     LogPolicy = class extends BaseRequestPolicy {
-      constructor(nextPolicy, options2, { logger: logger3 = logger.info, allowedHeaderNames = [], allowedQueryParameters = [] } = {}) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, { logger: logger3 = logger.info, allowedHeaderNames = [], allowedQueryParameters = [] } = {}) {
+        super(nextPolicy, options);
         this.logger = logger3;
         this.sanitizer = new Sanitizer({ allowedHeaderNames, allowedQueryParameters });
       }
@@ -48899,8 +48899,8 @@ function userAgentPolicy(userAgentData) {
   const key = !userAgentData || userAgentData.key === void 0 || userAgentData.key === null ? getDefaultUserAgentKey() : userAgentData.key;
   const value = !userAgentData || userAgentData.value === void 0 || userAgentData.value === null ? getDefaultUserAgentValue() : userAgentData.value;
   return {
-    create: (nextPolicy, options2) => {
-      return new UserAgentPolicy(nextPolicy, options2, key, value);
+    create: (nextPolicy, options) => {
+      return new UserAgentPolicy(nextPolicy, options, key, value);
     }
   };
 }
@@ -48914,10 +48914,10 @@ var init_userAgentPolicy = __esm({
     init_httpHeaders();
     getDefaultUserAgentHeaderName = getDefaultUserAgentKey;
     UserAgentPolicy = class extends BaseRequestPolicy {
-      constructor(_nextPolicy, _options2, headerKey, headerValue) {
-        super(_nextPolicy, _options2);
+      constructor(_nextPolicy, _options, headerKey, headerValue) {
+        super(_nextPolicy, _options);
         this._nextPolicy = _nextPolicy;
-        this._options = _options2;
+        this._options = _options;
         this.headerKey = headerKey;
         this.headerValue = headerValue;
       }
@@ -48982,7 +48982,7 @@ async function beginRefresh(getAccessToken, retryIntervalInMs, timeoutInMs) {
 function createTokenCycler(credential, scopes, tokenCyclerOptions) {
   let refreshWorker = null;
   let token = null;
-  const options2 = Object.assign(Object.assign({}, DEFAULT_CYCLER_OPTIONS), tokenCyclerOptions);
+  const options = Object.assign(Object.assign({}, DEFAULT_CYCLER_OPTIONS), tokenCyclerOptions);
   const cycler = {
     /**
      * Produces true if a refresh job is currently in progress.
@@ -48996,14 +48996,14 @@ function createTokenCycler(credential, scopes, tokenCyclerOptions) {
      */
     get shouldRefresh() {
       var _a2;
-      return !cycler.isRefreshing && ((_a2 = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a2 !== void 0 ? _a2 : 0) - options2.refreshWindowInMs < Date.now();
+      return !cycler.isRefreshing && ((_a2 = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a2 !== void 0 ? _a2 : 0) - options.refreshWindowInMs < Date.now();
     },
     /**
      * Produces true if the cycler MUST refresh (null or nearly-expired
      * token).
      */
     get mustRefresh() {
-      return token === null || token.expiresOnTimestamp - options2.forcedRefreshWindowInMs < Date.now();
+      return token === null || token.expiresOnTimestamp - options.forcedRefreshWindowInMs < Date.now();
     }
   };
   function refresh(getTokenOptions) {
@@ -49012,7 +49012,7 @@ function createTokenCycler(credential, scopes, tokenCyclerOptions) {
       const tryGetAccessToken = () => credential.getToken(scopes, getTokenOptions);
       refreshWorker = beginRefresh(
         tryGetAccessToken,
-        options2.retryIntervalInMs,
+        options.retryIntervalInMs,
         // If we don't have a token, then we should timeout immediately
         (_a2 = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a2 !== void 0 ? _a2 : Date.now()
       ).then((_token) => {
@@ -49043,8 +49043,8 @@ function bearerTokenAuthenticationPolicy(credential, scopes) {
     /* , options */
   );
   class BearerTokenAuthenticationPolicy extends BaseRequestPolicy {
-    constructor(nextPolicy, options2) {
-      super(nextPolicy, options2);
+    constructor(nextPolicy, options) {
+      super(nextPolicy, options);
     }
     async sendRequest(webResource) {
       if (!webResource.url.toLowerCase().startsWith("https://")) {
@@ -49061,8 +49061,8 @@ function bearerTokenAuthenticationPolicy(credential, scopes) {
     }
   }
   return {
-    create: (nextPolicy, options2) => {
-      return new BearerTokenAuthenticationPolicy(nextPolicy, options2);
+    create: (nextPolicy, options) => {
+      return new BearerTokenAuthenticationPolicy(nextPolicy, options);
     }
   };
 }
@@ -49085,8 +49085,8 @@ var init_bearerTokenAuthenticationPolicy = __esm({
 // node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/policies/disableResponseDecompressionPolicy.js
 function disableResponseDecompressionPolicy() {
   return {
-    create: (nextPolicy, options2) => {
-      return new DisableResponseDecompressionPolicy(nextPolicy, options2);
+    create: (nextPolicy, options) => {
+      return new DisableResponseDecompressionPolicy(nextPolicy, options);
     }
   };
 }
@@ -49104,8 +49104,8 @@ var init_disableResponseDecompressionPolicy = __esm({
        */
       // The parent constructor is protected.
       /* eslint-disable-next-line @typescript-eslint/no-useless-constructor */
-      constructor(nextPolicy, options2) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options) {
+        super(nextPolicy, options);
       }
       /**
        * Sends out request.
@@ -49124,8 +49124,8 @@ var init_disableResponseDecompressionPolicy = __esm({
 // node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/policies/generateClientRequestIdPolicy.js
 function generateClientRequestIdPolicy(requestIdHeaderName = "x-ms-client-request-id") {
   return {
-    create: (nextPolicy, options2) => {
-      return new GenerateClientRequestIdPolicy(nextPolicy, options2, requestIdHeaderName);
+    create: (nextPolicy, options) => {
+      return new GenerateClientRequestIdPolicy(nextPolicy, options, requestIdHeaderName);
     }
   };
 }
@@ -49135,8 +49135,8 @@ var init_generateClientRequestIdPolicy = __esm({
     "use strict";
     init_requestPolicy();
     GenerateClientRequestIdPolicy = class extends BaseRequestPolicy {
-      constructor(nextPolicy, options2, _requestIdHeaderName) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, _requestIdHeaderName) {
+        super(nextPolicy, options);
         this._requestIdHeaderName = _requestIdHeaderName;
       }
       sendRequest(request) {
@@ -49226,7 +49226,7 @@ function getDefaultProxySettings(proxyUrl) {
     password
   };
 }
-function proxyPolicy(proxySettings, options2) {
+function proxyPolicy(proxySettings, options) {
   if (!proxySettings) {
     proxySettings = getDefaultProxySettings();
   }
@@ -49235,7 +49235,7 @@ function proxyPolicy(proxySettings, options2) {
   }
   return {
     create: (nextPolicy, requestPolicyOptions) => {
-      return new ProxyPolicy(nextPolicy, requestPolicyOptions, proxySettings, options2 === null || options2 === void 0 ? void 0 : options2.customNoProxyList);
+      return new ProxyPolicy(nextPolicy, requestPolicyOptions, proxySettings, options === null || options === void 0 ? void 0 : options.customNoProxyList);
     }
   };
 }
@@ -49270,8 +49270,8 @@ var init_proxyPolicy = __esm({
     noProxyListLoaded = false;
     globalBypassedMap = /* @__PURE__ */ new Map();
     ProxyPolicy = class extends BaseRequestPolicy {
-      constructor(nextPolicy, options2, proxySettings, customNoProxyList) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, proxySettings, customNoProxyList) {
+        super(nextPolicy, options);
         this.proxySettings = proxySettings;
         this.customNoProxyList = customNoProxyList;
       }
@@ -49289,8 +49289,8 @@ var init_proxyPolicy = __esm({
 // node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/policies/rpRegistrationPolicy.js
 function rpRegistrationPolicy(retryTimeout = 30) {
   return {
-    create: (nextPolicy, options2) => {
-      return new RPRegistrationPolicy(nextPolicy, options2, retryTimeout);
+    create: (nextPolicy, options) => {
+      return new RPRegistrationPolicy(nextPolicy, options, retryTimeout);
     }
   };
 }
@@ -49378,8 +49378,8 @@ var init_rpRegistrationPolicy = __esm({
     init_requestPolicy();
     init_src3();
     RPRegistrationPolicy = class extends BaseRequestPolicy {
-      constructor(nextPolicy, options2, _retryTimeout = 30) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, _retryTimeout = 30) {
+        super(nextPolicy, options);
         this._retryTimeout = _retryTimeout;
       }
       sendRequest(request) {
@@ -49392,8 +49392,8 @@ var init_rpRegistrationPolicy = __esm({
 // node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/policies/signingPolicy.js
 function signingPolicy(authenticationProvider) {
   return {
-    create: (nextPolicy, options2) => {
-      return new SigningPolicy(nextPolicy, options2, authenticationProvider);
+    create: (nextPolicy, options) => {
+      return new SigningPolicy(nextPolicy, options, authenticationProvider);
     }
   };
 }
@@ -49403,8 +49403,8 @@ var init_signingPolicy = __esm({
     "use strict";
     init_requestPolicy();
     SigningPolicy = class extends BaseRequestPolicy {
-      constructor(nextPolicy, options2, authenticationProvider) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, authenticationProvider) {
+        super(nextPolicy, options);
         this.authenticationProvider = authenticationProvider;
       }
       signRequest(request) {
@@ -49420,8 +49420,8 @@ var init_signingPolicy = __esm({
 // node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/policies/systemErrorRetryPolicy.js
 function systemErrorRetryPolicy(retryCount, retryInterval, minRetryInterval, maxRetryInterval) {
   return {
-    create: (nextPolicy, options2) => {
-      return new SystemErrorRetryPolicy(nextPolicy, options2, retryCount, retryInterval, minRetryInterval, maxRetryInterval);
+    create: (nextPolicy, options) => {
+      return new SystemErrorRetryPolicy(nextPolicy, options, retryCount, retryInterval, minRetryInterval, maxRetryInterval);
     }
   };
 }
@@ -49455,8 +49455,8 @@ var init_systemErrorRetryPolicy = __esm({
     init_exponentialBackoffStrategy();
     init_src3();
     SystemErrorRetryPolicy = class extends BaseRequestPolicy {
-      constructor(nextPolicy, options2, retryCount, retryInterval, minRetryInterval, maxRetryInterval) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, retryCount, retryInterval, minRetryInterval, maxRetryInterval) {
+        super(nextPolicy, options);
         this.retryCount = isNumber(retryCount) ? retryCount : DEFAULT_CLIENT_RETRY_COUNT;
         this.retryInterval = isNumber(retryInterval) ? retryInterval : DEFAULT_CLIENT_RETRY_INTERVAL;
         this.minRetryInterval = isNumber(minRetryInterval) ? minRetryInterval : DEFAULT_CLIENT_MIN_RETRY_INTERVAL;
@@ -49481,8 +49481,8 @@ var init_throttlingRetryStrategy = __esm({
 // node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/policies/throttlingRetryPolicy.js
 function throttlingRetryPolicy() {
   return {
-    create: (nextPolicy, options2) => {
-      return new ThrottlingRetryPolicy(nextPolicy, options2);
+    create: (nextPolicy, options) => {
+      return new ThrottlingRetryPolicy(nextPolicy, options);
     }
   };
 }
@@ -49498,8 +49498,8 @@ var init_throttlingRetryPolicy = __esm({
     StatusCodes = Constants.HttpConstants.StatusCodes;
     StandardAbortMessage2 = "The operation was aborted.";
     ThrottlingRetryPolicy = class _ThrottlingRetryPolicy extends BaseRequestPolicy {
-      constructor(nextPolicy, options2, _handleResponse) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, _handleResponse) {
+        super(nextPolicy, options);
         this.numberOfRetries = 0;
         this._handleResponse = _handleResponse || this._defaultResponseHandler;
       }
@@ -49940,8 +49940,8 @@ var init_diag = __esm({
         self.disable = function() {
           unregisterGlobal(API_NAME, self);
         };
-        self.createComponentLogger = function(options2) {
-          return new DiagComponentLogger(options2);
+        self.createComponentLogger = function(options) {
+          return new DiagComponentLogger(options);
         };
         self.verbose = _logProxy("verbose");
         self.debug = _logProxy("debug");
@@ -50284,11 +50284,11 @@ var init_NoopTracer = __esm({
     function() {
       function NoopTracer2() {
       }
-      NoopTracer2.prototype.startSpan = function(name, options2, context3) {
+      NoopTracer2.prototype.startSpan = function(name, options, context3) {
         if (context3 === void 0) {
           context3 = contextApi.active();
         }
-        var root = Boolean(options2 === null || options2 === void 0 ? void 0 : options2.root);
+        var root = Boolean(options === null || options === void 0 ? void 0 : options.root);
         if (root) {
           return new NonRecordingSpan();
         }
@@ -50334,16 +50334,16 @@ var init_ProxyTracer = __esm({
     NOOP_TRACER = new NoopTracer();
     ProxyTracer = /** @class */
     function() {
-      function ProxyTracer2(_provider, name, version3, options2) {
+      function ProxyTracer2(_provider, name, version3, options) {
         this._provider = _provider;
         this.name = name;
         this.version = version3;
-        this.options = options2;
+        this.options = options;
       }
-      ProxyTracer2.prototype.startSpan = function(name, options2, context3) {
-        return this._getTracer().startSpan(name, options2, context3);
+      ProxyTracer2.prototype.startSpan = function(name, options, context3) {
+        return this._getTracer().startSpan(name, options, context3);
       };
-      ProxyTracer2.prototype.startActiveSpan = function(_name, _options2, _context, _fn) {
+      ProxyTracer2.prototype.startActiveSpan = function(_name, _options, _context, _fn) {
         var tracer = this._getTracer();
         return Reflect.apply(tracer.startActiveSpan, tracer, arguments);
       };
@@ -50373,7 +50373,7 @@ var init_NoopTracerProvider = __esm({
     function() {
       function NoopTracerProvider2() {
       }
-      NoopTracerProvider2.prototype.getTracer = function(_name, _version, _options2) {
+      NoopTracerProvider2.prototype.getTracer = function(_name, _version, _options) {
         return new NoopTracer();
       };
       return NoopTracerProvider2;
@@ -50393,9 +50393,9 @@ var init_ProxyTracerProvider = __esm({
     function() {
       function ProxyTracerProvider2() {
       }
-      ProxyTracerProvider2.prototype.getTracer = function(name, version3, options2) {
+      ProxyTracerProvider2.prototype.getTracer = function(name, version3, options) {
         var _a2;
-        return (_a2 = this.getDelegateTracer(name, version3, options2)) !== null && _a2 !== void 0 ? _a2 : new ProxyTracer(this, name, version3, options2);
+        return (_a2 = this.getDelegateTracer(name, version3, options)) !== null && _a2 !== void 0 ? _a2 : new ProxyTracer(this, name, version3, options);
       };
       ProxyTracerProvider2.prototype.getDelegate = function() {
         var _a2;
@@ -50404,9 +50404,9 @@ var init_ProxyTracerProvider = __esm({
       ProxyTracerProvider2.prototype.setDelegate = function(delegate) {
         this._delegate = delegate;
       };
-      ProxyTracerProvider2.prototype.getDelegateTracer = function(name, version3, options2) {
+      ProxyTracerProvider2.prototype.getDelegateTracer = function(name, version3, options) {
         var _a2;
-        return (_a2 = this._delegate) === null || _a2 === void 0 ? void 0 : _a2.getTracer(name, version3, options2);
+        return (_a2 = this._delegate) === null || _a2 === void 0 ? void 0 : _a2.getTracer(name, version3, options);
       };
       return ProxyTracerProvider2;
     }();
@@ -50611,8 +50611,8 @@ var init_src5 = __esm({
 // node_modules/.pnpm/@azure+core-http@3.0.2/node_modules/@azure/core-http/dist-esm/src/policies/tracingPolicy.js
 function tracingPolicy(tracingOptions = {}) {
   return {
-    create(nextPolicy, options2) {
-      return new TracingPolicy(nextPolicy, options2, tracingOptions);
+    create(nextPolicy, options) {
+      return new TracingPolicy(nextPolicy, options, tracingOptions);
     }
   };
 }
@@ -50628,8 +50628,8 @@ var init_tracingPolicy = __esm({
       namespace: ""
     });
     TracingPolicy = class extends BaseRequestPolicy {
-      constructor(nextPolicy, options2, tracingOptions) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, tracingOptions) {
+        super(nextPolicy, options);
         this.userAgent = tracingOptions.userAgent;
       }
       async sendRequest(request) {
@@ -50776,10 +50776,10 @@ function serializeRequestBody(serviceClient, httpRequest, operationArguments, op
     }
   }
 }
-function getXmlValueWithNamespace(xmlNamespace, xmlnsKey, typeName, serializedValue, options2) {
+function getXmlValueWithNamespace(xmlNamespace, xmlnsKey, typeName, serializedValue, options) {
   if (xmlNamespace && !["Composite", "Sequence", "Dictionary"].includes(typeName)) {
     const result = {};
-    result[options2.xmlCharKey] = serializedValue;
+    result[options.xmlCharKey] = serializedValue;
     result[XML_ATTRKEY] = { [xmlnsKey]: xmlNamespace };
     return result;
   }
@@ -50797,29 +50797,29 @@ function getValueOrFunctionResult(value, defaultValueCreator) {
   }
   return result;
 }
-function createDefaultRequestPolicyFactories(authPolicyFactory, options2) {
+function createDefaultRequestPolicyFactories(authPolicyFactory, options) {
   const factories = [];
-  if (options2.generateClientRequestIdHeader) {
-    factories.push(generateClientRequestIdPolicy(options2.clientRequestIdHeaderName));
+  if (options.generateClientRequestIdHeader) {
+    factories.push(generateClientRequestIdPolicy(options.clientRequestIdHeaderName));
   }
   if (authPolicyFactory) {
     factories.push(authPolicyFactory);
   }
-  const userAgentHeaderName = getValueOrFunctionResult(options2.userAgentHeaderName, getDefaultUserAgentHeaderName);
-  const userAgentHeaderValue = getValueOrFunctionResult(options2.userAgent, getDefaultUserAgentValue);
+  const userAgentHeaderName = getValueOrFunctionResult(options.userAgentHeaderName, getDefaultUserAgentHeaderName);
+  const userAgentHeaderValue = getValueOrFunctionResult(options.userAgent, getDefaultUserAgentValue);
   if (userAgentHeaderName && userAgentHeaderValue) {
     factories.push(userAgentPolicy({ key: userAgentHeaderName, value: userAgentHeaderValue }));
   }
   factories.push(redirectPolicy());
-  factories.push(rpRegistrationPolicy(options2.rpRegistrationRetryTimeout));
-  if (!options2.noRetryPolicy) {
+  factories.push(rpRegistrationPolicy(options.rpRegistrationRetryTimeout));
+  if (!options.noRetryPolicy) {
     factories.push(exponentialRetryPolicy());
     factories.push(systemErrorRetryPolicy());
     factories.push(throttlingRetryPolicy());
   }
-  factories.push(deserializationPolicy(options2.deserializationContentTypes));
+  factories.push(deserializationPolicy(options.deserializationContentTypes));
   if (isNode) {
-    factories.push(proxyPolicy(options2.proxySettings));
+    factories.push(proxyPolicy(options.proxySettings));
   }
   factories.push(logPolicy({ logger: logger.info }));
   return factories;
@@ -50928,9 +50928,9 @@ function flattenResponse(_response, responseSpec) {
   }
   return addOperationResponse(Object.assign(Object.assign({}, parsedHeaders), _response.parsedBody));
 }
-function getCredentialScopes(options2, baseUri) {
-  if (options2 === null || options2 === void 0 ? void 0 : options2.credentialScopes) {
-    return options2.credentialScopes;
+function getCredentialScopes(options, baseUri) {
+  if (options === null || options === void 0 ? void 0 : options.credentialScopes) {
+    return options.credentialScopes;
   }
   if (baseUri) {
     return `${baseUri}/.default`;
@@ -50973,17 +50973,17 @@ var init_serviceClient = __esm({
        * @param credentials - The credentials used for authentication with the service.
        * @param options - The service client options that govern the behavior of the client.
        */
-      constructor(credentials, options2) {
-        if (!options2) {
-          options2 = {};
+      constructor(credentials, options) {
+        if (!options) {
+          options = {};
         }
-        this._withCredentials = options2.withCredentials || false;
-        this._httpClient = options2.httpClient || getCachedDefaultHttpClient();
-        this._requestPolicyOptions = new RequestPolicyOptions(options2.httpPipelineLogger);
+        this._withCredentials = options.withCredentials || false;
+        this._httpClient = options.httpClient || getCachedDefaultHttpClient();
+        this._requestPolicyOptions = new RequestPolicyOptions(options.httpPipelineLogger);
         let requestPolicyFactories;
-        if (Array.isArray(options2.requestPolicyFactories)) {
+        if (Array.isArray(options.requestPolicyFactories)) {
           logger.info("ServiceClient: using custom request policies");
-          requestPolicyFactories = options2.requestPolicyFactories;
+          requestPolicyFactories = options.requestPolicyFactories;
         } else {
           let authPolicyFactory = void 0;
           if (isTokenCredential(credentials)) {
@@ -50991,7 +50991,7 @@ var init_serviceClient = __esm({
             const wrappedPolicyFactory = () => {
               let bearerTokenPolicyFactory = void 0;
               const serviceClient = this;
-              const serviceClientOptions = options2;
+              const serviceClientOptions = options;
               return {
                 create(nextPolicy, createOptions) {
                   const credentialScopes = getCredentialScopes(serviceClientOptions, serviceClient.baseUri);
@@ -51013,9 +51013,9 @@ var init_serviceClient = __esm({
             throw new Error("The credentials argument must implement the TokenCredential interface");
           }
           logger.info("ServiceClient: using default request policies");
-          requestPolicyFactories = createDefaultRequestPolicyFactories(authPolicyFactory, options2);
-          if (options2.requestPolicyFactories) {
-            const newRequestPolicyFactories = options2.requestPolicyFactories(requestPolicyFactories);
+          requestPolicyFactories = createDefaultRequestPolicyFactories(authPolicyFactory, options);
+          if (options.requestPolicyFactories) {
+            const newRequestPolicyFactories = options.requestPolicyFactories(requestPolicyFactories);
             if (newRequestPolicyFactories) {
               requestPolicyFactories = newRequestPolicyFactories;
             }
@@ -51026,18 +51026,18 @@ var init_serviceClient = __esm({
       /**
        * Send the provided httpRequest.
        */
-      sendRequest(options2) {
-        if (options2 === null || options2 === void 0 || typeof options2 !== "object") {
+      sendRequest(options) {
+        if (options === null || options === void 0 || typeof options !== "object") {
           throw new Error("options cannot be null or undefined and it must be of type object.");
         }
         let httpRequest;
         try {
-          if (isWebResourceLike(options2)) {
-            options2.validateRequestProperties();
-            httpRequest = options2;
+          if (isWebResourceLike(options)) {
+            options.validateRequestProperties();
+            httpRequest = options;
           } else {
             httpRequest = new WebResource();
-            httpRequest = httpRequest.prepare(options2);
+            httpRequest = httpRequest.prepare(options);
           }
         } catch (error) {
           return Promise.reject(error);
@@ -51144,33 +51144,33 @@ var init_serviceClient = __esm({
               }
             }
           }
-          const options2 = operationArguments.options;
-          if (options2) {
-            if (options2.customHeaders) {
-              for (const customHeaderName in options2.customHeaders) {
-                httpRequest.headers.set(customHeaderName, options2.customHeaders[customHeaderName]);
+          const options = operationArguments.options;
+          if (options) {
+            if (options.customHeaders) {
+              for (const customHeaderName in options.customHeaders) {
+                httpRequest.headers.set(customHeaderName, options.customHeaders[customHeaderName]);
               }
             }
-            if (options2.abortSignal) {
-              httpRequest.abortSignal = options2.abortSignal;
+            if (options.abortSignal) {
+              httpRequest.abortSignal = options.abortSignal;
             }
-            if (options2.timeout) {
-              httpRequest.timeout = options2.timeout;
+            if (options.timeout) {
+              httpRequest.timeout = options.timeout;
             }
-            if (options2.onUploadProgress) {
-              httpRequest.onUploadProgress = options2.onUploadProgress;
+            if (options.onUploadProgress) {
+              httpRequest.onUploadProgress = options.onUploadProgress;
             }
-            if (options2.onDownloadProgress) {
-              httpRequest.onDownloadProgress = options2.onDownloadProgress;
+            if (options.onDownloadProgress) {
+              httpRequest.onDownloadProgress = options.onDownloadProgress;
             }
-            if (options2.spanOptions) {
-              httpRequest.spanOptions = options2.spanOptions;
+            if (options.spanOptions) {
+              httpRequest.spanOptions = options.spanOptions;
             }
-            if (options2.tracingContext) {
-              httpRequest.tracingContext = options2.tracingContext;
+            if (options.tracingContext) {
+              httpRequest.tracingContext = options.tracingContext;
             }
-            if (options2.shouldDeserialize !== void 0 && options2.shouldDeserialize !== null) {
-              httpRequest.shouldDeserialize = options2.shouldDeserialize;
+            if (options.shouldDeserialize !== void 0 && options.shouldDeserialize !== null) {
+              httpRequest.shouldDeserialize = options.shouldDeserialize;
             }
           }
           httpRequest.withCredentials = this._withCredentials;
@@ -61251,10 +61251,10 @@ var init_service = __esm({
        * @param blobServiceProperties The StorageService properties.
        * @param options The options parameters.
        */
-      setProperties(blobServiceProperties2, options2) {
+      setProperties(blobServiceProperties2, options) {
         const operationArguments = {
           blobServiceProperties: blobServiceProperties2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, setPropertiesOperationSpec);
       }
@@ -61263,9 +61263,9 @@ var init_service = __esm({
        * and CORS (Cross-Origin Resource Sharing) rules.
        * @param options The options parameters.
        */
-      getProperties(options2) {
+      getProperties(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, getPropertiesOperationSpec);
       }
@@ -61275,9 +61275,9 @@ var init_service = __esm({
        * account.
        * @param options The options parameters.
        */
-      getStatistics(options2) {
+      getStatistics(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, getStatisticsOperationSpec);
       }
@@ -61285,9 +61285,9 @@ var init_service = __esm({
        * The List Containers Segment operation returns a list of the containers under the specified account
        * @param options The options parameters.
        */
-      listContainersSegment(options2) {
+      listContainersSegment(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, listContainersSegmentOperationSpec);
       }
@@ -61297,10 +61297,10 @@ var init_service = __esm({
        * @param keyInfo Key information
        * @param options The options parameters.
        */
-      getUserDelegationKey(keyInfo2, options2) {
+      getUserDelegationKey(keyInfo2, options) {
         const operationArguments = {
           keyInfo: keyInfo2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, getUserDelegationKeyOperationSpec);
       }
@@ -61308,9 +61308,9 @@ var init_service = __esm({
        * Returns the sku name and account kind
        * @param options The options parameters.
        */
-      getAccountInfo(options2) {
+      getAccountInfo(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, getAccountInfoOperationSpec);
       }
@@ -61322,12 +61322,12 @@ var init_service = __esm({
        * @param body Initial data
        * @param options The options parameters.
        */
-      submitBatch(contentLength2, multipartContentType2, body2, options2) {
+      submitBatch(contentLength2, multipartContentType2, body2, options) {
         const operationArguments = {
           contentLength: contentLength2,
           multipartContentType: multipartContentType2,
           body: body2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, submitBatchOperationSpec);
       }
@@ -61337,9 +61337,9 @@ var init_service = __esm({
        * can be scoped within the expression to a single container.
        * @param options The options parameters.
        */
-      filterBlobs(options2) {
+      filterBlobs(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, filterBlobsOperationSpec);
       }
@@ -61597,9 +61597,9 @@ var init_container = __esm({
        * exists, the operation fails
        * @param options The options parameters.
        */
-      create(options2) {
+      create(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, createOperationSpec);
       }
@@ -61608,9 +61608,9 @@ var init_container = __esm({
        * returned does not include the container's list of blobs
        * @param options The options parameters.
        */
-      getProperties(options2) {
+      getProperties(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, getPropertiesOperationSpec2);
       }
@@ -61619,9 +61619,9 @@ var init_container = __esm({
        * it are later deleted during garbage collection
        * @param options The options parameters.
        */
-      delete(options2) {
+      delete(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, deleteOperationSpec);
       }
@@ -61629,9 +61629,9 @@ var init_container = __esm({
        * operation sets one or more user-defined name-value pairs for the specified container.
        * @param options The options parameters.
        */
-      setMetadata(options2) {
+      setMetadata(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, setMetadataOperationSpec);
       }
@@ -61640,9 +61640,9 @@ var init_container = __esm({
        * may be accessed publicly.
        * @param options The options parameters.
        */
-      getAccessPolicy(options2) {
+      getAccessPolicy(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, getAccessPolicyOperationSpec);
       }
@@ -61651,9 +61651,9 @@ var init_container = __esm({
        * container may be accessed publicly.
        * @param options The options parameters.
        */
-      setAccessPolicy(options2) {
+      setAccessPolicy(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, setAccessPolicyOperationSpec);
       }
@@ -61661,9 +61661,9 @@ var init_container = __esm({
        * Restores a previously-deleted container.
        * @param options The options parameters.
        */
-      restore(options2) {
+      restore(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, restoreOperationSpec);
       }
@@ -61672,10 +61672,10 @@ var init_container = __esm({
        * @param sourceContainerName Required.  Specifies the name of the container to rename.
        * @param options The options parameters.
        */
-      rename(sourceContainerName2, options2) {
+      rename(sourceContainerName2, options) {
         const operationArguments = {
           sourceContainerName: sourceContainerName2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, renameOperationSpec);
       }
@@ -61687,12 +61687,12 @@ var init_container = __esm({
        * @param body Initial data
        * @param options The options parameters.
        */
-      submitBatch(contentLength2, multipartContentType2, body2, options2) {
+      submitBatch(contentLength2, multipartContentType2, body2, options) {
         const operationArguments = {
           contentLength: contentLength2,
           multipartContentType: multipartContentType2,
           body: body2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, submitBatchOperationSpec2);
       }
@@ -61701,9 +61701,9 @@ var init_container = __esm({
        * search expression.  Filter blobs searches within the given container.
        * @param options The options parameters.
        */
-      filterBlobs(options2) {
+      filterBlobs(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, filterBlobsOperationSpec2);
       }
@@ -61712,9 +61712,9 @@ var init_container = __esm({
        * be 15 to 60 seconds, or can be infinite
        * @param options The options parameters.
        */
-      acquireLease(options2) {
+      acquireLease(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, acquireLeaseOperationSpec);
       }
@@ -61724,10 +61724,10 @@ var init_container = __esm({
        * @param leaseId Specifies the current lease ID on the resource.
        * @param options The options parameters.
        */
-      releaseLease(leaseId2, options2) {
+      releaseLease(leaseId2, options) {
         const operationArguments = {
           leaseId: leaseId2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, releaseLeaseOperationSpec);
       }
@@ -61737,10 +61737,10 @@ var init_container = __esm({
        * @param leaseId Specifies the current lease ID on the resource.
        * @param options The options parameters.
        */
-      renewLease(leaseId2, options2) {
+      renewLease(leaseId2, options) {
         const operationArguments = {
           leaseId: leaseId2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, renewLeaseOperationSpec);
       }
@@ -61749,9 +61749,9 @@ var init_container = __esm({
        * be 15 to 60 seconds, or can be infinite
        * @param options The options parameters.
        */
-      breakLease(options2) {
+      breakLease(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, breakLeaseOperationSpec);
       }
@@ -61764,11 +61764,11 @@ var init_container = __esm({
        *                        (String) for a list of valid GUID string formats.
        * @param options The options parameters.
        */
-      changeLease(leaseId2, proposedLeaseId2, options2) {
+      changeLease(leaseId2, proposedLeaseId2, options) {
         const operationArguments = {
           leaseId: leaseId2,
           proposedLeaseId: proposedLeaseId2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, changeLeaseOperationSpec);
       }
@@ -61776,9 +61776,9 @@ var init_container = __esm({
        * [Update] The List Blobs operation returns a list of the blobs under the specified container
        * @param options The options parameters.
        */
-      listBlobFlatSegment(options2) {
+      listBlobFlatSegment(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, listBlobFlatSegmentOperationSpec);
       }
@@ -61790,10 +61790,10 @@ var init_container = __esm({
        *                  character or a string.
        * @param options The options parameters.
        */
-      listBlobHierarchySegment(delimiter2, options2) {
+      listBlobHierarchySegment(delimiter2, options) {
         const operationArguments = {
           delimiter: delimiter2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, listBlobHierarchySegmentOperationSpec);
       }
@@ -61801,9 +61801,9 @@ var init_container = __esm({
        * Returns the sku name and account kind
        * @param options The options parameters.
        */
-      getAccountInfo(options2) {
+      getAccountInfo(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, getAccountInfoOperationSpec2);
       }
@@ -62368,9 +62368,9 @@ var init_blob = __esm({
        * properties. You can also call Download to read a snapshot.
        * @param options The options parameters.
        */
-      download(options2) {
+      download(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, downloadOperationSpec);
       }
@@ -62379,9 +62379,9 @@ var init_blob = __esm({
        * properties for the blob. It does not return the content of the blob.
        * @param options The options parameters.
        */
-      getProperties(options2) {
+      getProperties(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, getPropertiesOperationSpec3);
       }
@@ -62400,9 +62400,9 @@ var init_blob = __esm({
        * (ResourceNotFound).
        * @param options The options parameters.
        */
-      delete(options2) {
+      delete(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, deleteOperationSpec2);
       }
@@ -62410,9 +62410,9 @@ var init_blob = __esm({
        * Undelete a blob that was previously soft deleted
        * @param options The options parameters.
        */
-      undelete(options2) {
+      undelete(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, undeleteOperationSpec);
       }
@@ -62421,10 +62421,10 @@ var init_blob = __esm({
        * @param expiryOptions Required. Indicates mode of the expiry time
        * @param options The options parameters.
        */
-      setExpiry(expiryOptions2, options2) {
+      setExpiry(expiryOptions2, options) {
         const operationArguments = {
           expiryOptions: expiryOptions2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, setExpiryOperationSpec);
       }
@@ -62432,9 +62432,9 @@ var init_blob = __esm({
        * The Set HTTP Headers operation sets system properties on the blob
        * @param options The options parameters.
        */
-      setHttpHeaders(options2) {
+      setHttpHeaders(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, setHttpHeadersOperationSpec);
       }
@@ -62442,9 +62442,9 @@ var init_blob = __esm({
        * The Set Immutability Policy operation sets the immutability policy on the blob
        * @param options The options parameters.
        */
-      setImmutabilityPolicy(options2) {
+      setImmutabilityPolicy(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, setImmutabilityPolicyOperationSpec);
       }
@@ -62452,9 +62452,9 @@ var init_blob = __esm({
        * The Delete Immutability Policy operation deletes the immutability policy on the blob
        * @param options The options parameters.
        */
-      deleteImmutabilityPolicy(options2) {
+      deleteImmutabilityPolicy(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, deleteImmutabilityPolicyOperationSpec);
       }
@@ -62463,10 +62463,10 @@ var init_blob = __esm({
        * @param legalHold Specified if a legal hold should be set on the blob.
        * @param options The options parameters.
        */
-      setLegalHold(legalHold2, options2) {
+      setLegalHold(legalHold2, options) {
         const operationArguments = {
           legalHold: legalHold2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, setLegalHoldOperationSpec);
       }
@@ -62475,9 +62475,9 @@ var init_blob = __esm({
        * name-value pairs
        * @param options The options parameters.
        */
-      setMetadata(options2) {
+      setMetadata(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, setMetadataOperationSpec2);
       }
@@ -62486,9 +62486,9 @@ var init_blob = __esm({
        * operations
        * @param options The options parameters.
        */
-      acquireLease(options2) {
+      acquireLease(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, acquireLeaseOperationSpec2);
       }
@@ -62498,10 +62498,10 @@ var init_blob = __esm({
        * @param leaseId Specifies the current lease ID on the resource.
        * @param options The options parameters.
        */
-      releaseLease(leaseId2, options2) {
+      releaseLease(leaseId2, options) {
         const operationArguments = {
           leaseId: leaseId2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, releaseLeaseOperationSpec2);
       }
@@ -62511,10 +62511,10 @@ var init_blob = __esm({
        * @param leaseId Specifies the current lease ID on the resource.
        * @param options The options parameters.
        */
-      renewLease(leaseId2, options2) {
+      renewLease(leaseId2, options) {
         const operationArguments = {
           leaseId: leaseId2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, renewLeaseOperationSpec2);
       }
@@ -62527,11 +62527,11 @@ var init_blob = __esm({
        *                        (String) for a list of valid GUID string formats.
        * @param options The options parameters.
        */
-      changeLease(leaseId2, proposedLeaseId2, options2) {
+      changeLease(leaseId2, proposedLeaseId2, options) {
         const operationArguments = {
           leaseId: leaseId2,
           proposedLeaseId: proposedLeaseId2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, changeLeaseOperationSpec2);
       }
@@ -62540,9 +62540,9 @@ var init_blob = __esm({
        * operations
        * @param options The options parameters.
        */
-      breakLease(options2) {
+      breakLease(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, breakLeaseOperationSpec2);
       }
@@ -62550,9 +62550,9 @@ var init_blob = __esm({
        * The Create Snapshot operation creates a read-only snapshot of a blob
        * @param options The options parameters.
        */
-      createSnapshot(options2) {
+      createSnapshot(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, createSnapshotOperationSpec);
       }
@@ -62564,10 +62564,10 @@ var init_blob = __esm({
        *                   access signature.
        * @param options The options parameters.
        */
-      startCopyFromURL(copySource2, options2) {
+      startCopyFromURL(copySource2, options) {
         const operationArguments = {
           copySource: copySource2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, startCopyFromURLOperationSpec);
       }
@@ -62580,10 +62580,10 @@ var init_blob = __esm({
        *                   access signature.
        * @param options The options parameters.
        */
-      copyFromURL(copySource2, options2) {
+      copyFromURL(copySource2, options) {
         const operationArguments = {
           copySource: copySource2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, copyFromURLOperationSpec);
       }
@@ -62594,10 +62594,10 @@ var init_blob = __esm({
        *               operation.
        * @param options The options parameters.
        */
-      abortCopyFromURL(copyId2, options2) {
+      abortCopyFromURL(copyId2, options) {
         const operationArguments = {
           copyId: copyId2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, abortCopyFromURLOperationSpec);
       }
@@ -62610,10 +62610,10 @@ var init_blob = __esm({
        * @param tier Indicates the tier to be set on the blob.
        * @param options The options parameters.
        */
-      setTier(tier2, options2) {
+      setTier(tier2, options) {
         const operationArguments = {
           tier: tier2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, setTierOperationSpec);
       }
@@ -62621,9 +62621,9 @@ var init_blob = __esm({
        * Returns the sku name and account kind
        * @param options The options parameters.
        */
-      getAccountInfo(options2) {
+      getAccountInfo(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, getAccountInfoOperationSpec3);
       }
@@ -62632,9 +62632,9 @@ var init_blob = __esm({
        * expressions.
        * @param options The options parameters.
        */
-      query(options2) {
+      query(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, queryOperationSpec);
       }
@@ -62642,9 +62642,9 @@ var init_blob = __esm({
        * The Get Tags operation enables users to get the tags associated with a blob.
        * @param options The options parameters.
        */
-      getTags(options2) {
+      getTags(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, getTagsOperationSpec);
       }
@@ -62652,9 +62652,9 @@ var init_blob = __esm({
        * The Set Tags operation enables users to set tags on a blob.
        * @param options The options parameters.
        */
-      setTags(options2) {
+      setTags(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, setTagsOperationSpec);
       }
@@ -63451,11 +63451,11 @@ var init_pageBlob = __esm({
        *                          page blob size must be aligned to a 512-byte boundary.
        * @param options The options parameters.
        */
-      create(contentLength2, blobContentLength2, options2) {
+      create(contentLength2, blobContentLength2, options) {
         const operationArguments = {
           contentLength: contentLength2,
           blobContentLength: blobContentLength2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, createOperationSpec2);
       }
@@ -63465,11 +63465,11 @@ var init_pageBlob = __esm({
        * @param body Initial data
        * @param options The options parameters.
        */
-      uploadPages(contentLength2, body2, options2) {
+      uploadPages(contentLength2, body2, options) {
         const operationArguments = {
           contentLength: contentLength2,
           body: body2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, uploadPagesOperationSpec);
       }
@@ -63478,10 +63478,10 @@ var init_pageBlob = __esm({
        * @param contentLength The length of the request.
        * @param options The options parameters.
        */
-      clearPages(contentLength2, options2) {
+      clearPages(contentLength2, options) {
         const operationArguments = {
           contentLength: contentLength2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, clearPagesOperationSpec);
       }
@@ -63496,13 +63496,13 @@ var init_pageBlob = __esm({
        *              aligned and range-end is required.
        * @param options The options parameters.
        */
-      uploadPagesFromURL(sourceUrl2, sourceRange2, contentLength2, range2, options2) {
+      uploadPagesFromURL(sourceUrl2, sourceRange2, contentLength2, range2, options) {
         const operationArguments = {
           sourceUrl: sourceUrl2,
           sourceRange: sourceRange2,
           contentLength: contentLength2,
           range: range2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, uploadPagesFromURLOperationSpec);
       }
@@ -63511,9 +63511,9 @@ var init_pageBlob = __esm({
        * page blob
        * @param options The options parameters.
        */
-      getPageRanges(options2) {
+      getPageRanges(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, getPageRangesOperationSpec);
       }
@@ -63522,9 +63522,9 @@ var init_pageBlob = __esm({
        * changed between target blob and previous snapshot.
        * @param options The options parameters.
        */
-      getPageRangesDiff(options2) {
+      getPageRangesDiff(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, getPageRangesDiffOperationSpec);
       }
@@ -63534,10 +63534,10 @@ var init_pageBlob = __esm({
        *                          page blob size must be aligned to a 512-byte boundary.
        * @param options The options parameters.
        */
-      resize(blobContentLength2, options2) {
+      resize(blobContentLength2, options) {
         const operationArguments = {
           blobContentLength: blobContentLength2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, resizeOperationSpec);
       }
@@ -63548,10 +63548,10 @@ var init_pageBlob = __esm({
        *                             blob's sequence number
        * @param options The options parameters.
        */
-      updateSequenceNumber(sequenceNumberAction2, options2) {
+      updateSequenceNumber(sequenceNumberAction2, options) {
         const operationArguments = {
           sequenceNumberAction: sequenceNumberAction2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, updateSequenceNumberOperationSpec);
       }
@@ -63567,10 +63567,10 @@ var init_pageBlob = __esm({
        *                   access signature.
        * @param options The options parameters.
        */
-      copyIncremental(copySource2, options2) {
+      copyIncremental(copySource2, options) {
         const operationArguments = {
           copySource: copySource2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, copyIncrementalOperationSpec);
       }
@@ -63949,10 +63949,10 @@ var init_appendBlob = __esm({
        * @param contentLength The length of the request.
        * @param options The options parameters.
        */
-      create(contentLength2, options2) {
+      create(contentLength2, options) {
         const operationArguments = {
           contentLength: contentLength2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, createOperationSpec3);
       }
@@ -63964,11 +63964,11 @@ var init_appendBlob = __esm({
        * @param body Initial data
        * @param options The options parameters.
        */
-      appendBlock(contentLength2, body2, options2) {
+      appendBlock(contentLength2, body2, options) {
         const operationArguments = {
           contentLength: contentLength2,
           body: body2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, appendBlockOperationSpec);
       }
@@ -63981,11 +63981,11 @@ var init_appendBlob = __esm({
        * @param contentLength The length of the request.
        * @param options The options parameters.
        */
-      appendBlockFromUrl(sourceUrl2, contentLength2, options2) {
+      appendBlockFromUrl(sourceUrl2, contentLength2, options) {
         const operationArguments = {
           sourceUrl: sourceUrl2,
           contentLength: contentLength2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, appendBlockFromUrlOperationSpec);
       }
@@ -63994,9 +63994,9 @@ var init_appendBlob = __esm({
        * 2019-12-12 version or later.
        * @param options The options parameters.
        */
-      seal(options2) {
+      seal(options) {
         const operationArguments = {
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, sealOperationSpec);
       }
@@ -64196,11 +64196,11 @@ var init_blockBlob = __esm({
        * @param body Initial data
        * @param options The options parameters.
        */
-      upload(contentLength2, body2, options2) {
+      upload(contentLength2, body2, options) {
         const operationArguments = {
           contentLength: contentLength2,
           body: body2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, uploadOperationSpec);
       }
@@ -64217,11 +64217,11 @@ var init_blockBlob = __esm({
        *                   access signature.
        * @param options The options parameters.
        */
-      putBlobFromUrl(contentLength2, copySource2, options2) {
+      putBlobFromUrl(contentLength2, copySource2, options) {
         const operationArguments = {
           contentLength: contentLength2,
           copySource: copySource2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, putBlobFromUrlOperationSpec);
       }
@@ -64234,12 +64234,12 @@ var init_blockBlob = __esm({
        * @param body Initial data
        * @param options The options parameters.
        */
-      stageBlock(blockId2, contentLength2, body2, options2) {
+      stageBlock(blockId2, contentLength2, body2, options) {
         const operationArguments = {
           blockId: blockId2,
           contentLength: contentLength2,
           body: body2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, stageBlockOperationSpec);
       }
@@ -64253,12 +64253,12 @@ var init_blockBlob = __esm({
        * @param sourceUrl Specify a URL to the copy source.
        * @param options The options parameters.
        */
-      stageBlockFromURL(blockId2, contentLength2, sourceUrl2, options2) {
+      stageBlockFromURL(blockId2, contentLength2, sourceUrl2, options) {
         const operationArguments = {
           blockId: blockId2,
           contentLength: contentLength2,
           sourceUrl: sourceUrl2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, stageBlockFromURLOperationSpec);
       }
@@ -64273,10 +64273,10 @@ var init_blockBlob = __esm({
        * @param blocks Blob Blocks.
        * @param options The options parameters.
        */
-      commitBlockList(blocks2, options2) {
+      commitBlockList(blocks2, options) {
         const operationArguments = {
           blocks: blocks2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, commitBlockListOperationSpec);
       }
@@ -64287,10 +64287,10 @@ var init_blockBlob = __esm({
        *                 blocks, or both lists together.
        * @param options The options parameters.
        */
-      getBlockList(listType2, options2) {
+      getBlockList(listType2, options) {
         const operationArguments = {
           listType: listType2,
-          options: operationOptionsToRequestOptionsBase(options2 || {})
+          options: operationOptionsToRequestOptionsBase(options || {})
         };
         return this.client.sendOperationRequest(operationArguments, getBlockListOperationSpec);
       }
@@ -65279,8 +65279,8 @@ var init_StorageBrowserPolicy = __esm({
        */
       // The base class has a protected constructor. Adding a public one to enable constructing of this class.
       /* eslint-disable-next-line @typescript-eslint/no-useless-constructor*/
-      constructor(nextPolicy, options2) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options) {
+        super(nextPolicy, options);
       }
       /**
        * Sends out request.
@@ -65315,8 +65315,8 @@ var init_StorageBrowserPolicyFactory = __esm({
        * @param nextPolicy -
        * @param options -
        */
-      create(nextPolicy, options2) {
-        return new StorageBrowserPolicy(nextPolicy, options2);
+      create(nextPolicy, options) {
+        return new StorageBrowserPolicy(nextPolicy, options);
       }
     };
   }
@@ -65354,8 +65354,8 @@ var init_StorageRetryPolicy = __esm({
        * @param options -
        * @param retryOptions -
        */
-      constructor(nextPolicy, options2, retryOptions = DEFAULT_RETRY_OPTIONS) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, retryOptions = DEFAULT_RETRY_OPTIONS) {
+        super(nextPolicy, options);
         this.retryOptions = {
           retryPolicyType: retryOptions.retryPolicyType ? retryOptions.retryPolicyType : DEFAULT_RETRY_OPTIONS.retryPolicyType,
           maxTries: retryOptions.maxTries && retryOptions.maxTries >= 1 ? Math.floor(retryOptions.maxTries) : DEFAULT_RETRY_OPTIONS.maxTries,
@@ -65507,8 +65507,8 @@ var init_StorageRetryPolicyFactory = __esm({
        * @param nextPolicy -
        * @param options -
        */
-      create(nextPolicy, options2) {
-        return new StorageRetryPolicy(nextPolicy, options2, this.retryOptions);
+      create(nextPolicy, options) {
+        return new StorageRetryPolicy(nextPolicy, options, this.retryOptions);
       }
     };
   }
@@ -65556,8 +65556,8 @@ var init_AnonymousCredentialPolicy = __esm({
        */
       // The base class has a protected constructor. Adding a public one to enable constructing of this class.
       /* eslint-disable-next-line @typescript-eslint/no-useless-constructor*/
-      constructor(nextPolicy, options2) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options) {
+        super(nextPolicy, options);
       }
     };
   }
@@ -65575,7 +65575,7 @@ var init_Credential = __esm({
        * @param _nextPolicy -
        * @param _options -
        */
-      create(_nextPolicy, _options2) {
+      create(_nextPolicy, _options) {
         throw new Error("Method should be implemented in children classes.");
       }
     };
@@ -65596,8 +65596,8 @@ var init_AnonymousCredential = __esm({
        * @param nextPolicy -
        * @param options -
        */
-      create(nextPolicy, options2) {
-        return new AnonymousCredentialPolicy(nextPolicy, options2);
+      create(nextPolicy, options) {
+        return new AnonymousCredentialPolicy(nextPolicy, options);
       }
     };
   }
@@ -65617,8 +65617,8 @@ var init_TelemetryPolicy = __esm({
        * @param options -
        * @param telemetry -
        */
-      constructor(nextPolicy, options2, telemetry) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, telemetry) {
+        super(nextPolicy, options);
         this.telemetry = telemetry;
       }
       /**
@@ -65684,8 +65684,8 @@ var init_TelemetryPolicyFactory = __esm({
        * @param nextPolicy -
        * @param options -
        */
-      create(nextPolicy, options2) {
-        return new TelemetryPolicy(nextPolicy, options2, this.telemetryString);
+      create(nextPolicy, options) {
+        return new TelemetryPolicy(nextPolicy, options, this.telemetryString);
       }
     };
   }
@@ -65731,7 +65731,7 @@ async function beginRefresh2(getAccessToken, retryIntervalInMs, timeoutInMs) {
 function createTokenCycler2(credential, scopes, tokenCyclerOptions) {
   let refreshWorker = null;
   let token = null;
-  const options2 = Object.assign(Object.assign({}, DEFAULT_CYCLER_OPTIONS2), tokenCyclerOptions);
+  const options = Object.assign(Object.assign({}, DEFAULT_CYCLER_OPTIONS2), tokenCyclerOptions);
   const cycler = {
     /**
      * Produces true if a refresh job is currently in progress.
@@ -65745,14 +65745,14 @@ function createTokenCycler2(credential, scopes, tokenCyclerOptions) {
      */
     get shouldRefresh() {
       var _a2;
-      return !cycler.isRefreshing && ((_a2 = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a2 !== void 0 ? _a2 : 0) - options2.refreshWindowInMs < Date.now();
+      return !cycler.isRefreshing && ((_a2 = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a2 !== void 0 ? _a2 : 0) - options.refreshWindowInMs < Date.now();
     },
     /**
      * Produces true if the cycler MUST refresh (null or nearly-expired
      * token).
      */
     get mustRefresh() {
-      return token === null || token.expiresOnTimestamp - options2.forcedRefreshWindowInMs < Date.now();
+      return token === null || token.expiresOnTimestamp - options.forcedRefreshWindowInMs < Date.now();
     }
   };
   function refresh(getTokenOptions) {
@@ -65761,7 +65761,7 @@ function createTokenCycler2(credential, scopes, tokenCyclerOptions) {
       const tryGetAccessToken = () => credential.getToken(scopes, getTokenOptions);
       refreshWorker = beginRefresh2(
         tryGetAccessToken,
-        options2.retryIntervalInMs,
+        options.retryIntervalInMs,
         // If we don't have a token, then we should timeout immediately
         (_a2 = token === null || token === void 0 ? void 0 : token.expiresOnTimestamp) !== null && _a2 !== void 0 ? _a2 : Date.now()
       ).then((_token) => {
@@ -65801,8 +65801,8 @@ function parseChallenge(challenge) {
 function storageBearerTokenChallengeAuthenticationPolicy(credential, scopes) {
   let getToken = createTokenCycler2(credential, scopes);
   class StorageBearerTokenChallengeAuthenticationPolicy extends BaseRequestPolicy {
-    constructor(nextPolicy, options2) {
-      super(nextPolicy, options2);
+    constructor(nextPolicy, options) {
+      super(nextPolicy, options);
     }
     async sendRequest(webResource) {
       if (!webResource.url.toLowerCase().startsWith("https://")) {
@@ -65842,8 +65842,8 @@ function storageBearerTokenChallengeAuthenticationPolicy(credential, scopes) {
     }
   }
   return {
-    create: (nextPolicy, options2) => {
-      return new StorageBearerTokenChallengeAuthenticationPolicy(nextPolicy, options2);
+    create: (nextPolicy, options) => {
+      return new StorageBearerTokenChallengeAuthenticationPolicy(nextPolicy, options);
     }
   };
 }
@@ -65934,9 +65934,9 @@ var init_Pipeline = __esm({
        * @param factories -
        * @param options -
        */
-      constructor(factories, options2 = {}) {
+      constructor(factories, options = {}) {
         this.factories = factories;
-        this.options = Object.assign(Object.assign({}, options2), { httpClient: options2.httpClient || getCachedDefaultHttpClient2() });
+        this.options = Object.assign(Object.assign({}, options), { httpClient: options.httpClient || getCachedDefaultHttpClient2() });
       }
       /**
        * Transfer Pipeline object to ServiceClientOptions object which is required by
@@ -65969,8 +65969,8 @@ var init_StorageSharedKeyCredentialPolicy = __esm({
        * @param options -
        * @param factory -
        */
-      constructor(nextPolicy, options2, factory) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options, factory) {
+        super(nextPolicy, options);
         this.factory = factory;
       }
       /**
@@ -66108,8 +66108,8 @@ var init_StorageSharedKeyCredential = __esm({
        * @param nextPolicy -
        * @param options -
        */
-      create(nextPolicy, options2) {
-        return new StorageSharedKeyCredentialPolicy(nextPolicy, options2, this);
+      create(nextPolicy, options) {
+        return new StorageSharedKeyCredentialPolicy(nextPolicy, options, this);
       }
       /**
        * Generates a hash signature for an HTTP request or for a SAS.
@@ -66138,22 +66138,22 @@ var init_storageClientContext = __esm({
        *            operation.
        * @param options The parameter options
        */
-      constructor(url2, options2) {
+      constructor(url2, options) {
         if (url2 === void 0) {
           throw new Error("'url' cannot be null");
         }
-        if (!options2) {
-          options2 = {};
+        if (!options) {
+          options = {};
         }
-        if (!options2.userAgent) {
+        if (!options.userAgent) {
           const defaultUserAgent = getDefaultUserAgentValue();
-          options2.userAgent = `${packageName}/${packageVersion} ${defaultUserAgent}`;
+          options.userAgent = `${packageName}/${packageVersion} ${defaultUserAgent}`;
         }
-        super(void 0, options2);
+        super(void 0, options);
         this.requestContentType = "application/json; charset=utf-8";
-        this.baseUri = options2.endpoint || "{url}";
+        this.baseUri = options.endpoint || "{url}";
         this.url = url2;
-        this.version = options2.version || "2022-11-02";
+        this.version = options.version || "2022-11-02";
       }
     };
   }
@@ -66197,12 +66197,12 @@ var init_StorageClient = __esm({
 });
 
 // node_modules/.pnpm/@azure+storage-blob@12.14.0/node_modules/@azure/storage-blob/dist-esm/storage-blob/src/utils/tracing.js
-function convertTracingToRequestOptionsBase(options2) {
+function convertTracingToRequestOptionsBase(options) {
   var _a2, _b;
   return {
     // By passing spanOptions if they exist at runtime, we're backwards compatible with @azure/core-tracing@preview.13 and earlier.
-    spanOptions: (_a2 = options2 === null || options2 === void 0 ? void 0 : options2.tracingOptions) === null || _a2 === void 0 ? void 0 : _a2.spanOptions,
-    tracingContext: (_b = options2 === null || options2 === void 0 ? void 0 : options2.tracingOptions) === null || _b === void 0 ? void 0 : _b.tracingContext
+    spanOptions: (_a2 = options === null || options === void 0 ? void 0 : options.tracingOptions) === null || _a2 === void 0 ? void 0 : _a2.spanOptions,
+    tracingContext: (_b = options === null || options === void 0 ? void 0 : options.tracingOptions) === null || _b === void 0 ? void 0 : _b.tracingContext
   };
 }
 var createSpan2;
@@ -67266,14 +67266,14 @@ var init_BlobLeaseClient = __esm({
        * @param options - option to configure lease management operations.
        * @returns Response data for acquire lease operation.
        */
-      async acquireLease(duration2, options2 = {}) {
+      async acquireLease(duration2, options = {}) {
         var _a2, _b, _c, _d, _e, _f;
-        const { span, updatedOptions } = createSpan2("BlobLeaseClient-acquireLease", options2);
-        if (this._isContainer && (((_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.ifMatch) && ((_b = options2.conditions) === null || _b === void 0 ? void 0 : _b.ifMatch) !== ETagNone || ((_c = options2.conditions) === null || _c === void 0 ? void 0 : _c.ifNoneMatch) && ((_d = options2.conditions) === null || _d === void 0 ? void 0 : _d.ifNoneMatch) !== ETagNone || ((_e = options2.conditions) === null || _e === void 0 ? void 0 : _e.tagConditions))) {
+        const { span, updatedOptions } = createSpan2("BlobLeaseClient-acquireLease", options);
+        if (this._isContainer && (((_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.ifMatch) && ((_b = options.conditions) === null || _b === void 0 ? void 0 : _b.ifMatch) !== ETagNone || ((_c = options.conditions) === null || _c === void 0 ? void 0 : _c.ifNoneMatch) && ((_d = options.conditions) === null || _d === void 0 ? void 0 : _d.ifNoneMatch) !== ETagNone || ((_e = options.conditions) === null || _e === void 0 ? void 0 : _e.tagConditions))) {
           throw new RangeError("The IfMatch, IfNoneMatch and tags access conditions are ignored by the service. Values other than undefined or their default values are not acceptable.");
         }
         try {
-          return await this._containerOrBlobOperation.acquireLease(Object.assign({ abortSignal: options2.abortSignal, duration: duration2, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_f = options2.conditions) === null || _f === void 0 ? void 0 : _f.tagConditions }), proposedLeaseId: this._leaseId }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this._containerOrBlobOperation.acquireLease(Object.assign({ abortSignal: options.abortSignal, duration: duration2, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_f = options.conditions) === null || _f === void 0 ? void 0 : _f.tagConditions }), proposedLeaseId: this._leaseId }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -67294,14 +67294,14 @@ var init_BlobLeaseClient = __esm({
        * @param options - option to configure lease management operations.
        * @returns Response data for change lease operation.
        */
-      async changeLease(proposedLeaseId2, options2 = {}) {
+      async changeLease(proposedLeaseId2, options = {}) {
         var _a2, _b, _c, _d, _e, _f;
-        const { span, updatedOptions } = createSpan2("BlobLeaseClient-changeLease", options2);
-        if (this._isContainer && (((_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.ifMatch) && ((_b = options2.conditions) === null || _b === void 0 ? void 0 : _b.ifMatch) !== ETagNone || ((_c = options2.conditions) === null || _c === void 0 ? void 0 : _c.ifNoneMatch) && ((_d = options2.conditions) === null || _d === void 0 ? void 0 : _d.ifNoneMatch) !== ETagNone || ((_e = options2.conditions) === null || _e === void 0 ? void 0 : _e.tagConditions))) {
+        const { span, updatedOptions } = createSpan2("BlobLeaseClient-changeLease", options);
+        if (this._isContainer && (((_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.ifMatch) && ((_b = options.conditions) === null || _b === void 0 ? void 0 : _b.ifMatch) !== ETagNone || ((_c = options.conditions) === null || _c === void 0 ? void 0 : _c.ifNoneMatch) && ((_d = options.conditions) === null || _d === void 0 ? void 0 : _d.ifNoneMatch) !== ETagNone || ((_e = options.conditions) === null || _e === void 0 ? void 0 : _e.tagConditions))) {
           throw new RangeError("The IfMatch, IfNoneMatch and tags access conditions are ignored by the service. Values other than undefined or their default values are not acceptable.");
         }
         try {
-          const response = await this._containerOrBlobOperation.changeLease(this._leaseId, proposedLeaseId2, Object.assign({ abortSignal: options2.abortSignal, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_f = options2.conditions) === null || _f === void 0 ? void 0 : _f.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          const response = await this._containerOrBlobOperation.changeLease(this._leaseId, proposedLeaseId2, Object.assign({ abortSignal: options.abortSignal, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_f = options.conditions) === null || _f === void 0 ? void 0 : _f.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
           this._leaseId = proposedLeaseId2;
           return response;
         } catch (e) {
@@ -67324,14 +67324,14 @@ var init_BlobLeaseClient = __esm({
        * @param options - option to configure lease management operations.
        * @returns Response data for release lease operation.
        */
-      async releaseLease(options2 = {}) {
+      async releaseLease(options = {}) {
         var _a2, _b, _c, _d, _e, _f;
-        const { span, updatedOptions } = createSpan2("BlobLeaseClient-releaseLease", options2);
-        if (this._isContainer && (((_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.ifMatch) && ((_b = options2.conditions) === null || _b === void 0 ? void 0 : _b.ifMatch) !== ETagNone || ((_c = options2.conditions) === null || _c === void 0 ? void 0 : _c.ifNoneMatch) && ((_d = options2.conditions) === null || _d === void 0 ? void 0 : _d.ifNoneMatch) !== ETagNone || ((_e = options2.conditions) === null || _e === void 0 ? void 0 : _e.tagConditions))) {
+        const { span, updatedOptions } = createSpan2("BlobLeaseClient-releaseLease", options);
+        if (this._isContainer && (((_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.ifMatch) && ((_b = options.conditions) === null || _b === void 0 ? void 0 : _b.ifMatch) !== ETagNone || ((_c = options.conditions) === null || _c === void 0 ? void 0 : _c.ifNoneMatch) && ((_d = options.conditions) === null || _d === void 0 ? void 0 : _d.ifNoneMatch) !== ETagNone || ((_e = options.conditions) === null || _e === void 0 ? void 0 : _e.tagConditions))) {
           throw new RangeError("The IfMatch, IfNoneMatch and tags access conditions are ignored by the service. Values other than undefined or their default values are not acceptable.");
         }
         try {
-          return await this._containerOrBlobOperation.releaseLease(this._leaseId, Object.assign({ abortSignal: options2.abortSignal, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_f = options2.conditions) === null || _f === void 0 ? void 0 : _f.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this._containerOrBlobOperation.releaseLease(this._leaseId, Object.assign({ abortSignal: options.abortSignal, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_f = options.conditions) === null || _f === void 0 ? void 0 : _f.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -67351,14 +67351,14 @@ var init_BlobLeaseClient = __esm({
        * @param options - Optional option to configure lease management operations.
        * @returns Response data for renew lease operation.
        */
-      async renewLease(options2 = {}) {
+      async renewLease(options = {}) {
         var _a2, _b, _c, _d, _e, _f;
-        const { span, updatedOptions } = createSpan2("BlobLeaseClient-renewLease", options2);
-        if (this._isContainer && (((_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.ifMatch) && ((_b = options2.conditions) === null || _b === void 0 ? void 0 : _b.ifMatch) !== ETagNone || ((_c = options2.conditions) === null || _c === void 0 ? void 0 : _c.ifNoneMatch) && ((_d = options2.conditions) === null || _d === void 0 ? void 0 : _d.ifNoneMatch) !== ETagNone || ((_e = options2.conditions) === null || _e === void 0 ? void 0 : _e.tagConditions))) {
+        const { span, updatedOptions } = createSpan2("BlobLeaseClient-renewLease", options);
+        if (this._isContainer && (((_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.ifMatch) && ((_b = options.conditions) === null || _b === void 0 ? void 0 : _b.ifMatch) !== ETagNone || ((_c = options.conditions) === null || _c === void 0 ? void 0 : _c.ifNoneMatch) && ((_d = options.conditions) === null || _d === void 0 ? void 0 : _d.ifNoneMatch) !== ETagNone || ((_e = options.conditions) === null || _e === void 0 ? void 0 : _e.tagConditions))) {
           throw new RangeError("The IfMatch, IfNoneMatch and tags access conditions are ignored by the service. Values other than undefined or their default values are not acceptable.");
         }
         try {
-          return await this._containerOrBlobOperation.renewLease(this._leaseId, Object.assign({ abortSignal: options2.abortSignal, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_f = options2.conditions) === null || _f === void 0 ? void 0 : _f.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this._containerOrBlobOperation.renewLease(this._leaseId, Object.assign({ abortSignal: options.abortSignal, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_f = options.conditions) === null || _f === void 0 ? void 0 : _f.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -67380,14 +67380,14 @@ var init_BlobLeaseClient = __esm({
        * @param options - Optional options to configure lease management operations.
        * @returns Response data for break lease operation.
        */
-      async breakLease(breakPeriod2, options2 = {}) {
+      async breakLease(breakPeriod2, options = {}) {
         var _a2, _b, _c, _d, _e, _f;
-        const { span, updatedOptions } = createSpan2("BlobLeaseClient-breakLease", options2);
-        if (this._isContainer && (((_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.ifMatch) && ((_b = options2.conditions) === null || _b === void 0 ? void 0 : _b.ifMatch) !== ETagNone || ((_c = options2.conditions) === null || _c === void 0 ? void 0 : _c.ifNoneMatch) && ((_d = options2.conditions) === null || _d === void 0 ? void 0 : _d.ifNoneMatch) !== ETagNone || ((_e = options2.conditions) === null || _e === void 0 ? void 0 : _e.tagConditions))) {
+        const { span, updatedOptions } = createSpan2("BlobLeaseClient-breakLease", options);
+        if (this._isContainer && (((_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.ifMatch) && ((_b = options.conditions) === null || _b === void 0 ? void 0 : _b.ifMatch) !== ETagNone || ((_c = options.conditions) === null || _c === void 0 ? void 0 : _c.ifNoneMatch) && ((_d = options.conditions) === null || _d === void 0 ? void 0 : _d.ifNoneMatch) !== ETagNone || ((_e = options.conditions) === null || _e === void 0 ? void 0 : _e.tagConditions))) {
           throw new RangeError("The IfMatch, IfNoneMatch and tags access conditions are ignored by the service. Values other than undefined or their default values are not acceptable.");
         }
         try {
-          const operationOptions = Object.assign({ abortSignal: options2.abortSignal, breakPeriod: breakPeriod2, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_f = options2.conditions) === null || _f === void 0 ? void 0 : _f.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions));
+          const operationOptions = Object.assign({ abortSignal: options.abortSignal, breakPeriod: breakPeriod2, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_f = options.conditions) === null || _f === void 0 ? void 0 : _f.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions));
           return await this._containerOrBlobOperation.breakLease(operationOptions);
         } catch (e) {
           span.setStatus({
@@ -67420,8 +67420,8 @@ var init_RetriableReadableStream = __esm({
        * @param count - How much data in original data source to read
        * @param options -
        */
-      constructor(source, getter, offset, count, options2 = {}) {
-        super({ highWaterMark: options2.highWaterMark });
+      constructor(source, getter, offset, count, options = {}) {
+        super({ highWaterMark: options.highWaterMark });
         this.retries = 0;
         this.sourceDataHandler = (data) => {
           if (this.options.doInjectErrorOnce) {
@@ -67469,9 +67469,9 @@ var init_RetriableReadableStream = __esm({
         this.start = offset;
         this.offset = offset;
         this.end = offset + count - 1;
-        this.maxRetryRequests = options2.maxRetryRequests && options2.maxRetryRequests >= 0 ? options2.maxRetryRequests : 0;
-        this.onProgress = options2.onProgress;
-        this.options = options2;
+        this.maxRetryRequests = options.maxRetryRequests && options.maxRetryRequests >= 0 ? options.maxRetryRequests : 0;
+        this.onProgress = options.onProgress;
+        this.options = options;
         this.setSourceEventHandlers();
       }
       _read() {
@@ -67513,9 +67513,9 @@ var init_BlobDownloadResponse = __esm({
        * @param count -
        * @param options -
        */
-      constructor(originalResponse, getter, offset, count, options2 = {}) {
+      constructor(originalResponse, getter, offset, count, options = {}) {
         this.originalResponse = originalResponse;
-        this.blobDownloadStream = new RetriableReadableStream(this.originalResponse.readableStreamBody, getter, offset, count, options2);
+        this.blobDownloadStream = new RetriableReadableStream(this.originalResponse.readableStreamBody, getter, offset, count, options);
       }
       /**
        * Indicates that the service supports
@@ -68002,8 +68002,8 @@ var init_AvroParser = __esm({
        * @param length -
        * @param options -
        */
-      static async readFixedBytes(stream, length, options2 = {}) {
-        const bytes = await stream.read(length, { abortSignal: options2.abortSignal });
+      static async readFixedBytes(stream, length, options = {}) {
+        const bytes = await stream.read(length, { abortSignal: options.abortSignal });
         if (bytes.length !== length) {
           throw new Error("Hit stream end.");
         }
@@ -68015,19 +68015,19 @@ var init_AvroParser = __esm({
        * @param stream -
        * @param options -
        */
-      static async readByte(stream, options2 = {}) {
-        const buf = await _AvroParser.readFixedBytes(stream, 1, options2);
+      static async readByte(stream, options = {}) {
+        const buf = await _AvroParser.readFixedBytes(stream, 1, options);
         return buf[0];
       }
       // int and long are stored in variable-length zig-zag coding.
       // variable-length: https://lucene.apache.org/core/3_5_0/fileformats.html#VInt
       // zig-zag: https://developers.google.com/protocol-buffers/docs/encoding?csw=1#types
-      static async readZigZagLong(stream, options2 = {}) {
+      static async readZigZagLong(stream, options = {}) {
         let zigZagEncoded = 0;
         let significanceInBit = 0;
         let byte, haveMoreByte, significanceInFloat;
         do {
-          byte = await _AvroParser.readByte(stream, options2);
+          byte = await _AvroParser.readByte(stream, options);
           haveMoreByte = byte & 128;
           zigZagEncoded |= (byte & 127) << significanceInBit;
           significanceInBit += 7;
@@ -68036,7 +68036,7 @@ var init_AvroParser = __esm({
           zigZagEncoded = zigZagEncoded;
           significanceInFloat = 268435456;
           do {
-            byte = await _AvroParser.readByte(stream, options2);
+            byte = await _AvroParser.readByte(stream, options);
             zigZagEncoded += (byte & 127) * significanceInFloat;
             significanceInFloat *= 128;
           } while (byte & 128);
@@ -68048,17 +68048,17 @@ var init_AvroParser = __esm({
         }
         return zigZagEncoded >> 1 ^ -(zigZagEncoded & 1);
       }
-      static async readLong(stream, options2 = {}) {
-        return _AvroParser.readZigZagLong(stream, options2);
+      static async readLong(stream, options = {}) {
+        return _AvroParser.readZigZagLong(stream, options);
       }
-      static async readInt(stream, options2 = {}) {
-        return _AvroParser.readZigZagLong(stream, options2);
+      static async readInt(stream, options = {}) {
+        return _AvroParser.readZigZagLong(stream, options);
       }
       static async readNull() {
         return null;
       }
-      static async readBoolean(stream, options2 = {}) {
-        const b = await _AvroParser.readByte(stream, options2);
+      static async readBoolean(stream, options = {}) {
+        const b = await _AvroParser.readByte(stream, options);
         if (b === 1) {
           return true;
         } else if (b === 0) {
@@ -68067,53 +68067,53 @@ var init_AvroParser = __esm({
           throw new Error("Byte was not a boolean.");
         }
       }
-      static async readFloat(stream, options2 = {}) {
-        const u8arr = await _AvroParser.readFixedBytes(stream, 4, options2);
+      static async readFloat(stream, options = {}) {
+        const u8arr = await _AvroParser.readFixedBytes(stream, 4, options);
         const view = new DataView(u8arr.buffer, u8arr.byteOffset, u8arr.byteLength);
         return view.getFloat32(0, true);
       }
-      static async readDouble(stream, options2 = {}) {
-        const u8arr = await _AvroParser.readFixedBytes(stream, 8, options2);
+      static async readDouble(stream, options = {}) {
+        const u8arr = await _AvroParser.readFixedBytes(stream, 8, options);
         const view = new DataView(u8arr.buffer, u8arr.byteOffset, u8arr.byteLength);
         return view.getFloat64(0, true);
       }
-      static async readBytes(stream, options2 = {}) {
-        const size = await _AvroParser.readLong(stream, options2);
+      static async readBytes(stream, options = {}) {
+        const size = await _AvroParser.readLong(stream, options);
         if (size < 0) {
           throw new Error("Bytes size was negative.");
         }
-        return stream.read(size, { abortSignal: options2.abortSignal });
+        return stream.read(size, { abortSignal: options.abortSignal });
       }
-      static async readString(stream, options2 = {}) {
-        const u8arr = await _AvroParser.readBytes(stream, options2);
+      static async readString(stream, options = {}) {
+        const u8arr = await _AvroParser.readBytes(stream, options);
         const utf8decoder = new TextDecoder();
         return utf8decoder.decode(u8arr);
       }
-      static async readMapPair(stream, readItemMethod, options2 = {}) {
-        const key = await _AvroParser.readString(stream, options2);
-        const value = await readItemMethod(stream, options2);
+      static async readMapPair(stream, readItemMethod, options = {}) {
+        const key = await _AvroParser.readString(stream, options);
+        const value = await readItemMethod(stream, options);
         return { key, value };
       }
-      static async readMap(stream, readItemMethod, options2 = {}) {
+      static async readMap(stream, readItemMethod, options = {}) {
         const readPairMethod = (s, opts = {}) => {
           return _AvroParser.readMapPair(s, readItemMethod, opts);
         };
-        const pairs2 = await _AvroParser.readArray(stream, readPairMethod, options2);
+        const pairs2 = await _AvroParser.readArray(stream, readPairMethod, options);
         const dict = {};
         for (const pair of pairs2) {
           dict[pair.key] = pair.value;
         }
         return dict;
       }
-      static async readArray(stream, readItemMethod, options2 = {}) {
+      static async readArray(stream, readItemMethod, options = {}) {
         const items = [];
-        for (let count = await _AvroParser.readLong(stream, options2); count !== 0; count = await _AvroParser.readLong(stream, options2)) {
+        for (let count = await _AvroParser.readLong(stream, options); count !== 0; count = await _AvroParser.readLong(stream, options)) {
           if (count < 0) {
-            await _AvroParser.readLong(stream, options2);
+            await _AvroParser.readLong(stream, options);
             count = -count;
           }
           while (count--) {
-            const item = await readItemMethod(stream, options2);
+            const item = await readItemMethod(stream, options);
             items.push(item);
           }
         }
@@ -68216,24 +68216,24 @@ var init_AvroParser = __esm({
         super();
         this._primitive = primitive;
       }
-      read(stream, options2 = {}) {
+      read(stream, options = {}) {
         switch (this._primitive) {
           case AvroPrimitive.NULL:
             return AvroParser.readNull();
           case AvroPrimitive.BOOLEAN:
-            return AvroParser.readBoolean(stream, options2);
+            return AvroParser.readBoolean(stream, options);
           case AvroPrimitive.INT:
-            return AvroParser.readInt(stream, options2);
+            return AvroParser.readInt(stream, options);
           case AvroPrimitive.LONG:
-            return AvroParser.readLong(stream, options2);
+            return AvroParser.readLong(stream, options);
           case AvroPrimitive.FLOAT:
-            return AvroParser.readFloat(stream, options2);
+            return AvroParser.readFloat(stream, options);
           case AvroPrimitive.DOUBLE:
-            return AvroParser.readDouble(stream, options2);
+            return AvroParser.readDouble(stream, options);
           case AvroPrimitive.BYTES:
-            return AvroParser.readBytes(stream, options2);
+            return AvroParser.readBytes(stream, options);
           case AvroPrimitive.STRING:
-            return AvroParser.readString(stream, options2);
+            return AvroParser.readString(stream, options);
           default:
             throw new Error("Unknown Avro Primitive");
         }
@@ -68244,8 +68244,8 @@ var init_AvroParser = __esm({
         super();
         this._symbols = symbols;
       }
-      async read(stream, options2 = {}) {
-        const value = await AvroParser.readInt(stream, options2);
+      async read(stream, options = {}) {
+        const value = await AvroParser.readInt(stream, options);
         return this._symbols[value];
       }
     };
@@ -68254,9 +68254,9 @@ var init_AvroParser = __esm({
         super();
         this._types = types;
       }
-      async read(stream, options2 = {}) {
-        const typeIndex = await AvroParser.readInt(stream, options2);
-        return this._types[typeIndex].read(stream, options2);
+      async read(stream, options = {}) {
+        const typeIndex = await AvroParser.readInt(stream, options);
+        return this._types[typeIndex].read(stream, options);
       }
     };
     AvroMapType = class extends AvroType {
@@ -68264,11 +68264,11 @@ var init_AvroParser = __esm({
         super();
         this._itemType = itemType;
       }
-      read(stream, options2 = {}) {
+      read(stream, options = {}) {
         const readItemMethod = (s, opts) => {
           return this._itemType.read(s, opts);
         };
-        return AvroParser.readMap(stream, readItemMethod, options2);
+        return AvroParser.readMap(stream, readItemMethod, options);
       }
     };
     AvroRecordType = class extends AvroType {
@@ -68277,12 +68277,12 @@ var init_AvroParser = __esm({
         this._fields = fields;
         this._name = name;
       }
-      async read(stream, options2 = {}) {
+      async read(stream, options = {}) {
         const record = {};
         record["$schema"] = this._name;
         for (const key in this._fields) {
           if (Object.prototype.hasOwnProperty.call(this._fields, key)) {
-            record[key] = await this._fields[key].read(stream, options2);
+            record[key] = await this._fields[key].read(stream, options);
           }
         }
         return record;
@@ -68336,22 +68336,22 @@ var init_AvroReader = __esm({
       get objectIndex() {
         return this._objectIndex;
       }
-      async initialize(options2 = {}) {
+      async initialize(options = {}) {
         const header = await AvroParser.readFixedBytes(this._headerStream, AVRO_INIT_BYTES.length, {
-          abortSignal: options2.abortSignal
+          abortSignal: options.abortSignal
         });
         if (!arraysEqual(header, AVRO_INIT_BYTES)) {
           throw new Error("Stream is not an Avro file.");
         }
         this._metadata = await AvroParser.readMap(this._headerStream, AvroParser.readString, {
-          abortSignal: options2.abortSignal
+          abortSignal: options.abortSignal
         });
         const codec = this._metadata[AVRO_CODEC_KEY];
         if (!(codec === void 0 || codec === null || codec === "null")) {
           throw new Error("Codecs are not supported");
         }
         this._syncMarker = await AvroParser.readFixedBytes(this._headerStream, AVRO_SYNC_MARKER_SIZE, {
-          abortSignal: options2.abortSignal
+          abortSignal: options.abortSignal
         });
         const schema2 = JSON.parse(this._metadata[AVRO_SCHEMA_KEY]);
         this._itemType = AvroType.fromSchema(schema2);
@@ -68359,13 +68359,13 @@ var init_AvroReader = __esm({
           this._blockOffset = this._initialBlockOffset + this._dataStream.position;
         }
         this._itemsRemainingInBlock = await AvroParser.readLong(this._dataStream, {
-          abortSignal: options2.abortSignal
+          abortSignal: options.abortSignal
         });
-        await AvroParser.readLong(this._dataStream, { abortSignal: options2.abortSignal });
+        await AvroParser.readLong(this._dataStream, { abortSignal: options.abortSignal });
         this._initialized = true;
         if (this._objectIndex && this._objectIndex > 0) {
           for (let i = 0; i < this._objectIndex; i++) {
-            await this._itemType.read(this._dataStream, { abortSignal: options2.abortSignal });
+            await this._itemType.read(this._dataStream, { abortSignal: options.abortSignal });
             this._itemsRemainingInBlock--;
           }
         }
@@ -68373,20 +68373,20 @@ var init_AvroReader = __esm({
       hasNext() {
         return !this._initialized || this._itemsRemainingInBlock > 0;
       }
-      parseObjects(options2 = {}) {
+      parseObjects(options = {}) {
         return __asyncGenerator(this, arguments, function* parseObjects_1() {
           if (!this._initialized) {
-            yield __await(this.initialize(options2));
+            yield __await(this.initialize(options));
           }
           while (this.hasNext()) {
             const result = yield __await(this._itemType.read(this._dataStream, {
-              abortSignal: options2.abortSignal
+              abortSignal: options.abortSignal
             }));
             this._itemsRemainingInBlock--;
             this._objectIndex++;
             if (this._itemsRemainingInBlock === 0) {
               const marker2 = yield __await(AvroParser.readFixedBytes(this._dataStream, AVRO_SYNC_MARKER_SIZE, {
-                abortSignal: options2.abortSignal
+                abortSignal: options.abortSignal
               }));
               this._blockOffset = this._initialBlockOffset + this._dataStream.position;
               this._objectIndex = 0;
@@ -68395,13 +68395,13 @@ var init_AvroReader = __esm({
               }
               try {
                 this._itemsRemainingInBlock = yield __await(AvroParser.readLong(this._dataStream, {
-                  abortSignal: options2.abortSignal
+                  abortSignal: options.abortSignal
                 }));
               } catch (err) {
                 this._itemsRemainingInBlock = 0;
               }
               if (this._itemsRemainingInBlock > 0) {
-                yield __await(AvroParser.readLong(this._dataStream, { abortSignal: options2.abortSignal }));
+                yield __await(AvroParser.readLong(this._dataStream, { abortSignal: options.abortSignal }));
               }
             }
             yield yield __await(result);
@@ -68445,9 +68445,9 @@ var init_AvroReadableFromStream = __esm({
       get position() {
         return this._position;
       }
-      async read(size, options2 = {}) {
+      async read(size, options = {}) {
         var _a2;
-        if ((_a2 = options2.abortSignal) === null || _a2 === void 0 ? void 0 : _a2.aborted) {
+        if ((_a2 = options.abortSignal) === null || _a2 === void 0 ? void 0 : _a2.aborted) {
           throw ABORT_ERROR;
         }
         if (size < 0) {
@@ -68470,8 +68470,8 @@ var init_AvroReadableFromStream = __esm({
               this._readable.removeListener("error", rejectCallback);
               this._readable.removeListener("end", rejectCallback);
               this._readable.removeListener("close", rejectCallback);
-              if (options2.abortSignal) {
-                options2.abortSignal.removeEventListener("abort", abortHandler);
+              if (options.abortSignal) {
+                options.abortSignal.removeEventListener("abort", abortHandler);
               }
             };
             const readableCallback = () => {
@@ -68494,8 +68494,8 @@ var init_AvroReadableFromStream = __esm({
             this._readable.once("error", rejectCallback);
             this._readable.once("end", rejectCallback);
             this._readable.once("close", rejectCallback);
-            if (options2.abortSignal) {
-              options2.abortSignal.addEventListener("abort", abortHandler);
+            if (options.abortSignal) {
+              options.abortSignal.addEventListener("abort", abortHandler);
             }
           });
         }
@@ -68527,14 +68527,14 @@ var init_BlobQuickQueryStream = __esm({
        * @param source - The current ReadableStream returned from getter
        * @param options -
        */
-      constructor(source, options2 = {}) {
+      constructor(source, options = {}) {
         super();
         this.avroPaused = true;
         this.source = source;
-        this.onProgress = options2.onProgress;
-        this.onError = options2.onError;
+        this.onProgress = options.onProgress;
+        this.onError = options.onError;
         this.avroReader = new AvroReader(new AvroReadableFromStream(this.source));
-        this.avroIter = this.avroReader.parseObjects({ abortSignal: options2.abortSignal });
+        this.avroIter = this.avroReader.parseObjects({ abortSignal: options.abortSignal });
       }
       _read() {
         if (this.avroPaused) {
@@ -68638,9 +68638,9 @@ var init_BlobQueryResponse = __esm({
        * @param originalResponse -
        * @param options -
        */
-      constructor(originalResponse, options2 = {}) {
+      constructor(originalResponse, options = {}) {
         this.originalResponse = originalResponse;
-        this.blobDownloadStream = new BlobQuickQueryStream(this.originalResponse.readableStreamBody, options2);
+        this.blobDownloadStream = new BlobQuickQueryStream(this.originalResponse.readableStreamBody, options);
       }
       /**
        * Indicates that the service supports
@@ -69179,10 +69179,10 @@ var init_poller = __esm({
        *
        * @param options - Optional properties passed to the operation's update method.
        */
-      async pollOnce(options2 = {}) {
+      async pollOnce(options = {}) {
         if (!this.isDone()) {
           this.operation = await this.operation.update({
-            abortSignal: options2.abortSignal,
+            abortSignal: options.abortSignal,
             fireProgress: this.fireProgress.bind(this)
           });
         }
@@ -69204,8 +69204,8 @@ var init_poller = __esm({
       /**
        * Invokes the underlying operation's cancel method.
        */
-      async cancelOnce(options2 = {}) {
-        this.operation = await this.operation.cancel(options2);
+      async cancelOnce(options = {}) {
+        this.operation = await this.operation.cancel(options);
       }
       /**
        * Returns a promise that will resolve once a single polling request finishes.
@@ -69215,9 +69215,9 @@ var init_poller = __esm({
        *
        * @param options - Optional properties passed to the operation's update method.
        */
-      poll(options2 = {}) {
+      poll(options = {}) {
         if (!this.pollOncePromise) {
-          this.pollOncePromise = this.pollOnce(options2);
+          this.pollOncePromise = this.pollOnce(options);
           const clearPollOncePromise = () => {
             this.pollOncePromise = void 0;
           };
@@ -69300,10 +69300,10 @@ var init_poller = __esm({
        *
        * @param options - Optional properties passed to the operation's update method.
        */
-      cancelOperation(options2 = {}) {
+      cancelOperation(options = {}) {
         if (!this.cancelPromise) {
-          this.cancelPromise = this.cancelOnce(options2);
-        } else if (options2.abortSignal) {
+          this.cancelPromise = this.cancelOnce(options);
+        } else if (options.abortSignal) {
           throw new Error("A cancel request is currently pending");
         }
         return this.cancelPromise;
@@ -69420,8 +69420,8 @@ var init_BlobStartCopyFromUrlPoller = __esm({
     init_src6();
     init_src10();
     BlobBeginCopyFromUrlPoller = class extends Poller {
-      constructor(options2) {
-        const { blobClient, copySource: copySource2, intervalInMs = 15e3, onProgress, resumeFrom, startCopyFromURLOptions } = options2;
+      constructor(options) {
+        const { blobClient, copySource: copySource2, intervalInMs = 15e3, onProgress, resumeFrom, startCopyFromURLOptions } = options;
         let state;
         if (resumeFrom) {
           state = JSON.parse(resumeFrom).state;
@@ -69441,7 +69441,7 @@ var init_BlobStartCopyFromUrlPoller = __esm({
         return delay(this.intervalInMs);
       }
     };
-    cancel = async function cancel2(options2 = {}) {
+    cancel = async function cancel2(options = {}) {
       const state = this.state;
       const { copyId: copyId2 } = state;
       if (state.isCompleted) {
@@ -69452,12 +69452,12 @@ var init_BlobStartCopyFromUrlPoller = __esm({
         return makeBlobBeginCopyFromURLPollOperation(state);
       }
       await state.blobClient.abortCopyFromURL(copyId2, {
-        abortSignal: options2.abortSignal
+        abortSignal: options.abortSignal
       });
       state.isCancelled = true;
       return makeBlobBeginCopyFromURLPollOperation(state);
     };
-    update = async function update2(options2 = {}) {
+    update = async function update2(options = {}) {
       const state = this.state;
       const { blobClient, copySource: copySource2, startCopyFromURLOptions } = state;
       if (!state.isStarted) {
@@ -69470,14 +69470,14 @@ var init_BlobStartCopyFromUrlPoller = __esm({
         }
       } else if (!state.isCompleted) {
         try {
-          const result = await state.blobClient.getProperties({ abortSignal: options2.abortSignal });
+          const result = await state.blobClient.getProperties({ abortSignal: options.abortSignal });
           const { copyStatus, copyProgress } = result;
           const prevCopyProgress = state.copyProgress;
           if (copyProgress) {
             state.copyProgress = copyProgress;
           }
-          if (copyStatus === "pending" && copyProgress !== prevCopyProgress && typeof options2.fireProgress === "function") {
-            options2.fireProgress(state);
+          if (copyStatus === "pending" && copyProgress !== prevCopyProgress && typeof options.fireProgress === "function") {
+            options.fireProgress(state);
           } else if (copyStatus === "success") {
             state.result = result;
             state.isCompleted = true;
@@ -69631,8 +69631,8 @@ var init_BuffersStream = __esm({
        * @param buffers - Array of buffers containing the data
        * @param byteLength - The total length of data contained in the buffers
        */
-      constructor(buffers, byteLength, options2) {
-        super(options2);
+      constructor(buffers, byteLength, options) {
+        super(options);
         this.buffers = buffers;
         this.byteLength = byteLength;
         this.byteOffsetInCurrentBuffer = 0;
@@ -70082,8 +70082,8 @@ var init_Clients = __esm({
     init_BlobSASSignatureValues();
     init_BlobLeaseClient();
     BlobClient = class _BlobClient extends StorageClient {
-      constructor(urlOrConnectionString, credentialOrPipelineOrContainerName, blobNameOrOptions, options2) {
-        options2 = options2 || {};
+      constructor(urlOrConnectionString, credentialOrPipelineOrContainerName, blobNameOrOptions, options) {
+        options = options || {};
         let pipeline;
         let url2;
         if (isPipelineLike(credentialOrPipelineOrContainerName)) {
@@ -70091,14 +70091,14 @@ var init_Clients = __esm({
           pipeline = credentialOrPipelineOrContainerName;
         } else if (isNode && credentialOrPipelineOrContainerName instanceof StorageSharedKeyCredential || credentialOrPipelineOrContainerName instanceof AnonymousCredential || isTokenCredential(credentialOrPipelineOrContainerName)) {
           url2 = urlOrConnectionString;
-          options2 = blobNameOrOptions;
-          pipeline = newPipeline(credentialOrPipelineOrContainerName, options2);
+          options = blobNameOrOptions;
+          pipeline = newPipeline(credentialOrPipelineOrContainerName, options);
         } else if (!credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName !== "string") {
           url2 = urlOrConnectionString;
           if (blobNameOrOptions && typeof blobNameOrOptions !== "string") {
-            options2 = blobNameOrOptions;
+            options = blobNameOrOptions;
           }
-          pipeline = newPipeline(new AnonymousCredential(), options2);
+          pipeline = newPipeline(new AnonymousCredential(), options);
         } else if (credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName === "string" && blobNameOrOptions && typeof blobNameOrOptions === "string") {
           const containerName = credentialOrPipelineOrContainerName;
           const blobName = blobNameOrOptions;
@@ -70107,16 +70107,16 @@ var init_Clients = __esm({
             if (isNode) {
               const sharedKeyCredential = new StorageSharedKeyCredential(extractedCreds.accountName, extractedCreds.accountKey);
               url2 = appendToURLPath(appendToURLPath(extractedCreds.url, encodeURIComponent(containerName)), encodeURIComponent(blobName));
-              if (!options2.proxyOptions) {
-                options2.proxyOptions = getDefaultProxySettings(extractedCreds.proxyUri);
+              if (!options.proxyOptions) {
+                options.proxyOptions = getDefaultProxySettings(extractedCreds.proxyUri);
               }
-              pipeline = newPipeline(sharedKeyCredential, options2);
+              pipeline = newPipeline(sharedKeyCredential, options);
             } else {
               throw new Error("Account connection string is only supported in Node.js environment");
             }
           } else if (extractedCreds.kind === "SASConnString") {
             url2 = appendToURLPath(appendToURLPath(extractedCreds.url, encodeURIComponent(containerName)), encodeURIComponent(blobName)) + "?" + extractedCreds.accountSas;
-            pipeline = newPipeline(new AnonymousCredential(), options2);
+            pipeline = newPipeline(new AnonymousCredential(), options);
           } else {
             throw new Error("Connection string must be either an Account connection string or a SAS connection string");
           }
@@ -70241,23 +70241,23 @@ var init_Clients = __esm({
        * }
        * ```
        */
-      async download(offset = 0, count, options2 = {}) {
+      async download(offset = 0, count, options = {}) {
         var _a2;
-        options2.conditions = options2.conditions || {};
-        options2.conditions = options2.conditions || {};
-        ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-        const { span, updatedOptions } = createSpan2("BlobClient-download", options2);
+        options.conditions = options.conditions || {};
+        options.conditions = options.conditions || {};
+        ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+        const { span, updatedOptions } = createSpan2("BlobClient-download", options);
         try {
-          const res = await this.blobContext.download(Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), requestOptions: {
-            onDownloadProgress: isNode ? void 0 : options2.onProgress
+          const res = await this.blobContext.download(Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), requestOptions: {
+            onDownloadProgress: isNode ? void 0 : options.onProgress
             // for Node.js, progress is reported by RetriableReadableStream
-          }, range: offset === 0 && !count ? void 0 : rangeToString({ offset, count }), rangeGetContentMD5: options2.rangeGetContentMD5, rangeGetContentCRC64: options2.rangeGetContentCrc64, snapshot: options2.snapshot, cpkInfo: options2.customerProvidedKey }, convertTracingToRequestOptionsBase(updatedOptions)));
+          }, range: offset === 0 && !count ? void 0 : rangeToString({ offset, count }), rangeGetContentMD5: options.rangeGetContentMD5, rangeGetContentCRC64: options.rangeGetContentCrc64, snapshot: options.snapshot, cpkInfo: options.customerProvidedKey }, convertTracingToRequestOptionsBase(updatedOptions)));
           const wrappedRes = Object.assign(Object.assign({}, res), { _response: res._response, objectReplicationDestinationPolicyId: res.objectReplicationPolicyId, objectReplicationSourceProperties: parseObjectReplicationRecord(res.objectReplicationRules) });
           if (!isNode) {
             return wrappedRes;
           }
-          if (options2.maxRetryRequests === void 0 || options2.maxRetryRequests < 0) {
-            options2.maxRetryRequests = DEFAULT_MAX_DOWNLOAD_RETRY_REQUESTS;
+          if (options.maxRetryRequests === void 0 || options.maxRetryRequests < 0) {
+            options.maxRetryRequests = DEFAULT_MAX_DOWNLOAD_RETRY_REQUESTS;
           }
           if (res.contentLength === void 0) {
             throw new RangeError(`File download response doesn't contain valid content length header`);
@@ -70268,27 +70268,27 @@ var init_Clients = __esm({
           return new BlobDownloadResponse(wrappedRes, async (start) => {
             var _a3;
             const updatedDownloadOptions = {
-              leaseAccessConditions: options2.conditions,
+              leaseAccessConditions: options.conditions,
               modifiedAccessConditions: {
-                ifMatch: options2.conditions.ifMatch || res.etag,
-                ifModifiedSince: options2.conditions.ifModifiedSince,
-                ifNoneMatch: options2.conditions.ifNoneMatch,
-                ifUnmodifiedSince: options2.conditions.ifUnmodifiedSince,
-                ifTags: (_a3 = options2.conditions) === null || _a3 === void 0 ? void 0 : _a3.tagConditions
+                ifMatch: options.conditions.ifMatch || res.etag,
+                ifModifiedSince: options.conditions.ifModifiedSince,
+                ifNoneMatch: options.conditions.ifNoneMatch,
+                ifUnmodifiedSince: options.conditions.ifUnmodifiedSince,
+                ifTags: (_a3 = options.conditions) === null || _a3 === void 0 ? void 0 : _a3.tagConditions
               },
               range: rangeToString({
                 count: offset + res.contentLength - start,
                 offset: start
               }),
-              rangeGetContentMD5: options2.rangeGetContentMD5,
-              rangeGetContentCRC64: options2.rangeGetContentCrc64,
-              snapshot: options2.snapshot,
-              cpkInfo: options2.customerProvidedKey
+              rangeGetContentMD5: options.rangeGetContentMD5,
+              rangeGetContentCRC64: options.rangeGetContentCrc64,
+              snapshot: options.snapshot,
+              cpkInfo: options.customerProvidedKey
             };
-            return (await this.blobContext.download(Object.assign({ abortSignal: options2.abortSignal }, updatedDownloadOptions))).readableStreamBody;
+            return (await this.blobContext.download(Object.assign({ abortSignal: options.abortSignal }, updatedDownloadOptions))).readableStreamBody;
           }, offset, res.contentLength, {
-            maxRetryRequests: options2.maxRetryRequests,
-            onProgress: options2.onProgress
+            maxRetryRequests: options.maxRetryRequests,
+            onProgress: options.onProgress
           });
         } catch (e) {
           span.setStatus({
@@ -70309,14 +70309,14 @@ var init_Clients = __esm({
        *
        * @param options - options to Exists operation.
        */
-      async exists(options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobClient-exists", options2);
+      async exists(options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobClient-exists", options);
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
           await this.getProperties({
-            abortSignal: options2.abortSignal,
-            customerProvidedKey: options2.customerProvidedKey,
-            conditions: options2.conditions,
+            abortSignal: options.abortSignal,
+            customerProvidedKey: options.customerProvidedKey,
+            conditions: options.conditions,
             tracingOptions: updatedOptions.tracingOptions
           });
           return true;
@@ -70347,13 +70347,13 @@ var init_Clients = __esm({
        *
        * @param options - Optional options to Get Properties operation.
        */
-      async getProperties(options2 = {}) {
+      async getProperties(options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("BlobClient-getProperties", options2);
+        const { span, updatedOptions } = createSpan2("BlobClient-getProperties", options);
         try {
-          options2.conditions = options2.conditions || {};
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          const res = await this.blobContext.getProperties(Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options2.customerProvidedKey }, convertTracingToRequestOptionsBase(updatedOptions)));
+          options.conditions = options.conditions || {};
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          const res = await this.blobContext.getProperties(Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options.customerProvidedKey }, convertTracingToRequestOptionsBase(updatedOptions)));
           return Object.assign(Object.assign({}, res), { _response: res._response, objectReplicationDestinationPolicyId: res.objectReplicationPolicyId, objectReplicationSourceProperties: parseObjectReplicationRecord(res.objectReplicationRules) });
         } catch (e) {
           span.setStatus({
@@ -70374,12 +70374,12 @@ var init_Clients = __esm({
        *
        * @param options - Optional options to Blob Delete operation.
        */
-      async delete(options2 = {}) {
+      async delete(options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("BlobClient-delete", options2);
-        options2.conditions = options2.conditions || {};
+        const { span, updatedOptions } = createSpan2("BlobClient-delete", options);
+        options.conditions = options.conditions || {};
         try {
-          return await this.blobContext.delete(Object.assign({ abortSignal: options2.abortSignal, deleteSnapshots: options2.deleteSnapshots, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.blobContext.delete(Object.assign({ abortSignal: options.abortSignal, deleteSnapshots: options.deleteSnapshots, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -70399,9 +70399,9 @@ var init_Clients = __esm({
        *
        * @param options - Optional options to Blob Delete operation.
        */
-      async deleteIfExists(options2 = {}) {
+      async deleteIfExists(options = {}) {
         var _a2, _b;
-        const { span, updatedOptions } = createSpan2("BlobClient-deleteIfExists", options2);
+        const { span, updatedOptions } = createSpan2("BlobClient-deleteIfExists", options);
         try {
           const res = await this.delete(updatedOptions);
           return Object.assign(Object.assign({ succeeded: true }, res), { _response: res._response });
@@ -70430,10 +70430,10 @@ var init_Clients = __esm({
        *
        * @param options - Optional options to Blob Undelete operation.
        */
-      async undelete(options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobClient-undelete", options2);
+      async undelete(options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobClient-undelete", options);
         try {
-          return await this.blobContext.undelete(Object.assign({ abortSignal: options2.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.blobContext.undelete(Object.assign({ abortSignal: options.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -70459,13 +70459,13 @@ var init_Clients = __esm({
        *                                                   based on file type.
        * @param options - Optional options to Blob Set HTTP Headers operation.
        */
-      async setHTTPHeaders(blobHTTPHeaders, options2 = {}) {
+      async setHTTPHeaders(blobHTTPHeaders, options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("BlobClient-setHTTPHeaders", options2);
-        options2.conditions = options2.conditions || {};
+        const { span, updatedOptions } = createSpan2("BlobClient-setHTTPHeaders", options);
+        options.conditions = options.conditions || {};
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.blobContext.setHttpHeaders(Object.assign({ abortSignal: options2.abortSignal, blobHttpHeaders: blobHTTPHeaders, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.blobContext.setHttpHeaders(Object.assign({ abortSignal: options.abortSignal, blobHttpHeaders: blobHTTPHeaders, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -70487,13 +70487,13 @@ var init_Clients = __esm({
        *                               If no value provided the existing metadata will be removed.
        * @param options - Optional options to Set Metadata operation.
        */
-      async setMetadata(metadata2, options2 = {}) {
+      async setMetadata(metadata2, options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("BlobClient-setMetadata", options2);
-        options2.conditions = options2.conditions || {};
+        const { span, updatedOptions } = createSpan2("BlobClient-setMetadata", options);
+        options.conditions = options.conditions || {};
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.blobContext.setMetadata(Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, metadata: metadata2, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options2.customerProvidedKey, encryptionScope: options2.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.blobContext.setMetadata(Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, metadata: metadata2, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options.customerProvidedKey, encryptionScope: options.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -70513,11 +70513,11 @@ var init_Clients = __esm({
        * @param tags -
        * @param options -
        */
-      async setTags(tags2, options2 = {}) {
+      async setTags(tags2, options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("BlobClient-setTags", options2);
+        const { span, updatedOptions } = createSpan2("BlobClient-setTags", options);
         try {
-          return await this.blobContext.setTags(Object.assign(Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)), { tags: toBlobTags(tags2) }));
+          return await this.blobContext.setTags(Object.assign(Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)), { tags: toBlobTags(tags2) }));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -70533,11 +70533,11 @@ var init_Clients = __esm({
        *
        * @param options -
        */
-      async getTags(options2 = {}) {
+      async getTags(options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("BlobClient-getTags", options2);
+        const { span, updatedOptions } = createSpan2("BlobClient-getTags", options);
         try {
-          const response = await this.blobContext.getTags(Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          const response = await this.blobContext.getTags(Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
           const wrappedResponse = Object.assign(Object.assign({}, response), { _response: response._response, tags: toTags({ blobTagSet: response.blobTagSet }) || {} });
           return wrappedResponse;
         } catch (e) {
@@ -70565,13 +70565,13 @@ var init_Clients = __esm({
        *
        * @param options - Optional options to the Blob Create Snapshot operation.
        */
-      async createSnapshot(options2 = {}) {
+      async createSnapshot(options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("BlobClient-createSnapshot", options2);
-        options2.conditions = options2.conditions || {};
+        const { span, updatedOptions } = createSpan2("BlobClient-createSnapshot", options);
+        options.conditions = options.conditions || {};
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.blobContext.createSnapshot(Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, metadata: options2.metadata, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options2.customerProvidedKey, encryptionScope: options2.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.blobContext.createSnapshot(Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, metadata: options.metadata, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options.customerProvidedKey, encryptionScope: options.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -70654,7 +70654,7 @@ var init_Clients = __esm({
        * @param copySource - url to the source Azure Blob/File.
        * @param options - Optional options to the Blob Start Copy From URL operation.
        */
-      async beginCopyFromURL(copySource2, options2 = {}) {
+      async beginCopyFromURL(copySource2, options = {}) {
         const client = {
           abortCopyFromURL: (...args) => this.abortCopyFromURL(...args),
           getProperties: (...args) => this.getProperties(...args),
@@ -70663,10 +70663,10 @@ var init_Clients = __esm({
         const poller = new BlobBeginCopyFromUrlPoller({
           blobClient: client,
           copySource: copySource2,
-          intervalInMs: options2.intervalInMs,
-          onProgress: options2.onProgress,
-          resumeFrom: options2.resumeFrom,
-          startCopyFromURLOptions: options2
+          intervalInMs: options.intervalInMs,
+          onProgress: options.onProgress,
+          resumeFrom: options.resumeFrom,
+          startCopyFromURLOptions: options
         });
         await poller.poll();
         return poller;
@@ -70679,10 +70679,10 @@ var init_Clients = __esm({
        * @param copyId - Id of the Copy From URL operation.
        * @param options - Optional options to the Blob Abort Copy From URL operation.
        */
-      async abortCopyFromURL(copyId2, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobClient-abortCopyFromURL", options2);
+      async abortCopyFromURL(copyId2, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobClient-abortCopyFromURL", options);
         try {
-          return await this.blobContext.abortCopyFromURL(copyId2, Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.blobContext.abortCopyFromURL(copyId2, Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -70701,18 +70701,18 @@ var init_Clients = __esm({
        * @param copySource - The source URL to copy from, Shared Access Signature(SAS) maybe needed for authentication
        * @param options -
        */
-      async syncCopyFromURL(copySource2, options2 = {}) {
+      async syncCopyFromURL(copySource2, options = {}) {
         var _a2, _b, _c;
-        const { span, updatedOptions } = createSpan2("BlobClient-syncCopyFromURL", options2);
-        options2.conditions = options2.conditions || {};
-        options2.sourceConditions = options2.sourceConditions || {};
+        const { span, updatedOptions } = createSpan2("BlobClient-syncCopyFromURL", options);
+        options.conditions = options.conditions || {};
+        options.sourceConditions = options.sourceConditions || {};
         try {
-          return await this.blobContext.copyFromURL(copySource2, Object.assign({ abortSignal: options2.abortSignal, metadata: options2.metadata, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), sourceModifiedAccessConditions: {
-            sourceIfMatch: options2.sourceConditions.ifMatch,
-            sourceIfModifiedSince: options2.sourceConditions.ifModifiedSince,
-            sourceIfNoneMatch: options2.sourceConditions.ifNoneMatch,
-            sourceIfUnmodifiedSince: options2.sourceConditions.ifUnmodifiedSince
-          }, sourceContentMD5: options2.sourceContentMD5, copySourceAuthorization: httpAuthorizationToString(options2.sourceAuthorization), tier: toAccessTier(options2.tier), blobTagsString: toBlobTagsString(options2.tags), immutabilityPolicyExpiry: (_b = options2.immutabilityPolicy) === null || _b === void 0 ? void 0 : _b.expiriesOn, immutabilityPolicyMode: (_c = options2.immutabilityPolicy) === null || _c === void 0 ? void 0 : _c.policyMode, legalHold: options2.legalHold, encryptionScope: options2.encryptionScope, copySourceTags: options2.copySourceTags }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.blobContext.copyFromURL(copySource2, Object.assign({ abortSignal: options.abortSignal, metadata: options.metadata, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), sourceModifiedAccessConditions: {
+            sourceIfMatch: options.sourceConditions.ifMatch,
+            sourceIfModifiedSince: options.sourceConditions.ifModifiedSince,
+            sourceIfNoneMatch: options.sourceConditions.ifNoneMatch,
+            sourceIfUnmodifiedSince: options.sourceConditions.ifUnmodifiedSince
+          }, sourceContentMD5: options.sourceContentMD5, copySourceAuthorization: httpAuthorizationToString(options.sourceAuthorization), tier: toAccessTier(options.tier), blobTagsString: toBlobTagsString(options.tags), immutabilityPolicyExpiry: (_b = options.immutabilityPolicy) === null || _b === void 0 ? void 0 : _b.expiriesOn, immutabilityPolicyMode: (_c = options.immutabilityPolicy) === null || _c === void 0 ? void 0 : _c.policyMode, legalHold: options.legalHold, encryptionScope: options.encryptionScope, copySourceTags: options.copySourceTags }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -70734,11 +70734,11 @@ var init_Clients = __esm({
        * @param tier - The tier to be set on the blob. Valid values are Hot, Cool, or Archive.
        * @param options - Optional options to the Blob Set Tier operation.
        */
-      async setAccessTier(tier2, options2 = {}) {
+      async setAccessTier(tier2, options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("BlobClient-setAccessTier", options2);
+        const { span, updatedOptions } = createSpan2("BlobClient-setAccessTier", options);
         try {
-          return await this.blobContext.setTier(toAccessTier(tier2), Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), rehydratePriority: options2.rehydratePriority }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.blobContext.setTier(toAccessTier(tier2), Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), rehydratePriority: options.rehydratePriority }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -70753,7 +70753,7 @@ var init_Clients = __esm({
         let buffer;
         let offset = 0;
         let count = 0;
-        let options2 = param4;
+        let options = param4;
         if (param1 instanceof Buffer) {
           buffer = param1;
           offset = param2 || 0;
@@ -70761,18 +70761,18 @@ var init_Clients = __esm({
         } else {
           offset = typeof param1 === "number" ? param1 : 0;
           count = typeof param2 === "number" ? param2 : 0;
-          options2 = param3 || {};
+          options = param3 || {};
         }
-        const { span, updatedOptions } = createSpan2("BlobClient-downloadToBuffer", options2);
+        const { span, updatedOptions } = createSpan2("BlobClient-downloadToBuffer", options);
         try {
-          if (!options2.blockSize) {
-            options2.blockSize = 0;
+          if (!options.blockSize) {
+            options.blockSize = 0;
           }
-          if (options2.blockSize < 0) {
+          if (options.blockSize < 0) {
             throw new RangeError("blockSize option must be >= 0");
           }
-          if (options2.blockSize === 0) {
-            options2.blockSize = DEFAULT_BLOB_DOWNLOAD_BLOCK_BYTES;
+          if (options.blockSize === 0) {
+            options.blockSize = DEFAULT_BLOB_DOWNLOAD_BLOCK_BYTES;
           }
           if (offset < 0) {
             throw new RangeError("offset option must be >= 0");
@@ -70780,11 +70780,11 @@ var init_Clients = __esm({
           if (count && count <= 0) {
             throw new RangeError("count option must be greater than 0");
           }
-          if (!options2.conditions) {
-            options2.conditions = {};
+          if (!options.conditions) {
+            options.conditions = {};
           }
           if (!count) {
-            const response = await this.getProperties(Object.assign(Object.assign({}, options2), { tracingOptions: Object.assign(Object.assign({}, options2.tracingOptions), convertTracingToRequestOptionsBase(updatedOptions)) }));
+            const response = await this.getProperties(Object.assign(Object.assign({}, options), { tracingOptions: Object.assign(Object.assign({}, options.tracingOptions), convertTracingToRequestOptionsBase(updatedOptions)) }));
             count = response.contentLength - offset;
             if (count < 0) {
               throw new RangeError(`offset ${offset} shouldn't be larger than blob size ${response.contentLength}`);
@@ -70801,25 +70801,25 @@ var init_Clients = __esm({
             throw new RangeError(`The buffer's size should be equal to or larger than the request count of bytes: ${count}`);
           }
           let transferProgress = 0;
-          const batch = new Batch(options2.concurrency);
-          for (let off = offset; off < offset + count; off = off + options2.blockSize) {
+          const batch = new Batch(options.concurrency);
+          for (let off = offset; off < offset + count; off = off + options.blockSize) {
             batch.addOperation(async () => {
               let chunkEnd = offset + count;
-              if (off + options2.blockSize < chunkEnd) {
-                chunkEnd = off + options2.blockSize;
+              if (off + options.blockSize < chunkEnd) {
+                chunkEnd = off + options.blockSize;
               }
               const response = await this.download(off, chunkEnd - off, {
-                abortSignal: options2.abortSignal,
-                conditions: options2.conditions,
-                maxRetryRequests: options2.maxRetryRequestsPerBlock,
-                customerProvidedKey: options2.customerProvidedKey,
-                tracingOptions: Object.assign(Object.assign({}, options2.tracingOptions), convertTracingToRequestOptionsBase(updatedOptions))
+                abortSignal: options.abortSignal,
+                conditions: options.conditions,
+                maxRetryRequests: options.maxRetryRequestsPerBlock,
+                customerProvidedKey: options.customerProvidedKey,
+                tracingOptions: Object.assign(Object.assign({}, options.tracingOptions), convertTracingToRequestOptionsBase(updatedOptions))
               });
               const stream = response.readableStreamBody;
               await streamToBuffer(stream, buffer, off - offset, chunkEnd - offset);
               transferProgress += chunkEnd - off;
-              if (options2.onProgress) {
-                options2.onProgress({ loadedBytes: transferProgress });
+              if (options.onProgress) {
+                options.onProgress({ loadedBytes: transferProgress });
               }
             });
           }
@@ -70851,10 +70851,10 @@ var init_Clients = __esm({
        *                                                 content is already read and written into a local file
        *                                                 at the specified path.
        */
-      async downloadToFile(filePath, offset = 0, count, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobClient-downloadToFile", options2);
+      async downloadToFile(filePath, offset = 0, count, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobClient-downloadToFile", options);
         try {
-          const response = await this.download(offset, count, Object.assign(Object.assign({}, options2), { tracingOptions: Object.assign(Object.assign({}, options2.tracingOptions), convertTracingToRequestOptionsBase(updatedOptions)) }));
+          const response = await this.download(offset, count, Object.assign(Object.assign({}, options), { tracingOptions: Object.assign(Object.assign({}, options.tracingOptions), convertTracingToRequestOptionsBase(updatedOptions)) }));
           if (response.readableStreamBody) {
             await readStreamToLocalFile(response.readableStreamBody, filePath);
           }
@@ -70912,19 +70912,19 @@ var init_Clients = __esm({
        * @param copySource - url to the source Azure Blob/File.
        * @param options - Optional options to the Blob Start Copy From URL operation.
        */
-      async startCopyFromURL(copySource2, options2 = {}) {
+      async startCopyFromURL(copySource2, options = {}) {
         var _a2, _b, _c;
-        const { span, updatedOptions } = createSpan2("BlobClient-startCopyFromURL", options2);
-        options2.conditions = options2.conditions || {};
-        options2.sourceConditions = options2.sourceConditions || {};
+        const { span, updatedOptions } = createSpan2("BlobClient-startCopyFromURL", options);
+        options.conditions = options.conditions || {};
+        options.sourceConditions = options.sourceConditions || {};
         try {
-          return await this.blobContext.startCopyFromURL(copySource2, Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, metadata: options2.metadata, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), sourceModifiedAccessConditions: {
-            sourceIfMatch: options2.sourceConditions.ifMatch,
-            sourceIfModifiedSince: options2.sourceConditions.ifModifiedSince,
-            sourceIfNoneMatch: options2.sourceConditions.ifNoneMatch,
-            sourceIfUnmodifiedSince: options2.sourceConditions.ifUnmodifiedSince,
-            sourceIfTags: options2.sourceConditions.tagConditions
-          }, immutabilityPolicyExpiry: (_b = options2.immutabilityPolicy) === null || _b === void 0 ? void 0 : _b.expiriesOn, immutabilityPolicyMode: (_c = options2.immutabilityPolicy) === null || _c === void 0 ? void 0 : _c.policyMode, legalHold: options2.legalHold, rehydratePriority: options2.rehydratePriority, tier: toAccessTier(options2.tier), blobTagsString: toBlobTagsString(options2.tags), sealBlob: options2.sealBlob }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.blobContext.startCopyFromURL(copySource2, Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, metadata: options.metadata, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), sourceModifiedAccessConditions: {
+            sourceIfMatch: options.sourceConditions.ifMatch,
+            sourceIfModifiedSince: options.sourceConditions.ifModifiedSince,
+            sourceIfNoneMatch: options.sourceConditions.ifNoneMatch,
+            sourceIfUnmodifiedSince: options.sourceConditions.ifUnmodifiedSince,
+            sourceIfTags: options.sourceConditions.tagConditions
+          }, immutabilityPolicyExpiry: (_b = options.immutabilityPolicy) === null || _b === void 0 ? void 0 : _b.expiriesOn, immutabilityPolicyMode: (_c = options.immutabilityPolicy) === null || _c === void 0 ? void 0 : _c.policyMode, legalHold: options.legalHold, rehydratePriority: options.rehydratePriority, tier: toAccessTier(options.tier), blobTagsString: toBlobTagsString(options.tags), sealBlob: options.sealBlob }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -70946,12 +70946,12 @@ var init_Clients = __esm({
        * @param options - Optional parameters.
        * @returns The SAS URI consisting of the URI to the resource represented by this client, followed by the generated SAS token.
        */
-      generateSasUrl(options2) {
+      generateSasUrl(options) {
         return new Promise((resolve2) => {
           if (!(this.credential instanceof StorageSharedKeyCredential)) {
             throw new RangeError("Can only generate the SAS when the client is initialized with a shared key credential");
           }
-          const sas = generateBlobSASQueryParameters(Object.assign({ containerName: this._containerName, blobName: this._name, snapshotTime: this._snapshot, versionId: this._versionId }, options2), this.credential).toString();
+          const sas = generateBlobSASQueryParameters(Object.assign({ containerName: this._containerName, blobName: this._name, snapshotTime: this._snapshot, versionId: this._versionId }, options), this.credential).toString();
           resolve2(appendToURLQuery(this.url, sas));
         });
       }
@@ -70960,10 +70960,10 @@ var init_Clients = __esm({
        *
        * @param options - Optional options to delete immutability policy on the blob.
        */
-      async deleteImmutabilityPolicy(options2) {
-        const { span, updatedOptions } = createSpan2("BlobClient-deleteImmutabilityPolicy", options2);
+      async deleteImmutabilityPolicy(options) {
+        const { span, updatedOptions } = createSpan2("BlobClient-deleteImmutabilityPolicy", options);
         try {
-          return await this.blobContext.deleteImmutabilityPolicy(Object.assign({ abortSignal: options2 === null || options2 === void 0 ? void 0 : options2.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.blobContext.deleteImmutabilityPolicy(Object.assign({ abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -70979,10 +70979,10 @@ var init_Clients = __esm({
        *
        * @param options - Optional options to set immutability policy on the blob.
        */
-      async setImmutabilityPolicy(immutabilityPolicy, options2) {
-        const { span, updatedOptions } = createSpan2("BlobClient-setImmutabilityPolicy", options2);
+      async setImmutabilityPolicy(immutabilityPolicy, options) {
+        const { span, updatedOptions } = createSpan2("BlobClient-setImmutabilityPolicy", options);
         try {
-          return await this.blobContext.setImmutabilityPolicy(Object.assign({ abortSignal: options2 === null || options2 === void 0 ? void 0 : options2.abortSignal, immutabilityPolicyExpiry: immutabilityPolicy.expiriesOn, immutabilityPolicyMode: immutabilityPolicy.policyMode, modifiedAccessConditions: options2 === null || options2 === void 0 ? void 0 : options2.modifiedAccessCondition }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.blobContext.setImmutabilityPolicy(Object.assign({ abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal, immutabilityPolicyExpiry: immutabilityPolicy.expiriesOn, immutabilityPolicyMode: immutabilityPolicy.policyMode, modifiedAccessConditions: options === null || options === void 0 ? void 0 : options.modifiedAccessCondition }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -70998,10 +70998,10 @@ var init_Clients = __esm({
        *
        * @param options - Optional options to set legal hold on the blob.
        */
-      async setLegalHold(legalHoldEnabled, options2) {
-        const { span, updatedOptions } = createSpan2("BlobClient-setLegalHold", options2);
+      async setLegalHold(legalHoldEnabled, options) {
+        const { span, updatedOptions } = createSpan2("BlobClient-setLegalHold", options);
         try {
-          return await this.blobContext.setLegalHold(legalHoldEnabled, Object.assign({ abortSignal: options2 === null || options2 === void 0 ? void 0 : options2.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.blobContext.setLegalHold(legalHoldEnabled, Object.assign({ abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71014,20 +71014,20 @@ var init_Clients = __esm({
       }
     };
     AppendBlobClient = class _AppendBlobClient extends BlobClient {
-      constructor(urlOrConnectionString, credentialOrPipelineOrContainerName, blobNameOrOptions, options2) {
+      constructor(urlOrConnectionString, credentialOrPipelineOrContainerName, blobNameOrOptions, options) {
         let pipeline;
         let url2;
-        options2 = options2 || {};
+        options = options || {};
         if (isPipelineLike(credentialOrPipelineOrContainerName)) {
           url2 = urlOrConnectionString;
           pipeline = credentialOrPipelineOrContainerName;
         } else if (isNode && credentialOrPipelineOrContainerName instanceof StorageSharedKeyCredential || credentialOrPipelineOrContainerName instanceof AnonymousCredential || isTokenCredential(credentialOrPipelineOrContainerName)) {
           url2 = urlOrConnectionString;
-          options2 = blobNameOrOptions;
-          pipeline = newPipeline(credentialOrPipelineOrContainerName, options2);
+          options = blobNameOrOptions;
+          pipeline = newPipeline(credentialOrPipelineOrContainerName, options);
         } else if (!credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName !== "string") {
           url2 = urlOrConnectionString;
-          pipeline = newPipeline(new AnonymousCredential(), options2);
+          pipeline = newPipeline(new AnonymousCredential(), options);
         } else if (credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName === "string" && blobNameOrOptions && typeof blobNameOrOptions === "string") {
           const containerName = credentialOrPipelineOrContainerName;
           const blobName = blobNameOrOptions;
@@ -71036,16 +71036,16 @@ var init_Clients = __esm({
             if (isNode) {
               const sharedKeyCredential = new StorageSharedKeyCredential(extractedCreds.accountName, extractedCreds.accountKey);
               url2 = appendToURLPath(appendToURLPath(extractedCreds.url, encodeURIComponent(containerName)), encodeURIComponent(blobName));
-              if (!options2.proxyOptions) {
-                options2.proxyOptions = getDefaultProxySettings(extractedCreds.proxyUri);
+              if (!options.proxyOptions) {
+                options.proxyOptions = getDefaultProxySettings(extractedCreds.proxyUri);
               }
-              pipeline = newPipeline(sharedKeyCredential, options2);
+              pipeline = newPipeline(sharedKeyCredential, options);
             } else {
               throw new Error("Account connection string is only supported in Node.js environment");
             }
           } else if (extractedCreds.kind === "SASConnString") {
             url2 = appendToURLPath(appendToURLPath(extractedCreds.url, encodeURIComponent(containerName)), encodeURIComponent(blobName)) + "?" + extractedCreds.accountSas;
-            pipeline = newPipeline(new AnonymousCredential(), options2);
+            pipeline = newPipeline(new AnonymousCredential(), options);
           } else {
             throw new Error("Connection string must be either an Account connection string or a SAS connection string");
           }
@@ -71080,13 +71080,13 @@ var init_Clients = __esm({
        * await appendBlobClient.create();
        * ```
        */
-      async create(options2 = {}) {
+      async create(options = {}) {
         var _a2, _b, _c;
-        const { span, updatedOptions } = createSpan2("AppendBlobClient-create", options2);
-        options2.conditions = options2.conditions || {};
+        const { span, updatedOptions } = createSpan2("AppendBlobClient-create", options);
+        options.conditions = options.conditions || {};
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.appendBlobContext.create(0, Object.assign({ abortSignal: options2.abortSignal, blobHttpHeaders: options2.blobHTTPHeaders, leaseAccessConditions: options2.conditions, metadata: options2.metadata, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options2.customerProvidedKey, encryptionScope: options2.encryptionScope, immutabilityPolicyExpiry: (_b = options2.immutabilityPolicy) === null || _b === void 0 ? void 0 : _b.expiriesOn, immutabilityPolicyMode: (_c = options2.immutabilityPolicy) === null || _c === void 0 ? void 0 : _c.policyMode, legalHold: options2.legalHold, blobTagsString: toBlobTagsString(options2.tags) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.appendBlobContext.create(0, Object.assign({ abortSignal: options.abortSignal, blobHttpHeaders: options.blobHTTPHeaders, leaseAccessConditions: options.conditions, metadata: options.metadata, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options.customerProvidedKey, encryptionScope: options.encryptionScope, immutabilityPolicyExpiry: (_b = options.immutabilityPolicy) === null || _b === void 0 ? void 0 : _b.expiriesOn, immutabilityPolicyMode: (_c = options.immutabilityPolicy) === null || _c === void 0 ? void 0 : _c.policyMode, legalHold: options.legalHold, blobTagsString: toBlobTagsString(options.tags) }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71104,9 +71104,9 @@ var init_Clients = __esm({
        *
        * @param options -
        */
-      async createIfNotExists(options2 = {}) {
+      async createIfNotExists(options = {}) {
         var _a2, _b;
-        const { span, updatedOptions } = createSpan2("AppendBlobClient-createIfNotExists", options2);
+        const { span, updatedOptions } = createSpan2("AppendBlobClient-createIfNotExists", options);
         const conditions = { ifNoneMatch: ETagAny };
         try {
           const res = await this.create(Object.assign(Object.assign({}, updatedOptions), { conditions }));
@@ -71133,12 +71133,12 @@ var init_Clients = __esm({
        *
        * @param options -
        */
-      async seal(options2 = {}) {
+      async seal(options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("AppendBlobClient-seal", options2);
-        options2.conditions = options2.conditions || {};
+        const { span, updatedOptions } = createSpan2("AppendBlobClient-seal", options);
+        options.conditions = options.conditions || {};
         try {
-          return await this.appendBlobContext.seal(Object.assign({ abortSignal: options2.abortSignal, appendPositionAccessConditions: options2.conditions, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.appendBlobContext.seal(Object.assign({ abortSignal: options.abortSignal, appendPositionAccessConditions: options.conditions, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71173,15 +71173,15 @@ var init_Clients = __esm({
        * await existingAppendBlobClient.appendBlock(content, content.length);
        * ```
        */
-      async appendBlock(body2, contentLength2, options2 = {}) {
+      async appendBlock(body2, contentLength2, options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("AppendBlobClient-appendBlock", options2);
-        options2.conditions = options2.conditions || {};
+        const { span, updatedOptions } = createSpan2("AppendBlobClient-appendBlock", options);
+        options.conditions = options.conditions || {};
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.appendBlobContext.appendBlock(contentLength2, body2, Object.assign({ abortSignal: options2.abortSignal, appendPositionAccessConditions: options2.conditions, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), requestOptions: {
-            onUploadProgress: options2.onProgress
-          }, transactionalContentMD5: options2.transactionalContentMD5, transactionalContentCrc64: options2.transactionalContentCrc64, cpkInfo: options2.customerProvidedKey, encryptionScope: options2.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.appendBlobContext.appendBlock(contentLength2, body2, Object.assign({ abortSignal: options.abortSignal, appendPositionAccessConditions: options.conditions, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), requestOptions: {
+            onUploadProgress: options.onProgress
+          }, transactionalContentMD5: options.transactionalContentMD5, transactionalContentCrc64: options.transactionalContentCrc64, cpkInfo: options.customerProvidedKey, encryptionScope: options.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71206,19 +71206,19 @@ var init_Clients = __esm({
        * @param count - Number of bytes to be appended as a block
        * @param options -
        */
-      async appendBlockFromURL(sourceURL, sourceOffset, count, options2 = {}) {
+      async appendBlockFromURL(sourceURL, sourceOffset, count, options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("AppendBlobClient-appendBlockFromURL", options2);
-        options2.conditions = options2.conditions || {};
-        options2.sourceConditions = options2.sourceConditions || {};
+        const { span, updatedOptions } = createSpan2("AppendBlobClient-appendBlockFromURL", options);
+        options.conditions = options.conditions || {};
+        options.sourceConditions = options.sourceConditions || {};
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.appendBlobContext.appendBlockFromUrl(sourceURL, 0, Object.assign({ abortSignal: options2.abortSignal, sourceRange: rangeToString({ offset: sourceOffset, count }), sourceContentMD5: options2.sourceContentMD5, sourceContentCrc64: options2.sourceContentCrc64, leaseAccessConditions: options2.conditions, appendPositionAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), sourceModifiedAccessConditions: {
-            sourceIfMatch: options2.sourceConditions.ifMatch,
-            sourceIfModifiedSince: options2.sourceConditions.ifModifiedSince,
-            sourceIfNoneMatch: options2.sourceConditions.ifNoneMatch,
-            sourceIfUnmodifiedSince: options2.sourceConditions.ifUnmodifiedSince
-          }, copySourceAuthorization: httpAuthorizationToString(options2.sourceAuthorization), cpkInfo: options2.customerProvidedKey, encryptionScope: options2.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.appendBlobContext.appendBlockFromUrl(sourceURL, 0, Object.assign({ abortSignal: options.abortSignal, sourceRange: rangeToString({ offset: sourceOffset, count }), sourceContentMD5: options.sourceContentMD5, sourceContentCrc64: options.sourceContentCrc64, leaseAccessConditions: options.conditions, appendPositionAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), sourceModifiedAccessConditions: {
+            sourceIfMatch: options.sourceConditions.ifMatch,
+            sourceIfModifiedSince: options.sourceConditions.ifModifiedSince,
+            sourceIfNoneMatch: options.sourceConditions.ifNoneMatch,
+            sourceIfUnmodifiedSince: options.sourceConditions.ifUnmodifiedSince
+          }, copySourceAuthorization: httpAuthorizationToString(options.sourceAuthorization), cpkInfo: options.customerProvidedKey, encryptionScope: options.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71231,23 +71231,23 @@ var init_Clients = __esm({
       }
     };
     BlockBlobClient = class _BlockBlobClient extends BlobClient {
-      constructor(urlOrConnectionString, credentialOrPipelineOrContainerName, blobNameOrOptions, options2) {
+      constructor(urlOrConnectionString, credentialOrPipelineOrContainerName, blobNameOrOptions, options) {
         let pipeline;
         let url2;
-        options2 = options2 || {};
+        options = options || {};
         if (isPipelineLike(credentialOrPipelineOrContainerName)) {
           url2 = urlOrConnectionString;
           pipeline = credentialOrPipelineOrContainerName;
         } else if (isNode && credentialOrPipelineOrContainerName instanceof StorageSharedKeyCredential || credentialOrPipelineOrContainerName instanceof AnonymousCredential || isTokenCredential(credentialOrPipelineOrContainerName)) {
           url2 = urlOrConnectionString;
-          options2 = blobNameOrOptions;
-          pipeline = newPipeline(credentialOrPipelineOrContainerName, options2);
+          options = blobNameOrOptions;
+          pipeline = newPipeline(credentialOrPipelineOrContainerName, options);
         } else if (!credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName !== "string") {
           url2 = urlOrConnectionString;
           if (blobNameOrOptions && typeof blobNameOrOptions !== "string") {
-            options2 = blobNameOrOptions;
+            options = blobNameOrOptions;
           }
-          pipeline = newPipeline(new AnonymousCredential(), options2);
+          pipeline = newPipeline(new AnonymousCredential(), options);
         } else if (credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName === "string" && blobNameOrOptions && typeof blobNameOrOptions === "string") {
           const containerName = credentialOrPipelineOrContainerName;
           const blobName = blobNameOrOptions;
@@ -71256,16 +71256,16 @@ var init_Clients = __esm({
             if (isNode) {
               const sharedKeyCredential = new StorageSharedKeyCredential(extractedCreds.accountName, extractedCreds.accountKey);
               url2 = appendToURLPath(appendToURLPath(extractedCreds.url, encodeURIComponent(containerName)), encodeURIComponent(blobName));
-              if (!options2.proxyOptions) {
-                options2.proxyOptions = getDefaultProxySettings(extractedCreds.proxyUri);
+              if (!options.proxyOptions) {
+                options.proxyOptions = getDefaultProxySettings(extractedCreds.proxyUri);
               }
-              pipeline = newPipeline(sharedKeyCredential, options2);
+              pipeline = newPipeline(sharedKeyCredential, options);
             } else {
               throw new Error("Account connection string is only supported in Node.js environment");
             }
           } else if (extractedCreds.kind === "SASConnString") {
             url2 = appendToURLPath(appendToURLPath(extractedCreds.url, encodeURIComponent(containerName)), encodeURIComponent(blobName)) + "?" + extractedCreds.accountSas;
-            pipeline = newPipeline(new AnonymousCredential(), options2);
+            pipeline = newPipeline(new AnonymousCredential(), options);
           } else {
             throw new Error("Connection string must be either an Account connection string or a SAS connection string");
           }
@@ -71317,25 +71317,25 @@ var init_Clients = __esm({
        * @param query -
        * @param options -
        */
-      async query(query, options2 = {}) {
+      async query(query, options = {}) {
         var _a2;
-        ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-        const { span, updatedOptions } = createSpan2("BlockBlobClient-query", options2);
+        ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+        const { span, updatedOptions } = createSpan2("BlockBlobClient-query", options);
         try {
           if (!isNode) {
             throw new Error("This operation currently is only supported in Node.js.");
           }
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          const response = await this._blobContext.query(Object.assign({ abortSignal: options2.abortSignal, queryRequest: {
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          const response = await this._blobContext.query(Object.assign({ abortSignal: options.abortSignal, queryRequest: {
             queryType: "SQL",
             expression: query,
-            inputSerialization: toQuerySerialization(options2.inputTextConfiguration),
-            outputSerialization: toQuerySerialization(options2.outputTextConfiguration)
-          }, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options2.customerProvidedKey }, convertTracingToRequestOptionsBase(updatedOptions)));
+            inputSerialization: toQuerySerialization(options.inputTextConfiguration),
+            outputSerialization: toQuerySerialization(options.outputTextConfiguration)
+          }, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options.customerProvidedKey }, convertTracingToRequestOptionsBase(updatedOptions)));
           return new BlobQueryResponse(response, {
-            abortSignal: options2.abortSignal,
-            onProgress: options2.onProgress,
-            onError: options2.onError
+            abortSignal: options.abortSignal,
+            onProgress: options.onProgress,
+            onError: options.onError
           });
         } catch (e) {
           span.setStatus({
@@ -71374,15 +71374,15 @@ var init_Clients = __esm({
        * const uploadBlobResponse = await blockBlobClient.upload(content, content.length);
        * ```
        */
-      async upload(body2, contentLength2, options2 = {}) {
+      async upload(body2, contentLength2, options = {}) {
         var _a2, _b, _c;
-        options2.conditions = options2.conditions || {};
-        const { span, updatedOptions } = createSpan2("BlockBlobClient-upload", options2);
+        options.conditions = options.conditions || {};
+        const { span, updatedOptions } = createSpan2("BlockBlobClient-upload", options);
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.blockBlobContext.upload(contentLength2, body2, Object.assign({ abortSignal: options2.abortSignal, blobHttpHeaders: options2.blobHTTPHeaders, leaseAccessConditions: options2.conditions, metadata: options2.metadata, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), requestOptions: {
-            onUploadProgress: options2.onProgress
-          }, cpkInfo: options2.customerProvidedKey, encryptionScope: options2.encryptionScope, immutabilityPolicyExpiry: (_b = options2.immutabilityPolicy) === null || _b === void 0 ? void 0 : _b.expiriesOn, immutabilityPolicyMode: (_c = options2.immutabilityPolicy) === null || _c === void 0 ? void 0 : _c.policyMode, legalHold: options2.legalHold, tier: toAccessTier(options2.tier), blobTagsString: toBlobTagsString(options2.tags) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.blockBlobContext.upload(contentLength2, body2, Object.assign({ abortSignal: options.abortSignal, blobHttpHeaders: options.blobHTTPHeaders, leaseAccessConditions: options.conditions, metadata: options.metadata, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), requestOptions: {
+            onUploadProgress: options.onProgress
+          }, cpkInfo: options.customerProvidedKey, encryptionScope: options.encryptionScope, immutabilityPolicyExpiry: (_b = options.immutabilityPolicy) === null || _b === void 0 ? void 0 : _b.expiriesOn, immutabilityPolicyMode: (_c = options.immutabilityPolicy) === null || _c === void 0 ? void 0 : _c.policyMode, legalHold: options.legalHold, tier: toAccessTier(options.tier), blobTagsString: toBlobTagsString(options.tags) }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71411,19 +71411,19 @@ var init_Clients = __esm({
        *                           - https://myaccount.blob.core.windows.net/mycontainer/myblob?snapshot=<DateTime>
        * @param options - Optional parameters.
        */
-      async syncUploadFromURL(sourceURL, options2 = {}) {
+      async syncUploadFromURL(sourceURL, options = {}) {
         var _a2, _b, _c, _d, _e;
-        options2.conditions = options2.conditions || {};
-        const { span, updatedOptions } = createSpan2("BlockBlobClient-syncUploadFromURL", options2);
+        options.conditions = options.conditions || {};
+        const { span, updatedOptions } = createSpan2("BlockBlobClient-syncUploadFromURL", options);
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.blockBlobContext.putBlobFromUrl(0, sourceURL, Object.assign(Object.assign(Object.assign({}, options2), { blobHttpHeaders: options2.blobHTTPHeaders, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: options2.conditions.tagConditions }), sourceModifiedAccessConditions: {
-            sourceIfMatch: (_a2 = options2.sourceConditions) === null || _a2 === void 0 ? void 0 : _a2.ifMatch,
-            sourceIfModifiedSince: (_b = options2.sourceConditions) === null || _b === void 0 ? void 0 : _b.ifModifiedSince,
-            sourceIfNoneMatch: (_c = options2.sourceConditions) === null || _c === void 0 ? void 0 : _c.ifNoneMatch,
-            sourceIfUnmodifiedSince: (_d = options2.sourceConditions) === null || _d === void 0 ? void 0 : _d.ifUnmodifiedSince,
-            sourceIfTags: (_e = options2.sourceConditions) === null || _e === void 0 ? void 0 : _e.tagConditions
-          }, cpkInfo: options2.customerProvidedKey, copySourceAuthorization: httpAuthorizationToString(options2.sourceAuthorization), tier: toAccessTier(options2.tier), blobTagsString: toBlobTagsString(options2.tags), copySourceTags: options2.copySourceTags }), convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.blockBlobContext.putBlobFromUrl(0, sourceURL, Object.assign(Object.assign(Object.assign({}, options), { blobHttpHeaders: options.blobHTTPHeaders, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: options.conditions.tagConditions }), sourceModifiedAccessConditions: {
+            sourceIfMatch: (_a2 = options.sourceConditions) === null || _a2 === void 0 ? void 0 : _a2.ifMatch,
+            sourceIfModifiedSince: (_b = options.sourceConditions) === null || _b === void 0 ? void 0 : _b.ifModifiedSince,
+            sourceIfNoneMatch: (_c = options.sourceConditions) === null || _c === void 0 ? void 0 : _c.ifNoneMatch,
+            sourceIfUnmodifiedSince: (_d = options.sourceConditions) === null || _d === void 0 ? void 0 : _d.ifUnmodifiedSince,
+            sourceIfTags: (_e = options.sourceConditions) === null || _e === void 0 ? void 0 : _e.tagConditions
+          }, cpkInfo: options.customerProvidedKey, copySourceAuthorization: httpAuthorizationToString(options.sourceAuthorization), tier: toAccessTier(options.tier), blobTagsString: toBlobTagsString(options.tags), copySourceTags: options.copySourceTags }), convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71445,13 +71445,13 @@ var init_Clients = __esm({
        * @param options - Options to the Block Blob Stage Block operation.
        * @returns Response data for the Block Blob Stage Block operation.
        */
-      async stageBlock(blockId2, body2, contentLength2, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlockBlobClient-stageBlock", options2);
+      async stageBlock(blockId2, body2, contentLength2, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlockBlobClient-stageBlock", options);
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.blockBlobContext.stageBlock(blockId2, contentLength2, body2, Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, requestOptions: {
-            onUploadProgress: options2.onProgress
-          }, transactionalContentMD5: options2.transactionalContentMD5, transactionalContentCrc64: options2.transactionalContentCrc64, cpkInfo: options2.customerProvidedKey, encryptionScope: options2.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.blockBlobContext.stageBlock(blockId2, contentLength2, body2, Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, requestOptions: {
+            onUploadProgress: options.onProgress
+          }, transactionalContentMD5: options.transactionalContentMD5, transactionalContentCrc64: options.transactionalContentCrc64, cpkInfo: options.customerProvidedKey, encryptionScope: options.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71483,11 +71483,11 @@ var init_Clients = __esm({
        * @param options - Options to the Block Blob Stage Block From URL operation.
        * @returns Response data for the Block Blob Stage Block From URL operation.
        */
-      async stageBlockFromURL(blockId2, sourceURL, offset = 0, count, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlockBlobClient-stageBlockFromURL", options2);
+      async stageBlockFromURL(blockId2, sourceURL, offset = 0, count, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlockBlobClient-stageBlockFromURL", options);
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.blockBlobContext.stageBlockFromURL(blockId2, 0, sourceURL, Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, sourceContentMD5: options2.sourceContentMD5, sourceContentCrc64: options2.sourceContentCrc64, sourceRange: offset === 0 && !count ? void 0 : rangeToString({ offset, count }), cpkInfo: options2.customerProvidedKey, encryptionScope: options2.encryptionScope, copySourceAuthorization: httpAuthorizationToString(options2.sourceAuthorization) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.blockBlobContext.stageBlockFromURL(blockId2, 0, sourceURL, Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, sourceContentMD5: options.sourceContentMD5, sourceContentCrc64: options.sourceContentCrc64, sourceRange: offset === 0 && !count ? void 0 : rangeToString({ offset, count }), cpkInfo: options.customerProvidedKey, encryptionScope: options.encryptionScope, copySourceAuthorization: httpAuthorizationToString(options.sourceAuthorization) }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71510,13 +71510,13 @@ var init_Clients = __esm({
        * @param options - Options to the Block Blob Commit Block List operation.
        * @returns Response data for the Block Blob Commit Block List operation.
        */
-      async commitBlockList(blocks2, options2 = {}) {
+      async commitBlockList(blocks2, options = {}) {
         var _a2, _b, _c;
-        options2.conditions = options2.conditions || {};
-        const { span, updatedOptions } = createSpan2("BlockBlobClient-commitBlockList", options2);
+        options.conditions = options.conditions || {};
+        const { span, updatedOptions } = createSpan2("BlockBlobClient-commitBlockList", options);
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.blockBlobContext.commitBlockList({ latest: blocks2 }, Object.assign({ abortSignal: options2.abortSignal, blobHttpHeaders: options2.blobHTTPHeaders, leaseAccessConditions: options2.conditions, metadata: options2.metadata, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options2.customerProvidedKey, encryptionScope: options2.encryptionScope, immutabilityPolicyExpiry: (_b = options2.immutabilityPolicy) === null || _b === void 0 ? void 0 : _b.expiriesOn, immutabilityPolicyMode: (_c = options2.immutabilityPolicy) === null || _c === void 0 ? void 0 : _c.policyMode, legalHold: options2.legalHold, tier: toAccessTier(options2.tier), blobTagsString: toBlobTagsString(options2.tags) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.blockBlobContext.commitBlockList({ latest: blocks2 }, Object.assign({ abortSignal: options.abortSignal, blobHttpHeaders: options.blobHTTPHeaders, leaseAccessConditions: options.conditions, metadata: options.metadata, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options.customerProvidedKey, encryptionScope: options.encryptionScope, immutabilityPolicyExpiry: (_b = options.immutabilityPolicy) === null || _b === void 0 ? void 0 : _b.expiriesOn, immutabilityPolicyMode: (_c = options.immutabilityPolicy) === null || _c === void 0 ? void 0 : _c.policyMode, legalHold: options.legalHold, tier: toAccessTier(options.tier), blobTagsString: toBlobTagsString(options.tags) }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71537,11 +71537,11 @@ var init_Clients = __esm({
        * @param options - Options to the Block Blob Get Block List operation.
        * @returns Response data for the Block Blob Get Block List operation.
        */
-      async getBlockList(listType2, options2 = {}) {
+      async getBlockList(listType2, options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("BlockBlobClient-getBlockList", options2);
+        const { span, updatedOptions } = createSpan2("BlockBlobClient-getBlockList", options);
         try {
-          const res = await this.blockBlobContext.getBlockList(listType2, Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          const res = await this.blockBlobContext.getBlockList(listType2, Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
           if (!res.committedBlocks) {
             res.committedBlocks = [];
           }
@@ -71575,8 +71575,8 @@ var init_Clients = __esm({
        * @param data - Buffer(Node.js), Blob, ArrayBuffer or ArrayBufferView
        * @param options -
        */
-      async uploadData(data, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlockBlobClient-uploadData", options2);
+      async uploadData(data, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlockBlobClient-uploadData", options);
         try {
           if (isNode) {
             let buffer;
@@ -71622,8 +71622,8 @@ var init_Clients = __esm({
        * @param options - Options to upload browser data.
        * @returns Response data for the Blob Upload operation.
        */
-      async uploadBrowserData(browserData, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlockBlobClient-uploadBrowserData", options2);
+      async uploadBrowserData(browserData, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlockBlobClient-uploadBrowserData", options);
         try {
           const browserBlob = new Blob([browserData]);
           return await this.uploadSeekableInternal((offset, size) => browserBlob.slice(offset, offset + size), browserBlob.size, updatedOptions);
@@ -71652,65 +71652,65 @@ var init_Clients = __esm({
        * @param options - Options to Upload to Block Blob operation.
        * @returns Response data for the Blob Upload operation.
        */
-      async uploadSeekableInternal(bodyFactory, size, options2 = {}) {
-        if (!options2.blockSize) {
-          options2.blockSize = 0;
+      async uploadSeekableInternal(bodyFactory, size, options = {}) {
+        if (!options.blockSize) {
+          options.blockSize = 0;
         }
-        if (options2.blockSize < 0 || options2.blockSize > BLOCK_BLOB_MAX_STAGE_BLOCK_BYTES) {
+        if (options.blockSize < 0 || options.blockSize > BLOCK_BLOB_MAX_STAGE_BLOCK_BYTES) {
           throw new RangeError(`blockSize option must be >= 0 and <= ${BLOCK_BLOB_MAX_STAGE_BLOCK_BYTES}`);
         }
-        if (options2.maxSingleShotSize !== 0 && !options2.maxSingleShotSize) {
-          options2.maxSingleShotSize = BLOCK_BLOB_MAX_UPLOAD_BLOB_BYTES;
+        if (options.maxSingleShotSize !== 0 && !options.maxSingleShotSize) {
+          options.maxSingleShotSize = BLOCK_BLOB_MAX_UPLOAD_BLOB_BYTES;
         }
-        if (options2.maxSingleShotSize < 0 || options2.maxSingleShotSize > BLOCK_BLOB_MAX_UPLOAD_BLOB_BYTES) {
+        if (options.maxSingleShotSize < 0 || options.maxSingleShotSize > BLOCK_BLOB_MAX_UPLOAD_BLOB_BYTES) {
           throw new RangeError(`maxSingleShotSize option must be >= 0 and <= ${BLOCK_BLOB_MAX_UPLOAD_BLOB_BYTES}`);
         }
-        if (options2.blockSize === 0) {
+        if (options.blockSize === 0) {
           if (size > BLOCK_BLOB_MAX_STAGE_BLOCK_BYTES * BLOCK_BLOB_MAX_BLOCKS) {
             throw new RangeError(`${size} is too larger to upload to a block blob.`);
           }
-          if (size > options2.maxSingleShotSize) {
-            options2.blockSize = Math.ceil(size / BLOCK_BLOB_MAX_BLOCKS);
-            if (options2.blockSize < DEFAULT_BLOB_DOWNLOAD_BLOCK_BYTES) {
-              options2.blockSize = DEFAULT_BLOB_DOWNLOAD_BLOCK_BYTES;
+          if (size > options.maxSingleShotSize) {
+            options.blockSize = Math.ceil(size / BLOCK_BLOB_MAX_BLOCKS);
+            if (options.blockSize < DEFAULT_BLOB_DOWNLOAD_BLOCK_BYTES) {
+              options.blockSize = DEFAULT_BLOB_DOWNLOAD_BLOCK_BYTES;
             }
           }
         }
-        if (!options2.blobHTTPHeaders) {
-          options2.blobHTTPHeaders = {};
+        if (!options.blobHTTPHeaders) {
+          options.blobHTTPHeaders = {};
         }
-        if (!options2.conditions) {
-          options2.conditions = {};
+        if (!options.conditions) {
+          options.conditions = {};
         }
-        const { span, updatedOptions } = createSpan2("BlockBlobClient-uploadSeekableInternal", options2);
+        const { span, updatedOptions } = createSpan2("BlockBlobClient-uploadSeekableInternal", options);
         try {
-          if (size <= options2.maxSingleShotSize) {
+          if (size <= options.maxSingleShotSize) {
             return await this.upload(bodyFactory(0, size), size, updatedOptions);
           }
-          const numBlocks = Math.floor((size - 1) / options2.blockSize) + 1;
+          const numBlocks = Math.floor((size - 1) / options.blockSize) + 1;
           if (numBlocks > BLOCK_BLOB_MAX_BLOCKS) {
             throw new RangeError(`The buffer's size is too big or the BlockSize is too small;the number of blocks must be <= ${BLOCK_BLOB_MAX_BLOCKS}`);
           }
           const blockList = [];
           const blockIDPrefix = generateUuid();
           let transferProgress = 0;
-          const batch = new Batch(options2.concurrency);
+          const batch = new Batch(options.concurrency);
           for (let i = 0; i < numBlocks; i++) {
             batch.addOperation(async () => {
               const blockID = generateBlockID(blockIDPrefix, i);
-              const start = options2.blockSize * i;
-              const end = i === numBlocks - 1 ? size : start + options2.blockSize;
+              const start = options.blockSize * i;
+              const end = i === numBlocks - 1 ? size : start + options.blockSize;
               const contentLength2 = end - start;
               blockList.push(blockID);
               await this.stageBlock(blockID, bodyFactory(start, contentLength2), contentLength2, {
-                abortSignal: options2.abortSignal,
-                conditions: options2.conditions,
-                encryptionScope: options2.encryptionScope,
+                abortSignal: options.abortSignal,
+                conditions: options.conditions,
+                encryptionScope: options.encryptionScope,
                 tracingOptions: updatedOptions.tracingOptions
               });
               transferProgress += contentLength2;
-              if (options2.onProgress) {
-                options2.onProgress({
+              if (options.onProgress) {
+                options.onProgress({
                   loadedBytes: transferProgress
                 });
               }
@@ -71741,8 +71741,8 @@ var init_Clients = __esm({
        * @param options - Options to Upload to Block Blob operation.
        * @returns Response data for the Blob Upload operation.
        */
-      async uploadFile(filePath, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlockBlobClient-uploadFile", options2);
+      async uploadFile(filePath, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlockBlobClient-uploadFile", options);
         try {
           const size = (await fsStat(filePath)).size;
           return await this.uploadSeekableInternal((offset, count) => {
@@ -71751,7 +71751,7 @@ var init_Clients = __esm({
               end: count ? offset + count - 1 : Infinity,
               start: offset
             });
-          }, size, Object.assign(Object.assign({}, options2), { tracingOptions: Object.assign(Object.assign({}, options2.tracingOptions), convertTracingToRequestOptionsBase(updatedOptions)) }));
+          }, size, Object.assign(Object.assign({}, options), { tracingOptions: Object.assign(Object.assign({}, options.tracingOptions), convertTracingToRequestOptionsBase(updatedOptions)) }));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71778,14 +71778,14 @@ var init_Clients = __esm({
        * @param options - Options to Upload Stream to Block Blob operation.
        * @returns Response data for the Blob Upload operation.
        */
-      async uploadStream(stream, bufferSize = DEFAULT_BLOCK_BUFFER_SIZE_BYTES, maxConcurrency = 5, options2 = {}) {
-        if (!options2.blobHTTPHeaders) {
-          options2.blobHTTPHeaders = {};
+      async uploadStream(stream, bufferSize = DEFAULT_BLOCK_BUFFER_SIZE_BYTES, maxConcurrency = 5, options = {}) {
+        if (!options.blobHTTPHeaders) {
+          options.blobHTTPHeaders = {};
         }
-        if (!options2.conditions) {
-          options2.conditions = {};
+        if (!options.conditions) {
+          options.conditions = {};
         }
-        const { span, updatedOptions } = createSpan2("BlockBlobClient-uploadStream", options2);
+        const { span, updatedOptions } = createSpan2("BlockBlobClient-uploadStream", options);
         try {
           let blockNum = 0;
           const blockIDPrefix = generateUuid();
@@ -71800,13 +71800,13 @@ var init_Clients = __esm({
               blockList.push(blockID);
               blockNum++;
               await this.stageBlock(blockID, body2, length, {
-                conditions: options2.conditions,
-                encryptionScope: options2.encryptionScope,
+                conditions: options.conditions,
+                encryptionScope: options.encryptionScope,
                 tracingOptions: updatedOptions.tracingOptions
               });
               transferProgress += length;
-              if (options2.onProgress) {
-                options2.onProgress({ loadedBytes: transferProgress });
+              if (options.onProgress) {
+                options.onProgress({ loadedBytes: transferProgress });
               }
             },
             // concurrency should set a smaller value than maxConcurrency, which is helpful to
@@ -71816,7 +71816,7 @@ var init_Clients = __esm({
             Math.ceil(maxConcurrency / 4 * 3)
           );
           await scheduler.do();
-          return await this.commitBlockList(blockList, Object.assign(Object.assign({}, options2), { tracingOptions: Object.assign(Object.assign({}, options2.tracingOptions), convertTracingToRequestOptionsBase(updatedOptions)) }));
+          return await this.commitBlockList(blockList, Object.assign(Object.assign({}, options), { tracingOptions: Object.assign(Object.assign({}, options.tracingOptions), convertTracingToRequestOptionsBase(updatedOptions)) }));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71829,20 +71829,20 @@ var init_Clients = __esm({
       }
     };
     PageBlobClient = class _PageBlobClient extends BlobClient {
-      constructor(urlOrConnectionString, credentialOrPipelineOrContainerName, blobNameOrOptions, options2) {
+      constructor(urlOrConnectionString, credentialOrPipelineOrContainerName, blobNameOrOptions, options) {
         let pipeline;
         let url2;
-        options2 = options2 || {};
+        options = options || {};
         if (isPipelineLike(credentialOrPipelineOrContainerName)) {
           url2 = urlOrConnectionString;
           pipeline = credentialOrPipelineOrContainerName;
         } else if (isNode && credentialOrPipelineOrContainerName instanceof StorageSharedKeyCredential || credentialOrPipelineOrContainerName instanceof AnonymousCredential || isTokenCredential(credentialOrPipelineOrContainerName)) {
           url2 = urlOrConnectionString;
-          options2 = blobNameOrOptions;
-          pipeline = newPipeline(credentialOrPipelineOrContainerName, options2);
+          options = blobNameOrOptions;
+          pipeline = newPipeline(credentialOrPipelineOrContainerName, options);
         } else if (!credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName !== "string") {
           url2 = urlOrConnectionString;
-          pipeline = newPipeline(new AnonymousCredential(), options2);
+          pipeline = newPipeline(new AnonymousCredential(), options);
         } else if (credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName === "string" && blobNameOrOptions && typeof blobNameOrOptions === "string") {
           const containerName = credentialOrPipelineOrContainerName;
           const blobName = blobNameOrOptions;
@@ -71851,16 +71851,16 @@ var init_Clients = __esm({
             if (isNode) {
               const sharedKeyCredential = new StorageSharedKeyCredential(extractedCreds.accountName, extractedCreds.accountKey);
               url2 = appendToURLPath(appendToURLPath(extractedCreds.url, encodeURIComponent(containerName)), encodeURIComponent(blobName));
-              if (!options2.proxyOptions) {
-                options2.proxyOptions = getDefaultProxySettings(extractedCreds.proxyUri);
+              if (!options.proxyOptions) {
+                options.proxyOptions = getDefaultProxySettings(extractedCreds.proxyUri);
               }
-              pipeline = newPipeline(sharedKeyCredential, options2);
+              pipeline = newPipeline(sharedKeyCredential, options);
             } else {
               throw new Error("Account connection string is only supported in Node.js environment");
             }
           } else if (extractedCreds.kind === "SASConnString") {
             url2 = appendToURLPath(appendToURLPath(extractedCreds.url, encodeURIComponent(containerName)), encodeURIComponent(blobName)) + "?" + extractedCreds.accountSas;
-            pipeline = newPipeline(new AnonymousCredential(), options2);
+            pipeline = newPipeline(new AnonymousCredential(), options);
           } else {
             throw new Error("Connection string must be either an Account connection string or a SAS connection string");
           }
@@ -71890,13 +71890,13 @@ var init_Clients = __esm({
        * @param options - Options to the Page Blob Create operation.
        * @returns Response data for the Page Blob Create operation.
        */
-      async create(size, options2 = {}) {
+      async create(size, options = {}) {
         var _a2, _b, _c;
-        options2.conditions = options2.conditions || {};
-        const { span, updatedOptions } = createSpan2("PageBlobClient-create", options2);
+        options.conditions = options.conditions || {};
+        const { span, updatedOptions } = createSpan2("PageBlobClient-create", options);
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.pageBlobContext.create(0, size, Object.assign({ abortSignal: options2.abortSignal, blobHttpHeaders: options2.blobHTTPHeaders, blobSequenceNumber: options2.blobSequenceNumber, leaseAccessConditions: options2.conditions, metadata: options2.metadata, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options2.customerProvidedKey, encryptionScope: options2.encryptionScope, immutabilityPolicyExpiry: (_b = options2.immutabilityPolicy) === null || _b === void 0 ? void 0 : _b.expiriesOn, immutabilityPolicyMode: (_c = options2.immutabilityPolicy) === null || _c === void 0 ? void 0 : _c.policyMode, legalHold: options2.legalHold, tier: toAccessTier(options2.tier), blobTagsString: toBlobTagsString(options2.tags) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.pageBlobContext.create(0, size, Object.assign({ abortSignal: options.abortSignal, blobHttpHeaders: options.blobHTTPHeaders, blobSequenceNumber: options.blobSequenceNumber, leaseAccessConditions: options.conditions, metadata: options.metadata, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), cpkInfo: options.customerProvidedKey, encryptionScope: options.encryptionScope, immutabilityPolicyExpiry: (_b = options.immutabilityPolicy) === null || _b === void 0 ? void 0 : _b.expiriesOn, immutabilityPolicyMode: (_c = options.immutabilityPolicy) === null || _c === void 0 ? void 0 : _c.policyMode, legalHold: options.legalHold, tier: toAccessTier(options.tier), blobTagsString: toBlobTagsString(options.tags) }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71916,12 +71916,12 @@ var init_Clients = __esm({
        * @param size - size of the page blob.
        * @param options -
        */
-      async createIfNotExists(size, options2 = {}) {
+      async createIfNotExists(size, options = {}) {
         var _a2, _b;
-        const { span, updatedOptions } = createSpan2("PageBlobClient-createIfNotExists", options2);
+        const { span, updatedOptions } = createSpan2("PageBlobClient-createIfNotExists", options);
         try {
           const conditions = { ifNoneMatch: ETagAny };
-          const res = await this.create(size, Object.assign(Object.assign({}, options2), { conditions, tracingOptions: updatedOptions.tracingOptions }));
+          const res = await this.create(size, Object.assign(Object.assign({}, options), { conditions, tracingOptions: updatedOptions.tracingOptions }));
           return Object.assign(Object.assign({ succeeded: true }, res), { _response: res._response });
         } catch (e) {
           if (((_a2 = e.details) === null || _a2 === void 0 ? void 0 : _a2.errorCode) === "BlobAlreadyExists") {
@@ -71950,15 +71950,15 @@ var init_Clients = __esm({
        * @param options - Options to the Page Blob Upload Pages operation.
        * @returns Response data for the Page Blob Upload Pages operation.
        */
-      async uploadPages(body2, offset, count, options2 = {}) {
+      async uploadPages(body2, offset, count, options = {}) {
         var _a2;
-        options2.conditions = options2.conditions || {};
-        const { span, updatedOptions } = createSpan2("PageBlobClient-uploadPages", options2);
+        options.conditions = options.conditions || {};
+        const { span, updatedOptions } = createSpan2("PageBlobClient-uploadPages", options);
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.pageBlobContext.uploadPages(count, body2, Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), requestOptions: {
-            onUploadProgress: options2.onProgress
-          }, range: rangeToString({ offset, count }), sequenceNumberAccessConditions: options2.conditions, transactionalContentMD5: options2.transactionalContentMD5, transactionalContentCrc64: options2.transactionalContentCrc64, cpkInfo: options2.customerProvidedKey, encryptionScope: options2.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.pageBlobContext.uploadPages(count, body2, Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), requestOptions: {
+            onUploadProgress: options.onProgress
+          }, range: rangeToString({ offset, count }), sequenceNumberAccessConditions: options.conditions, transactionalContentMD5: options.transactionalContentMD5, transactionalContentCrc64: options.transactionalContentCrc64, cpkInfo: options.customerProvidedKey, encryptionScope: options.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -71980,19 +71980,19 @@ var init_Clients = __esm({
        * @param count - Number of bytes to be uploaded from source page blob
        * @param options -
        */
-      async uploadPagesFromURL(sourceURL, sourceOffset, destOffset, count, options2 = {}) {
+      async uploadPagesFromURL(sourceURL, sourceOffset, destOffset, count, options = {}) {
         var _a2;
-        options2.conditions = options2.conditions || {};
-        options2.sourceConditions = options2.sourceConditions || {};
-        const { span, updatedOptions } = createSpan2("PageBlobClient-uploadPagesFromURL", options2);
+        options.conditions = options.conditions || {};
+        options.sourceConditions = options.sourceConditions || {};
+        const { span, updatedOptions } = createSpan2("PageBlobClient-uploadPagesFromURL", options);
         try {
-          ensureCpkIfSpecified(options2.customerProvidedKey, this.isHttps);
-          return await this.pageBlobContext.uploadPagesFromURL(sourceURL, rangeToString({ offset: sourceOffset, count }), 0, rangeToString({ offset: destOffset, count }), Object.assign({ abortSignal: options2.abortSignal, sourceContentMD5: options2.sourceContentMD5, sourceContentCrc64: options2.sourceContentCrc64, leaseAccessConditions: options2.conditions, sequenceNumberAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), sourceModifiedAccessConditions: {
-            sourceIfMatch: options2.sourceConditions.ifMatch,
-            sourceIfModifiedSince: options2.sourceConditions.ifModifiedSince,
-            sourceIfNoneMatch: options2.sourceConditions.ifNoneMatch,
-            sourceIfUnmodifiedSince: options2.sourceConditions.ifUnmodifiedSince
-          }, cpkInfo: options2.customerProvidedKey, encryptionScope: options2.encryptionScope, copySourceAuthorization: httpAuthorizationToString(options2.sourceAuthorization) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
+          return await this.pageBlobContext.uploadPagesFromURL(sourceURL, rangeToString({ offset: sourceOffset, count }), 0, rangeToString({ offset: destOffset, count }), Object.assign({ abortSignal: options.abortSignal, sourceContentMD5: options.sourceContentMD5, sourceContentCrc64: options.sourceContentCrc64, leaseAccessConditions: options.conditions, sequenceNumberAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), sourceModifiedAccessConditions: {
+            sourceIfMatch: options.sourceConditions.ifMatch,
+            sourceIfModifiedSince: options.sourceConditions.ifModifiedSince,
+            sourceIfNoneMatch: options.sourceConditions.ifNoneMatch,
+            sourceIfUnmodifiedSince: options.sourceConditions.ifUnmodifiedSince
+          }, cpkInfo: options.customerProvidedKey, encryptionScope: options.encryptionScope, copySourceAuthorization: httpAuthorizationToString(options.sourceAuthorization) }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -72012,12 +72012,12 @@ var init_Clients = __esm({
        * @param options - Options to the Page Blob Clear Pages operation.
        * @returns Response data for the Page Blob Clear Pages operation.
        */
-      async clearPages(offset = 0, count, options2 = {}) {
+      async clearPages(offset = 0, count, options = {}) {
         var _a2;
-        options2.conditions = options2.conditions || {};
-        const { span, updatedOptions } = createSpan2("PageBlobClient-clearPages", options2);
+        options.conditions = options.conditions || {};
+        const { span, updatedOptions } = createSpan2("PageBlobClient-clearPages", options);
         try {
-          return await this.pageBlobContext.clearPages(0, Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), range: rangeToString({ offset, count }), sequenceNumberAccessConditions: options2.conditions, cpkInfo: options2.customerProvidedKey, encryptionScope: options2.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.pageBlobContext.clearPages(0, Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), range: rangeToString({ offset, count }), sequenceNumberAccessConditions: options.conditions, cpkInfo: options.customerProvidedKey, encryptionScope: options.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -72037,12 +72037,12 @@ var init_Clients = __esm({
        * @param options - Options to the Page Blob Get Ranges operation.
        * @returns Response data for the Page Blob Get Ranges operation.
        */
-      async getPageRanges(offset = 0, count, options2 = {}) {
+      async getPageRanges(offset = 0, count, options = {}) {
         var _a2;
-        options2.conditions = options2.conditions || {};
-        const { span, updatedOptions } = createSpan2("PageBlobClient-getPageRanges", options2);
+        options.conditions = options.conditions || {};
+        const { span, updatedOptions } = createSpan2("PageBlobClient-getPageRanges", options);
         try {
-          return await this.pageBlobContext.getPageRanges(Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), range: rangeToString({ offset, count }) }, convertTracingToRequestOptionsBase(updatedOptions))).then(rangeResponseFromModel);
+          return await this.pageBlobContext.getPageRanges(Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), range: rangeToString({ offset, count }) }, convertTracingToRequestOptionsBase(updatedOptions))).then(rangeResponseFromModel);
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -72065,11 +72065,11 @@ var init_Clients = __esm({
        * @param marker - A string value that identifies the portion of the list to be returned with the next list operation.
        * @param options - Options to PageBlob Get Page Ranges Segment operation.
        */
-      async listPageRangesSegment(offset = 0, count, marker2, options2 = {}) {
+      async listPageRangesSegment(offset = 0, count, marker2, options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("PageBlobClient-getPageRangesSegment", options2);
+        const { span, updatedOptions } = createSpan2("PageBlobClient-getPageRangesSegment", options);
         try {
-          return await this.pageBlobContext.getPageRanges(Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), range: rangeToString({ offset, count }), marker: marker2, maxPageSize: options2.maxPageSize }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.pageBlobContext.getPageRanges(Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), range: rangeToString({ offset, count }), marker: marker2, maxPageSize: options.maxPageSize }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -72094,12 +72094,12 @@ var init_Clients = __esm({
        *                          items. The marker value is opaque to the client.
        * @param options - Options to List Page Ranges operation.
        */
-      listPageRangeItemSegments(offset = 0, count, marker2, options2 = {}) {
+      listPageRangeItemSegments(offset = 0, count, marker2, options = {}) {
         return __asyncGenerator(this, arguments, function* listPageRangeItemSegments_1() {
           let getPageRangeItemSegmentsResponse;
           if (!!marker2 || marker2 === void 0) {
             do {
-              getPageRangeItemSegmentsResponse = yield __await(this.listPageRangesSegment(offset, count, marker2, options2));
+              getPageRangeItemSegmentsResponse = yield __await(this.listPageRangesSegment(offset, count, marker2, options));
               marker2 = getPageRangeItemSegmentsResponse.continuationToken;
               yield yield __await(yield __await(getPageRangeItemSegmentsResponse));
             } while (marker2);
@@ -72113,12 +72113,12 @@ var init_Clients = __esm({
        * @param count - Number of bytes to get.
        * @param options - Options to List Page Ranges operation.
        */
-      listPageRangeItems(offset = 0, count, options2 = {}) {
+      listPageRangeItems(offset = 0, count, options = {}) {
         return __asyncGenerator(this, arguments, function* listPageRangeItems_1() {
           var e_1, _a2;
           let marker2;
           try {
-            for (var _b = __asyncValues(this.listPageRangeItemSegments(offset, count, marker2, options2)), _c; _c = yield __await(_b.next()), !_c.done; ) {
+            for (var _b = __asyncValues(this.listPageRangeItemSegments(offset, count, marker2, options)), _c; _c = yield __await(_b.next()), !_c.done; ) {
               const getPageRangesSegment = _c.value;
               yield __await(yield* __asyncDelegator(__asyncValues(ExtractPageRangeInfoItems(getPageRangesSegment))));
             }
@@ -72206,9 +72206,9 @@ var init_Clients = __esm({
        * @param options - Options to the Page Blob Get Ranges operation.
        * @returns An asyncIterableIterator that supports paging.
        */
-      listPageRanges(offset = 0, count, options2 = {}) {
-        options2.conditions = options2.conditions || {};
-        const iter = this.listPageRangeItems(offset, count, options2);
+      listPageRanges(offset = 0, count, options = {}) {
+        options.conditions = options.conditions || {};
+        const iter = this.listPageRangeItems(offset, count, options);
         return {
           /**
            * The next method, part of the iteration protocol
@@ -72226,7 +72226,7 @@ var init_Clients = __esm({
            * Return an AsyncIterableIterator that works a page at a time
            */
           byPage: (settings = {}) => {
-            return this.listPageRangeItemSegments(offset, count, settings.continuationToken, Object.assign({ maxPageSize: settings.maxPageSize }, options2));
+            return this.listPageRangeItemSegments(offset, count, settings.continuationToken, Object.assign({ maxPageSize: settings.maxPageSize }, options));
           }
         };
       }
@@ -72240,12 +72240,12 @@ var init_Clients = __esm({
        * @param options - Options to the Page Blob Get Page Ranges Diff operation.
        * @returns Response data for the Page Blob Get Page Range Diff operation.
        */
-      async getPageRangesDiff(offset, count, prevSnapshot, options2 = {}) {
+      async getPageRangesDiff(offset, count, prevSnapshot, options = {}) {
         var _a2;
-        options2.conditions = options2.conditions || {};
-        const { span, updatedOptions } = createSpan2("PageBlobClient-getPageRangesDiff", options2);
+        options.conditions = options.conditions || {};
+        const { span, updatedOptions } = createSpan2("PageBlobClient-getPageRangesDiff", options);
         try {
-          return await this.pageBlobContext.getPageRangesDiff(Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), prevsnapshot: prevSnapshot, range: rangeToString({ offset, count }) }, convertTracingToRequestOptionsBase(updatedOptions))).then(rangeResponseFromModel);
+          return await this.pageBlobContext.getPageRangesDiff(Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), prevsnapshot: prevSnapshot, range: rangeToString({ offset, count }) }, convertTracingToRequestOptionsBase(updatedOptions))).then(rangeResponseFromModel);
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -72270,14 +72270,14 @@ var init_Clients = __esm({
        * @param marker - A string value that identifies the portion of the get to be returned with the next get operation.
        * @param options - Options to the Page Blob Get Page Ranges Diff operation.
        */
-      async listPageRangesDiffSegment(offset, count, prevSnapshotOrUrl, marker2, options2) {
+      async listPageRangesDiffSegment(offset, count, prevSnapshotOrUrl, marker2, options) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("PageBlobClient-getPageRangesDiffSegment", options2);
+        const { span, updatedOptions } = createSpan2("PageBlobClient-getPageRangesDiffSegment", options);
         try {
-          return await this.pageBlobContext.getPageRangesDiff(Object.assign({ abortSignal: options2 === null || options2 === void 0 ? void 0 : options2.abortSignal, leaseAccessConditions: options2 === null || options2 === void 0 ? void 0 : options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2 === null || options2 === void 0 ? void 0 : options2.conditions), { ifTags: (_a2 = options2 === null || options2 === void 0 ? void 0 : options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), prevsnapshot: prevSnapshotOrUrl, range: rangeToString({
+          return await this.pageBlobContext.getPageRangesDiff(Object.assign({ abortSignal: options === null || options === void 0 ? void 0 : options.abortSignal, leaseAccessConditions: options === null || options === void 0 ? void 0 : options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options === null || options === void 0 ? void 0 : options.conditions), { ifTags: (_a2 = options === null || options === void 0 ? void 0 : options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), prevsnapshot: prevSnapshotOrUrl, range: rangeToString({
             offset,
             count
-          }), marker: marker2, maxPageSize: options2 === null || options2 === void 0 ? void 0 : options2.maxPageSize }, convertTracingToRequestOptionsBase(updatedOptions)));
+          }), marker: marker2, maxPageSize: options === null || options === void 0 ? void 0 : options.maxPageSize }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -72304,12 +72304,12 @@ var init_Clients = __esm({
        *                          items. The marker value is opaque to the client.
        * @param options - Options to the Page Blob Get Page Ranges Diff operation.
        */
-      listPageRangeDiffItemSegments(offset, count, prevSnapshotOrUrl, marker2, options2) {
+      listPageRangeDiffItemSegments(offset, count, prevSnapshotOrUrl, marker2, options) {
         return __asyncGenerator(this, arguments, function* listPageRangeDiffItemSegments_1() {
           let getPageRangeItemSegmentsResponse;
           if (!!marker2 || marker2 === void 0) {
             do {
-              getPageRangeItemSegmentsResponse = yield __await(this.listPageRangesDiffSegment(offset, count, prevSnapshotOrUrl, marker2, options2));
+              getPageRangeItemSegmentsResponse = yield __await(this.listPageRangesDiffSegment(offset, count, prevSnapshotOrUrl, marker2, options));
               marker2 = getPageRangeItemSegmentsResponse.continuationToken;
               yield yield __await(yield __await(getPageRangeItemSegmentsResponse));
             } while (marker2);
@@ -72324,12 +72324,12 @@ var init_Clients = __esm({
        * @param prevSnapshotOrUrl - Timestamp of snapshot to retrieve the difference or URL of snapshot to retrieve the difference.
        * @param options - Options to the Page Blob Get Page Ranges Diff operation.
        */
-      listPageRangeDiffItems(offset, count, prevSnapshotOrUrl, options2) {
+      listPageRangeDiffItems(offset, count, prevSnapshotOrUrl, options) {
         return __asyncGenerator(this, arguments, function* listPageRangeDiffItems_1() {
           var e_2, _a2;
           let marker2;
           try {
-            for (var _b = __asyncValues(this.listPageRangeDiffItemSegments(offset, count, prevSnapshotOrUrl, marker2, options2)), _c; _c = yield __await(_b.next()), !_c.done; ) {
+            for (var _b = __asyncValues(this.listPageRangeDiffItemSegments(offset, count, prevSnapshotOrUrl, marker2, options)), _c; _c = yield __await(_b.next()), !_c.done; ) {
               const getPageRangesSegment = _c.value;
               yield __await(yield* __asyncDelegator(__asyncValues(ExtractPageRangeInfoItems(getPageRangesSegment))));
             }
@@ -72418,9 +72418,9 @@ var init_Clients = __esm({
        * @param options - Options to the Page Blob Get Ranges operation.
        * @returns An asyncIterableIterator that supports paging.
        */
-      listPageRangesDiff(offset, count, prevSnapshot, options2 = {}) {
-        options2.conditions = options2.conditions || {};
-        const iter = this.listPageRangeDiffItems(offset, count, prevSnapshot, Object.assign({}, options2));
+      listPageRangesDiff(offset, count, prevSnapshot, options = {}) {
+        options.conditions = options.conditions || {};
+        const iter = this.listPageRangeDiffItems(offset, count, prevSnapshot, Object.assign({}, options));
         return {
           /**
            * The next method, part of the iteration protocol
@@ -72438,7 +72438,7 @@ var init_Clients = __esm({
            * Return an AsyncIterableIterator that works a page at a time
            */
           byPage: (settings = {}) => {
-            return this.listPageRangeDiffItemSegments(offset, count, prevSnapshot, settings.continuationToken, Object.assign({ maxPageSize: settings.maxPageSize }, options2));
+            return this.listPageRangeDiffItemSegments(offset, count, prevSnapshot, settings.continuationToken, Object.assign({ maxPageSize: settings.maxPageSize }, options));
           }
         };
       }
@@ -72452,12 +72452,12 @@ var init_Clients = __esm({
        * @param options - Options to the Page Blob Get Page Ranges Diff operation.
        * @returns Response data for the Page Blob Get Page Range Diff operation.
        */
-      async getPageRangesDiffForManagedDisks(offset, count, prevSnapshotUrl2, options2 = {}) {
+      async getPageRangesDiffForManagedDisks(offset, count, prevSnapshotUrl2, options = {}) {
         var _a2;
-        options2.conditions = options2.conditions || {};
-        const { span, updatedOptions } = createSpan2("PageBlobClient-GetPageRangesDiffForManagedDisks", options2);
+        options.conditions = options.conditions || {};
+        const { span, updatedOptions } = createSpan2("PageBlobClient-GetPageRangesDiffForManagedDisks", options);
         try {
-          return await this.pageBlobContext.getPageRangesDiff(Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), prevSnapshotUrl: prevSnapshotUrl2, range: rangeToString({ offset, count }) }, convertTracingToRequestOptionsBase(updatedOptions))).then(rangeResponseFromModel);
+          return await this.pageBlobContext.getPageRangesDiff(Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), prevSnapshotUrl: prevSnapshotUrl2, range: rangeToString({ offset, count }) }, convertTracingToRequestOptionsBase(updatedOptions))).then(rangeResponseFromModel);
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -72476,12 +72476,12 @@ var init_Clients = __esm({
        * @param options - Options to the Page Blob Resize operation.
        * @returns Response data for the Page Blob Resize operation.
        */
-      async resize(size, options2 = {}) {
+      async resize(size, options = {}) {
         var _a2;
-        options2.conditions = options2.conditions || {};
-        const { span, updatedOptions } = createSpan2("PageBlobClient-resize", options2);
+        options.conditions = options.conditions || {};
+        const { span, updatedOptions } = createSpan2("PageBlobClient-resize", options);
         try {
-          return await this.pageBlobContext.resize(size, Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), encryptionScope: options2.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.pageBlobContext.resize(size, Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }), encryptionScope: options.encryptionScope }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -72501,12 +72501,12 @@ var init_Clients = __esm({
        * @param options - Options to the Page Blob Update Sequence Number operation.
        * @returns Response data for the Page Blob Update Sequence Number operation.
        */
-      async updateSequenceNumber(sequenceNumberAction2, sequenceNumber, options2 = {}) {
+      async updateSequenceNumber(sequenceNumberAction2, sequenceNumber, options = {}) {
         var _a2;
-        options2.conditions = options2.conditions || {};
-        const { span, updatedOptions } = createSpan2("PageBlobClient-updateSequenceNumber", options2);
+        options.conditions = options.conditions || {};
+        const { span, updatedOptions } = createSpan2("PageBlobClient-updateSequenceNumber", options);
         try {
-          return await this.pageBlobContext.updateSequenceNumber(sequenceNumberAction2, Object.assign({ abortSignal: options2.abortSignal, blobSequenceNumber: sequenceNumber, leaseAccessConditions: options2.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.pageBlobContext.updateSequenceNumber(sequenceNumberAction2, Object.assign({ abortSignal: options.abortSignal, blobSequenceNumber: sequenceNumber, leaseAccessConditions: options.conditions, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -72530,11 +72530,11 @@ var init_Clients = __esm({
        * @param options - Options to the Page Blob Copy Incremental operation.
        * @returns Response data for the Page Blob Copy Incremental operation.
        */
-      async startCopyIncremental(copySource2, options2 = {}) {
+      async startCopyIncremental(copySource2, options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("PageBlobClient-startCopyIncremental", options2);
+        const { span, updatedOptions } = createSpan2("PageBlobClient-startCopyIncremental", options);
         try {
-          return await this.pageBlobContext.copyIncremental(copySource2, Object.assign({ abortSignal: options2.abortSignal, modifiedAccessConditions: Object.assign(Object.assign({}, options2.conditions), { ifTags: (_a2 = options2.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.pageBlobContext.copyIncremental(copySource2, Object.assign({ abortSignal: options.abortSignal, modifiedAccessConditions: Object.assign(Object.assign({}, options.conditions), { ifTags: (_a2 = options.conditions) === null || _a2 === void 0 ? void 0 : _a2.tagConditions }) }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -72796,7 +72796,7 @@ var init_BlobBatch = __esm({
           throw new RangeError(`BlobBatch only supports one operation type per batch and it already is being used for ${this.batchType} operations.`);
         }
       }
-      async deleteBlob(urlOrBlobClient, credentialOrOptions, options2) {
+      async deleteBlob(urlOrBlobClient, credentialOrOptions, options) {
         let url2;
         let credential;
         if (typeof urlOrBlobClient === "string" && (isNode && credentialOrOptions instanceof StorageSharedKeyCredential || credentialOrOptions instanceof AnonymousCredential || isTokenCredential(credentialOrOptions))) {
@@ -72805,14 +72805,14 @@ var init_BlobBatch = __esm({
         } else if (urlOrBlobClient instanceof BlobClient) {
           url2 = urlOrBlobClient.url;
           credential = urlOrBlobClient.credential;
-          options2 = credentialOrOptions;
+          options = credentialOrOptions;
         } else {
           throw new RangeError("Invalid arguments. Either url and credential, or BlobClient need be provided.");
         }
-        if (!options2) {
-          options2 = {};
+        if (!options) {
+          options = {};
         }
-        const { span, updatedOptions } = createSpan2("BatchDeleteRequest-addSubRequest", options2);
+        const { span, updatedOptions } = createSpan2("BatchDeleteRequest-addSubRequest", options);
         try {
           this.setBatchType("delete");
           await this.addSubRequestInternal({
@@ -72831,7 +72831,7 @@ var init_BlobBatch = __esm({
           span.end();
         }
       }
-      async setBlobAccessTier(urlOrBlobClient, credentialOrTier, tierOrOptions, options2) {
+      async setBlobAccessTier(urlOrBlobClient, credentialOrTier, tierOrOptions, options) {
         let url2;
         let credential;
         let tier2;
@@ -72843,14 +72843,14 @@ var init_BlobBatch = __esm({
           url2 = urlOrBlobClient.url;
           credential = urlOrBlobClient.credential;
           tier2 = credentialOrTier;
-          options2 = tierOrOptions;
+          options = tierOrOptions;
         } else {
           throw new RangeError("Invalid arguments. Either url and credential, or BlobClient need be provided.");
         }
-        if (!options2) {
-          options2 = {};
+        if (!options) {
+          options = {};
         }
-        const { span, updatedOptions } = createSpan2("BatchSetTierRequest-addSubRequest", options2);
+        const { span, updatedOptions } = createSpan2("BatchSetTierRequest-addSubRequest", options);
         try {
           this.setBatchType("setAccessTier");
           await this.addSubRequestInternal({
@@ -72938,8 +72938,8 @@ var init_BlobBatch = __esm({
       }
     };
     BatchRequestAssemblePolicy = class extends BaseRequestPolicy {
-      constructor(batchRequest, nextPolicy, options2) {
-        super(nextPolicy, options2);
+      constructor(batchRequest, nextPolicy, options) {
+        super(nextPolicy, options);
         this.dummyResponse = {
           request: new WebResource(),
           status: 200,
@@ -72956,15 +72956,15 @@ var init_BlobBatch = __esm({
       constructor(batchRequest) {
         this.batchRequest = batchRequest;
       }
-      create(nextPolicy, options2) {
-        return new BatchRequestAssemblePolicy(this.batchRequest, nextPolicy, options2);
+      create(nextPolicy, options) {
+        return new BatchRequestAssemblePolicy(this.batchRequest, nextPolicy, options);
       }
     };
     BatchHeaderFilterPolicy = class extends BaseRequestPolicy {
       // The base class has a protected constructor. Adding a public one to enable constructing of this class.
       /* eslint-disable-next-line @typescript-eslint/no-useless-constructor*/
-      constructor(nextPolicy, options2) {
-        super(nextPolicy, options2);
+      constructor(nextPolicy, options) {
+        super(nextPolicy, options);
       }
       async sendRequest(request) {
         let xMsHeaderName = "";
@@ -72980,8 +72980,8 @@ var init_BlobBatch = __esm({
       }
     };
     BatchHeaderFilterPolicyFactory = class {
-      create(nextPolicy, options2) {
-        return new BatchHeaderFilterPolicy(nextPolicy, options2);
+      create(nextPolicy, options) {
+        return new BatchHeaderFilterPolicy(nextPolicy, options);
       }
     };
   }
@@ -73003,14 +73003,14 @@ var init_BlobBatchClient = __esm({
     init_Pipeline();
     init_utils_common();
     BlobBatchClient = class {
-      constructor(url2, credentialOrPipeline, options2) {
+      constructor(url2, credentialOrPipeline, options) {
         let pipeline;
         if (isPipelineLike(credentialOrPipeline)) {
           pipeline = credentialOrPipeline;
         } else if (!credentialOrPipeline) {
-          pipeline = newPipeline(new AnonymousCredential(), options2);
+          pipeline = newPipeline(new AnonymousCredential(), options);
         } else {
-          pipeline = newPipeline(credentialOrPipeline, options2);
+          pipeline = newPipeline(credentialOrPipeline, options);
         }
         const storageClientContext = new StorageClientContext(url2, pipeline.toServiceClientOptions());
         const path5 = getURLPath(url2);
@@ -73027,22 +73027,22 @@ var init_BlobBatchClient = __esm({
       createBatch() {
         return new BlobBatch();
       }
-      async deleteBlobs(urlsOrBlobClients, credentialOrOptions, options2) {
+      async deleteBlobs(urlsOrBlobClients, credentialOrOptions, options) {
         const batch = new BlobBatch();
         for (const urlOrBlobClient of urlsOrBlobClients) {
           if (typeof urlOrBlobClient === "string") {
-            await batch.deleteBlob(urlOrBlobClient, credentialOrOptions, options2);
+            await batch.deleteBlob(urlOrBlobClient, credentialOrOptions, options);
           } else {
             await batch.deleteBlob(urlOrBlobClient, credentialOrOptions);
           }
         }
         return this.submitBatch(batch);
       }
-      async setBlobsAccessTier(urlsOrBlobClients, credentialOrTier, tierOrOptions, options2) {
+      async setBlobsAccessTier(urlsOrBlobClients, credentialOrTier, tierOrOptions, options) {
         const batch = new BlobBatch();
         for (const urlOrBlobClient of urlsOrBlobClients) {
           if (typeof urlOrBlobClient === "string") {
-            await batch.setBlobAccessTier(urlOrBlobClient, credentialOrTier, tierOrOptions, options2);
+            await batch.setBlobAccessTier(urlOrBlobClient, credentialOrTier, tierOrOptions, options);
           } else {
             await batch.setBlobAccessTier(urlOrBlobClient, credentialOrTier, tierOrOptions);
           }
@@ -73084,14 +73084,14 @@ var init_BlobBatchClient = __esm({
        * @param batchRequest - A set of Delete or SetTier operations.
        * @param options -
        */
-      async submitBatch(batchRequest, options2 = {}) {
+      async submitBatch(batchRequest, options = {}) {
         if (!batchRequest || batchRequest.getSubRequests().size === 0) {
           throw new RangeError("Batch request should contain one or more sub requests.");
         }
-        const { span, updatedOptions } = createSpan2("BlobBatchClient-submitBatch", options2);
+        const { span, updatedOptions } = createSpan2("BlobBatchClient-submitBatch", options);
         try {
           const batchRequestBody = batchRequest.getHttpRequestBody();
-          const rawBatchResponse = await this.serviceOrContainerContext.submitBatch(utf8ByteLength(batchRequestBody), batchRequest.getMultiPartContentType(), batchRequestBody, Object.assign(Object.assign({}, options2), convertTracingToRequestOptionsBase(updatedOptions)));
+          const rawBatchResponse = await this.serviceOrContainerContext.submitBatch(utf8ByteLength(batchRequestBody), batchRequest.getMultiPartContentType(), batchRequestBody, Object.assign(Object.assign({}, options), convertTracingToRequestOptionsBase(updatedOptions)));
           const batchResponseParser = new BatchResponseParser(rawBatchResponse, batchRequest.getSubRequests());
           const responseSummary = await batchResponseParser.parseBatchResponse();
           const res = {
@@ -73140,19 +73140,19 @@ var init_ContainerClient = __esm({
     init_Clients();
     init_BlobBatchClient();
     ContainerClient = class extends StorageClient {
-      constructor(urlOrConnectionString, credentialOrPipelineOrContainerName, options2) {
+      constructor(urlOrConnectionString, credentialOrPipelineOrContainerName, options) {
         let pipeline;
         let url2;
-        options2 = options2 || {};
+        options = options || {};
         if (isPipelineLike(credentialOrPipelineOrContainerName)) {
           url2 = urlOrConnectionString;
           pipeline = credentialOrPipelineOrContainerName;
         } else if (isNode && credentialOrPipelineOrContainerName instanceof StorageSharedKeyCredential || credentialOrPipelineOrContainerName instanceof AnonymousCredential || isTokenCredential(credentialOrPipelineOrContainerName)) {
           url2 = urlOrConnectionString;
-          pipeline = newPipeline(credentialOrPipelineOrContainerName, options2);
+          pipeline = newPipeline(credentialOrPipelineOrContainerName, options);
         } else if (!credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName !== "string") {
           url2 = urlOrConnectionString;
-          pipeline = newPipeline(new AnonymousCredential(), options2);
+          pipeline = newPipeline(new AnonymousCredential(), options);
         } else if (credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName === "string") {
           const containerName = credentialOrPipelineOrContainerName;
           const extractedCreds = extractConnectionStringParts(urlOrConnectionString);
@@ -73160,16 +73160,16 @@ var init_ContainerClient = __esm({
             if (isNode) {
               const sharedKeyCredential = new StorageSharedKeyCredential(extractedCreds.accountName, extractedCreds.accountKey);
               url2 = appendToURLPath(extractedCreds.url, encodeURIComponent(containerName));
-              if (!options2.proxyOptions) {
-                options2.proxyOptions = getDefaultProxySettings(extractedCreds.proxyUri);
+              if (!options.proxyOptions) {
+                options.proxyOptions = getDefaultProxySettings(extractedCreds.proxyUri);
               }
-              pipeline = newPipeline(sharedKeyCredential, options2);
+              pipeline = newPipeline(sharedKeyCredential, options);
             } else {
               throw new Error("Account connection string is only supported in Node.js environment");
             }
           } else if (extractedCreds.kind === "SASConnString") {
             url2 = appendToURLPath(extractedCreds.url, encodeURIComponent(containerName)) + "?" + extractedCreds.accountSas;
-            pipeline = newPipeline(new AnonymousCredential(), options2);
+            pipeline = newPipeline(new AnonymousCredential(), options);
           } else {
             throw new Error("Connection string must be either an Account connection string or a SAS connection string");
           }
@@ -73203,10 +73203,10 @@ var init_ContainerClient = __esm({
        * console.log("Container was created successfully", createContainerResponse.requestId);
        * ```
        */
-      async create(options2 = {}) {
-        const { span, updatedOptions } = createSpan2("ContainerClient-create", options2);
+      async create(options = {}) {
+        const { span, updatedOptions } = createSpan2("ContainerClient-create", options);
         try {
-          return await this.containerContext.create(Object.assign(Object.assign({}, options2), convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.containerContext.create(Object.assign(Object.assign({}, options), convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -73225,9 +73225,9 @@ var init_ContainerClient = __esm({
        *
        * @param options -
        */
-      async createIfNotExists(options2 = {}) {
+      async createIfNotExists(options = {}) {
         var _a2, _b;
-        const { span, updatedOptions } = createSpan2("ContainerClient-createIfNotExists", options2);
+        const { span, updatedOptions } = createSpan2("ContainerClient-createIfNotExists", options);
         try {
           const res = await this.create(updatedOptions);
           return Object.assign(Object.assign({ succeeded: true }, res), { _response: res._response });
@@ -73257,11 +73257,11 @@ var init_ContainerClient = __esm({
        *
        * @param options -
        */
-      async exists(options2 = {}) {
-        const { span, updatedOptions } = createSpan2("ContainerClient-exists", options2);
+      async exists(options = {}) {
+        const { span, updatedOptions } = createSpan2("ContainerClient-exists", options);
         try {
           await this.getProperties({
-            abortSignal: options2.abortSignal,
+            abortSignal: options.abortSignal,
             tracingOptions: updatedOptions.tracingOptions
           });
           return true;
@@ -73337,13 +73337,13 @@ var init_ContainerClient = __esm({
        *
        * @param options - Options to Container Get Properties operation.
        */
-      async getProperties(options2 = {}) {
-        if (!options2.conditions) {
-          options2.conditions = {};
+      async getProperties(options = {}) {
+        if (!options.conditions) {
+          options.conditions = {};
         }
-        const { span, updatedOptions } = createSpan2("ContainerClient-getProperties", options2);
+        const { span, updatedOptions } = createSpan2("ContainerClient-getProperties", options);
         try {
-          return await this.containerContext.getProperties(Object.assign(Object.assign({ abortSignal: options2.abortSignal }, options2.conditions), convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.containerContext.getProperties(Object.assign(Object.assign({ abortSignal: options.abortSignal }, options.conditions), convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -73361,13 +73361,13 @@ var init_ContainerClient = __esm({
        *
        * @param options - Options to Container Delete operation.
        */
-      async delete(options2 = {}) {
-        if (!options2.conditions) {
-          options2.conditions = {};
+      async delete(options = {}) {
+        if (!options.conditions) {
+          options.conditions = {};
         }
-        const { span, updatedOptions } = createSpan2("ContainerClient-delete", options2);
+        const { span, updatedOptions } = createSpan2("ContainerClient-delete", options);
         try {
-          return await this.containerContext.delete(Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, modifiedAccessConditions: options2.conditions }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.containerContext.delete(Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, modifiedAccessConditions: options.conditions }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -73385,9 +73385,9 @@ var init_ContainerClient = __esm({
        *
        * @param options - Options to Container Delete operation.
        */
-      async deleteIfExists(options2 = {}) {
+      async deleteIfExists(options = {}) {
         var _a2, _b;
-        const { span, updatedOptions } = createSpan2("ContainerClient-deleteIfExists", options2);
+        const { span, updatedOptions } = createSpan2("ContainerClient-deleteIfExists", options);
         try {
           const res = await this.delete(updatedOptions);
           return Object.assign(Object.assign({ succeeded: true }, res), { _response: res._response });
@@ -73420,16 +73420,16 @@ var init_ContainerClient = __esm({
        *                            If no value provided the existing metadata will be removed.
        * @param options - Options to Container Set Metadata operation.
        */
-      async setMetadata(metadata2, options2 = {}) {
-        if (!options2.conditions) {
-          options2.conditions = {};
+      async setMetadata(metadata2, options = {}) {
+        if (!options.conditions) {
+          options.conditions = {};
         }
-        if (options2.conditions.ifUnmodifiedSince) {
+        if (options.conditions.ifUnmodifiedSince) {
           throw new RangeError("the IfUnmodifiedSince must have their default values because they are ignored by the blob service");
         }
-        const { span, updatedOptions } = createSpan2("ContainerClient-setMetadata", options2);
+        const { span, updatedOptions } = createSpan2("ContainerClient-setMetadata", options);
         try {
-          return await this.containerContext.setMetadata(Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions, metadata: metadata2, modifiedAccessConditions: options2.conditions }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.containerContext.setMetadata(Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions, metadata: metadata2, modifiedAccessConditions: options.conditions }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -73451,13 +73451,13 @@ var init_ContainerClient = __esm({
        *
        * @param options - Options to Container Get Access Policy operation.
        */
-      async getAccessPolicy(options2 = {}) {
-        if (!options2.conditions) {
-          options2.conditions = {};
+      async getAccessPolicy(options = {}) {
+        if (!options.conditions) {
+          options.conditions = {};
         }
-        const { span, updatedOptions } = createSpan2("ContainerClient-getAccessPolicy", options2);
+        const { span, updatedOptions } = createSpan2("ContainerClient-getAccessPolicy", options);
         try {
-          const response = await this.containerContext.getAccessPolicy(Object.assign({ abortSignal: options2.abortSignal, leaseAccessConditions: options2.conditions }, convertTracingToRequestOptionsBase(updatedOptions)));
+          const response = await this.containerContext.getAccessPolicy(Object.assign({ abortSignal: options.abortSignal, leaseAccessConditions: options.conditions }, convertTracingToRequestOptionsBase(updatedOptions)));
           const res = {
             _response: response._response,
             blobPublicAccess: response.blobPublicAccess,
@@ -73516,9 +73516,9 @@ var init_ContainerClient = __esm({
        * @param containerAcl - Array of elements each having a unique Id and details of the access policy.
        * @param options - Options to Container Set Access Policy operation.
        */
-      async setAccessPolicy(access2, containerAcl2, options2 = {}) {
-        options2.conditions = options2.conditions || {};
-        const { span, updatedOptions } = createSpan2("ContainerClient-setAccessPolicy", options2);
+      async setAccessPolicy(access2, containerAcl2, options = {}) {
+        options.conditions = options.conditions || {};
+        const { span, updatedOptions } = createSpan2("ContainerClient-setAccessPolicy", options);
         try {
           const acl = [];
           for (const identifier of containerAcl2 || []) {
@@ -73531,7 +73531,7 @@ var init_ContainerClient = __esm({
               id: identifier.id
             });
           }
-          return await this.containerContext.setAccessPolicy(Object.assign({ abortSignal: options2.abortSignal, access: access2, containerAcl: acl, leaseAccessConditions: options2.conditions, modifiedAccessConditions: options2.conditions }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.containerContext.setAccessPolicy(Object.assign({ abortSignal: options.abortSignal, access: access2, containerAcl: acl, leaseAccessConditions: options.conditions, modifiedAccessConditions: options.conditions }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -73573,8 +73573,8 @@ var init_ContainerClient = __esm({
        * @param options - Options to configure the Block Blob Upload operation.
        * @returns Block Blob upload response data and the corresponding BlockBlobClient instance.
        */
-      async uploadBlockBlob(blobName, body2, contentLength2, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("ContainerClient-uploadBlockBlob", options2);
+      async uploadBlockBlob(blobName, body2, contentLength2, options = {}) {
+        const { span, updatedOptions } = createSpan2("ContainerClient-uploadBlockBlob", options);
         try {
           const blockBlobClient = this.getBlockBlobClient(blobName);
           const response = await blockBlobClient.upload(body2, contentLength2, updatedOptions);
@@ -73603,12 +73603,12 @@ var init_ContainerClient = __esm({
        * @param options - Options to Blob Delete operation.
        * @returns Block blob deletion response data.
        */
-      async deleteBlob(blobName, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("ContainerClient-deleteBlob", options2);
+      async deleteBlob(blobName, options = {}) {
+        const { span, updatedOptions } = createSpan2("ContainerClient-deleteBlob", options);
         try {
           let blobClient = this.getBlobClient(blobName);
-          if (options2.versionId) {
-            blobClient = blobClient.withVersion(options2.versionId);
+          if (options.versionId) {
+            blobClient = blobClient.withVersion(options.versionId);
           }
           return await blobClient.delete(updatedOptions);
         } catch (e) {
@@ -73631,10 +73631,10 @@ var init_ContainerClient = __esm({
        * @param marker - A string value that identifies the portion of the list to be returned with the next list operation.
        * @param options - Options to Container List Blob Flat Segment operation.
        */
-      async listBlobFlatSegment(marker2, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("ContainerClient-listBlobFlatSegment", options2);
+      async listBlobFlatSegment(marker2, options = {}) {
+        const { span, updatedOptions } = createSpan2("ContainerClient-listBlobFlatSegment", options);
         try {
-          const response = await this.containerContext.listBlobFlatSegment(Object.assign(Object.assign({ marker: marker2 }, options2), convertTracingToRequestOptionsBase(updatedOptions)));
+          const response = await this.containerContext.listBlobFlatSegment(Object.assign(Object.assign({ marker: marker2 }, options), convertTracingToRequestOptionsBase(updatedOptions)));
           const wrappedResponse = Object.assign(Object.assign({}, response), { _response: Object.assign(Object.assign({}, response._response), { parsedBody: ConvertInternalResponseOfListBlobFlat(response._response.parsedBody) }), segment: Object.assign(Object.assign({}, response.segment), { blobItems: response.segment.blobItems.map((blobItemInteral) => {
             const blobItem = Object.assign(Object.assign({}, blobItemInteral), { name: BlobNameToString(blobItemInteral.name), tags: toTags(blobItemInteral.blobTags), objectReplicationSourceProperties: parseObjectReplicationRecord(blobItemInteral.objectReplicationMetadata) });
             return blobItem;
@@ -73661,11 +73661,11 @@ var init_ContainerClient = __esm({
        * @param marker - A string value that identifies the portion of the list to be returned with the next list operation.
        * @param options - Options to Container List Blob Hierarchy Segment operation.
        */
-      async listBlobHierarchySegment(delimiter2, marker2, options2 = {}) {
+      async listBlobHierarchySegment(delimiter2, marker2, options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("ContainerClient-listBlobHierarchySegment", options2);
+        const { span, updatedOptions } = createSpan2("ContainerClient-listBlobHierarchySegment", options);
         try {
-          const response = await this.containerContext.listBlobHierarchySegment(delimiter2, Object.assign(Object.assign({ marker: marker2 }, options2), convertTracingToRequestOptionsBase(updatedOptions)));
+          const response = await this.containerContext.listBlobHierarchySegment(delimiter2, Object.assign(Object.assign({ marker: marker2 }, options), convertTracingToRequestOptionsBase(updatedOptions)));
           const wrappedResponse = Object.assign(Object.assign({}, response), { _response: Object.assign(Object.assign({}, response._response), { parsedBody: ConvertInternalResponseOfListBlobHierarchy(response._response.parsedBody) }), segment: Object.assign(Object.assign({}, response.segment), { blobItems: response.segment.blobItems.map((blobItemInteral) => {
             const blobItem = Object.assign(Object.assign({}, blobItemInteral), { name: BlobNameToString(blobItemInteral.name), tags: toTags(blobItemInteral.blobTags), objectReplicationSourceProperties: parseObjectReplicationRecord(blobItemInteral.objectReplicationMetadata) });
             return blobItem;
@@ -73698,12 +73698,12 @@ var init_ContainerClient = __esm({
        *                          items. The marker value is opaque to the client.
        * @param options - Options to list blobs operation.
        */
-      listSegments(marker2, options2 = {}) {
+      listSegments(marker2, options = {}) {
         return __asyncGenerator(this, arguments, function* listSegments_1() {
           let listBlobsFlatSegmentResponse;
           if (!!marker2 || marker2 === void 0) {
             do {
-              listBlobsFlatSegmentResponse = yield __await(this.listBlobFlatSegment(marker2, options2));
+              listBlobsFlatSegmentResponse = yield __await(this.listBlobFlatSegment(marker2, options));
               marker2 = listBlobsFlatSegmentResponse.continuationToken;
               yield yield __await(yield __await(listBlobsFlatSegmentResponse));
             } while (marker2);
@@ -73715,12 +73715,12 @@ var init_ContainerClient = __esm({
        *
        * @param options - Options to list blobs operation.
        */
-      listItems(options2 = {}) {
+      listItems(options = {}) {
         return __asyncGenerator(this, arguments, function* listItems_1() {
           var e_1, _a2;
           let marker2;
           try {
-            for (var _b = __asyncValues(this.listSegments(marker2, options2)), _c; _c = yield __await(_b.next()), !_c.done; ) {
+            for (var _b = __asyncValues(this.listSegments(marker2, options)), _c; _c = yield __await(_b.next()), !_c.done; ) {
               const listBlobsFlatSegmentResponse = _c.value;
               yield __await(yield* __asyncDelegator(__asyncValues(listBlobsFlatSegmentResponse.segment.blobItems)));
             }
@@ -73807,42 +73807,42 @@ var init_ContainerClient = __esm({
        * @param options - Options to list blobs.
        * @returns An asyncIterableIterator that supports paging.
        */
-      listBlobsFlat(options2 = {}) {
+      listBlobsFlat(options = {}) {
         const include2 = [];
-        if (options2.includeCopy) {
+        if (options.includeCopy) {
           include2.push("copy");
         }
-        if (options2.includeDeleted) {
+        if (options.includeDeleted) {
           include2.push("deleted");
         }
-        if (options2.includeMetadata) {
+        if (options.includeMetadata) {
           include2.push("metadata");
         }
-        if (options2.includeSnapshots) {
+        if (options.includeSnapshots) {
           include2.push("snapshots");
         }
-        if (options2.includeVersions) {
+        if (options.includeVersions) {
           include2.push("versions");
         }
-        if (options2.includeUncommitedBlobs) {
+        if (options.includeUncommitedBlobs) {
           include2.push("uncommittedblobs");
         }
-        if (options2.includeTags) {
+        if (options.includeTags) {
           include2.push("tags");
         }
-        if (options2.includeDeletedWithVersions) {
+        if (options.includeDeletedWithVersions) {
           include2.push("deletedwithversions");
         }
-        if (options2.includeImmutabilityPolicy) {
+        if (options.includeImmutabilityPolicy) {
           include2.push("immutabilitypolicy");
         }
-        if (options2.includeLegalHold) {
+        if (options.includeLegalHold) {
           include2.push("legalhold");
         }
-        if (options2.prefix === "") {
-          options2.prefix = void 0;
+        if (options.prefix === "") {
+          options.prefix = void 0;
         }
-        const updatedOptions = Object.assign(Object.assign({}, options2), include2.length > 0 ? { include: include2 } : {});
+        const updatedOptions = Object.assign(Object.assign({}, options), include2.length > 0 ? { include: include2 } : {});
         const iter = this.listItems(updatedOptions);
         return {
           /**
@@ -73878,12 +73878,12 @@ var init_ContainerClient = __esm({
        *                          items. The marker value is opaque to the client.
        * @param options - Options to list blobs operation.
        */
-      listHierarchySegments(delimiter2, marker2, options2 = {}) {
+      listHierarchySegments(delimiter2, marker2, options = {}) {
         return __asyncGenerator(this, arguments, function* listHierarchySegments_1() {
           let listBlobsHierarchySegmentResponse;
           if (!!marker2 || marker2 === void 0) {
             do {
-              listBlobsHierarchySegmentResponse = yield __await(this.listBlobHierarchySegment(delimiter2, marker2, options2));
+              listBlobsHierarchySegmentResponse = yield __await(this.listBlobHierarchySegment(delimiter2, marker2, options));
               marker2 = listBlobsHierarchySegmentResponse.continuationToken;
               yield yield __await(yield __await(listBlobsHierarchySegmentResponse));
             } while (marker2);
@@ -73896,12 +73896,12 @@ var init_ContainerClient = __esm({
        * @param delimiter - The character or string used to define the virtual hierarchy
        * @param options - Options to list blobs operation.
        */
-      listItemsByHierarchy(delimiter2, options2 = {}) {
+      listItemsByHierarchy(delimiter2, options = {}) {
         return __asyncGenerator(this, arguments, function* listItemsByHierarchy_1() {
           var e_2, _a2;
           let marker2;
           try {
-            for (var _b = __asyncValues(this.listHierarchySegments(delimiter2, marker2, options2)), _c; _c = yield __await(_b.next()), !_c.done; ) {
+            for (var _b = __asyncValues(this.listHierarchySegments(delimiter2, marker2, options)), _c; _c = yield __await(_b.next()), !_c.done; ) {
               const listBlobsHierarchySegmentResponse = _c.value;
               const segment = listBlobsHierarchySegmentResponse.segment;
               if (segment.blobPrefixes) {
@@ -74004,45 +74004,45 @@ var init_ContainerClient = __esm({
        * @param delimiter - The character or string used to define the virtual hierarchy
        * @param options - Options to list blobs operation.
        */
-      listBlobsByHierarchy(delimiter2, options2 = {}) {
+      listBlobsByHierarchy(delimiter2, options = {}) {
         if (delimiter2 === "") {
           throw new RangeError("delimiter should contain one or more characters");
         }
         const include2 = [];
-        if (options2.includeCopy) {
+        if (options.includeCopy) {
           include2.push("copy");
         }
-        if (options2.includeDeleted) {
+        if (options.includeDeleted) {
           include2.push("deleted");
         }
-        if (options2.includeMetadata) {
+        if (options.includeMetadata) {
           include2.push("metadata");
         }
-        if (options2.includeSnapshots) {
+        if (options.includeSnapshots) {
           include2.push("snapshots");
         }
-        if (options2.includeVersions) {
+        if (options.includeVersions) {
           include2.push("versions");
         }
-        if (options2.includeUncommitedBlobs) {
+        if (options.includeUncommitedBlobs) {
           include2.push("uncommittedblobs");
         }
-        if (options2.includeTags) {
+        if (options.includeTags) {
           include2.push("tags");
         }
-        if (options2.includeDeletedWithVersions) {
+        if (options.includeDeletedWithVersions) {
           include2.push("deletedwithversions");
         }
-        if (options2.includeImmutabilityPolicy) {
+        if (options.includeImmutabilityPolicy) {
           include2.push("immutabilitypolicy");
         }
-        if (options2.includeLegalHold) {
+        if (options.includeLegalHold) {
           include2.push("legalhold");
         }
-        if (options2.prefix === "") {
-          options2.prefix = void 0;
+        if (options.prefix === "") {
+          options.prefix = void 0;
         }
-        const updatedOptions = Object.assign(Object.assign({}, options2), include2.length > 0 ? { include: include2 } : {});
+        const updatedOptions = Object.assign(Object.assign({}, options), include2.length > 0 ? { include: include2 } : {});
         const iter = this.listItemsByHierarchy(delimiter2, updatedOptions);
         return {
           /**
@@ -74082,10 +74082,10 @@ var init_ContainerClient = __esm({
        *                          items. The marker value is opaque to the client.
        * @param options - Options to find blobs by tags.
        */
-      async findBlobsByTagsSegment(tagFilterSqlExpression, marker2, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("ContainerClient-findBlobsByTagsSegment", options2);
+      async findBlobsByTagsSegment(tagFilterSqlExpression, marker2, options = {}) {
+        const { span, updatedOptions } = createSpan2("ContainerClient-findBlobsByTagsSegment", options);
         try {
-          const response = await this.containerContext.filterBlobs(Object.assign({ abortSignal: options2.abortSignal, where: tagFilterSqlExpression, marker: marker2, maxPageSize: options2.maxPageSize }, convertTracingToRequestOptionsBase(updatedOptions)));
+          const response = await this.containerContext.filterBlobs(Object.assign({ abortSignal: options.abortSignal, where: tagFilterSqlExpression, marker: marker2, maxPageSize: options.maxPageSize }, convertTracingToRequestOptionsBase(updatedOptions)));
           const wrappedResponse = Object.assign(Object.assign({}, response), { _response: response._response, blobs: response.blobs.map((blob) => {
             var _a2;
             let tagValue = "";
@@ -74121,12 +74121,12 @@ var init_ContainerClient = __esm({
        *                          items. The marker value is opaque to the client.
        * @param options - Options to find blobs by tags.
        */
-      findBlobsByTagsSegments(tagFilterSqlExpression, marker2, options2 = {}) {
+      findBlobsByTagsSegments(tagFilterSqlExpression, marker2, options = {}) {
         return __asyncGenerator(this, arguments, function* findBlobsByTagsSegments_1() {
           let response;
           if (!!marker2 || marker2 === void 0) {
             do {
-              response = yield __await(this.findBlobsByTagsSegment(tagFilterSqlExpression, marker2, options2));
+              response = yield __await(this.findBlobsByTagsSegment(tagFilterSqlExpression, marker2, options));
               response.blobs = response.blobs || [];
               marker2 = response.continuationToken;
               yield yield __await(response);
@@ -74143,12 +74143,12 @@ var init_ContainerClient = __esm({
        *                                         however, only a subset of the OData filter syntax is supported in the Blob service.
        * @param options - Options to findBlobsByTagsItems.
        */
-      findBlobsByTagsItems(tagFilterSqlExpression, options2 = {}) {
+      findBlobsByTagsItems(tagFilterSqlExpression, options = {}) {
         return __asyncGenerator(this, arguments, function* findBlobsByTagsItems_1() {
           var e_3, _a2;
           let marker2;
           try {
-            for (var _b = __asyncValues(this.findBlobsByTagsSegments(tagFilterSqlExpression, marker2, options2)), _c; _c = yield __await(_b.next()), !_c.done; ) {
+            for (var _b = __asyncValues(this.findBlobsByTagsSegments(tagFilterSqlExpression, marker2, options)), _c; _c = yield __await(_b.next()), !_c.done; ) {
               const segment = _c.value;
               yield __await(yield* __asyncDelegator(__asyncValues(segment.blobs)));
             }
@@ -74242,8 +74242,8 @@ var init_ContainerClient = __esm({
        *                                         however, only a subset of the OData filter syntax is supported in the Blob service.
        * @param options - Options to find blobs by tags.
        */
-      findBlobsByTags(tagFilterSqlExpression, options2 = {}) {
-        const listSegmentOptions = Object.assign({}, options2);
+      findBlobsByTags(tagFilterSqlExpression, options = {}) {
+        const listSegmentOptions = Object.assign({}, options);
         const iter = this.findBlobsByTagsItems(tagFilterSqlExpression, listSegmentOptions);
         return {
           /**
@@ -74297,12 +74297,12 @@ var init_ContainerClient = __esm({
        * @param options - Optional parameters.
        * @returns The SAS URI consisting of the URI to the resource represented by this client, followed by the generated SAS token.
        */
-      generateSasUrl(options2) {
+      generateSasUrl(options) {
         return new Promise((resolve2) => {
           if (!(this.credential instanceof StorageSharedKeyCredential)) {
             throw new RangeError("Can only generate the SAS when the client is initialized with a shared key credential");
           }
-          const sas = generateBlobSASQueryParameters(Object.assign({ containerName: this._containerName }, options2), this.credential).toString();
+          const sas = generateBlobSASQueryParameters(Object.assign({ containerName: this._containerName }, options), this.credential).toString();
           resolve2(appendToURLQuery(this.url, sas));
         });
       }
@@ -74718,14 +74718,14 @@ var init_BlobServiceClient = __esm({
     init_AccountSASSignatureValues();
     init_AccountSASServices();
     BlobServiceClient = class _BlobServiceClient extends StorageClient {
-      constructor(url2, credentialOrPipeline, options2) {
+      constructor(url2, credentialOrPipeline, options) {
         let pipeline;
         if (isPipelineLike(credentialOrPipeline)) {
           pipeline = credentialOrPipeline;
         } else if (isNode && credentialOrPipeline instanceof StorageSharedKeyCredential || credentialOrPipeline instanceof AnonymousCredential || isTokenCredential(credentialOrPipeline)) {
-          pipeline = newPipeline(credentialOrPipeline, options2);
+          pipeline = newPipeline(credentialOrPipeline, options);
         } else {
-          pipeline = newPipeline(new AnonymousCredential(), options2);
+          pipeline = newPipeline(new AnonymousCredential(), options);
         }
         super(url2, pipeline);
         this.serviceContext = new Service(this.storageClientContext);
@@ -74742,22 +74742,22 @@ var init_BlobServiceClient = __esm({
        *                                  `BlobEndpoint=https://myaccount.blob.core.windows.net/;QueueEndpoint=https://myaccount.queue.core.windows.net/;FileEndpoint=https://myaccount.file.core.windows.net/;TableEndpoint=https://myaccount.table.core.windows.net/;SharedAccessSignature=sasString`
        * @param options - Optional. Options to configure the HTTP pipeline.
        */
-      static fromConnectionString(connectionString, options2) {
-        options2 = options2 || {};
+      static fromConnectionString(connectionString, options) {
+        options = options || {};
         const extractedCreds = extractConnectionStringParts(connectionString);
         if (extractedCreds.kind === "AccountConnString") {
           if (isNode) {
             const sharedKeyCredential = new StorageSharedKeyCredential(extractedCreds.accountName, extractedCreds.accountKey);
-            if (!options2.proxyOptions) {
-              options2.proxyOptions = getDefaultProxySettings(extractedCreds.proxyUri);
+            if (!options.proxyOptions) {
+              options.proxyOptions = getDefaultProxySettings(extractedCreds.proxyUri);
             }
-            const pipeline = newPipeline(sharedKeyCredential, options2);
+            const pipeline = newPipeline(sharedKeyCredential, options);
             return new _BlobServiceClient(extractedCreds.url, pipeline);
           } else {
             throw new Error("Account connection string is only supported in Node.js environment");
           }
         } else if (extractedCreds.kind === "SASConnString") {
-          const pipeline = newPipeline(new AnonymousCredential(), options2);
+          const pipeline = newPipeline(new AnonymousCredential(), options);
           return new _BlobServiceClient(extractedCreds.url + "?" + extractedCreds.accountSas, pipeline);
         } else {
           throw new Error("Connection string must be either an Account connection string or a SAS connection string");
@@ -74785,8 +74785,8 @@ var init_BlobServiceClient = __esm({
        * @param options - Options to configure Container Create operation.
        * @returns Container creation response and the corresponding container client.
        */
-      async createContainer(containerName, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobServiceClient-createContainer", options2);
+      async createContainer(containerName, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobServiceClient-createContainer", options);
         try {
           const containerClient = this.getContainerClient(containerName);
           const containerCreateResponse = await containerClient.create(updatedOptions);
@@ -74811,8 +74811,8 @@ var init_BlobServiceClient = __esm({
        * @param options - Options to configure Container Delete operation.
        * @returns Container deletion response.
        */
-      async deleteContainer(containerName, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobServiceClient-deleteContainer", options2);
+      async deleteContainer(containerName, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobServiceClient-deleteContainer", options);
         try {
           const containerClient = this.getContainerClient(containerName);
           return await containerClient.delete(updatedOptions);
@@ -74835,10 +74835,10 @@ var init_BlobServiceClient = __esm({
        * @param options - Options to configure Container Restore operation.
        * @returns Container deletion response.
        */
-      async undeleteContainer(deletedContainerName2, deletedContainerVersion2, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobServiceClient-undeleteContainer", options2);
+      async undeleteContainer(deletedContainerName2, deletedContainerVersion2, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobServiceClient-undeleteContainer", options);
         try {
-          const containerClient = this.getContainerClient(options2.destinationContainerName || deletedContainerName2);
+          const containerClient = this.getContainerClient(options.destinationContainerName || deletedContainerName2);
           const containerContext = new Container(containerClient["storageClientContext"]);
           const containerUndeleteResponse = await containerContext.restore(Object.assign({
             deletedContainerName: deletedContainerName2,
@@ -74864,13 +74864,13 @@ var init_BlobServiceClient = __esm({
        */
       /* eslint-disable-next-line @typescript-eslint/ban-ts-comment */
       // @ts-ignore Need to hide this interface for now. Make it public and turn on the live tests for it when the service is ready.
-      async renameContainer(sourceContainerName2, destinationContainerName, options2 = {}) {
+      async renameContainer(sourceContainerName2, destinationContainerName, options = {}) {
         var _a2;
-        const { span, updatedOptions } = createSpan2("BlobServiceClient-renameContainer", options2);
+        const { span, updatedOptions } = createSpan2("BlobServiceClient-renameContainer", options);
         try {
           const containerClient = this.getContainerClient(destinationContainerName);
           const containerContext = new Container(containerClient["storageClientContext"]);
-          const containerRenameResponse = await containerContext.rename(sourceContainerName2, Object.assign(Object.assign({}, updatedOptions), { sourceLeaseId: (_a2 = options2.sourceCondition) === null || _a2 === void 0 ? void 0 : _a2.leaseId }));
+          const containerRenameResponse = await containerContext.rename(sourceContainerName2, Object.assign(Object.assign({}, updatedOptions), { sourceLeaseId: (_a2 = options.sourceCondition) === null || _a2 === void 0 ? void 0 : _a2.leaseId }));
           return { containerClient, containerRenameResponse };
         } catch (e) {
           span.setStatus({
@@ -74890,10 +74890,10 @@ var init_BlobServiceClient = __esm({
        * @param options - Options to the Service Get Properties operation.
        * @returns Response data for the Service Get Properties operation.
        */
-      async getProperties(options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobServiceClient-getProperties", options2);
+      async getProperties(options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobServiceClient-getProperties", options);
         try {
-          return await this.serviceContext.getProperties(Object.assign({ abortSignal: options2.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.serviceContext.getProperties(Object.assign({ abortSignal: options.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -74913,10 +74913,10 @@ var init_BlobServiceClient = __esm({
        * @param options - Options to the Service Set Properties operation.
        * @returns Response data for the Service Set Properties operation.
        */
-      async setProperties(properties, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobServiceClient-setProperties", options2);
+      async setProperties(properties, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobServiceClient-setProperties", options);
         try {
-          return await this.serviceContext.setProperties(properties, Object.assign({ abortSignal: options2.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.serviceContext.setProperties(properties, Object.assign({ abortSignal: options.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -74936,10 +74936,10 @@ var init_BlobServiceClient = __esm({
        * @param options - Options to the Service Get Statistics operation.
        * @returns Response data for the Service Get Statistics operation.
        */
-      async getStatistics(options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobServiceClient-getStatistics", options2);
+      async getStatistics(options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobServiceClient-getStatistics", options);
         try {
-          return await this.serviceContext.getStatistics(Object.assign({ abortSignal: options2.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.serviceContext.getStatistics(Object.assign({ abortSignal: options.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -74960,10 +74960,10 @@ var init_BlobServiceClient = __esm({
        * @param options - Options to the Service Get Account Info operation.
        * @returns Response data for the Service Get Account Info operation.
        */
-      async getAccountInfo(options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobServiceClient-getAccountInfo", options2);
+      async getAccountInfo(options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobServiceClient-getAccountInfo", options);
         try {
-          return await this.serviceContext.getAccountInfo(Object.assign({ abortSignal: options2.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.serviceContext.getAccountInfo(Object.assign({ abortSignal: options.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -74988,10 +74988,10 @@ var init_BlobServiceClient = __esm({
        * @param options - Options to the Service List Container Segment operation.
        * @returns Response data for the Service List Container Segment operation.
        */
-      async listContainersSegment(marker2, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobServiceClient-listContainersSegment", options2);
+      async listContainersSegment(marker2, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobServiceClient-listContainersSegment", options);
         try {
-          return await this.serviceContext.listContainersSegment(Object.assign(Object.assign(Object.assign({ abortSignal: options2.abortSignal, marker: marker2 }, options2), { include: typeof options2.include === "string" ? [options2.include] : options2.include }), convertTracingToRequestOptionsBase(updatedOptions)));
+          return await this.serviceContext.listContainersSegment(Object.assign(Object.assign(Object.assign({ abortSignal: options.abortSignal, marker: marker2 }, options), { include: typeof options.include === "string" ? [options.include] : options.include }), convertTracingToRequestOptionsBase(updatedOptions)));
         } catch (e) {
           span.setStatus({
             code: SpanStatusCode.ERROR,
@@ -75020,10 +75020,10 @@ var init_BlobServiceClient = __esm({
        *                          items. The marker value is opaque to the client.
        * @param options - Options to find blobs by tags.
        */
-      async findBlobsByTagsSegment(tagFilterSqlExpression, marker2, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobServiceClient-findBlobsByTagsSegment", options2);
+      async findBlobsByTagsSegment(tagFilterSqlExpression, marker2, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobServiceClient-findBlobsByTagsSegment", options);
         try {
-          const response = await this.serviceContext.filterBlobs(Object.assign({ abortSignal: options2.abortSignal, where: tagFilterSqlExpression, marker: marker2, maxPageSize: options2.maxPageSize }, convertTracingToRequestOptionsBase(updatedOptions)));
+          const response = await this.serviceContext.filterBlobs(Object.assign({ abortSignal: options.abortSignal, where: tagFilterSqlExpression, marker: marker2, maxPageSize: options.maxPageSize }, convertTracingToRequestOptionsBase(updatedOptions)));
           const wrappedResponse = Object.assign(Object.assign({}, response), { _response: response._response, blobs: response.blobs.map((blob) => {
             var _a2;
             let tagValue = "";
@@ -75059,12 +75059,12 @@ var init_BlobServiceClient = __esm({
        *                          items. The marker value is opaque to the client.
        * @param options - Options to find blobs by tags.
        */
-      findBlobsByTagsSegments(tagFilterSqlExpression, marker2, options2 = {}) {
+      findBlobsByTagsSegments(tagFilterSqlExpression, marker2, options = {}) {
         return __asyncGenerator(this, arguments, function* findBlobsByTagsSegments_1() {
           let response;
           if (!!marker2 || marker2 === void 0) {
             do {
-              response = yield __await(this.findBlobsByTagsSegment(tagFilterSqlExpression, marker2, options2));
+              response = yield __await(this.findBlobsByTagsSegment(tagFilterSqlExpression, marker2, options));
               response.blobs = response.blobs || [];
               marker2 = response.continuationToken;
               yield yield __await(response);
@@ -75081,12 +75081,12 @@ var init_BlobServiceClient = __esm({
        *                                         however, only a subset of the OData filter syntax is supported in the Blob service.
        * @param options - Options to findBlobsByTagsItems.
        */
-      findBlobsByTagsItems(tagFilterSqlExpression, options2 = {}) {
+      findBlobsByTagsItems(tagFilterSqlExpression, options = {}) {
         return __asyncGenerator(this, arguments, function* findBlobsByTagsItems_1() {
           var e_1, _a2;
           let marker2;
           try {
-            for (var _b = __asyncValues(this.findBlobsByTagsSegments(tagFilterSqlExpression, marker2, options2)), _c; _c = yield __await(_b.next()), !_c.done; ) {
+            for (var _b = __asyncValues(this.findBlobsByTagsSegments(tagFilterSqlExpression, marker2, options)), _c; _c = yield __await(_b.next()), !_c.done; ) {
               const segment = _c.value;
               yield __await(yield* __asyncDelegator(__asyncValues(segment.blobs)));
             }
@@ -75182,8 +75182,8 @@ var init_BlobServiceClient = __esm({
        *                                         however, only a subset of the OData filter syntax is supported in the Blob service.
        * @param options - Options to find blobs by tags.
        */
-      findBlobsByTags(tagFilterSqlExpression, options2 = {}) {
-        const listSegmentOptions = Object.assign({}, options2);
+      findBlobsByTags(tagFilterSqlExpression, options = {}) {
+        const listSegmentOptions = Object.assign({}, options);
         const iter = this.findBlobsByTagsItems(tagFilterSqlExpression, listSegmentOptions);
         return {
           /**
@@ -75218,12 +75218,12 @@ var init_BlobServiceClient = __esm({
        *                        items. The marker value is opaque to the client.
        * @param options - Options to list containers operation.
        */
-      listSegments(marker2, options2 = {}) {
+      listSegments(marker2, options = {}) {
         return __asyncGenerator(this, arguments, function* listSegments_1() {
           let listContainersSegmentResponse;
           if (!!marker2 || marker2 === void 0) {
             do {
-              listContainersSegmentResponse = yield __await(this.listContainersSegment(marker2, options2));
+              listContainersSegmentResponse = yield __await(this.listContainersSegment(marker2, options));
               listContainersSegmentResponse.containerItems = listContainersSegmentResponse.containerItems || [];
               marker2 = listContainersSegmentResponse.continuationToken;
               yield yield __await(yield __await(listContainersSegmentResponse));
@@ -75236,12 +75236,12 @@ var init_BlobServiceClient = __esm({
        *
        * @param options - Options to list containers operation.
        */
-      listItems(options2 = {}) {
+      listItems(options = {}) {
         return __asyncGenerator(this, arguments, function* listItems_1() {
           var e_2, _a2;
           let marker2;
           try {
-            for (var _b = __asyncValues(this.listSegments(marker2, options2)), _c; _c = yield __await(_b.next()), !_c.done; ) {
+            for (var _b = __asyncValues(this.listSegments(marker2, options)), _c; _c = yield __await(_b.next()), !_c.done; ) {
               const segment = _c.value;
               yield __await(yield* __asyncDelegator(__asyncValues(segment.containerItems)));
             }
@@ -75332,21 +75332,21 @@ var init_BlobServiceClient = __esm({
        * @param options - Options to list containers.
        * @returns An asyncIterableIterator that supports paging.
        */
-      listContainers(options2 = {}) {
-        if (options2.prefix === "") {
-          options2.prefix = void 0;
+      listContainers(options = {}) {
+        if (options.prefix === "") {
+          options.prefix = void 0;
         }
         const include2 = [];
-        if (options2.includeDeleted) {
+        if (options.includeDeleted) {
           include2.push("deleted");
         }
-        if (options2.includeMetadata) {
+        if (options.includeMetadata) {
           include2.push("metadata");
         }
-        if (options2.includeSystem) {
+        if (options.includeSystem) {
           include2.push("system");
         }
-        const listSegmentOptions = Object.assign(Object.assign({}, options2), include2.length > 0 ? { include: include2 } : {});
+        const listSegmentOptions = Object.assign(Object.assign({}, options), include2.length > 0 ? { include: include2 } : {});
         const iter = this.listItems(listSegmentOptions);
         return {
           /**
@@ -75380,13 +75380,13 @@ var init_BlobServiceClient = __esm({
        * @param startsOn -      The start time for the user delegation SAS. Must be within 7 days of the current time
        * @param expiresOn -     The end time for the user delegation SAS. Must be within 7 days of the current time
        */
-      async getUserDelegationKey(startsOn, expiresOn2, options2 = {}) {
-        const { span, updatedOptions } = createSpan2("BlobServiceClient-getUserDelegationKey", options2);
+      async getUserDelegationKey(startsOn, expiresOn2, options = {}) {
+        const { span, updatedOptions } = createSpan2("BlobServiceClient-getUserDelegationKey", options);
         try {
           const response = await this.serviceContext.getUserDelegationKey({
             startsOn: truncatedISO8061Date(startsOn, false),
             expiresOn: truncatedISO8061Date(expiresOn2, false)
-          }, Object.assign({ abortSignal: options2.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
+          }, Object.assign({ abortSignal: options.abortSignal }, convertTracingToRequestOptionsBase(updatedOptions)));
           const userDelegationKey = {
             signedObjectId: response.signedObjectId,
             signedTenantId: response.signedTenantId,
@@ -75432,7 +75432,7 @@ var init_BlobServiceClient = __esm({
        * @param options - Optional parameters.
        * @returns An account SAS URI consisting of the URI to the resource represented by this client, followed by the generated SAS token.
        */
-      generateAccountSasUrl(expiresOn2, permissions = AccountSASPermissions.parse("r"), resourceTypes = "sco", options2 = {}) {
+      generateAccountSasUrl(expiresOn2, permissions = AccountSASPermissions.parse("r"), resourceTypes = "sco", options = {}) {
         if (!(this.credential instanceof StorageSharedKeyCredential)) {
           throw RangeError("Can only generate the account SAS when the client is initialized with a shared key credential");
         }
@@ -75445,7 +75445,7 @@ var init_BlobServiceClient = __esm({
           expiresOn: expiresOn2,
           resourceTypes,
           services: AccountSASServices.parse("b").toString()
-        }, options2), this.credential).toString();
+        }, options), this.credential).toString();
         return appendToURLQuery(this.url, sas);
       }
     };
@@ -75928,12 +75928,12 @@ var require_downloadUtils = __commonJS({
       });
     }
     exports.downloadCacheHttpClient = downloadCacheHttpClient;
-    function downloadCacheHttpClientConcurrent(archiveLocation, archivePath, options2) {
+    function downloadCacheHttpClientConcurrent(archiveLocation, archivePath, options) {
       var _a2;
       return __awaiter(this, void 0, void 0, function* () {
         const archiveDescriptor = yield fs6.promises.open(archivePath, "w");
         const httpClient = new http_client_1.HttpClient("actions/cache", void 0, {
-          socketTimeout: options2.timeoutInMs,
+          socketTimeout: options.timeoutInMs,
           keepAlive: true
         });
         try {
@@ -75978,7 +75978,7 @@ var require_downloadUtils = __commonJS({
           while (nextDownload = downloads.pop()) {
             activeDownloads[nextDownload.offset] = nextDownload.promiseGetter();
             actives++;
-            if (actives >= ((_a2 = options2.downloadConcurrency) !== null && _a2 !== void 0 ? _a2 : 10)) {
+            if (actives >= ((_a2 = options.downloadConcurrency) !== null && _a2 !== void 0 ? _a2 : 10)) {
               yield waitAndWrite();
             }
           }
@@ -76030,14 +76030,14 @@ var require_downloadUtils = __commonJS({
         };
       });
     }
-    function downloadCacheStorageSDK(archiveLocation, archivePath, options2) {
+    function downloadCacheStorageSDK(archiveLocation, archivePath, options) {
       var _a2;
       return __awaiter(this, void 0, void 0, function* () {
         const client = new storage_blob_1.BlockBlobClient(archiveLocation, void 0, {
           retryOptions: {
             // Override the timeout used when downloading each 4 MB chunk
             // The default is 2 min / MB, which is way too slow
-            tryTimeoutInMs: options2.timeoutInMs
+            tryTimeoutInMs: options.timeoutInMs
           }
         });
         const properties = yield client.getProperties();
@@ -76057,9 +76057,9 @@ var require_downloadUtils = __commonJS({
               const segmentStart = downloadProgress.segmentOffset + downloadProgress.segmentSize;
               const segmentSize = Math.min(maxSegmentSize, contentLength2 - segmentStart);
               downloadProgress.nextSegment(segmentSize);
-              const result = yield promiseWithTimeout(options2.segmentTimeoutInMs || 36e5, client.downloadToBuffer(segmentStart, segmentSize, {
+              const result = yield promiseWithTimeout(options.segmentTimeoutInMs || 36e5, client.downloadToBuffer(segmentStart, segmentSize, {
                 abortSignal: abortSignal2,
-                concurrency: options2.downloadConcurrency,
+                concurrency: options.downloadConcurrency,
                 onProgress: downloadProgress.onProgress()
               }));
               if (result === "timeout") {
@@ -76305,10 +76305,10 @@ var require_cacheHttpClient = __commonJS({
       return crypto4.createHash("sha256").update(components.join("|")).digest("hex");
     }
     exports.getCacheVersion = getCacheVersion;
-    function getCacheEntry(keys, paths, options2) {
+    function getCacheEntry(keys, paths, options) {
       return __awaiter(this, void 0, void 0, function* () {
         const httpClient = createHttpClient();
-        const version3 = getCacheVersion(paths, options2 === null || options2 === void 0 ? void 0 : options2.compressionMethod, options2 === null || options2 === void 0 ? void 0 : options2.enableCrossOsArchive);
+        const version3 = getCacheVersion(paths, options === null || options === void 0 ? void 0 : options.compressionMethod, options === null || options === void 0 ? void 0 : options.enableCrossOsArchive);
         const resource = `cache?keys=${encodeURIComponent(keys.join(","))}&version=${version3}`;
         const response = yield (0, requestUtils_1.retryTypedResponse)("getCacheEntry", () => __awaiter(this, void 0, void 0, function* () {
           return httpClient.getJson(getCacheApiUrl(resource));
@@ -76353,10 +76353,10 @@ Other caches with similar key:`);
         }
       });
     }
-    function downloadCache(archiveLocation, archivePath, options2) {
+    function downloadCache(archiveLocation, archivePath, options) {
       return __awaiter(this, void 0, void 0, function* () {
         const archiveUrl = new url_1.URL(archiveLocation);
-        const downloadOptions = (0, options_1.getDownloadOptions)(options2);
+        const downloadOptions = (0, options_1.getDownloadOptions)(options);
         if (archiveUrl.hostname.endsWith(".blob.core.windows.net")) {
           if (downloadOptions.useAzureSdk) {
             yield (0, downloadUtils_1.downloadCacheStorageSDK)(archiveLocation, archivePath, downloadOptions);
@@ -76371,14 +76371,14 @@ Other caches with similar key:`);
       });
     }
     exports.downloadCache = downloadCache;
-    function reserveCache(key, paths, options2) {
+    function reserveCache(key, paths, options) {
       return __awaiter(this, void 0, void 0, function* () {
         const httpClient = createHttpClient();
-        const version3 = getCacheVersion(paths, options2 === null || options2 === void 0 ? void 0 : options2.compressionMethod, options2 === null || options2 === void 0 ? void 0 : options2.enableCrossOsArchive);
+        const version3 = getCacheVersion(paths, options === null || options === void 0 ? void 0 : options.compressionMethod, options === null || options === void 0 ? void 0 : options.enableCrossOsArchive);
         const reserveCacheRequest = {
           key,
           version: version3,
-          cacheSize: options2 === null || options2 === void 0 ? void 0 : options2.cacheSize
+          cacheSize: options === null || options === void 0 ? void 0 : options.cacheSize
         };
         const response = yield (0, requestUtils_1.retryTypedResponse)("reserveCache", () => __awaiter(this, void 0, void 0, function* () {
           return httpClient.postJson(getCacheApiUrl("caches"), reserveCacheRequest);
@@ -76405,12 +76405,12 @@ Other caches with similar key:`);
         }
       });
     }
-    function uploadFile(httpClient, cacheId, archivePath, options2) {
+    function uploadFile(httpClient, cacheId, archivePath, options) {
       return __awaiter(this, void 0, void 0, function* () {
         const fileSize = utils.getArchiveFileSizeInBytes(archivePath);
         const resourceUrl = getCacheApiUrl(`caches/${cacheId.toString()}`);
         const fd = fs6.openSync(archivePath, "r");
-        const uploadOptions = (0, options_1.getUploadOptions)(options2);
+        const uploadOptions = (0, options_1.getUploadOptions)(options);
         const concurrency = utils.assertDefined("uploadConcurrency", uploadOptions.uploadConcurrency);
         const maxChunkSize = utils.assertDefined("uploadChunkSize", uploadOptions.uploadChunkSize);
         const parallelUploads = [...new Array(concurrency).keys()];
@@ -76447,11 +76447,11 @@ Other caches with similar key:`);
         }));
       });
     }
-    function saveCache3(cacheId, archivePath, options2) {
+    function saveCache3(cacheId, archivePath, options) {
       return __awaiter(this, void 0, void 0, function* () {
         const httpClient = createHttpClient();
         core7.debug("Upload cache");
-        yield uploadFile(httpClient, cacheId, archivePath, options2);
+        yield uploadFile(httpClient, cacheId, archivePath, options);
         core7.debug("Commiting cache");
         const cacheSize = utils.getArchiveFileSizeInBytes(archivePath);
         core7.info(`Cache Size: ~${Math.round(cacheSize / (1024 * 1024))} MB (${cacheSize} B)`);
@@ -76818,7 +76818,7 @@ var require_cache2 = __commonJS({
       return !!process.env["ACTIONS_CACHE_URL"];
     }
     exports.isFeatureAvailable = isFeatureAvailable;
-    function restoreCache3(paths, primaryKey, restoreKeys, options2, enableCrossOsArchive = false) {
+    function restoreCache3(paths, primaryKey, restoreKeys, options, enableCrossOsArchive = false) {
       return __awaiter(this, void 0, void 0, function* () {
         checkPaths(paths);
         restoreKeys = restoreKeys || [];
@@ -76841,13 +76841,13 @@ var require_cache2 = __commonJS({
           if (!(cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.archiveLocation)) {
             return void 0;
           }
-          if (options2 === null || options2 === void 0 ? void 0 : options2.lookupOnly) {
+          if (options === null || options === void 0 ? void 0 : options.lookupOnly) {
             core7.info("Lookup only - skipping download");
             return cacheEntry.cacheKey;
           }
           archivePath = path5.join(yield utils.createTempDirectory(), utils.getCacheFileName(compressionMethod));
           core7.debug(`Archive Path: ${archivePath}`);
-          yield cacheHttpClient.downloadCache(cacheEntry.archiveLocation, archivePath, options2);
+          yield cacheHttpClient.downloadCache(cacheEntry.archiveLocation, archivePath, options);
           if (core7.isDebug()) {
             yield (0, tar_1.listTar)(archivePath, compressionMethod);
           }
@@ -76874,7 +76874,7 @@ var require_cache2 = __commonJS({
       });
     }
     exports.restoreCache = restoreCache3;
-    function saveCache3(paths, key, options2, enableCrossOsArchive = false) {
+    function saveCache3(paths, key, options, enableCrossOsArchive = false) {
       var _a2, _b, _c, _d, _e;
       return __awaiter(this, void 0, void 0, function* () {
         checkPaths(paths);
@@ -76915,7 +76915,7 @@ var require_cache2 = __commonJS({
             throw new ReserveCacheError(`Unable to reserve cache with key ${key}, another job may be creating this cache. More details: ${(_e = reserveCacheResponse === null || reserveCacheResponse === void 0 ? void 0 : reserveCacheResponse.error) === null || _e === void 0 ? void 0 : _e.message}`);
           }
           core7.debug(`Saving Cache (ID: ${cacheId})`);
-          yield cacheHttpClient.saveCache(cacheId, archivePath, options2);
+          yield cacheHttpClient.saveCache(cacheId, archivePath, options);
         } catch (error) {
           const typedError = error;
           if (typedError.name === ValidationError.name) {
@@ -76950,7 +76950,7 @@ var import_tool_cache = __toESM(require_tool_cache());
 
 // src/util.ts
 var fs = __toESM(require("fs/promises"));
-var os3 = __toESM(require("os"));
+var os = __toESM(require("os"));
 var import_crypto4 = require("crypto");
 
 // node_modules/.pnpm/js-yaml@4.1.0/node_modules/js-yaml/dist/js-yaml.mjs
@@ -77054,18 +77054,18 @@ function getLine(buffer, lineStart, lineEnd, position, maxLineLength) {
 function padStart(string, max) {
   return common.repeat(" ", max - string.length) + string;
 }
-function makeSnippet(mark, options2) {
-  options2 = Object.create(options2 || null);
+function makeSnippet(mark, options) {
+  options = Object.create(options || null);
   if (!mark.buffer)
     return null;
-  if (!options2.maxLength)
-    options2.maxLength = 79;
-  if (typeof options2.indent !== "number")
-    options2.indent = 1;
-  if (typeof options2.linesBefore !== "number")
-    options2.linesBefore = 3;
-  if (typeof options2.linesAfter !== "number")
-    options2.linesAfter = 2;
+  if (!options.maxLength)
+    options.maxLength = 79;
+  if (typeof options.indent !== "number")
+    options.indent = 1;
+  if (typeof options.linesBefore !== "number")
+    options.linesBefore = 3;
+  if (typeof options.linesAfter !== "number")
+    options.linesAfter = 2;
   var re2 = /\r?\n|\r|\0/g;
   var lineStarts = [0];
   var lineEnds = [];
@@ -77081,9 +77081,9 @@ function makeSnippet(mark, options2) {
   if (foundLineNo < 0)
     foundLineNo = lineStarts.length - 1;
   var result = "", i, line;
-  var lineNoLength = Math.min(mark.line + options2.linesAfter, lineEnds.length).toString().length;
-  var maxLineLength = options2.maxLength - (options2.indent + lineNoLength + 3);
-  for (i = 1; i <= options2.linesBefore; i++) {
+  var lineNoLength = Math.min(mark.line + options.linesAfter, lineEnds.length).toString().length;
+  var maxLineLength = options.maxLength - (options.indent + lineNoLength + 3);
+  for (i = 1; i <= options.linesBefore; i++) {
     if (foundLineNo - i < 0)
       break;
     line = getLine(
@@ -77093,12 +77093,12 @@ function makeSnippet(mark, options2) {
       mark.position - (lineStarts[foundLineNo] - lineStarts[foundLineNo - i]),
       maxLineLength
     );
-    result = common.repeat(" ", options2.indent) + padStart((mark.line - i + 1).toString(), lineNoLength) + " | " + line.str + "\n" + result;
+    result = common.repeat(" ", options.indent) + padStart((mark.line - i + 1).toString(), lineNoLength) + " | " + line.str + "\n" + result;
   }
   line = getLine(mark.buffer, lineStarts[foundLineNo], lineEnds[foundLineNo], mark.position, maxLineLength);
-  result += common.repeat(" ", options2.indent) + padStart((mark.line + 1).toString(), lineNoLength) + " | " + line.str + "\n";
-  result += common.repeat("-", options2.indent + lineNoLength + 3 + line.pos) + "^\n";
-  for (i = 1; i <= options2.linesAfter; i++) {
+  result += common.repeat(" ", options.indent) + padStart((mark.line + 1).toString(), lineNoLength) + " | " + line.str + "\n";
+  result += common.repeat("-", options.indent + lineNoLength + 3 + line.pos) + "^\n";
+  for (i = 1; i <= options.linesAfter; i++) {
     if (foundLineNo + i >= lineEnds.length)
       break;
     line = getLine(
@@ -77108,7 +77108,7 @@ function makeSnippet(mark, options2) {
       mark.position - (lineStarts[foundLineNo] - lineStarts[foundLineNo + i]),
       maxLineLength
     );
-    result += common.repeat(" ", options2.indent) + padStart((mark.line + i + 1).toString(), lineNoLength) + " | " + line.str + "\n";
+    result += common.repeat(" ", options.indent) + padStart((mark.line + i + 1).toString(), lineNoLength) + " | " + line.str + "\n";
   }
   return result.replace(/\n$/, "");
 }
@@ -77141,29 +77141,29 @@ function compileStyleAliases(map3) {
   }
   return result;
 }
-function Type$1(tag, options2) {
-  options2 = options2 || {};
-  Object.keys(options2).forEach(function(name) {
+function Type$1(tag, options) {
+  options = options || {};
+  Object.keys(options).forEach(function(name) {
     if (TYPE_CONSTRUCTOR_OPTIONS.indexOf(name) === -1) {
       throw new exception('Unknown option "' + name + '" is met in definition of "' + tag + '" YAML type.');
     }
   });
-  this.options = options2;
+  this.options = options;
   this.tag = tag;
-  this.kind = options2["kind"] || null;
-  this.resolve = options2["resolve"] || function() {
+  this.kind = options["kind"] || null;
+  this.resolve = options["resolve"] || function() {
     return true;
   };
-  this.construct = options2["construct"] || function(data) {
+  this.construct = options["construct"] || function(data) {
     return data;
   };
-  this.instanceOf = options2["instanceOf"] || null;
-  this.predicate = options2["predicate"] || null;
-  this.represent = options2["represent"] || null;
-  this.representName = options2["representName"] || null;
-  this.defaultStyle = options2["defaultStyle"] || null;
-  this.multi = options2["multi"] || false;
-  this.styleAliases = compileStyleAliases(options2["styleAliases"] || null);
+  this.instanceOf = options["instanceOf"] || null;
+  this.predicate = options["predicate"] || null;
+  this.represent = options["represent"] || null;
+  this.representName = options["representName"] || null;
+  this.defaultStyle = options["defaultStyle"] || null;
+  this.multi = options["multi"] || false;
+  this.styleAliases = compileStyleAliases(options["styleAliases"] || null);
   if (YAML_NODE_KINDS.indexOf(this.kind) === -1) {
     throw new exception('Unknown kind "' + this.kind + '" is specified for "' + tag + '" YAML type.');
   }
@@ -77880,14 +77880,14 @@ for (i = 0; i < 256; i++) {
   simpleEscapeMap[i] = simpleEscapeSequence(i);
 }
 var i;
-function State$1(input, options2) {
+function State$1(input, options) {
   this.input = input;
-  this.filename = options2["filename"] || null;
-  this.schema = options2["schema"] || _default;
-  this.onWarning = options2["onWarning"] || null;
-  this.legacy = options2["legacy"] || false;
-  this.json = options2["json"] || false;
-  this.listener = options2["listener"] || null;
+  this.filename = options["filename"] || null;
+  this.schema = options["schema"] || _default;
+  this.onWarning = options["onWarning"] || null;
+  this.legacy = options["legacy"] || false;
+  this.json = options["json"] || false;
+  this.listener = options["listener"] || null;
   this.implicitTypes = this.schema.compiledImplicit;
   this.typeMap = this.schema.compiledTypeMap;
   this.length = input.length;
@@ -78910,9 +78910,9 @@ function readDocument(state) {
     return;
   }
 }
-function loadDocuments(input, options2) {
+function loadDocuments(input, options) {
   input = String(input);
-  options2 = options2 || {};
+  options = options || {};
   if (input.length !== 0) {
     if (input.charCodeAt(input.length - 1) !== 10 && input.charCodeAt(input.length - 1) !== 13) {
       input += "\n";
@@ -78921,7 +78921,7 @@ function loadDocuments(input, options2) {
       input = input.slice(1);
     }
   }
-  var state = new State$1(input, options2);
+  var state = new State$1(input, options);
   var nullpos = input.indexOf("\0");
   if (nullpos !== -1) {
     state.position = nullpos;
@@ -78937,12 +78937,12 @@ function loadDocuments(input, options2) {
   }
   return state.documents;
 }
-function loadAll$1(input, iterator, options2) {
-  if (iterator !== null && typeof iterator === "object" && typeof options2 === "undefined") {
-    options2 = iterator;
+function loadAll$1(input, iterator, options) {
+  if (iterator !== null && typeof iterator === "object" && typeof options === "undefined") {
+    options = iterator;
     iterator = null;
   }
-  var documents = loadDocuments(input, options2);
+  var documents = loadDocuments(input, options);
   if (typeof iterator !== "function") {
     return documents;
   }
@@ -78950,8 +78950,8 @@ function loadAll$1(input, iterator, options2) {
     iterator(documents[index]);
   }
 }
-function load$1(input, options2) {
-  var documents = loadDocuments(input, options2);
+function load$1(input, options) {
+  var documents = loadDocuments(input, options);
   if (documents.length === 0) {
     return void 0;
   } else if (documents.length === 1) {
@@ -79066,21 +79066,21 @@ function encodeHex(character) {
 }
 var QUOTING_TYPE_SINGLE = 1;
 var QUOTING_TYPE_DOUBLE = 2;
-function State(options2) {
-  this.schema = options2["schema"] || _default;
-  this.indent = Math.max(1, options2["indent"] || 2);
-  this.noArrayIndent = options2["noArrayIndent"] || false;
-  this.skipInvalid = options2["skipInvalid"] || false;
-  this.flowLevel = common.isNothing(options2["flowLevel"]) ? -1 : options2["flowLevel"];
-  this.styleMap = compileStyleMap(this.schema, options2["styles"] || null);
-  this.sortKeys = options2["sortKeys"] || false;
-  this.lineWidth = options2["lineWidth"] || 80;
-  this.noRefs = options2["noRefs"] || false;
-  this.noCompatMode = options2["noCompatMode"] || false;
-  this.condenseFlow = options2["condenseFlow"] || false;
-  this.quotingType = options2["quotingType"] === '"' ? QUOTING_TYPE_DOUBLE : QUOTING_TYPE_SINGLE;
-  this.forceQuotes = options2["forceQuotes"] || false;
-  this.replacer = typeof options2["replacer"] === "function" ? options2["replacer"] : null;
+function State(options) {
+  this.schema = options["schema"] || _default;
+  this.indent = Math.max(1, options["indent"] || 2);
+  this.noArrayIndent = options["noArrayIndent"] || false;
+  this.skipInvalid = options["skipInvalid"] || false;
+  this.flowLevel = common.isNothing(options["flowLevel"]) ? -1 : options["flowLevel"];
+  this.styleMap = compileStyleMap(this.schema, options["styles"] || null);
+  this.sortKeys = options["sortKeys"] || false;
+  this.lineWidth = options["lineWidth"] || 80;
+  this.noRefs = options["noRefs"] || false;
+  this.noCompatMode = options["noCompatMode"] || false;
+  this.condenseFlow = options["condenseFlow"] || false;
+  this.quotingType = options["quotingType"] === '"' ? QUOTING_TYPE_DOUBLE : QUOTING_TYPE_SINGLE;
+  this.forceQuotes = options["forceQuotes"] || false;
+  this.replacer = typeof options["replacer"] === "function" ? options["replacer"] : null;
   this.implicitTypes = this.schema.compiledImplicit;
   this.explicitTypes = this.schema.compiledExplicit;
   this.tag = null;
@@ -79581,9 +79581,9 @@ function inspectNode(object, objects, duplicatesIndexes) {
     }
   }
 }
-function dump$1(input, options2) {
-  options2 = options2 || {};
-  var state = new State(options2);
+function dump$1(input, options) {
+  options = options || {};
+  var state = new State(options);
   if (!state.noRefs)
     getDuplicateReferences(input, state);
   var value = input;
@@ -79611,7 +79611,7 @@ var safeLoadAll = renamed("safeLoadAll", "loadAll");
 var safeDump = renamed("safeDump", "dump");
 
 // src/util.ts
-var coreDefault2 = __toESM(require_core());
+var coreDefault = __toESM(require_core());
 var import_exec = __toESM(require_exec());
 
 // node_modules/.pnpm/fp-ts@2.16.1/node_modules/fp-ts/es6/function.js
@@ -80794,24 +80794,24 @@ var ZodString = class _ZodString extends ZodType {
   ulid(message) {
     return this._addCheck({ kind: "ulid", ...errorUtil.errToObj(message) });
   }
-  ip(options2) {
-    return this._addCheck({ kind: "ip", ...errorUtil.errToObj(options2) });
+  ip(options) {
+    return this._addCheck({ kind: "ip", ...errorUtil.errToObj(options) });
   }
-  datetime(options2) {
+  datetime(options) {
     var _a2;
-    if (typeof options2 === "string") {
+    if (typeof options === "string") {
       return this._addCheck({
         kind: "datetime",
         precision: null,
         offset: false,
-        message: options2
+        message: options
       });
     }
     return this._addCheck({
       kind: "datetime",
-      precision: typeof (options2 === null || options2 === void 0 ? void 0 : options2.precision) === "undefined" ? null : options2 === null || options2 === void 0 ? void 0 : options2.precision,
-      offset: (_a2 = options2 === null || options2 === void 0 ? void 0 : options2.offset) !== null && _a2 !== void 0 ? _a2 : false,
-      ...errorUtil.errToObj(options2 === null || options2 === void 0 ? void 0 : options2.message)
+      precision: typeof (options === null || options === void 0 ? void 0 : options.precision) === "undefined" ? null : options === null || options === void 0 ? void 0 : options.precision,
+      offset: (_a2 = options === null || options === void 0 ? void 0 : options.offset) !== null && _a2 !== void 0 ? _a2 : false,
+      ...errorUtil.errToObj(options === null || options === void 0 ? void 0 : options.message)
     });
   }
   regex(regex, message) {
@@ -80821,12 +80821,12 @@ var ZodString = class _ZodString extends ZodType {
       ...errorUtil.errToObj(message)
     });
   }
-  includes(value, options2) {
+  includes(value, options) {
     return this._addCheck({
       kind: "includes",
       value,
-      position: options2 === null || options2 === void 0 ? void 0 : options2.position,
-      ...errorUtil.errToObj(options2 === null || options2 === void 0 ? void 0 : options2.message)
+      position: options === null || options === void 0 ? void 0 : options.position,
+      ...errorUtil.errToObj(options === null || options === void 0 ? void 0 : options.message)
     });
   }
   startsWith(value, message) {
@@ -82084,7 +82084,7 @@ ZodObject.lazycreate = (shape, params) => {
 var ZodUnion = class extends ZodType {
   _parse(input) {
     const { ctx } = this._processInputParams(input);
-    const options2 = this._def.options;
+    const options = this._def.options;
     function handleResults(results) {
       for (const result of results) {
         if (result.result.status === "valid") {
@@ -82105,7 +82105,7 @@ var ZodUnion = class extends ZodType {
       return INVALID;
     }
     if (ctx.common.async) {
-      return Promise.all(options2.map(async (option) => {
+      return Promise.all(options.map(async (option) => {
         const childCtx = {
           ...ctx,
           common: {
@@ -82126,7 +82126,7 @@ var ZodUnion = class extends ZodType {
     } else {
       let dirty = void 0;
       const issues = [];
-      for (const option of options2) {
+      for (const option of options) {
         const childCtx = {
           ...ctx,
           common: {
@@ -82246,9 +82246,9 @@ var ZodDiscriminatedUnion = class _ZodDiscriminatedUnion extends ZodType {
    * @param types an array of object schemas
    * @param params
    */
-  static create(discriminator, options2, params) {
+  static create(discriminator, options, params) {
     const optionsMap = /* @__PURE__ */ new Map();
-    for (const type4 of options2) {
+    for (const type4 of options) {
       const discriminatorValues = getDiscriminator(type4.shape[discriminator]);
       if (!discriminatorValues) {
         throw new Error(`A discriminator value for key \`${discriminator}\` could not be extracted from all schema options`);
@@ -82263,7 +82263,7 @@ var ZodDiscriminatedUnion = class _ZodDiscriminatedUnion extends ZodType {
     return new _ZodDiscriminatedUnion({
       typeName: ZodFirstPartyTypeKind.ZodDiscriminatedUnion,
       discriminator,
-      options: options2,
+      options,
       optionsMap,
       ...processCreateParams(params)
     });
@@ -83385,12 +83385,101 @@ var coreMocked = {
   }
 };
 
+// src/util.ts
+var core2 = process.env.MOCKING ? coreMocked : coreDefault;
+var getMicromambaUrlFromVersion = (arch3, version3) => {
+  if (version3 === "latest") {
+    return `https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-${arch3}`;
+  }
+  return `https://github.com/mamba-org/micromamba-releases/releases/download/${version3}/micromamba-${arch3}`;
+};
+var getCondaArch = () => {
+  const archDict = {
+    "darwin-x64": "osx-64",
+    "darwin-arm64": "osx-arm64",
+    "linux-x64": "linux-64",
+    "linux-arm64": "linux-aarch64",
+    "linux-ppc64": "linux-ppc64le",
+    "win32-x64": "win-64"
+  };
+  const arch3 = archDict[`${os.platform()}-${os.arch()}`];
+  if (!arch3) {
+    throw new Error(`Unsupported platform: ${os.platform()}-${os.arch()}`);
+  }
+  return arch3;
+};
+var determineEnvironmentName = (environmentName, environmentFile) => {
+  core2.debug("Determining environment name from inputs.");
+  core2.debug(`environmentName: ${environmentName}`);
+  core2.debug(`environmentFile: ${environmentFile}`);
+  if (environmentName) {
+    core2.debug(`Determined environment name: ${environmentName}`);
+    return Promise.resolve(environmentName);
+  }
+  if (!environmentFile) {
+    core2.error("No environment name or file specified.");
+    throw new Error();
+  }
+  return fs.readFile(environmentFile).then((fileContents) => {
+    const environmentFileSchema = objectType({
+      name: stringType()
+    });
+    const environmentName2 = environmentFileSchema.parse(load(fileContents.toString())).name;
+    core2.debug(`Determined environment name from file ${environmentFile}: ${environmentName2}`);
+    return environmentName2;
+  }).catch((error) => {
+    core2.error(`Could not determine environment name from file ${environmentFile}`);
+    core2.error(`Error: ${error}`);
+    core2.error(
+      "If your environment file is not YAML containing `name` at the top level, please specify the environment name directly."
+    );
+    throw new Error(error);
+  });
+};
+var mambaRegexBlock = /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/;
+var getMicromambaUrl = (micromambaSource) => {
+  return pipe(
+    micromambaSource,
+    match(
+      (version3) => getMicromambaUrlFromVersion(getCondaArch(), version3),
+      (url2) => url2
+    )
+  );
+};
+var sha256 = (s) => {
+  return (0, import_crypto4.createHash)("sha256").update(s).digest("hex");
+};
+var sha256Short = (s) => {
+  return sha256(s).slice(0, 7);
+};
+var micromambaCmd = (options, command, logLevel, condarcFile) => {
+  let commandArray = [options.micromambaBinPath].concat(command.split(" "));
+  if (logLevel) {
+    commandArray = commandArray.concat(["--log-level", logLevel]);
+  }
+  if (condarcFile) {
+    commandArray = commandArray.concat(["--rc-file", condarcFile]);
+  }
+  return commandArray;
+};
+var execute = (cmd) => {
+  core2.debug(`Executing: ${cmd.join(" ")}`);
+  return (0, import_exec.exec)(cmd[0], cmd.slice(1));
+};
+var getTempDirectory = () => {
+  const tempDirectory = process.env.RUNNER_TEMP;
+  if (!tempDirectory) {
+    throw new Error("Expected RUNNER_TEMP to be defined");
+  }
+  return tempDirectory;
+};
+
 // src/options.ts
 var path = __toESM(require("path"));
-var os2 = __toESM(require("os"));
+var os3 = __toESM(require("os"));
 var import_process = require("process");
-var coreDefault = __toESM(require_core());
-var import_Either = __toESM(require_Either());
+var coreDefault2 = __toESM(require_core());
+var import_Either2 = __toESM(require_Either());
 
 // node_modules/.pnpm/untildify@5.0.0/node_modules/untildify/index.js
 var import_node_os = __toESM(require("os"), 1);
@@ -83404,18 +83493,18 @@ function untildify(pathWithTilde) {
 
 // src/options.ts
 var import_which = __toESM(require_lib2());
-var core2 = process.env.MOCKING ? coreMocked : coreDefault;
+var core3 = process.env.MOCKING ? coreMocked : coreDefault2;
 var PATHS = {
-  micromambaBin: path.join(os2.homedir(), "micromamba-bin", `micromamba${os2.platform() === "win32" ? ".exe" : ""}`),
-  micromambaRoot: path.join(os2.homedir(), "micromamba"),
-  bashProfile: path.join(os2.homedir(), ".bash_profile"),
-  bashrc: path.join(os2.homedir(), ".bashrc")
+  micromambaBin: path.join(os3.homedir(), "micromamba-bin", `micromamba${os3.platform() === "win32" ? ".exe" : ""}`),
+  micromambaRoot: path.join(os3.homedir(), "micromamba"),
+  bashProfile: path.join(os3.homedir(), ".bash_profile"),
+  bashrc: path.join(os3.homedir(), ".bashrc")
 };
 var postCleanupSchema = enumType(["none", "shell-init", "environment", "all"]);
 var logLevelSchema = enumType(["off", "critical", "error", "warning", "info", "debug", "trace"]);
 var shellSchema = enumType(["none", "bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
 var parseOrUndefined = (key, schema2, errorMessage) => {
-  const input = core2.getInput(key);
+  const input = core3.getInput(key);
   if (input === "") {
     return void 0;
   }
@@ -83429,14 +83518,14 @@ var parseOrUndefined = (key, schema2, errorMessage) => {
   return maybeResult.data;
 };
 var parseOrUndefinedJSON = (key, schema2) => {
-  const input = core2.getInput(key);
+  const input = core3.getInput(key);
   if (input === "") {
     return void 0;
   }
   return schema2.parse(JSON.parse(input));
 };
 var parseOrUndefinedList = (key, schema2) => {
-  const input = core2.getInput(key);
+  const input = core3.getInput(key);
   if (input === "") {
     return void 0;
   }
@@ -83445,10 +83534,10 @@ var parseOrUndefinedList = (key, schema2) => {
 var determineMicromambaInstallation = (micromambaBinPath, downloadMicromamba2) => {
   const preinstalledMicromamba = import_which.default.sync("micromamba", { nothrow: true });
   if (preinstalledMicromamba) {
-    core2.debug(`Found pre-installed micromamba at ${preinstalledMicromamba}`);
+    core3.debug(`Found pre-installed micromamba at ${preinstalledMicromamba}`);
   }
   if (micromambaBinPath) {
-    core2.debug(`Using micromamba binary path ${micromambaBinPath}`);
+    core3.debug(`Using micromamba binary path ${micromambaBinPath}`);
     try {
       const resolvedPath = path.resolve(untildify(micromambaBinPath));
       return { downloadMicromamba: downloadMicromamba2 !== false, micromambaBinPath: resolvedPath };
@@ -83466,8 +83555,8 @@ var determineMicromambaInstallation = (micromambaBinPath, downloadMicromamba2) =
 };
 var inferOptions = (inputs) => {
   const createEnvironment2 = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
-  const logLevel = inputs.logLevel || (core2.isDebug() ? "debug" : "warning");
-  const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
+  const logLevel = inputs.logLevel || (core3.isDebug() ? "debug" : "warning");
+  const micromambaSource = inputs.micromambaUrl ? (0, import_Either2.right)(inputs.micromambaUrl) : (0, import_Either2.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
   const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;
   const { downloadMicromamba: downloadMicromamba2, micromambaBinPath } = determineMicromambaInstallation(
@@ -83475,11 +83564,10 @@ var inferOptions = (inputs) => {
     inputs.downloadMicromamba
   );
   if (downloadMicromamba2) {
-    core2.info(`Will download micromamba to ${micromambaBinPath}`);
+    core3.info(`Will download micromamba to ${micromambaBinPath}`);
   } else {
-    core2.info(`Will use pre-installed micromamba at ${micromambaBinPath}`);
+    core3.info(`Will use pre-installed micromamba at ${micromambaBinPath}`);
   }
-  core2.info(typeof getTempDirectory);
   const tempDirectory = getTempDirectory();
   return {
     ...inputs,
@@ -83535,31 +83623,31 @@ var validateInputs = (inputs) => {
     throw new Error("You need to specify an environment name.");
   }
 };
-var assertOptions = (options2) => {
+var assertOptions = (options) => {
   const assert = (condition, message) => {
     if (!condition) {
       throw new Error(message);
     }
   };
-  assert(!options2.generateRunShell || options2.createEnvironment);
-  assert(!options2.createEnvironment || options2.environmentFile !== void 0 || options2.environmentName !== void 0);
+  assert(!options.generateRunShell || options.createEnvironment);
+  assert(!options.createEnvironment || options.environmentFile !== void 0 || options.environmentName !== void 0);
 };
-var getRootPrefixFlagForInit = (options2) => {
-  if (options2.micromambaSource._tag === "Left" && options2.micromambaSource.left < "1.4.5-0") {
+var getRootPrefixFlagForInit = (options) => {
+  if (options.micromambaSource._tag === "Left" && options.micromambaSource.left < "1.4.5-0") {
     return "-p";
   }
   return "-r";
 };
-var checkForKnownIssues = (options2) => {
-  if (options2.initShell && getRootPrefixFlagForInit(options2) === "-p") {
-    core2.warning(
+var checkForKnownIssues = (options) => {
+  if (options.initShell && getRootPrefixFlagForInit(options) === "-p") {
+    core3.warning(
       "You are using a micromamba version < 1.4.5-0 and initialize the shell. This is behavior is deprecated. Please update the micromamba version. For further informations, see https://github.com/mamba-org/setup-micromamba/pull/107"
     );
   }
-  const condarcBasename = path.basename(options2.condarcFile);
+  const condarcBasename = path.basename(options.condarcFile);
   const hasValidCondarcName = condarcBasename === ".condarc" || condarcBasename === "condarc" || condarcBasename === ".mambarc" || condarcBasename === "mambarc" || condarcBasename.endsWith(".yml") || condarcBasename.endsWith(".yaml");
   if (!hasValidCondarcName) {
-    core2.warning(
+    core3.warning(
       `You are using a condarc file that is not named '.condarc'. This is currently not supported by micromamba, see https://github.com/mamba-org/mamba/issues/1394`
     );
   }
@@ -83593,119 +83681,30 @@ var getOptions = () => {
     micromambaRootPath: parseOrUndefined("micromamba-root-path", stringType()),
     micromambaBinPath: parseOrUndefined("micromamba-binary-path", stringType())
   };
-  core2.debug(`Inputs: ${JSON.stringify(inputs)}`);
+  core3.debug(`Inputs: ${JSON.stringify(inputs)}`);
   validateInputs(inputs);
-  const options2 = inferOptions(inputs);
-  core2.debug(`Inferred options: ${JSON.stringify(options2)}`);
-  checkForKnownIssues(options2);
-  assertOptions(options2);
-  return options2;
+  const options = inferOptions(inputs);
+  core3.debug(`Inferred options: ${JSON.stringify(options)}`);
+  checkForKnownIssues(options);
+  assertOptions(options);
+  return options;
 };
-var _options;
-try {
-  _options = getOptions();
-} catch (error) {
-  if (core2.isDebug()) {
+var actuallyGetOptions = () => {
+  try {
+    return getOptions();
+  } catch (error) {
+    if (core3.isDebug()) {
+      throw error;
+    }
+    if (error instanceof Error) {
+      core3.setFailed(error.message);
+      (0, import_process.exit)(1);
+    } else if (typeof error === "string") {
+      core3.setFailed(error);
+      (0, import_process.exit)(1);
+    }
     throw error;
   }
-  if (error instanceof Error) {
-    core2.setFailed(error.message);
-    (0, import_process.exit)(1);
-  } else if (typeof error === "string") {
-    core2.setFailed(error);
-    (0, import_process.exit)(1);
-  }
-  throw error;
-}
-var options = _options;
-
-// src/util.ts
-var core3 = process.env.MOCKING ? coreMocked : coreDefault2;
-var getMicromambaUrlFromVersion = (arch3, version3) => {
-  if (version3 === "latest") {
-    return `https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-${arch3}`;
-  }
-  return `https://github.com/mamba-org/micromamba-releases/releases/download/${version3}/micromamba-${arch3}`;
-};
-var getCondaArch = () => {
-  const archDict = {
-    "darwin-x64": "osx-64",
-    "darwin-arm64": "osx-arm64",
-    "linux-x64": "linux-64",
-    "linux-arm64": "linux-aarch64",
-    "linux-ppc64": "linux-ppc64le",
-    "win32-x64": "win-64"
-  };
-  const arch3 = archDict[`${os3.platform()}-${os3.arch()}`];
-  if (!arch3) {
-    throw new Error(`Unsupported platform: ${os3.platform()}-${os3.arch()}`);
-  }
-  return arch3;
-};
-var determineEnvironmentName = (environmentName, environmentFile) => {
-  core3.debug("Determining environment name from inputs.");
-  core3.debug(`environmentName: ${environmentName}`);
-  core3.debug(`environmentFile: ${environmentFile}`);
-  if (environmentName) {
-    core3.debug(`Determined environment name: ${environmentName}`);
-    return Promise.resolve(environmentName);
-  }
-  if (!environmentFile) {
-    core3.error("No environment name or file specified.");
-    throw new Error();
-  }
-  return fs.readFile(environmentFile).then((fileContents) => {
-    const environmentFileSchema = objectType({
-      name: stringType()
-    });
-    const environmentName2 = environmentFileSchema.parse(load(fileContents.toString())).name;
-    core3.debug(`Determined environment name from file ${environmentFile}: ${environmentName2}`);
-    return environmentName2;
-  }).catch((error) => {
-    core3.error(`Could not determine environment name from file ${environmentFile}`);
-    core3.error(`Error: ${error}`);
-    core3.error(
-      "If your environment file is not YAML containing `name` at the top level, please specify the environment name directly."
-    );
-    throw new Error(error);
-  });
-};
-var mambaRegexBlock = /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/;
-var getMicromambaUrl = (micromambaSource) => {
-  return pipe(
-    micromambaSource,
-    match(
-      (version3) => getMicromambaUrlFromVersion(getCondaArch(), version3),
-      (url2) => url2
-    )
-  );
-};
-var sha256 = (s) => {
-  return (0, import_crypto4.createHash)("sha256").update(s).digest("hex");
-};
-var sha256Short = (s) => {
-  return sha256(s).slice(0, 7);
-};
-var micromambaCmd = (command, logLevel, condarcFile) => {
-  let commandArray = [options.micromambaBinPath].concat(command.split(" "));
-  if (logLevel) {
-    commandArray = commandArray.concat(["--log-level", logLevel]);
-  }
-  if (condarcFile) {
-    commandArray = commandArray.concat(["--rc-file", condarcFile]);
-  }
-  return commandArray;
-};
-var execute = (cmd) => {
-  core3.debug(`Executing: ${cmd.join(" ")}`);
-  return (0, import_exec.exec)(cmd[0], cmd.slice(1));
-};
-var getTempDirectory = () => {
-  const tempDirectory = process.env.RUNNER_TEMP;
-  if (!tempDirectory) {
-    throw new Error("Expected RUNNER_TEMP to be defined");
-  }
-  return tempDirectory;
 };
 
 // src/shell-init.ts
@@ -83725,11 +83724,12 @@ var copyMambaInitBlockToBashProfile = () => {
     return fs2.appendFile(PATHS.bashProfile, matches[0]);
   });
 };
-var shellInit = (shell) => {
+var shellInit = (options, shell) => {
   core4.startGroup(`Initialize micromamba for ${shell}.`);
   const rootPrefixFlag = getRootPrefixFlagForInit(options);
   const command = execute(
     micromambaCmd(
+      options,
       `shell init -s ${shell} ${rootPrefixFlag} ${options.micromambaRootPath}`,
       options.logLevel,
       options.condarcFile
@@ -83746,7 +83746,7 @@ var addEnvironmentToRcFile = (environmentName, rcFile) => {
   return fs2.appendFile(rcFile, `micromamba activate ${environmentName}
 `);
 };
-var rcFileDict = {
+var getRcFileDict = (options) => ({
   bash: PATHS.bashProfile,
   zsh: import_path.default.join(os4.homedir(), ".zshrc"),
   fish: import_path.default.join(os4.homedir(), ".config", "fish", "config.fish"),
@@ -83756,8 +83756,9 @@ var rcFileDict = {
   powershell: import_path.default.join(os4.homedir(), "Documents", "WindowsPowershell", "profile.ps1"),
   pwshWin: import_path.default.join(os4.homedir(), "Documents", "Powershell", "profile.ps1"),
   pwshUnix: import_path.default.join(os4.homedir(), ".config", "powershell", "profile.ps1")
-};
-var addEnvironmentToPowershellProfile = (environmentName) => {
+});
+var addEnvironmentToPowershellProfile = (options, environmentName) => {
+  const rcFileDict = getRcFileDict(options);
   switch (os4.platform()) {
     case "win32":
       return Promise.all([
@@ -83771,12 +83772,12 @@ var addEnvironmentToPowershellProfile = (environmentName) => {
       throw new Error(`Unsupported platform: ${os4.platform()}`);
   }
 };
-var addEnvironmentToAutoActivate = (environmentName, shell) => {
+var addEnvironmentToAutoActivate = (options, environmentName, shell) => {
   core4.info(`Adding environment ${environmentName} to auto-activate ${shell} ...`);
   if (shell === "powershell") {
-    return addEnvironmentToPowershellProfile(environmentName);
+    return addEnvironmentToPowershellProfile(options, environmentName);
   }
-  const rcFilePath = rcFileDict[shell];
+  const rcFilePath = getRcFileDict(options)[shell];
   core4.debug(`Adding \`micromamba activate ${environmentName}\` to ${rcFilePath}`);
   return addEnvironmentToRcFile(environmentName, rcFilePath);
 };
@@ -83808,7 +83809,7 @@ var restoreCache2 = (cachePath, cacheKey) => {
     return key;
   });
 };
-var generateEnvironmentKey = (prefix2) => {
+var generateEnvironmentKey = (options, prefix2) => {
   const arch3 = `-${getCondaArch()}`;
   const envName = options.environmentName ? `-${options.environmentName}` : "";
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : "";
@@ -83827,23 +83828,23 @@ var generateEnvironmentKey = (prefix2) => {
 var generateDownloadsKey = (prefix2) => {
   return `${prefix2}-${getCondaArch()}`;
 };
-var saveCacheEnvironment = (environmentName) => {
+var saveCacheEnvironment = (options, environmentName) => {
   if (!options.cacheEnvironmentKey) {
     return Promise.resolve();
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "envs", environmentName);
   core5.startGroup(`Caching environment \`${environmentName}\` in \`${cachePath}\` ...`);
-  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => saveCache2(cachePath, key)).finally(core5.endGroup);
+  return generateEnvironmentKey(options, options.cacheEnvironmentKey).then((key) => saveCache2(cachePath, key)).finally(core5.endGroup);
 };
-var restoreCacheEnvironment = (environmentName) => {
+var restoreCacheEnvironment = (options, environmentName) => {
   if (!options.cacheEnvironmentKey) {
     return Promise.resolve(void 0);
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "envs", environmentName);
   core5.startGroup(`Restoring environment \`${environmentName}\` from \`${cachePath}\` ...`);
-  return generateEnvironmentKey(options.cacheEnvironmentKey).then((key) => restoreCache2(cachePath, key)).finally(core5.endGroup);
+  return generateEnvironmentKey(options, options.cacheEnvironmentKey).then((key) => restoreCache2(cachePath, key)).finally(core5.endGroup);
 };
-var restoreCacheDownloads = () => {
+var restoreCacheDownloads = (options) => {
   core5.debug(`Cache downloads key: ${options.cacheDownloadsKey}`);
   if (!options.cacheDownloadsKey) {
     return Promise.resolve(void 0);
@@ -83856,7 +83857,7 @@ var restoreCacheDownloads = () => {
 
 // src/main.ts
 var core6 = process.env.MOCKING ? coreMocked : coreDefault5;
-var downloadMicromamba = (url2) => {
+var downloadMicromamba = (options, url2) => {
   if (options.downloadMicromamba === false) {
     core6.info("Skipping micromamba download.");
     core6.addPath(options.micromambaBinPath);
@@ -83869,7 +83870,7 @@ var downloadMicromamba = (url2) => {
     throw err;
   }).finally(core6.endGroup);
 };
-var generateCondarc = () => {
+var generateCondarc = (options) => {
   if (!options.writeToCondarc) {
     core6.debug(`Using condarc file ${options.condarcFile} ...`);
     return import_promises.default.access(options.condarcFile, import_promises.default.constants.R_OK);
@@ -83884,7 +83885,7 @@ var generateCondarc = () => {
   core6.info("Adding conda-forge to condarc channels ...");
   return mkDir.then(() => import_promises.default.writeFile(options.condarcFile, "channels:\n  - conda-forge"));
 };
-var createEnvironment = () => {
+var createEnvironment = (options) => {
   core6.debug(`environmentFile: ${options.environmentFile}`);
   core6.debug(`environmentName: ${options.environmentName}`);
   core6.debug(`createArgs: ${options.createArgs}`);
@@ -83899,49 +83900,49 @@ var createEnvironment = () => {
   if (options.createArgs) {
     commandStr += ` ${options.createArgs.join(" ")}`;
   }
-  return execute(micromambaCmd(commandStr, options.logLevel, options.condarcFile));
+  return execute(micromambaCmd(options, commandStr, options.logLevel, options.condarcFile));
 };
-var installEnvironment = () => {
+var installEnvironment = (options) => {
   return determineEnvironmentName(options.environmentName, options.environmentFile).then(
-    (environmentName) => Promise.all([Promise.resolve(environmentName), restoreCacheEnvironment(environmentName)])
+    (environmentName) => Promise.all([Promise.resolve(environmentName), restoreCacheEnvironment(options, environmentName)])
   ).then(([environmentName, cacheKey]) => {
     if (cacheKey) {
       return Promise.resolve(environmentName);
     }
     core6.startGroup(`Install environment \`${environmentName}\``);
-    return createEnvironment().then((_exitCode) => {
+    return createEnvironment(options).then((_exitCode) => {
       core6.endGroup();
       return environmentName;
     }).then(
       (environmentName2) => (
         // cache can already be saved here and not in post action since the environment is not changing anymore
-        saveCacheEnvironment(environmentName2).then(() => environmentName2)
+        saveCacheEnvironment(options, environmentName2).then(() => environmentName2)
       )
     );
   }).then(
-    (environmentName) => Promise.all(options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)))
+    (environmentName) => Promise.all(options.initShell.map((shell) => addEnvironmentToAutoActivate(options, environmentName, shell)))
   );
 };
-var generateInfo = () => {
+var generateInfo = (options) => {
   core6.startGroup("micromamba info");
   let command;
   if (!options.createEnvironment) {
-    command = execute(micromambaCmd(`info -r ${options.micromambaRootPath}`));
+    command = execute(micromambaCmd(options, `info -r ${options.micromambaRootPath}`));
   } else {
     command = determineEnvironmentName(options.environmentName, options.environmentFile).then(
       (environmentName) => Promise.all([
-        execute(micromambaCmd(`info -r ${options.micromambaRootPath} -n ${environmentName}`)),
+        execute(micromambaCmd(options, `info -r ${options.micromambaRootPath} -n ${environmentName}`)),
         Promise.resolve(environmentName)
       ])
     ).then(([_exitCode, environmentName]) => {
       core6.endGroup();
       core6.startGroup("micromamba list");
-      return execute(micromambaCmd(`list -r ${options.micromambaRootPath} -n ${environmentName}`));
+      return execute(micromambaCmd(options, `list -r ${options.micromambaRootPath} -n ${environmentName}`));
     });
   }
   return command.finally(core6.endGroup);
 };
-var generateMicromambaRunShell = () => {
+var generateMicromambaRunShell = (options) => {
   if (!options.generateRunShell) {
     core6.debug("Skipping micromamba run shell generation.");
     return Promise.resolve();
@@ -83963,14 +83964,14 @@ $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
     return import_promises.default.writeFile(options.micromambaRunShellPath, file, { encoding: "utf8", mode: 493 });
   }).then(() => core6.addPath(import_path3.default.dirname(options.micromambaRunShellPath))).finally(core6.endGroup);
 };
-var addEnvironmentPathToOutput = () => {
+var addEnvironmentPathToOutput = (options) => {
   return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
     const environmentPath = import_path3.default.join(options.micromambaRootPath, "envs", environmentName);
     core6.debug(`Setting environment-path output to ${environmentPath}`);
     core6.setOutput("environment-path", environmentPath);
   });
 };
-var setEnvVariables = () => {
+var setEnvVariables = (options) => {
   core6.info("Set environment variables.");
   core6.debug(`MAMBA_ROOT_PREFIX: ${options.micromambaRootPath}`);
   core6.exportVariable("MAMBA_ROOT_PREFIX", options.micromambaRootPath);
@@ -83980,24 +83981,25 @@ var setEnvVariables = () => {
   core6.exportVariable("CONDARC", options.condarcFile);
 };
 var run = async () => {
+  const options = actuallyGetOptions();
   core6.debug(`process.env.HOME: ${process.env.HOME}`);
   core6.debug(`os.homedir(): ${import_os2.default.homedir()}`);
   core6.debug(`bashProfile ${PATHS.bashProfile}`);
   if (process.platform === "win32") {
     core6.addPath(import_path3.default.dirname(await io.which("cygpath", true)));
   }
-  await downloadMicromamba(getMicromambaUrl(options.micromambaSource));
-  await generateCondarc();
-  await Promise.all(options.initShell.map((shell) => shellInit(shell)));
-  const cacheDownloadsKey = await restoreCacheDownloads();
+  await downloadMicromamba(options, getMicromambaUrl(options.micromambaSource));
+  await generateCondarc(options);
+  await Promise.all(options.initShell.map((shell) => shellInit(options, shell)));
+  const cacheDownloadsKey = await restoreCacheDownloads(options);
   core6.saveState("cacheDownloadsCacheHit", cacheDownloadsKey !== void 0);
   if (options.createEnvironment) {
-    await installEnvironment();
-    await generateMicromambaRunShell();
-    await addEnvironmentPathToOutput();
+    await installEnvironment(options);
+    await generateMicromambaRunShell(options);
+    await addEnvironmentPathToOutput(options);
   }
-  setEnvVariables();
-  await generateInfo();
+  setEnvVariables(options);
+  await generateInfo(options);
 };
 run().catch((error) => {
   if (core6.isDebug()) {

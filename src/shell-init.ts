@@ -4,8 +4,8 @@ import path from 'path'
 import * as coreDefault from '@actions/core'
 import { coreMocked } from './mocking'
 import { execute, mambaRegexBlock, micromambaCmd } from './util'
-import { PATHS, getRootPrefixFlagForInit, options } from './options'
-import type { ShellType } from './options'
+import { PATHS, getRootPrefixFlagForInit } from './options'
+import type { ShellType, Options } from './options'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -36,11 +36,12 @@ const removeMambaInitBlockFromBashProfile = () => {
   })
 }
 
-export const shellInit = (shell: string) => {
+export const shellInit = (options: Options, shell: string) => {
   core.startGroup(`Initialize micromamba for ${shell}.`)
   const rootPrefixFlag = getRootPrefixFlagForInit(options)
   const command = execute(
     micromambaCmd(
+      options,
       `shell init -s ${shell} ${rootPrefixFlag} ${options.micromambaRootPath}`,
       options.logLevel,
       options.condarcFile
@@ -52,11 +53,12 @@ export const shellInit = (shell: string) => {
   return command.finally(core.endGroup)
 }
 
-export const shellDeinit = (shell: string) => {
+export const shellDeinit = (options: Options, shell: string) => {
   core.startGroup(`Deinitialize micromamba for ${shell}`)
   const rootPrefixFlag = getRootPrefixFlagForInit(options)
   const command = execute(
     micromambaCmd(
+      options,
       `shell deinit -s ${shell} ${rootPrefixFlag} ${options.micromambaRootPath}`,
       options.logLevel,
       options.condarcFile
@@ -73,7 +75,7 @@ const addEnvironmentToRcFile = (environmentName: string, rcFile: string) => {
   return fs.appendFile(rcFile, `micromamba activate ${environmentName}\n`)
 }
 
-const rcFileDict = {
+const getRcFileDict = (options: Options) => ({
   bash: PATHS.bashProfile,
   zsh: path.join(os.homedir(), '.zshrc'),
   fish: path.join(os.homedir(), '.config', 'fish', 'config.fish'),
@@ -83,9 +85,11 @@ const rcFileDict = {
   powershell: path.join(os.homedir(), 'Documents', 'WindowsPowershell', 'profile.ps1'),
   pwshWin: path.join(os.homedir(), 'Documents', 'Powershell', 'profile.ps1'),
   pwshUnix: path.join(os.homedir(), '.config', 'powershell', 'profile.ps1')
-}
+})
 
-const addEnvironmentToPowershellProfile = (environmentName: string) => {
+const addEnvironmentToPowershellProfile = (options: Options, environmentName: string) => {
+  const rcFileDict = getRcFileDict(options)
+
   // On GitHub Windows runners, powershell (the Windows version) and pwsh (the cross-platform version)
   // are both available. We need to add the environment to both profiles.
   switch (os.platform()) {
@@ -102,23 +106,23 @@ const addEnvironmentToPowershellProfile = (environmentName: string) => {
   }
 }
 
-export const addEnvironmentToAutoActivate = (environmentName: string, shell: ShellType) => {
+export const addEnvironmentToAutoActivate = (options: Options, environmentName: string, shell: ShellType) => {
   core.info(`Adding environment ${environmentName} to auto-activate ${shell} ...`)
   if (shell === 'powershell') {
-    return addEnvironmentToPowershellProfile(environmentName)
+    return addEnvironmentToPowershellProfile(options, environmentName)
   }
-  const rcFilePath = rcFileDict[shell]
+  const rcFilePath = getRcFileDict(options)[shell]
   core.debug(`Adding \`micromamba activate ${environmentName}\` to ${rcFilePath}`)
   return addEnvironmentToRcFile(environmentName, rcFilePath)
 }
 
-export const removeEnvironmentFromAutoActivate = (environmentName: string, shell: ShellType) => {
+export const removeEnvironmentFromAutoActivate = (options: Options, environmentName: string, shell: ShellType) => {
   core.info(`Removing environment ${environmentName} from auto-activate ${shell} ...`)
   if (shell === 'powershell') {
     core.warning('powershell is not supported')
     return Promise.resolve()
   }
-  const rcFilePath = rcFileDict[shell]
+  const rcFilePath = getRcFileDict(options)[shell]
   return fs.readFile(rcFilePath, { encoding: 'utf-8' }).then((rcFile) => {
     const matches = rcFile.match(new RegExp(`micromamba activate ${environmentName}`))
     if (!matches) {
