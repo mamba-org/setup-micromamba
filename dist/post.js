@@ -81476,6 +81476,7 @@ var inferOptions = (inputs) => {
   } else {
     core3.info(`Will use pre-installed micromamba at ${micromambaBinPath}`);
   }
+  core3.info(typeof getTempDirectory);
   const tempDirectory = getTempDirectory();
   return {
     ...inputs,
