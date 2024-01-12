@@ -46,7 +46,7 @@ jobs:
             ${{ matrix.env-exists }}test -d ~/micromamba/envs/env-name
             ${{ matrix.root-exists }}test -d ~/micromamba
             ${{ matrix.binary-exists }}test -f ~/micromamba-bin/micromamba
-            ${{ matrix.binary-exists }}test -f ~/micromamba-bin/.condarc
+            ${{ matrix.binary-exists }}test -f ${{ runner.temp }}/.condarc
       - uses: ./
         with:
           environment-file: 'test/environment.yml'
@@ -59,4 +59,4 @@ jobs:
           test -d ~/micromamba/envs/env-name
           test -d ~/micromamba
           test -f ~/micromamba-bin/micromamba
-          test -f ~/micromamba-bin/.condarc
+          test -f ${{ runner.temp }}/.condarc

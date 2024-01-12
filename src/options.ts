@@ -238,7 +238,6 @@ const assertOptions = (options: Options) => {
     throw new Error("If you specify 'generate-run-shell', you must also specify 'create-env'")
   }
 
-  // TODO: is this an XOR or a regular OR?
   // create-env => env-file or env-name specified
   if (options.createEnvironment && options.environmentFile === undefined && options.environmentName === undefined) {
     throw new Error("If you specify 'create-env' you must specify either 'env-file' or 'env-name'")
