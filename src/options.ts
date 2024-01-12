@@ -8,6 +8,7 @@ import type { Either } from 'fp-ts/lib/Either'
 import untildify from 'untildify'
 import which from 'which'
 import { coreMocked } from './mocking'
+import { getTempDirectory } from './util'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -169,6 +170,8 @@ const inferOptions = (inputs: Inputs): Options => {
     core.info(`Will use pre-installed micromamba at ${micromambaBinPath}`)
   }
 
+  const tempDirectory = getTempDirectory()
+
   return {
     ...inputs,
     writeToCondarc,
@@ -186,9 +189,9 @@ const inferOptions = (inputs: Inputs): Options => {
     // use a different path than ~/.condarc to avoid messing up the user's condarc
     condarcFile: inputs.condarcFile
       ? path.resolve(untildify(inputs.condarcFile))
-      : path.join(path.dirname(PATHS.micromambaBin), '.condarc'), // next to the micromamba binary -> easier cleanup
+      : path.join(tempDirectory, '.condarc'), // next to the micromamba binary -> easier cleanup
     micromambaBinPath,
-    micromambaRunShellPath: path.join(path.dirname(micromambaBinPath), 'micromamba-shell'),
+    micromambaRunShellPath: path.join(tempDirectory, 'micromamba-shell'),
     micromambaRootPath: inputs.micromambaRootPath
       ? path.resolve(untildify(inputs.micromambaRootPath))
       : PATHS.micromambaRoot

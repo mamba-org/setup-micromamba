@@ -16,7 +16,7 @@ const core = process.env.MOCKING ? coreMocked : coreDefault
 const downloadMicromamba = (url: string) => {
   if (options.downloadMicromamba === false) {
     core.info('Skipping micromamba download.')
-    core.addPath(path.dirname(options.micromambaBinPath))
+    core.addPath(options.micromambaBinPath)
     return Promise.resolve()
   }
   core.startGroup('Install micromamba')
@@ -26,7 +26,7 @@ const downloadMicromamba = (url: string) => {
     .mkdir(path.dirname(options.micromambaBinPath), { recursive: true })
     .then(() => downloadTool(url, options.micromambaBinPath))
     .then((_downloadPath) => fs.chmod(options.micromambaBinPath, 0o755))
-    .then(() => core.addPath(path.dirname(options.micromambaBinPath)))
+    .then(() => core.addPath(options.micromambaBinPath))
     .then(() => core.info(`micromamba installed to ${options.micromambaBinPath}`))
     .catch((err) => {
       core.error(`Error installing micromamba: ${err.message}`)
@@ -144,6 +144,7 @@ $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
       core.debug(`File contents:\n"${file}"`)
       return fs.writeFile(options.micromambaRunShellPath, file, { encoding: 'utf8', mode: 0o755 })
     })
+    .then(() => core.addPath(path.dirname(options.micromambaRunShellPath)))
     .finally(core.endGroup)
 }
 

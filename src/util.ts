@@ -107,3 +107,12 @@ export const execute = (cmd: string[]) => {
   core.debug(`Executing: ${cmd.join(' ')}`)
   return exec(cmd[0], cmd.slice(1))
 }
+
+// https://github.com/actions/toolkit/issues/518
+export const getTempDirectory = () => {
+  const tempDirectory = process.env.RUNNER_TEMP
+  if (!tempDirectory) {
+    throw new Error('Expected RUNNER_TEMP to be defined')
+  }
+  return tempDirectory
+}
