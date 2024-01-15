@@ -282,6 +282,7 @@ jobs:
           init-shell: none
           environment-file: test/environment.yml
       - run: |
+          echo $PATH
           echo "$(which micromamba)"
           echo "$(type micromamba)"
           echo "$(which micromamba-shell)"
