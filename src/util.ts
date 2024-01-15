@@ -48,7 +48,7 @@ export const determineEnvironmentName = (environmentName?: string, environmentFi
     // This should never happen, because validateInputs should have thrown an error
     // TODO: make this prettier
     core.error('No environment name or file specified.')
-    throw new Error()
+    throw new Error('No environment name or file specified.')
   }
   return fs
     .readFile(environmentFile)
@@ -64,9 +64,9 @@ export const determineEnvironmentName = (environmentName?: string, environmentFi
       core.error(`Could not determine environment name from file ${environmentFile}`)
       core.error(`Error: ${error}`)
       core.error(
-        'If your environment file is not YAML containing `name` at the top level, please specify the environment name directly.'
+        'If your environment file is not a YAML file containing `name` at the top level, please specify the environment name directly.'
       )
-      throw new Error(error)
+      throw error
     })
 }
 
@@ -83,13 +83,9 @@ export const getMicromambaUrl = (micromambaSource: MicromambaSourceType) => {
   )
 }
 
-export const sha256 = (s: BinaryLike) => {
-  return createHash('sha256').update(s).digest('hex')
-}
+export const sha256 = (s: BinaryLike) => createHash('sha256').update(s).digest('hex')
 
-export const sha256Short = (s: BinaryLike) => {
-  return sha256(s).slice(0, 7)
-}
+export const sha256Short = (s: BinaryLike) => sha256(s).slice(0, 7)
 
 export const micromambaCmd = (options: Options, command: string, logLevel?: LogLevelType, condarcFile?: string) => {
   let commandArray = [options.micromambaBinPath].concat(command.split(' '))
@@ -111,7 +107,7 @@ export const execute = (cmd: string[]) => {
 export const getTempDirectory = () => {
   const tempDirectory = process.env.RUNNER_TEMP
   if (!tempDirectory) {
-    throw new Error('Expected RUNNER_TEMP to be defined')
+    throw new Error("Expected 'RUNNER_TEMP' to be defined")
   }
   return tempDirectory
 }

@@ -1,5 +1,5 @@
 module.exports = {
-  ignorePatterns: ['dist/**/*', 'build/**/*'],
+  ignorePatterns: ['dist/**/*'],
   extends: ['standard', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -9,10 +9,9 @@ module.exports = {
   rules: {
     'import/order': 'error',
     'no-use-before-define': 'off',
-    'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'n/no-callback-literal': 'off',
     '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/no-use-before-define': 'error',
     'prettier/prettier': [
       'error',

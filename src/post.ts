@@ -3,7 +3,7 @@ import * as os from 'os'
 import path from 'path'
 import * as coreDefault from '@actions/core'
 import { coreMocked } from './mocking'
-import { actuallyGetOptions, type Options } from './options'
+import { getOptions, type Options } from './options'
 import { determineEnvironmentName } from './util'
 import { shellDeinit } from './shell-init'
 import { saveCacheDownloads } from './cache'
@@ -12,7 +12,7 @@ const core = process.env.MOCKING ? coreMocked : coreDefault
 
 const removeMicromambaRunShell = (options: Options) => {
   if (!options.generateRunShell || os.platform() === 'win32') {
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   core.info('Removing micromamba run shell ...')
   return fs.rm(options.micromambaRunShellPath)
@@ -35,7 +35,7 @@ const removeRoot = (options: Options) => {
 
 const removeCustomCondarc = (options: Options) => {
   if (!options.writeToCondarc) {
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   core.info('Removing custom condarc ...')
   core.debug(`Deleting ${options.condarcFile}`)
@@ -50,7 +50,7 @@ const removeMicromambaBinaryParentIfEmpty = (options: Options) => {
       core.debug(`Deleting ${parentDir}`)
       return fs.rmdir(parentDir)
     }
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   })
 }
 
@@ -58,7 +58,7 @@ const removeMicromambaBinary = (options: Options) => {
   core.info('Removing micromamba binary ...')
   if (options.downloadMicromamba === false) {
     core.debug('Skipping micromamba binary removal.')
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   core.debug(`Deleting ${options.micromambaBinPath}`)
   return fs.rm(options.micromambaBinPath, { force: false })
@@ -68,18 +68,18 @@ const cleanup = (options: Options) => {
   const postCleanup = options.postCleanup
   switch (postCleanup) {
     case 'none':
-      return Promise.resolve()
+      return Promise.resolve(undefined)
     case 'shell-init':
       return Promise.all([
         removeMicromambaRunShell(options),
         ...options.initShell.map((shell) => shellDeinit(options, shell))
-      ]).then(() => Promise.resolve()) // output is not used
+      ]).then(() => undefined) // output is not used
     case 'environment':
       return Promise.all([
         uninstallEnvironment(options),
         removeMicromambaRunShell(options),
         ...options.initShell.map((shell) => shellDeinit(options, shell))
-      ]).then(() => Promise.resolve())
+      ]).then(() => undefined) // output is not used
     case 'all':
       return Promise.all(options.initShell.map((shell) => shellDeinit(options, shell)))
         .then(() =>
@@ -99,7 +99,7 @@ const cleanup = (options: Options) => {
 }
 
 const run = async () => {
-  const options = actuallyGetOptions()
+  const options = getOptions()
 
   const cacheDownloadsCacheHit = JSON.parse(core.getState('cacheDownloadsCacheHit'))
   if (!cacheDownloadsCacheHit) {

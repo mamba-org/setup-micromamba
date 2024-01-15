@@ -2,7 +2,7 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: {
-    index: 'src/main.ts',
+    main: 'src/main.ts',
     post: 'src/post.ts'
   },
   dts: false,
