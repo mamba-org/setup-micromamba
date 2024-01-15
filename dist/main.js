@@ -82976,12 +82976,12 @@ var core6 = process.env.MOCKING ? coreMocked : coreDefault5;
 var downloadMicromamba = (options, url2) => {
   if (options.downloadMicromamba === false) {
     core6.info("Skipping micromamba download.");
-    core6.addPath(options.micromambaBinPath);
+    core6.addPath(import_path3.default.dirname(options.micromambaBinPath));
     return Promise.resolve(void 0);
   }
   core6.startGroup("Install micromamba");
   core6.debug(`Downloading micromamba from ${url2} ...`);
-  return import_promises.default.mkdir(import_path3.default.dirname(options.micromambaBinPath), { recursive: true }).then(() => (0, import_tool_cache.downloadTool)(url2, options.micromambaBinPath)).then((_downloadPath) => import_promises.default.chmod(options.micromambaBinPath, 493)).then(() => core6.addPath(options.micromambaBinPath)).then(() => core6.info(`micromamba installed to ${options.micromambaBinPath}`)).catch((err) => {
+  return import_promises.default.mkdir(import_path3.default.dirname(options.micromambaBinPath), { recursive: true }).then(() => (0, import_tool_cache.downloadTool)(url2, options.micromambaBinPath)).then((_downloadPath) => import_promises.default.chmod(options.micromambaBinPath, 493)).then(() => core6.addPath(import_path3.default.dirname(options.micromambaBinPath))).then(() => core6.info(`micromamba installed to ${options.micromambaBinPath}`)).catch((err) => {
     core6.error(`Error installing micromamba: ${err.message}`);
     throw err;
   }).finally(core6.endGroup);
