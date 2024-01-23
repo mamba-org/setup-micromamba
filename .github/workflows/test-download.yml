@@ -32,7 +32,8 @@ jobs:
         steps:
         - uses: actions/checkout@v4
         - run: |
-            curl -Ls https://github.com/mamba-org/micromamba-releases/releases/download/latest/micromamba-linux-64  > /usr/bin/micromamba
+            curl -Ls https://github.com/mamba-org/micromamba-releases/releases/download/latest/micromamba-linux-64 > micromamba
+            sudo cp micromamba /usr/bin/micromamba
             sudo chmod +x /usr/bin/micromamba
         - uses: ./
           with:
