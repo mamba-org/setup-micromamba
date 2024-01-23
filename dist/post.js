@@ -561,7 +561,7 @@ var require_file_command = __commonJS({
     };
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.prepareKeyValueMessage = exports2.issueFileCommand = void 0;
-    var fs6 = __importStar(require("fs"));
+    var fs7 = __importStar(require("fs"));
     var os8 = __importStar(require("os"));
     var uuid_1 = (init_esm_node(), __toCommonJS(esm_node_exports));
     var utils_1 = require_utils();
@@ -570,10 +570,10 @@ var require_file_command = __commonJS({
       if (!filePath) {
         throw new Error(`Unable to find environment variable for file command ${command}`);
       }
-      if (!fs6.existsSync(filePath)) {
+      if (!fs7.existsSync(filePath)) {
         throw new Error(`Missing file at path: ${filePath}`);
       }
-      fs6.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os8.EOL}`, {
+      fs7.appendFileSync(filePath, `${utils_1.toCommandValue(message)}${os8.EOL}`, {
         encoding: "utf8"
       });
     }
@@ -20984,12 +20984,12 @@ var require_io_util = __commonJS({
     var _a2;
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.getCmdPath = exports2.tryGetExecutablePath = exports2.isRooted = exports2.isDirectory = exports2.exists = exports2.READONLY = exports2.UV_FS_O_EXLOCK = exports2.IS_WINDOWS = exports2.unlink = exports2.symlink = exports2.stat = exports2.rmdir = exports2.rm = exports2.rename = exports2.readlink = exports2.readdir = exports2.open = exports2.mkdir = exports2.lstat = exports2.copyFile = exports2.chmod = void 0;
-    var fs6 = __importStar(require("fs"));
+    var fs7 = __importStar(require("fs"));
     var path4 = __importStar(require("path"));
-    _a2 = fs6.promises, exports2.chmod = _a2.chmod, exports2.copyFile = _a2.copyFile, exports2.lstat = _a2.lstat, exports2.mkdir = _a2.mkdir, exports2.open = _a2.open, exports2.readdir = _a2.readdir, exports2.readlink = _a2.readlink, exports2.rename = _a2.rename, exports2.rm = _a2.rm, exports2.rmdir = _a2.rmdir, exports2.stat = _a2.stat, exports2.symlink = _a2.symlink, exports2.unlink = _a2.unlink;
+    _a2 = fs7.promises, exports2.chmod = _a2.chmod, exports2.copyFile = _a2.copyFile, exports2.lstat = _a2.lstat, exports2.mkdir = _a2.mkdir, exports2.open = _a2.open, exports2.readdir = _a2.readdir, exports2.readlink = _a2.readlink, exports2.rename = _a2.rename, exports2.rm = _a2.rm, exports2.rmdir = _a2.rmdir, exports2.stat = _a2.stat, exports2.symlink = _a2.symlink, exports2.unlink = _a2.unlink;
     exports2.IS_WINDOWS = process.platform === "win32";
     exports2.UV_FS_O_EXLOCK = 268435456;
-    exports2.READONLY = fs6.constants.O_RDONLY;
+    exports2.READONLY = fs7.constants.O_RDONLY;
     function exists(fsPath) {
       return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -23518,7 +23518,7 @@ var require_internal_globber = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.DefaultGlobber = void 0;
     var core7 = __importStar(require_core());
-    var fs6 = __importStar(require("fs"));
+    var fs7 = __importStar(require("fs"));
     var globOptionsHelper = __importStar(require_internal_glob_options_helper());
     var path4 = __importStar(require("path"));
     var patternHelper = __importStar(require_internal_pattern_helper());
@@ -23572,7 +23572,7 @@ var require_internal_globber = __commonJS({
           for (const searchPath of patternHelper.getSearchPaths(patterns)) {
             core7.debug(`Search path '${searchPath}'`);
             try {
-              yield __await2(fs6.promises.lstat(searchPath));
+              yield __await2(fs7.promises.lstat(searchPath));
             } catch (err) {
               if (err.code === "ENOENT") {
                 continue;
@@ -23603,7 +23603,7 @@ var require_internal_globber = __commonJS({
                 continue;
               }
               const childLevel = item.level + 1;
-              const childItems = (yield __await2(fs6.promises.readdir(item.path))).map((x) => new internal_search_state_1.SearchState(path4.join(item.path, x), childLevel));
+              const childItems = (yield __await2(fs7.promises.readdir(item.path))).map((x) => new internal_search_state_1.SearchState(path4.join(item.path, x), childLevel));
               stack.push(...childItems.reverse());
             } else if (match & internal_match_kind_1.MatchKind.File) {
               yield yield __await2(item.path);
@@ -23638,7 +23638,7 @@ var require_internal_globber = __commonJS({
           let stats;
           if (options.followSymbolicLinks) {
             try {
-              stats = yield fs6.promises.stat(item.path);
+              stats = yield fs7.promises.stat(item.path);
             } catch (err) {
               if (err.code === "ENOENT") {
                 if (options.omitBrokenSymbolicLinks) {
@@ -23650,10 +23650,10 @@ var require_internal_globber = __commonJS({
               throw err;
             }
           } else {
-            stats = yield fs6.promises.lstat(item.path);
+            stats = yield fs7.promises.lstat(item.path);
           }
           if (stats.isDirectory() && options.followSymbolicLinks) {
-            const realPath = yield fs6.promises.realpath(item.path);
+            const realPath = yield fs7.promises.realpath(item.path);
             while (traversalChain.length >= item.level) {
               traversalChain.pop();
             }
@@ -25145,7 +25145,7 @@ var require_cacheUtils = __commonJS({
     var exec2 = __importStar(require_exec());
     var glob = __importStar(require_glob());
     var io = __importStar(require_io());
-    var fs6 = __importStar(require("fs"));
+    var fs7 = __importStar(require("fs"));
     var path4 = __importStar(require("path"));
     var semver = __importStar(require_semver());
     var util4 = __importStar(require("util"));
@@ -25175,7 +25175,7 @@ var require_cacheUtils = __commonJS({
     }
     exports2.createTempDirectory = createTempDirectory;
     function getArchiveFileSizeInBytes(filePath) {
-      return fs6.statSync(filePath).size;
+      return fs7.statSync(filePath).size;
     }
     exports2.getArchiveFileSizeInBytes = getArchiveFileSizeInBytes;
     function resolvePaths(patterns) {
@@ -25217,7 +25217,7 @@ var require_cacheUtils = __commonJS({
     exports2.resolvePaths = resolvePaths;
     function unlinkFile(filePath) {
       return __awaiter(this, void 0, void 0, function* () {
-        return util4.promisify(fs6.unlink)(filePath);
+        return util4.promisify(fs7.unlink)(filePath);
       });
     }
     exports2.unlinkFile = unlinkFile;
@@ -25262,7 +25262,7 @@ var require_cacheUtils = __commonJS({
     exports2.getCacheFileName = getCacheFileName;
     function getGnuTarPathOnWindows() {
       return __awaiter(this, void 0, void 0, function* () {
-        if (fs6.existsSync(constants_1.GnuTarPathOnWindows)) {
+        if (fs7.existsSync(constants_1.GnuTarPathOnWindows)) {
           return constants_1.GnuTarPathOnWindows;
         }
         const versionOutput = yield getVersion("tar");
@@ -36390,7 +36390,7 @@ var require_form_data = __commonJS({
     var http3 = require("http");
     var https3 = require("https");
     var parseUrl = require("url").parse;
-    var fs6 = require("fs");
+    var fs7 = require("fs");
     var Stream2 = require("stream").Stream;
     var mime = require_mime_types();
     var asynckit = require_asynckit();
@@ -36455,7 +36455,7 @@ var require_form_data = __commonJS({
         if (value.end != void 0 && value.end != Infinity && value.start != void 0) {
           callback(null, value.end + 1 - (value.start ? value.start : 0));
         } else {
-          fs6.stat(value.path, function(err, stat2) {
+          fs7.stat(value.path, function(err, stat2) {
             var fileSize;
             if (err) {
               callback(err);
@@ -68368,7 +68368,7 @@ async function streamToBuffer2(stream, buffer, encoding) {
 }
 async function readStreamToLocalFile(rs, file) {
   return new Promise((resolve2, reject) => {
-    const ws = fs3.createWriteStream(file);
+    const ws = fs4.createWriteStream(file);
     rs.on("error", (err) => {
       reject(err);
     });
@@ -68379,15 +68379,15 @@ async function readStreamToLocalFile(rs, file) {
     rs.pipe(ws);
   });
 }
-var fs3, util3, fsStat, fsCreateReadStream;
+var fs4, util3, fsStat, fsCreateReadStream;
 var init_utils_node = __esm({
   "node_modules/.pnpm/@azure+storage-blob@12.17.0/node_modules/@azure/storage-blob/dist-esm/storage-blob/src/utils/utils.node.js"() {
     "use strict";
-    fs3 = __toESM(require("fs"));
+    fs4 = __toESM(require("fs"));
     util3 = __toESM(require("util"));
     init_constants2();
-    fsStat = util3.promisify(fs3.stat);
-    fsCreateReadStream = fs3.createReadStream;
+    fsStat = util3.promisify(fs4.stat);
+    fsCreateReadStream = fs4.createReadStream;
   }
 });
 
@@ -74130,7 +74130,7 @@ var require_downloadUtils = __commonJS({
     var http_client_1 = require_lib();
     var storage_blob_1 = (init_src12(), __toCommonJS(src_exports3));
     var buffer = __importStar(require("buffer"));
-    var fs6 = __importStar(require("fs"));
+    var fs7 = __importStar(require("fs"));
     var stream = __importStar(require("stream"));
     var util4 = __importStar(require("util"));
     var utils = __importStar(require_cacheUtils());
@@ -74241,7 +74241,7 @@ var require_downloadUtils = __commonJS({
     exports2.DownloadProgress = DownloadProgress;
     function downloadCacheHttpClient(archiveLocation, archivePath) {
       return __awaiter(this, void 0, void 0, function* () {
-        const writeStream = fs6.createWriteStream(archivePath);
+        const writeStream = fs7.createWriteStream(archivePath);
         const httpClient = new http_client_1.HttpClient("actions/cache");
         const downloadResponse = yield (0, requestUtils_1.retryHttpClientResponse)("downloadCache", () => __awaiter(this, void 0, void 0, function* () {
           return httpClient.get(archiveLocation);
@@ -74267,7 +74267,7 @@ var require_downloadUtils = __commonJS({
     function downloadCacheHttpClientConcurrent(archiveLocation, archivePath, options) {
       var _a2;
       return __awaiter(this, void 0, void 0, function* () {
-        const archiveDescriptor = yield fs6.promises.open(archivePath, "w");
+        const archiveDescriptor = yield fs7.promises.open(archivePath, "w");
         const httpClient = new http_client_1.HttpClient("actions/cache", void 0, {
           socketTimeout: options.timeoutInMs,
           keepAlive: true
@@ -74384,7 +74384,7 @@ var require_downloadUtils = __commonJS({
         } else {
           const maxSegmentSize = Math.min(134217728, buffer.constants.MAX_LENGTH);
           const downloadProgress = new DownloadProgress(contentLength2);
-          const fd = fs6.openSync(archivePath, "w");
+          const fd = fs7.openSync(archivePath, "w");
           try {
             downloadProgress.startDisplayTimer();
             const controller = new abort_controller_1.AbortController();
@@ -74402,12 +74402,12 @@ var require_downloadUtils = __commonJS({
                 controller.abort();
                 throw new Error("Aborting cache download as the download time exceeded the timeout.");
               } else if (Buffer.isBuffer(result)) {
-                fs6.writeFileSync(fd, result);
+                fs7.writeFileSync(fd, result);
               }
             }
           } finally {
             downloadProgress.stopDisplayTimer();
-            fs6.closeSync(fd);
+            fs7.closeSync(fd);
           }
         }
       });
@@ -74597,7 +74597,7 @@ var require_cacheHttpClient = __commonJS({
     var http_client_1 = require_lib();
     var auth_1 = require_auth();
     var crypto4 = __importStar(require("crypto"));
-    var fs6 = __importStar(require("fs"));
+    var fs7 = __importStar(require("fs"));
     var url_1 = require("url");
     var utils = __importStar(require_cacheUtils());
     var downloadUtils_1 = require_downloadUtils();
@@ -74745,7 +74745,7 @@ Other caches with similar key:`);
       return __awaiter(this, void 0, void 0, function* () {
         const fileSize = utils.getArchiveFileSizeInBytes(archivePath);
         const resourceUrl = getCacheApiUrl(`caches/${cacheId.toString()}`);
-        const fd = fs6.openSync(archivePath, "r");
+        const fd = fs7.openSync(archivePath, "r");
         const uploadOptions = (0, options_1.getUploadOptions)(options);
         const concurrency = utils.assertDefined("uploadConcurrency", uploadOptions.uploadConcurrency);
         const maxChunkSize = utils.assertDefined("uploadChunkSize", uploadOptions.uploadChunkSize);
@@ -74759,7 +74759,7 @@ Other caches with similar key:`);
               const start = offset;
               const end = offset + chunkSize - 1;
               offset += maxChunkSize;
-              yield uploadChunk(httpClient, resourceUrl, () => fs6.createReadStream(archivePath, {
+              yield uploadChunk(httpClient, resourceUrl, () => fs7.createReadStream(archivePath, {
                 fd,
                 start,
                 end,
@@ -74770,7 +74770,7 @@ Other caches with similar key:`);
             }
           })));
         } finally {
-          fs6.closeSync(fd);
+          fs7.closeSync(fd);
         }
         return;
       });
@@ -75276,7 +75276,7 @@ var require_cache2 = __commonJS({
 });
 
 // src/post.ts
-var fs5 = __toESM(require("fs/promises"));
+var fs6 = __toESM(require("fs/promises"));
 var os7 = __toESM(require("os"));
 var import_path2 = __toESM(require("path"));
 var import_process = require("process");
@@ -75332,6 +75332,7 @@ var coreMocked = {
 // src/options.ts
 var path = __toESM(require("path"));
 var os3 = __toESM(require("os"));
+var fs2 = __toESM(require("fs"));
 var coreDefault2 = __toESM(require_core());
 
 // node_modules/.pnpm/zod@3.22.4/node_modules/zod/lib/index.mjs
@@ -81738,6 +81739,10 @@ var inferOptions = (inputs) => {
     core3.info(`Will use pre-installed micromamba at ${micromambaBinPath}`);
   }
   const tempDirectory = path.join(getTempDirectory(), "setup-micromamba");
+  fs2.mkdir(tempDirectory, { recursive: true }, (err) => {
+    if (err)
+      throw err;
+  });
   return {
     ...inputs,
     writeToCondarc,
@@ -81859,19 +81864,19 @@ var getOptions = () => {
 };
 
 // src/shell-init.ts
-var fs2 = __toESM(require("fs/promises"));
+var fs3 = __toESM(require("fs/promises"));
 var os4 = __toESM(require("os"));
 var coreDefault3 = __toESM(require_core());
 var core4 = process.env.MOCKING ? coreMocked : coreDefault3;
 var removeMambaInitBlockFromBashProfile = () => {
   core4.info("Removing mamba initialize block from .bash_profile");
-  return fs2.readFile(PATHS.bashProfile, { encoding: "utf-8" }).then((bashProfile) => {
+  return fs3.readFile(PATHS.bashProfile, { encoding: "utf-8" }).then((bashProfile) => {
     const matches = bashProfile.match(mambaRegexBlock);
     if (!matches) {
       throw new Error("Could not find mamba initialization block in .bash_profile");
     }
     core4.debug(`Removing mamba initialization block from .bash_profile: ${matches[0]}`);
-    return fs2.writeFile(PATHS.bashProfile, bashProfile.replace(mambaRegexBlock, ""));
+    return fs3.writeFile(PATHS.bashProfile, bashProfile.replace(mambaRegexBlock, ""));
   });
 };
 var shellDeinit = (options, shell) => {
@@ -81893,7 +81898,7 @@ var shellDeinit = (options, shell) => {
 
 // src/cache.ts
 var import_path = __toESM(require("path"));
-var fs4 = __toESM(require("fs/promises"));
+var fs5 = __toESM(require("fs/promises"));
 var import_fs = require("fs");
 var cache = __toESM(require_cache2());
 var coreDefault4 = __toESM(require_core());
@@ -81910,17 +81915,17 @@ var saveCache2 = (cachePath, cacheKey) => {
 var generateDownloadsKey = (prefix2) => `${prefix2}-${getCondaArch()}`;
 var trimPkgsCacheFolder = (cacheFolder) => {
   core5.startGroup("Removing uncompressed packages to trim down cache folder...");
-  return fs4.readdir(cacheFolder).then((files) => {
+  return fs5.readdir(cacheFolder).then((files) => {
     core5.debug(`Files in \`${cacheFolder}\`: ${JSON.stringify(files)}`);
     return Promise.all(
-      files.filter((f) => f !== "cache").map((f) => import_path.default.join(cacheFolder, f)).map((f) => fs4.lstat(f).then((stat2) => ({ path: f, stat: stat2 })))
+      files.filter((f) => f !== "cache").map((f) => import_path.default.join(cacheFolder, f)).map((f) => fs5.lstat(f).then((stat2) => ({ path: f, stat: stat2 })))
     );
   }).then((files) => files.filter((f) => f.stat.isDirectory())).then((dirs) => {
     core5.debug(`Directories in \`${cacheFolder}\`: ${JSON.stringify(dirs.map((d) => import_path.default.basename(d.path)))}`);
     return Promise.all(
       dirs.map((d) => {
         core5.info(`Removing \`${import_path.default.basename(d.path)}\``);
-        return fs4.rm(d.path, { recursive: true, force: true });
+        return fs5.rm(d.path, { recursive: true, force: true });
       })
     );
   }).finally(() => core5.endGroup());
@@ -81949,20 +81954,20 @@ var removeMicromambaRunShell = (options) => {
     return Promise.resolve(void 0);
   }
   core6.info("Removing micromamba run shell ...");
-  return fs5.rm(options.micromambaRunShellPath);
+  return fs6.rm(options.micromambaRunShellPath);
 };
 var uninstallEnvironment = (options) => {
   return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
     const envPath = import_path2.default.join(options.micromambaRootPath, "envs", environmentName);
     core6.info(`Removing environment ${environmentName} ...`);
     core6.debug(`Deleting ${envPath}`);
-    return fs5.rm(envPath, { recursive: true });
+    return fs6.rm(envPath, { recursive: true });
   });
 };
 var removeRoot = (options) => {
   core6.info("Removing micromamba root ...");
   core6.debug(`Deleting ${options.micromambaRootPath}`);
-  return fs5.rm(options.micromambaRootPath, { recursive: true });
+  return fs6.rm(options.micromambaRootPath, { recursive: true });
 };
 var removeCustomCondarc = (options) => {
   if (!options.writeToCondarc) {
@@ -81970,14 +81975,14 @@ var removeCustomCondarc = (options) => {
   }
   core6.info("Removing custom condarc ...");
   core6.debug(`Deleting ${options.condarcFile}`);
-  return fs5.rm(options.condarcFile);
+  return fs6.rm(options.condarcFile);
 };
 var removeMicromambaBinaryParentIfEmpty = (options) => {
   const parentDir = import_path2.default.dirname(options.micromambaBinPath);
-  return fs5.readdir(parentDir).then((files) => {
+  return fs6.readdir(parentDir).then((files) => {
     if (files.length === 0) {
       core6.debug(`Deleting ${parentDir}`);
-      return fs5.rmdir(parentDir);
+      return fs6.rmdir(parentDir);
     }
     return Promise.resolve(void 0);
   });
@@ -81989,7 +81994,7 @@ var removeMicromambaBinary = (options) => {
     return Promise.resolve(void 0);
   }
   core6.debug(`Deleting ${options.micromambaBinPath}`);
-  return fs5.rm(options.micromambaBinPath, { force: false });
+  return fs6.rm(options.micromambaBinPath, { force: false });
 };
 var cleanup = (options) => {
   const postCleanup = options.postCleanup;

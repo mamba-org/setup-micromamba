@@ -1,5 +1,6 @@
 import * as path from 'path'
 import * as os from 'os'
+import * as fs from 'fs'
 import * as coreDefault from '@actions/core'
 import * as z from 'zod'
 import { left, right } from 'fp-ts/lib/Either'
@@ -170,6 +171,10 @@ const inferOptions = (inputs: Inputs): Options => {
   }
 
   const tempDirectory = path.join(getTempDirectory(), 'setup-micromamba')
+
+  fs.mkdir(tempDirectory, { recursive: true }, (err) => {
+    if (err) throw err
+  })
 
   return {
     ...inputs,
