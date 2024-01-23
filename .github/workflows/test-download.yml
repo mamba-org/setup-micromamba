@@ -24,6 +24,8 @@ jobs:
             create-args: >-
                 python
             download-micromamba: true
+        - run: |
+            micromamba --version
 
     ensure-local-default:
         runs-on: ubuntu-latest
