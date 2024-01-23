@@ -307,7 +307,6 @@ export const getOptions = () => {
     micromambaBinPath: parseOrUndefined('micromamba-binary-path', z.string())
   }
 
-  try {
     core.debug(`Inputs: ${JSON.stringify(inputs)}`)
     validateInputs(inputs)
     const options = inferOptions(inputs)
@@ -317,12 +316,4 @@ export const getOptions = () => {
     assertOptions(options)
 
     return options
-  } catch (error) {
-    if (!core.isDebug()) {
-      const message = error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error'
-      core.setFailed(message)
-      exit(1)
-    }
-    throw error
-  }
 }
