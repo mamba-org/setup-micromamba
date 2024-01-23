@@ -289,7 +289,7 @@ jobs:
           echo "${{ runner.temp }}"
           which micromamba | grep /home/runner/micromamba-bin/micromamba
           type micromamba | grep "micromamba is /home/runner/micromamba-bin/micromamba"
-          which micromamba-shell | grep ${{ runner.temp }}/micromamba-shell
+          which micromamba-shell | grep ${{ runner.temp }}/setup-micromamba/micromamba-shell
         shell: bash -el {0}
 
   use-micromamba-from-path:
