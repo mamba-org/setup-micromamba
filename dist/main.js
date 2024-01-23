@@ -76074,7 +76074,7 @@ var require_cache2 = __commonJS({
 var import_promises = __toESM(require("fs/promises"));
 var import_os2 = __toESM(require("os"));
 var import_path3 = __toESM(require("path"));
-var import_process2 = require("process");
+var import_process = require("process");
 var coreDefault5 = __toESM(require_core());
 var io = __toESM(require_io());
 var import_tool_cache = __toESM(require_tool_cache());
@@ -82604,7 +82604,6 @@ var getTempDirectory = () => {
 // src/options.ts
 var path = __toESM(require("path"));
 var os3 = __toESM(require("os"));
-var import_process = require("process");
 var coreDefault2 = __toESM(require_core());
 var import_Either2 = __toESM(require_Either());
 
@@ -82695,7 +82694,7 @@ var inferOptions = (inputs) => {
   } else {
     core3.info(`Will use pre-installed micromamba at ${micromambaBinPath}`);
   }
-  const tempDirectory = getTempDirectory();
+  const tempDirectory = path.join(getTempDirectory(), "setup-micromamba");
   return {
     ...inputs,
     writeToCondarc,
@@ -82807,22 +82806,13 @@ var getOptions = () => {
     micromambaRootPath: parseOrUndefined("micromamba-root-path", stringType()),
     micromambaBinPath: parseOrUndefined("micromamba-binary-path", stringType())
   };
-  try {
-    core3.debug(`Inputs: ${JSON.stringify(inputs)}`);
-    validateInputs(inputs);
-    const options = inferOptions(inputs);
-    core3.debug(`Inferred options: ${JSON.stringify(options)}`);
-    checkForKnownIssues(options);
-    assertOptions(options);
-    return options;
-  } catch (error) {
-    if (!core3.isDebug()) {
-      const message = error instanceof Error ? error.message : typeof error === "string" ? error : "Unknown error";
-      core3.setFailed(message);
-      (0, import_process.exit)(1);
-    }
-    throw error;
-  }
+  core3.debug(`Inputs: ${JSON.stringify(inputs)}`);
+  validateInputs(inputs);
+  const options = inferOptions(inputs);
+  core3.debug(`Inferred options: ${JSON.stringify(options)}`);
+  checkForKnownIssues(options);
+  assertOptions(options);
+  return options;
 };
 
 // src/shell-init.ts
@@ -83123,10 +83113,10 @@ run().catch((error) => {
   }
   if (error instanceof Error) {
     core6.setFailed(error.message);
-    (0, import_process2.exit)(1);
+    (0, import_process.exit)(1);
   } else if (typeof error === "string") {
     core6.setFailed(error);
-    (0, import_process2.exit)(1);
+    (0, import_process.exit)(1);
   }
   throw error;
 });

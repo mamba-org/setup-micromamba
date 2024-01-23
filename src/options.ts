@@ -1,6 +1,5 @@
 import * as path from 'path'
 import * as os from 'os'
-import { exit } from 'process'
 import * as coreDefault from '@actions/core'
 import * as z from 'zod'
 import { left, right } from 'fp-ts/lib/Either'
@@ -170,7 +169,7 @@ const inferOptions = (inputs: Inputs): Options => {
     core.info(`Will use pre-installed micromamba at ${micromambaBinPath}`)
   }
 
-  const tempDirectory = path.join(getTempDirectory(), "setup-micromamba")
+  const tempDirectory = path.join(getTempDirectory(), 'setup-micromamba')
 
   return {
     ...inputs,
@@ -307,13 +306,13 @@ export const getOptions = () => {
     micromambaBinPath: parseOrUndefined('micromamba-binary-path', z.string())
   }
 
-    core.debug(`Inputs: ${JSON.stringify(inputs)}`)
-    validateInputs(inputs)
-    const options = inferOptions(inputs)
-    core.debug(`Inferred options: ${JSON.stringify(options)}`)
+  core.debug(`Inputs: ${JSON.stringify(inputs)}`)
+  validateInputs(inputs)
+  const options = inferOptions(inputs)
+  core.debug(`Inferred options: ${JSON.stringify(options)}`)
 
-    checkForKnownIssues(options)
-    assertOptions(options)
+  checkForKnownIssues(options)
+  assertOptions(options)
 
-    return options
+  return options
 }
