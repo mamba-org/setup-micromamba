@@ -170,7 +170,7 @@ const inferOptions = (inputs: Inputs): Options => {
     core.info(`Will use pre-installed micromamba at ${micromambaBinPath}`)
   }
 
-  const tempDirectory = getTempDirectory()
+  const tempDirectory = path.join(getTempDirectory(), "setup-micromamba")
 
   return {
     ...inputs,
