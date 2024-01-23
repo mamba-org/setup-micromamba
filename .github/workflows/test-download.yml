@@ -1,0 +1,43 @@
+name: Test download
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  merge_group:
+
+
+jobs:
+    ensure-download:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+        - run: |
+            echo "exit 1" >> micromamba
+
+            sudo cp micromamba /usr/bin/micromamba
+            sudo chmod +x /usr/bin/micromamba
+        - uses: ./
+          with:
+            environment-name: test
+            create-args: >-
+                python
+            download-micromamba: true
+        - run: |
+            micromamba --version
+
+    ensure-local-default:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v4
+        - run: |
+            curl -Ls https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-linux-64 > micromamba
+            sudo cp micromamba /usr/bin/micromamba
+            sudo chmod +x /usr/bin/micromamba
+        - uses: ./
+          with:
+            environment-name: test
+            create-args: >-
+                python
+            micromamba-url: https://invalid.domain

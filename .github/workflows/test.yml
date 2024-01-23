@@ -282,9 +282,14 @@ jobs:
           init-shell: none
           environment-file: test/environment.yml
       - run: |
+          echo $PATH
+          echo "$(which micromamba)"
+          echo "$(type micromamba)"
+          echo "$(which micromamba-shell)"
+          echo "${{ runner.temp }}"
           which micromamba | grep /home/runner/micromamba-bin/micromamba
           type micromamba | grep "micromamba is /home/runner/micromamba-bin/micromamba"
-          which micromamba-shell | grep /home/runner/micromamba-bin/micromamba-shell
+          which micromamba-shell | grep "${{ runner.temp }}/setup-micromamba/micromamba-shell"
         shell: bash -el {0}
 
   use-micromamba-from-path:

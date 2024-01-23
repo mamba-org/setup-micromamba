@@ -7,17 +7,17 @@ import * as io from '@actions/io'
 import { downloadTool } from '@actions/tool-cache'
 import { getMicromambaUrl, micromambaCmd, execute, determineEnvironmentName } from './util'
 import { coreMocked } from './mocking'
-import { PATHS, options } from './options'
+import { PATHS, type Options, getOptions } from './options'
 import { addEnvironmentToAutoActivate, shellInit } from './shell-init'
 import { restoreCacheDownloads, restoreCacheEnvironment, saveCacheEnvironment } from './cache'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
-const downloadMicromamba = (url: string) => {
+const downloadMicromamba = (options: Options, url: string) => {
   if (options.downloadMicromamba === false) {
     core.info('Skipping micromamba download.')
     core.addPath(path.dirname(options.micromambaBinPath))
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   core.startGroup('Install micromamba')
   core.debug(`Downloading micromamba from ${url} ...`)
@@ -35,30 +35,35 @@ const downloadMicromamba = (url: string) => {
     .finally(core.endGroup)
 }
 
-const generateCondarc = () => {
+const generateCondarc = (options: Options) => {
   if (!options.writeToCondarc) {
     core.debug(`Using condarc file ${options.condarcFile} ...`)
     return fs.access(options.condarcFile, fs.constants.R_OK)
   }
+
   core.debug(`Using ${options.condarcFile} as condarc file.`)
   const mkDir = fs.mkdir(path.dirname(options.condarcFile), { recursive: true })
+
   if (options.condarc) {
     core.info(`Writing condarc contents to ${options.condarcFile} ...`)
     // if we don't put this into a variable, typescript complains
     const condarc = options.condarc
     return mkDir.then(() => fs.writeFile(options.condarcFile, condarc))
   }
+
   // default: condarc contains conda-forge channel
   core.info('Adding conda-forge to condarc channels ...')
   return mkDir.then(() => fs.writeFile(options.condarcFile, 'channels:\n  - conda-forge'))
 }
 
-const createEnvironment = () => {
+const createEnvironment = (options: Options) => {
   core.debug(`environmentFile: ${options.environmentFile}`)
   core.debug(`environmentName: ${options.environmentName}`)
   core.debug(`createArgs: ${options.createArgs}`)
   core.debug(`condarcFile: ${options.condarcFile}`)
+
   let commandStr = `create -y -r ${options.micromambaRootPath}`
+
   if (options.environmentFile) {
     commandStr += ` -f ${options.environmentFile}`
   }
@@ -68,13 +73,14 @@ const createEnvironment = () => {
   if (options.createArgs) {
     commandStr += ` ${options.createArgs.join(' ')}`
   }
-  return execute(micromambaCmd(commandStr, options.logLevel, options.condarcFile))
+
+  return execute(micromambaCmd(options, commandStr, options.logLevel, options.condarcFile))
 }
 
-const installEnvironment = () => {
+const installEnvironment = (options: Options) => {
   return determineEnvironmentName(options.environmentName, options.environmentFile)
     .then((environmentName) =>
-      Promise.all([Promise.resolve(environmentName), restoreCacheEnvironment(environmentName)])
+      Promise.all([Promise.resolve(environmentName), restoreCacheEnvironment(options, environmentName)])
     )
     .then(([environmentName, cacheKey]) => {
       if (cacheKey) {
@@ -83,51 +89,51 @@ const installEnvironment = () => {
       }
       // cache miss, install and save cache
       core.startGroup(`Install environment \`${environmentName}\``)
-      return createEnvironment()
+      return createEnvironment(options)
         .then((_exitCode) => {
           core.endGroup()
           return environmentName
         })
         .then((environmentName) =>
           // cache can already be saved here and not in post action since the environment is not changing anymore
-          saveCacheEnvironment(environmentName).then(() => environmentName)
+          saveCacheEnvironment(options, environmentName).then(() => environmentName)
         )
     })
     .then((environmentName) =>
-      Promise.all(options.initShell.map((shell) => addEnvironmentToAutoActivate(environmentName, shell)))
+      Promise.all(options.initShell.map((shell) => addEnvironmentToAutoActivate(options, environmentName, shell)))
     )
 }
 
-const generateInfo = () => {
+const generateInfo = (options: Options) => {
   core.startGroup('micromamba info')
   let command: Promise<number>
   if (!options.createEnvironment) {
-    command = execute(micromambaCmd(`info -r ${options.micromambaRootPath}`))
+    command = execute(micromambaCmd(options, `info -r ${options.micromambaRootPath}`))
   } else {
     command = determineEnvironmentName(options.environmentName, options.environmentFile)
       .then((environmentName) =>
         Promise.all([
-          execute(micromambaCmd(`info -r ${options.micromambaRootPath} -n ${environmentName}`)),
+          execute(micromambaCmd(options, `info -r ${options.micromambaRootPath} -n ${environmentName}`)),
           Promise.resolve(environmentName)
         ])
       )
       .then(([_exitCode, environmentName]) => {
         core.endGroup()
         core.startGroup('micromamba list')
-        return execute(micromambaCmd(`list -r ${options.micromambaRootPath} -n ${environmentName}`))
+        return execute(micromambaCmd(options, `list -r ${options.micromambaRootPath} -n ${environmentName}`))
       })
   }
   return command.finally(core.endGroup)
 }
 
-const generateMicromambaRunShell = () => {
+const generateMicromambaRunShell = (options: Options) => {
   if (!options.generateRunShell) {
     core.debug('Skipping micromamba run shell generation.')
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   if (os.platform() === 'win32') {
     core.info('Skipping micromamba run shell on Windows.')
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   core.info('Generating micromamba run shell.')
   const micromambaRunShellContents = `#!/usr/bin/env sh
@@ -144,10 +150,11 @@ $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
       core.debug(`File contents:\n"${file}"`)
       return fs.writeFile(options.micromambaRunShellPath, file, { encoding: 'utf8', mode: 0o755 })
     })
+    .then(() => core.addPath(path.dirname(options.micromambaRunShellPath)))
     .finally(core.endGroup)
 }
 
-const addEnvironmentPathToOutput = () => {
+const addEnvironmentPathToOutput = (options: Options) => {
   return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
     const environmentPath = path.join(options.micromambaRootPath, 'envs', environmentName)
     core.debug(`Setting environment-path output to ${environmentPath}`)
@@ -155,7 +162,7 @@ const addEnvironmentPathToOutput = () => {
   })
 }
 
-const setEnvVariables = () => {
+const setEnvVariables = (options: Options) => {
   core.info('Set environment variables.')
   core.debug(`MAMBA_ROOT_PREFIX: ${options.micromambaRootPath}`)
   core.exportVariable('MAMBA_ROOT_PREFIX', options.micromambaRootPath)
@@ -166,6 +173,8 @@ const setEnvVariables = () => {
 }
 
 const run = async () => {
+  const options = getOptions()
+
   core.debug(`process.env.HOME: ${process.env.HOME}`)
   core.debug(`os.homedir(): ${os.homedir()}`)
   core.debug(`bashProfile ${PATHS.bashProfile}`)
@@ -176,18 +185,18 @@ const run = async () => {
     core.addPath(path.dirname(await io.which('cygpath', true)))
   }
 
-  await downloadMicromamba(getMicromambaUrl(options.micromambaSource))
-  await generateCondarc()
-  await Promise.all(options.initShell.map((shell) => shellInit(shell)))
-  const cacheDownloadsKey = await restoreCacheDownloads()
+  await downloadMicromamba(options, getMicromambaUrl(options.micromambaSource))
+  await generateCondarc(options)
+  await Promise.all(options.initShell.map((shell) => shellInit(options, shell)))
+  const cacheDownloadsKey = await restoreCacheDownloads(options)
   core.saveState('cacheDownloadsCacheHit', cacheDownloadsKey !== undefined)
   if (options.createEnvironment) {
-    await installEnvironment()
-    await generateMicromambaRunShell()
-    await addEnvironmentPathToOutput()
+    await installEnvironment(options)
+    await generateMicromambaRunShell(options)
+    await addEnvironmentPathToOutput(options)
   }
-  setEnvVariables()
-  await generateInfo()
+  setEnvVariables(options)
+  await generateInfo(options)
 }
 
 run().catch((error) => {

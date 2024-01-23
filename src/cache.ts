@@ -4,7 +4,7 @@ import { existsSync } from 'fs'
 import * as cache from '@actions/cache'
 import * as coreDefault from '@actions/core'
 import { coreMocked } from './mocking'
-import { options } from './options'
+import type { Options } from './options'
 import { getCondaArch, sha256, sha256Short } from './util'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
@@ -35,12 +35,13 @@ const restoreCache = (cachePath: string, cacheKey: string) => {
   })
 }
 
-const generateEnvironmentKey = (prefix: string) => {
+const generateEnvironmentKey = (options: Options, prefix: string) => {
   const arch = `-${getCondaArch()}`
   const envName = options.environmentName ? `-${options.environmentName}` : ''
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : ''
   const rootPrefix = `-root-${sha256Short(options.micromambaRootPath)}`
   const key = `${prefix}${arch}${envName}${createArgs}${rootPrefix}`
+
   if (options.environmentFile) {
     return fs.readFile(options.environmentFile, 'utf-8').then((content) => {
       const keyWithFileSha = `${key}-file-${sha256(content)}`
@@ -48,21 +49,20 @@ const generateEnvironmentKey = (prefix: string) => {
       return keyWithFileSha
     })
   }
+
   core.debug(`Generated key \`${key}\`.`)
   return Promise.resolve(key)
 }
 
-const generateDownloadsKey = (prefix: string) => {
-  return `${prefix}-${getCondaArch()}`
-}
+const generateDownloadsKey = (prefix: string) => `${prefix}-${getCondaArch()}`
 
-export const saveCacheEnvironment = (environmentName: string) => {
+export const saveCacheEnvironment = (options: Options, environmentName: string) => {
   if (!options.cacheEnvironmentKey) {
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   const cachePath = path.join(options.micromambaRootPath, 'envs', environmentName)
   core.startGroup(`Caching environment \`${environmentName}\` in \`${cachePath}\` ...`)
-  return generateEnvironmentKey(options.cacheEnvironmentKey)
+  return generateEnvironmentKey(options, options.cacheEnvironmentKey)
     .then((key) => saveCache(cachePath, key))
     .finally(core.endGroup)
 }
@@ -73,13 +73,13 @@ export const saveCacheEnvironment = (environmentName: string) => {
  * @param environmentName the name of the environment to restore
  * @returns string returns the key for the cache hit, otherwise returns undefined
  */
-export const restoreCacheEnvironment = (environmentName: string) => {
+export const restoreCacheEnvironment = (options: Options, environmentName: string) => {
   if (!options.cacheEnvironmentKey) {
     return Promise.resolve(undefined)
   }
   const cachePath = path.join(options.micromambaRootPath, 'envs', environmentName)
   core.startGroup(`Restoring environment \`${environmentName}\` from \`${cachePath}\` ...`)
-  return generateEnvironmentKey(options.cacheEnvironmentKey)
+  return generateEnvironmentKey(options, options.cacheEnvironmentKey)
     .then((key) => restoreCache(cachePath, key))
     .finally(core.endGroup)
 }
@@ -112,16 +112,16 @@ const trimPkgsCacheFolder = (cacheFolder: string) => {
     .finally(() => core.endGroup())
 }
 
-export const saveCacheDownloads = () => {
+export const saveCacheDownloads = (options: Options) => {
   core.debug(`Cache downloads key: ${options.cacheDownloadsKey}`)
   if (!options.cacheDownloadsKey) {
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   const cachePath = path.join(options.micromambaRootPath, 'pkgs')
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey)
   if (!existsSync(cachePath)) {
     core.debug(`Cache folder \`${cachePath}\` doesn't exist, skipping cache saving.`)
-    return Promise.resolve()
+    return Promise.resolve(undefined)
   }
   return trimPkgsCacheFolder(cachePath)
     .then(() => {
@@ -136,7 +136,7 @@ export const saveCacheDownloads = () => {
  *
  * @returns string returns the key for the cache hit, otherwise returns undefined
  */
-export const restoreCacheDownloads = () => {
+export const restoreCacheDownloads = (options: Options) => {
   core.debug(`Cache downloads key: ${options.cacheDownloadsKey}`)
   if (!options.cacheDownloadsKey) {
     return Promise.resolve(undefined)

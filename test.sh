@@ -22,6 +22,8 @@ export INPUT_CACHE_ENVIRONMENT_KEY=""
 export INPUT_MICROMAMBA_ROOT_PATH="~/debug/micromamba"
 export INPUT_MICROMAMBA_BINARY_PATH="~/debug/micromamba/micromamba"
 export STATE_CACHE_DOWNLOADS_CACHE_HIT="true"
+export INPUT_DOWNLOAD_MICROMAMBA="true"
+export RUNNER_TEMP="$(mktemp -d)"
 
 if [ $DEBUG -eq 1 ]; then
   node --inspect-brk --enable-source-maps dist/index.js

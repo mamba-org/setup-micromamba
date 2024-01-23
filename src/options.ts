@@ -1,6 +1,6 @@
 import * as path from 'path'
 import * as os from 'os'
-import { exit } from 'process'
+import * as fs from 'fs'
 import * as coreDefault from '@actions/core'
 import * as z from 'zod'
 import { left, right } from 'fp-ts/lib/Either'
@@ -8,6 +8,7 @@ import type { Either } from 'fp-ts/lib/Either'
 import untildify from 'untildify'
 import which from 'which'
 import { coreMocked } from './mocking'
+import { getTempDirectory } from './util'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
@@ -109,6 +110,34 @@ const parseOrUndefinedList = <T>(key: string, schema: z.ZodSchema<T>): T[] | und
     .filter((s) => s !== '')
 }
 
+const determineMicromambaInstallation = (micromambaBinPath?: string, downloadMicromamba?: boolean) => {
+  const preinstalledMicromamba = which.sync('micromamba', { nothrow: true })
+  if (preinstalledMicromamba) {
+    core.debug(`Found pre-installed micromamba at ${preinstalledMicromamba}`)
+  }
+
+  if (micromambaBinPath) {
+    core.debug(`Using micromamba binary path ${micromambaBinPath}`)
+
+    try {
+      const resolvedPath = path.resolve(untildify(micromambaBinPath))
+      return { downloadMicromamba: downloadMicromamba !== false, micromambaBinPath: resolvedPath }
+    } catch (error) {
+      throw new Error(`Could not resolve micromamba binary path ${micromambaBinPath}`)
+    }
+  }
+
+  if (downloadMicromamba === false && !preinstalledMicromamba) {
+    throw new Error('Could not find a pre-installed micromamba installation and `download-micromamba` is false.')
+  }
+
+  if (!downloadMicromamba && preinstalledMicromamba) {
+    return { downloadMicromamba: false, micromambaBinPath: preinstalledMicromamba }
+  }
+
+  return { downloadMicromamba: true, micromambaBinPath: PATHS.micromambaBin }
+}
+
 const inferOptions = (inputs: Inputs): Options => {
   const createEnvironment = inputs.environmentName !== undefined || inputs.environmentFile !== undefined
 
@@ -129,12 +158,23 @@ const inferOptions = (inputs: Inputs): Options => {
     : inputs.initShell.includes('none')
       ? []
       : (inputs.initShell as ShellType[])
-  const downloadMicromamba = inputs.downloadMicromamba !== undefined ? inputs.downloadMicromamba : true
-  const micromambaBinPath = inputs.micromambaBinPath
-    ? path.resolve(untildify(inputs.micromambaBinPath))
-    : inputs.downloadMicromamba === false
-      ? which.sync('micromamba')
-      : PATHS.micromambaBin
+
+  const { downloadMicromamba, micromambaBinPath } = determineMicromambaInstallation(
+    inputs.micromambaBinPath,
+    inputs.downloadMicromamba
+  )
+
+  if (downloadMicromamba) {
+    core.info(`Will download micromamba to ${micromambaBinPath}`)
+  } else {
+    core.info(`Will use pre-installed micromamba at ${micromambaBinPath}`)
+  }
+
+  const tempDirectory = path.join(getTempDirectory(), 'setup-micromamba')
+
+  fs.mkdir(tempDirectory, { recursive: true }, (err) => {
+    if (err) throw err
+  })
 
   return {
     ...inputs,
@@ -153,9 +193,9 @@ const inferOptions = (inputs: Inputs): Options => {
     // use a different path than ~/.condarc to avoid messing up the user's condarc
     condarcFile: inputs.condarcFile
       ? path.resolve(untildify(inputs.condarcFile))
-      : path.join(path.dirname(PATHS.micromambaBin), '.condarc'), // next to the micromamba binary -> easier cleanup
+      : path.join(tempDirectory, '.condarc'), // next to the micromamba binary -> easier cleanup
     micromambaBinPath,
-    micromambaRunShellPath: path.join(path.dirname(micromambaBinPath), 'micromamba-shell'),
+    micromambaRunShellPath: path.join(tempDirectory, 'micromamba-shell'),
     micromambaRootPath: inputs.micromambaRootPath
       ? path.resolve(untildify(inputs.micromambaRootPath))
       : PATHS.micromambaRoot
@@ -197,15 +237,15 @@ const validateInputs = (inputs: Inputs): void => {
 }
 
 const assertOptions = (options: Options) => {
-  const assert = (condition: boolean, message?: string) => {
-    if (!condition) {
-      throw new Error(message)
-    }
+  // generate-run-shell => create-env specified
+  if (options.generateRunShell && !options.createEnvironment) {
+    throw new Error("If you specify 'generate-run-shell', you must also specify 'create-env'")
   }
-  // generate-run-shell => create-env
-  assert(!options.generateRunShell || options.createEnvironment)
+
   // create-env => env-file or env-name specified
-  assert(!options.createEnvironment || options.environmentFile !== undefined || options.environmentName !== undefined)
+  if (options.createEnvironment && options.environmentFile === undefined && options.environmentName === undefined) {
+    throw new Error("If you specify 'create-env' you must specify either 'env-file' or 'env-name'")
+  }
 }
 
 export const getRootPrefixFlagForInit = (options: Options) => {
@@ -233,6 +273,7 @@ const checkForKnownIssues = (options: Options) => {
     condarcBasename === 'mambarc' ||
     condarcBasename.endsWith('.yml') ||
     condarcBasename.endsWith('.yaml')
+
   if (!hasValidCondarcName) {
     core.warning(
       `You are using a condarc file that is not named '.condarc'. This is currently not supported by micromamba, see https://github.com/mamba-org/mamba/issues/1394`
@@ -240,7 +281,7 @@ const checkForKnownIssues = (options: Options) => {
   }
 }
 
-const getOptions = () => {
+export const getOptions = () => {
   const inputs: Inputs = {
     condarcFile: parseOrUndefined('condarc-file', z.string()),
     condarc: parseOrUndefined('condarc', z.string()),
@@ -269,30 +310,14 @@ const getOptions = () => {
     micromambaRootPath: parseOrUndefined('micromamba-root-path', z.string()),
     micromambaBinPath: parseOrUndefined('micromamba-binary-path', z.string())
   }
+
   core.debug(`Inputs: ${JSON.stringify(inputs)}`)
   validateInputs(inputs)
   const options = inferOptions(inputs)
   core.debug(`Inferred options: ${JSON.stringify(options)}`)
+
   checkForKnownIssues(options)
   assertOptions(options)
+
   return options
 }
-
-let _options: Options
-try {
-  _options = getOptions()
-} catch (error) {
-  if (core.isDebug()) {
-    throw error
-  }
-  if (error instanceof Error) {
-    core.setFailed(error.message)
-    exit(1)
-  } else if (typeof error === 'string') {
-    core.setFailed(error)
-    exit(1)
-  }
-  throw error
-}
-
-export const options = _options
