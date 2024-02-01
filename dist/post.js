@@ -25024,9 +25024,9 @@ var require_uuid = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/internal/constants.js
+// node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/internal/constants.js
 var require_constants5 = __commonJS({
-  "node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/internal/constants.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/internal/constants.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.ManifestFilename = exports2.TarFilename = exports2.SystemTarPathOnWindows = exports2.GnuTarPathOnWindows = exports2.SocketTimeout = exports2.DefaultRetryDelay = exports2.DefaultRetryAttempts = exports2.ArchiveToolType = exports2.CompressionMethod = exports2.CacheFilename = void 0;
@@ -25056,9 +25056,9 @@ var require_constants5 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/internal/cacheUtils.js
+// node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/internal/cacheUtils.js
 var require_cacheUtils = __commonJS({
-  "node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/internal/cacheUtils.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/internal/cacheUtils.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0)
@@ -25279,7 +25279,10 @@ var require_cacheUtils = __commonJS({
     exports2.assertDefined = assertDefined;
     function isGhes() {
       const ghUrl = new URL(process.env["GITHUB_SERVER_URL"] || "https://github.com");
-      return ghUrl.hostname.toUpperCase() !== "GITHUB.COM";
+      const hostname = ghUrl.hostname.trimEnd().toUpperCase();
+      const isGitHubHost = hostname === "GITHUB.COM";
+      const isGheHost = hostname.endsWith(".GHE.COM") || hostname.endsWith(".GHE.LOCALHOST");
+      return !isGitHubHost && !isGheHost;
     }
     exports2.isGhes = isGhes;
   }
@@ -73888,9 +73891,9 @@ var init_src12 = __esm({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/internal/requestUtils.js
+// node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/internal/requestUtils.js
 var require_requestUtils = __commonJS({
-  "node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/internal/requestUtils.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/internal/requestUtils.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0)
@@ -74061,9 +74064,9 @@ var require_requestUtils = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/internal/downloadUtils.js
+// node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/internal/downloadUtils.js
 var require_downloadUtils = __commonJS({
-  "node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/internal/downloadUtils.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/internal/downloadUtils.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0)
@@ -74426,9 +74429,9 @@ var require_downloadUtils = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/options.js
+// node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/options.js
 var require_options2 = __commonJS({
-  "node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/options.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/options.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0)
@@ -74528,9 +74531,9 @@ var require_options2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/internal/cacheHttpClient.js
+// node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/internal/cacheHttpClient.js
 var require_cacheHttpClient = __commonJS({
-  "node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/internal/cacheHttpClient.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/internal/cacheHttpClient.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0)
@@ -74802,9 +74805,9 @@ Other caches with similar key:`);
   }
 });
 
-// node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/internal/tar.js
+// node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/internal/tar.js
 var require_tar = __commonJS({
-  "node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/internal/tar.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/internal/tar.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0)
@@ -75050,9 +75053,9 @@ var require_tar = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/cache.js
+// node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/cache.js
 var require_cache2 = __commonJS({
-  "node_modules/.pnpm/@actions+cache@3.2.3/node_modules/@actions/cache/lib/cache.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@3.2.4/node_modules/@actions/cache/lib/cache.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0)
