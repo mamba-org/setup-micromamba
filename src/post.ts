@@ -6,7 +6,7 @@ import * as coreDefault from '@actions/core'
 import { coreMocked } from './mocking'
 import { getOptions, type Options } from './options'
 import { determineEnvironmentName } from './util'
-import { shellDeinit } from './shell-init'
+import { removeEnvironmentFromAutoActivate, shellDeinit } from './shell-init'
 import { saveCacheDownloads } from './cache'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
@@ -80,7 +80,10 @@ const cleanup = (options: Options) => {
         uninstallEnvironment(options),
         removeMicromambaRunShell(options),
         ...options.initShell.map((shell) => shellDeinit(options, shell))
-      ]).then(() => undefined) // output is not used
+      ])
+      .then(() => determineEnvironmentName(options.environmentName, options.environmentFile))
+      .then((environmentName) => Promise.all(options.initShell.map((shell) => removeEnvironmentFromAutoActivate(options, environmentName, shell))))
+      .then(() => undefined) // output is not used
     case 'all':
       return Promise.all(options.initShell.map((shell) => shellDeinit(options, shell)))
         .then(() =>

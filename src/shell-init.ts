@@ -54,7 +54,7 @@ export const shellInit = (options: Options, shell: string) => {
   return command.finally(core.endGroup)
 }
 
-export const shellDeinit = (options: Options, shell: string) => {
+export const shellDeinit = (options: Options, shell: ShellType) => {
   core.startGroup(`Deinitialize micromamba for ${shell}`)
   const rootPrefixFlag = getRootPrefixFlagForInit(options)
   const command = execute(
