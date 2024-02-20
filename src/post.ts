@@ -65,6 +65,12 @@ const removeMicromambaBinary = (options: Options) => {
   return fs.rm(options.micromambaBinPath, { force: false })
 }
 
+const removeAutoActivation = (options: Options) => {
+  return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) =>
+    Promise.all(options.initShell.map((shell) => removeEnvironmentFromAutoActivate(options, environmentName, shell)))
+  )
+}
+
 const cleanup = (options: Options) => {
   const postCleanup = options.postCleanup
   switch (postCleanup) {
@@ -73,28 +79,16 @@ const cleanup = (options: Options) => {
     case 'shell-init':
       return Promise.all([
         removeMicromambaRunShell(options),
-        ...options.initShell.map((shell) => shellDeinit(options, shell))
-      ])
-        .then(() => determineEnvironmentName(options.environmentName, options.environmentFile))
-        .then((environmentName) =>
-          Promise.all(
-            options.initShell.map((shell) => removeEnvironmentFromAutoActivate(options, environmentName, shell))
-          )
-        )
-        .then(() => undefined) // output is not used
+        ...options.initShell.map((shell) => shellDeinit(options, shell)),
+        removeAutoActivation(options)
+      ]).then(() => undefined) // output is not used
     case 'environment':
       return Promise.all([
         uninstallEnvironment(options),
         removeMicromambaRunShell(options),
-        ...options.initShell.map((shell) => shellDeinit(options, shell))
-      ])
-        .then(() => determineEnvironmentName(options.environmentName, options.environmentFile))
-        .then((environmentName) =>
-          Promise.all(
-            options.initShell.map((shell) => removeEnvironmentFromAutoActivate(options, environmentName, shell))
-          )
-        )
-        .then(() => undefined) // output is not used
+        ...options.initShell.map((shell) => shellDeinit(options, shell)),
+        removeAutoActivation(options)
+      ]).then(() => undefined) // output is not used
     case 'all':
       return Promise.all(options.initShell.map((shell) => shellDeinit(options, shell)))
         .then(() =>
@@ -103,7 +97,8 @@ const cleanup = (options: Options) => {
             removeRoot(options),
             removeMicromambaRunShell(options),
             removeMicromambaBinary(options),
-            removeCustomCondarc(options)
+            removeCustomCondarc(options),
+            removeAutoActivation(options)
           ])
         )
         .then(() => removeMicromambaBinaryParentIfEmpty(options))
