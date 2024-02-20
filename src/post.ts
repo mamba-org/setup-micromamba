@@ -74,16 +74,27 @@ const cleanup = (options: Options) => {
       return Promise.all([
         removeMicromambaRunShell(options),
         ...options.initShell.map((shell) => shellDeinit(options, shell))
-      ]).then(() => undefined) // output is not used
+      ])
+        .then(() => determineEnvironmentName(options.environmentName, options.environmentFile))
+        .then((environmentName) =>
+          Promise.all(
+            options.initShell.map((shell) => removeEnvironmentFromAutoActivate(options, environmentName, shell))
+          )
+        )
+        .then(() => undefined) // output is not used
     case 'environment':
       return Promise.all([
         uninstallEnvironment(options),
         removeMicromambaRunShell(options),
         ...options.initShell.map((shell) => shellDeinit(options, shell))
       ])
-      .then(() => determineEnvironmentName(options.environmentName, options.environmentFile))
-      .then((environmentName) => Promise.all(options.initShell.map((shell) => removeEnvironmentFromAutoActivate(options, environmentName, shell))))
-      .then(() => undefined) // output is not used
+        .then(() => determineEnvironmentName(options.environmentName, options.environmentFile))
+        .then((environmentName) =>
+          Promise.all(
+            options.initShell.map((shell) => removeEnvironmentFromAutoActivate(options, environmentName, shell))
+          )
+        )
+        .then(() => undefined) // output is not used
     case 'all':
       return Promise.all(options.initShell.map((shell) => shellDeinit(options, shell)))
         .then(() =>
