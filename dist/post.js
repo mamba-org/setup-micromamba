@@ -82040,16 +82040,14 @@ var cleanup = (options) => {
     case "shell-init":
       return Promise.all([
         removeMicromambaRunShell(options),
-        ...options.initShell.map((shell) => shellDeinit(options, shell)),
-        removeAutoActivation(options)
-      ]).then(() => void 0);
+        ...options.initShell.map((shell) => shellDeinit(options, shell))
+      ]).then(() => removeAutoActivation(options)).then(() => void 0);
     case "environment":
       return Promise.all([
         uninstallEnvironment(options),
         removeMicromambaRunShell(options),
-        ...options.initShell.map((shell) => shellDeinit(options, shell)),
-        removeAutoActivation(options)
-      ]).then(() => void 0);
+        ...options.initShell.map((shell) => shellDeinit(options, shell))
+      ]).then(() => removeAutoActivation(options)).then(() => void 0);
     case "all":
       return Promise.all(options.initShell.map((shell) => shellDeinit(options, shell))).then(
         () => (
@@ -82058,11 +82056,10 @@ var cleanup = (options) => {
             removeRoot(options),
             removeMicromambaRunShell(options),
             removeMicromambaBinary(options),
-            removeCustomCondarc(options),
-            removeAutoActivation(options)
+            removeCustomCondarc(options)
           ])
         )
-      ).then(() => removeMicromambaBinaryParentIfEmpty(options));
+      ).then(() => removeAutoActivation(options)).then(() => removeMicromambaBinaryParentIfEmpty(options));
     default:
       throw new Error(`Unknown post cleanup type: ${postCleanup}`);
   }
