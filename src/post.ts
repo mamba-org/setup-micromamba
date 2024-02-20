@@ -79,16 +79,18 @@ const cleanup = (options: Options) => {
     case 'shell-init':
       return Promise.all([
         removeMicromambaRunShell(options),
-        ...options.initShell.map((shell) => shellDeinit(options, shell)),
-        removeAutoActivation(options)
-      ]).then(() => undefined) // output is not used
+        ...options.initShell.map((shell) => shellDeinit(options, shell))
+      ])
+        .then(() => removeAutoActivation(options))
+        .then(() => undefined) // output is not used
     case 'environment':
       return Promise.all([
         uninstallEnvironment(options),
         removeMicromambaRunShell(options),
-        ...options.initShell.map((shell) => shellDeinit(options, shell)),
-        removeAutoActivation(options)
-      ]).then(() => undefined) // output is not used
+        ...options.initShell.map((shell) => shellDeinit(options, shell))
+      ])
+        .then(() => removeAutoActivation(options))
+        .then(() => undefined) // output is not used
     case 'all':
       return Promise.all(options.initShell.map((shell) => shellDeinit(options, shell)))
         .then(() =>
@@ -97,10 +99,10 @@ const cleanup = (options: Options) => {
             removeRoot(options),
             removeMicromambaRunShell(options),
             removeMicromambaBinary(options),
-            removeCustomCondarc(options),
-            removeAutoActivation(options)
+            removeCustomCondarc(options)
           ])
         )
+        .then(() => removeAutoActivation(options))
         .then(() => removeMicromambaBinaryParentIfEmpty(options))
     default:
       // This should never happen, because the input is validated in parseInputs
