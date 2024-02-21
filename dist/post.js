@@ -81868,6 +81868,7 @@ var getOptions = () => {
 
 // src/shell-init.ts
 var fs3 = __toESM(require("fs/promises"));
+var import_fs = require("fs");
 var os4 = __toESM(require("os"));
 var import_path = __toESM(require("path"));
 var coreDefault3 = __toESM(require_core());
@@ -81917,20 +81918,25 @@ var removeEnvironmentFromAutoActivate = (options, environmentName, shell) => {
     return Promise.resolve(void 0);
   }
   const rcFilePath = getRcFileDict(options)[shell];
-  return fs3.readFile(rcFilePath, { encoding: "utf-8" }).then((rcFile) => {
-    const matches = rcFile.match(new RegExp(`micromamba activate ${environmentName}`));
-    if (!matches) {
-      throw new Error(`Could not find micromamba activate ${environmentName} in ${rcFilePath}`);
-    }
-    core4.debug(`Removing micromamba activate ${environmentName} from ${rcFilePath}`);
-    return fs3.writeFile(rcFilePath, rcFile.replace(matches[0], ""));
-  });
+  if ((0, import_fs.existsSync)(rcFilePath)) {
+    return fs3.readFile(rcFilePath, { encoding: "utf-8" }).then((rcFile) => {
+      const matches = rcFile.match(new RegExp(`micromamba activate ${environmentName}`));
+      if (!matches) {
+        throw new Error(`Could not find micromamba activate ${environmentName} in ${rcFilePath}`);
+      }
+      core4.debug(`Removing micromamba activate ${environmentName} from ${rcFilePath}`);
+      return fs3.writeFile(rcFilePath, rcFile.replace(matches[0], ""));
+    });
+  } else {
+    core4.warning(`Could not find ${rcFilePath} to remove micromamba activate ${environmentName} from.`);
+    return Promise.resolve(void 0);
+  }
 };
 
 // src/cache.ts
 var import_path2 = __toESM(require("path"));
 var fs5 = __toESM(require("fs/promises"));
-var import_fs = require("fs");
+var import_fs2 = require("fs");
 var cache = __toESM(require_cache2());
 var coreDefault4 = __toESM(require_core());
 var core5 = process.env.MOCKING ? coreMocked : coreDefault4;
@@ -81968,7 +81974,7 @@ var saveCacheDownloads = (options) => {
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "pkgs");
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey);
-  if (!(0, import_fs.existsSync)(cachePath)) {
+  if (!(0, import_fs2.existsSync)(cachePath)) {
     core5.debug(`Cache folder \`${cachePath}\` doesn't exist, skipping cache saving.`);
     return Promise.resolve(void 0);
   }
@@ -82034,6 +82040,10 @@ var removeAutoActivation = (options) => {
 };
 var cleanup = (options) => {
   const postCleanup = options.postCleanup;
+  if (!options.environmentFile && !options.environmentName) {
+    core6.warning("No environment name or file specified. Skipping cleanup.");
+    return Promise.resolve(void 0);
+  }
   switch (postCleanup) {
     case "none":
       return Promise.resolve(void 0);
