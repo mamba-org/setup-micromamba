@@ -73,6 +73,10 @@ const removeAutoActivation = (options: Options) => {
 
 const cleanup = (options: Options) => {
   const postCleanup = options.postCleanup
+  if (!options.environmentFile && !options.environmentName) {
+    core.warning('No environment name or file specified. Skipping cleanup.')
+    return Promise.resolve(undefined)
+  }
   switch (postCleanup) {
     case 'none':
       return Promise.resolve(undefined)
