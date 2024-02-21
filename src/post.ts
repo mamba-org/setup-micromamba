@@ -6,7 +6,7 @@ import * as coreDefault from '@actions/core'
 import { coreMocked } from './mocking'
 import { getOptions, type Options } from './options'
 import { determineEnvironmentName } from './util'
-import { shellDeinit } from './shell-init'
+import { removeEnvironmentFromAutoActivate, shellDeinit } from './shell-init'
 import { saveCacheDownloads } from './cache'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
@@ -65,6 +65,16 @@ const removeMicromambaBinary = (options: Options) => {
   return fs.rm(options.micromambaBinPath, { force: false })
 }
 
+const removeAutoActivation = (options: Options) => {
+  if (!options.createEnvironment) {
+    core.debug('No environment created. Skipping removal of auto activation line.')
+    return Promise.resolve(undefined)
+  }
+  return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) =>
+    Promise.all(options.initShell.map((shell) => removeEnvironmentFromAutoActivate(options, environmentName, shell)))
+  )
+}
+
 const cleanup = (options: Options) => {
   const postCleanup = options.postCleanup
   switch (postCleanup) {
@@ -74,13 +84,17 @@ const cleanup = (options: Options) => {
       return Promise.all([
         removeMicromambaRunShell(options),
         ...options.initShell.map((shell) => shellDeinit(options, shell))
-      ]).then(() => undefined) // output is not used
+      ])
+        .then(() => removeAutoActivation(options))
+        .then(() => undefined) // output is not used
     case 'environment':
       return Promise.all([
         uninstallEnvironment(options),
         removeMicromambaRunShell(options),
         ...options.initShell.map((shell) => shellDeinit(options, shell))
-      ]).then(() => undefined) // output is not used
+      ])
+        .then(() => removeAutoActivation(options))
+        .then(() => undefined) // output is not used
     case 'all':
       return Promise.all(options.initShell.map((shell) => shellDeinit(options, shell)))
         .then(() =>
@@ -92,6 +106,7 @@ const cleanup = (options: Options) => {
             removeCustomCondarc(options)
           ])
         )
+        .then(() => removeAutoActivation(options))
         .then(() => removeMicromambaBinaryParentIfEmpty(options))
     default:
       // This should never happen, because the input is validated in parseInputs

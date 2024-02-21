@@ -1,4 +1,5 @@
 import * as fs from 'fs/promises'
+import { existsSync } from 'fs'
 import * as os from 'os'
 import path from 'path'
 import * as coreDefault from '@actions/core'
@@ -54,7 +55,7 @@ export const shellInit = (options: Options, shell: string) => {
   return command.finally(core.endGroup)
 }
 
-export const shellDeinit = (options: Options, shell: string) => {
+export const shellDeinit = (options: Options, shell: ShellType) => {
   core.startGroup(`Deinitialize micromamba for ${shell}`)
   const rootPrefixFlag = getRootPrefixFlagForInit(options)
   const command = execute(
@@ -127,12 +128,18 @@ export const removeEnvironmentFromAutoActivate = (options: Options, environmentN
 
   const rcFilePath = getRcFileDict(options)[shell]
 
-  return fs.readFile(rcFilePath, { encoding: 'utf-8' }).then((rcFile) => {
-    const matches = rcFile.match(new RegExp(`micromamba activate ${environmentName}`))
-    if (!matches) {
-      throw new Error(`Could not find micromamba activate ${environmentName} in ${rcFilePath}`)
-    }
-    core.debug(`Removing micromamba activate ${environmentName} from ${rcFilePath}`)
-    return fs.writeFile(rcFilePath, rcFile.replace(matches[0], ''))
-  })
+  if (existsSync(rcFilePath)) {
+    return fs.readFile(rcFilePath, { encoding: 'utf-8' }).then((rcFile) => {
+      const matches = rcFile.match(new RegExp(`micromamba activate ${environmentName}`))
+      if (!matches) {
+        throw new Error(`Could not find micromamba activate ${environmentName} in ${rcFilePath}`)
+      }
+      core.debug(`Removing micromamba activate ${environmentName} from ${rcFilePath}`)
+      return fs.writeFile(rcFilePath, rcFile.replace(matches[0], ''))
+    })
+  } else {
+    core.debug(`Could not find ${rcFilePath} to remove micromamba activate ${environmentName} from.
+     This is because \`micromamba shell deinit -s cmd.exe\` already did that.`)
+    return Promise.resolve(undefined)
+  }
 }
