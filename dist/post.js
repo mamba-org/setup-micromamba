@@ -81928,7 +81928,8 @@ var removeEnvironmentFromAutoActivate = (options, environmentName, shell) => {
       return fs3.writeFile(rcFilePath, rcFile.replace(matches[0], ""));
     });
   } else {
-    core4.warning(`Could not find ${rcFilePath} to remove micromamba activate ${environmentName} from.`);
+    core4.debug(`Could not find ${rcFilePath} to remove micromamba activate ${environmentName} from.
+     This is because \`micromamba shell deinit -s cmd.exe\` already did that.`);
     return Promise.resolve(void 0);
   }
 };
@@ -82034,16 +82035,16 @@ var removeMicromambaBinary = (options) => {
   return fs6.rm(options.micromambaBinPath, { force: false });
 };
 var removeAutoActivation = (options) => {
+  if (!options.createEnvironment) {
+    core6.debug("No environment created. Skipping removal of auto activation line.");
+    return Promise.resolve(void 0);
+  }
   return determineEnvironmentName(options.environmentName, options.environmentFile).then(
     (environmentName) => Promise.all(options.initShell.map((shell) => removeEnvironmentFromAutoActivate(options, environmentName, shell)))
   );
 };
 var cleanup = (options) => {
   const postCleanup = options.postCleanup;
-  if (!options.environmentFile && !options.environmentName) {
-    core6.warning("No environment name or file specified. Skipping cleanup.");
-    return Promise.resolve(void 0);
-  }
   switch (postCleanup) {
     case "none":
       return Promise.resolve(void 0);

@@ -138,7 +138,8 @@ export const removeEnvironmentFromAutoActivate = (options: Options, environmentN
       return fs.writeFile(rcFilePath, rcFile.replace(matches[0], ''))
     })
   } else {
-    core.warning(`Could not find ${rcFilePath} to remove micromamba activate ${environmentName} from.`)
+    core.debug(`Could not find ${rcFilePath} to remove micromamba activate ${environmentName} from.
+     This is because \`micromamba shell deinit -s cmd.exe\` already did that.`)
     return Promise.resolve(undefined)
   }
 }

@@ -66,6 +66,10 @@ const removeMicromambaBinary = (options: Options) => {
 }
 
 const removeAutoActivation = (options: Options) => {
+  if (!options.createEnvironment) {
+    core.debug('No environment created. Skipping removal of auto activation line.')
+    return Promise.resolve(undefined)
+  }
   return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) =>
     Promise.all(options.initShell.map((shell) => removeEnvironmentFromAutoActivate(options, environmentName, shell)))
   )
@@ -73,10 +77,6 @@ const removeAutoActivation = (options: Options) => {
 
 const cleanup = (options: Options) => {
   const postCleanup = options.postCleanup
-  if (!options.environmentFile && !options.environmentName) {
-    core.warning('No environment name or file specified. Skipping cleanup.')
-    return Promise.resolve(undefined)
-  }
   switch (postCleanup) {
     case 'none':
       return Promise.resolve(undefined)
