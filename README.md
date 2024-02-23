@@ -9,7 +9,7 @@ GitHub Action to set up the [micromamba](https://github.com/mamba-org/mamba#micr
 ```yml
 - uses: mamba-org/setup-micromamba@v1
   with:
-    micromamba-version: '1.3.1-0'
+    micromamba-version: '1.5.6-0' # any version from https://github.com/mamba-org/micromamba-releases
     environment-file: environment.yml
     init-shell: >-
       bash
