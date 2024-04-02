@@ -29,7 +29,7 @@
     "@actions/exec": "^1.1.1",
     "@actions/io": "^1.1.3",
     "@actions/tool-cache": "^2.0.1",
-    "fp-ts": "^2.16.2",
+    "fp-ts": "^2.16.5",
     "js-yaml": "^4.1.0",
     "untildify": "^5.0.0",
     "which": "^4.0.0",

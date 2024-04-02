@@ -21,8 +21,8 @@ dependencies:
     specifier: ^2.0.1
     version: 2.0.1
   fp-ts:
-    specifier: ^2.16.2
-    version: 2.16.2
+    specifier: ^2.16.5
+    version: 2.16.5
   js-yaml:
     specifier: ^4.1.0
     version: 4.1.0
@@ -1731,8 +1731,8 @@ packages:
       mime-types: 2.1.35
     dev: false
 
-  /fp-ts@2.16.2:
-    resolution: {integrity: sha512-CkqAjnIKFqvo3sCyoBTqgJvF+bHrSik584S9nhTjtBESLx26cbtVMR/T9a6ApChOcSDAaM3JydDmWDUn4EEXng==}
+  /fp-ts@2.16.5:
+    resolution: {integrity: sha512-N8T8PwMSeTKKtkm9lkj/zSTAnPC/aJIIrQhnHxxkL0KLsRCNUPANksJOlMXxcKKCo7H1ORP3No9EMD+fP0tsdA==}
     dev: false
 
   /fs.realpath@1.0.0:
