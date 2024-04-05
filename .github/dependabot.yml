@@ -4,13 +4,15 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    groups:
+      actions:
+        patterns:
+          - "*"
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: monthly
     groups:
-      dev-dependencies:
+      node:
         patterns:
-          - "*eslint*"
-          - "@types/*"
-          - "prettier"
+          - "*"
