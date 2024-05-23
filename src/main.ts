@@ -199,16 +199,18 @@ const run = async () => {
   await generateInfo(options)
 }
 
-run().catch((error) => {
-  if (core.isDebug()) {
+run()
+  .catch((error) => {
+    if (core.isDebug()) {
+      throw error
+    }
+    if (error instanceof Error) {
+      core.setFailed(error.message)
+      exit(1)
+    } else if (typeof error === 'string') {
+      core.setFailed(error)
+      exit(1)
+    }
     throw error
-  }
-  if (error instanceof Error) {
-    core.setFailed(error.message)
-    exit(1)
-  } else if (typeof error === 'string') {
-    core.setFailed(error)
-    exit(1)
-  }
-  throw error
-})
+  })
+  .then(() => exit(0)) // workaround for https://github.com/actions/toolkit/issues/1578
