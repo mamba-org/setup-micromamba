@@ -83131,7 +83131,7 @@ run().catch((error) => {
     (0, import_process.exit)(1);
   }
   throw error;
-});
+}).then(() => (0, import_process.exit)(0));
 /*! Bundled license information:
 
 undici/lib/fetch/body.js:
