@@ -24,7 +24,7 @@ jobs:
           TAG_NAME: v${{ steps.version-metadata.outputs.newVersion }}
       - name: Create release
         if: steps.version-metadata.outputs.changed == 'true'
-        uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87
+        uses: softprops/action-gh-release@a74c6b72af54cfa997e81df42d94703d6313a2d0
         with:
           generate_release_notes: true
           tag_name: v${{ steps.version-metadata.outputs.newVersion }}
