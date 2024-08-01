@@ -29,27 +29,27 @@
     "@actions/exec": "^1.1.1",
     "@actions/io": "^1.1.3",
     "@actions/tool-cache": "^2.0.1",
-    "fp-ts": "^2.16.5",
+    "fp-ts": "^2.16.9",
     "js-yaml": "^4.1.0",
     "untildify": "^5.0.0",
     "which": "^4.0.0",
-    "zod": "^3.22.4"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^20.12.4",
-    "@types/which": "^3.0.3",
-    "@typescript-eslint/eslint-plugin": "^7.5.0",
-    "@typescript-eslint/parser": "^7.5.0",
-    "eslint": "^8.57.0",
+    "@types/node": "^22.0.2",
+    "@types/which": "^3.0.4",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-n": "^16.6.2",
-    "eslint-plugin-prettier": "^5.1.3",
-    "eslint-plugin-promise": "^6.1.1",
-    "prettier": "^3.2.5",
-    "tsup": "^8.0.2",
-    "typescript": "^5.4.4"
+    "eslint-plugin-n": "^17.10.1",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-promise": "^7.0.0",
+    "prettier": "^3.3.3",
+    "tsup": "^8.2.3",
+    "typescript": "^5.5.4"
   }
 }
