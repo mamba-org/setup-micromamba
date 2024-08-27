@@ -15,7 +15,7 @@ const core = process.env.MOCKING ? coreMocked : coreDefault
 
 const getMicromambaUrlFromVersion = (arch: string, version: string) => {
   if (version === 'latest') {
-    return `https://github.com/mamba-org/micromamba-releases/releases/2.0.0rc3-0/download/micromamba-${arch}`
+    return `https://github.com/mamba-org/micromamba-releases/releases/download/2.0.0rc3-0/micromamba-${arch}`
   }
   return `https://github.com/mamba-org/micromamba-releases/releases/download/${version}/micromamba-${arch}`
 }
