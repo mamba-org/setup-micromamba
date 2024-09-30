@@ -40,7 +40,11 @@ const generateEnvironmentKey = (options: Options, prefix: string) => {
   const envName = options.environmentName ? `-${options.environmentName}` : ''
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : ''
   const rootPrefix = `-root-${sha256Short(options.micromambaRootPath)}`
-  const key = `${prefix}${arch}${envName}${createArgs}${rootPrefix}`
+  const binHash = fs.readBinaryFile(options.micromambaBinPath).then((content) => {
+    return sha256(content)
+  })
+
+  const key = `${prefix}${arch}${envName}${createArgs}${rootPrefix}-bin-${binHash}`
 
   if (options.environmentFile) {
     return fs.readFile(options.environmentFile, 'utf-8').then((content) => {
