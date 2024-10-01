@@ -82934,7 +82934,7 @@ var generateEnvironmentKey = (options, prefix2) => {
   const envName = options.environmentName ? `-${options.environmentName}` : "";
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : "";
   const rootPrefix = `-root-${sha256Short(options.micromambaRootPath)}`;
-  const binHash = fs5.readBinaryFile(options.micromambaBinPath).then(sha256);
+  const binHash = fs5.readFile(options.micromambaBinPath).then(sha256);
   const key = `${prefix2}${arch3}${envName}${createArgs}${rootPrefix}-bin-${binHash}`;
   if (options.environmentFile) {
     return fs5.readFile(options.environmentFile, "utf-8").then((content) => {
