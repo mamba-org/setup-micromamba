@@ -39,7 +39,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./
       - run: |
-          micromamba info | grep -q "environment : None (not found)"
+          micromamba info | grep -q "environment : base"
         shell: bash -el {0}
 
   micromamba-old-version-1:
@@ -170,7 +170,7 @@ jobs:
           condarc-file: 'test/.condarc'
       - run: | # this should only work when the pytorch channel is loaded, i.e., the custom condarc is used
           micromamba search pytorch=2.0.0
-          micromamba search pytorch=2.0.0 | grep -q "pytorch 2.0.0 py3.10_cpu_0"
+          micromamba search pytorch=2.0.0 | grep -q "pytorch 2.0.0   py3.10_cpu_0"
         shell: bash -el {0}
 
   conda-lock:
