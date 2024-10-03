@@ -38,6 +38,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./
+        with:
+          micromamba-version: 2.0.2-0
       - run: |
           micromamba info | grep -q "environment : base"
         shell: bash -el {0}
@@ -168,6 +170,7 @@ jobs:
         with:
           environment-file: 'test/environment.yml'
           condarc-file: 'test/.condarc'
+          micromamba-version: 2.0.2-0
       - run: | # this should only work when the pytorch channel is loaded, i.e., the custom condarc is used
           micromamba search pytorch=2.0.0
           micromamba search pytorch=2.0.0 | grep -q "pytorch 2.0.0   py3.10_cpu_0"
