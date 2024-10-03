@@ -19205,7 +19205,7 @@ var require_io = __commonJS({
           if (path5.relative(source, newDest) === "") {
             throw new Error(`'${newDest}' and '${source}' are the same file`);
           }
-          yield copyFile(source, newDest, force);
+          yield copyFile2(source, newDest, force);
         }
       });
     }
@@ -19344,13 +19344,13 @@ var require_io = __commonJS({
           if (srcFileStat.isDirectory()) {
             yield cpDirRecursive(srcFile, destFile, currentDepth, force);
           } else {
-            yield copyFile(srcFile, destFile, force);
+            yield copyFile2(srcFile, destFile, force);
           }
         }
         yield ioUtil.chmod(destDir, (yield ioUtil.stat(sourceDir)).mode);
       });
     }
-    function copyFile(srcFile, destFile, force) {
+    function copyFile2(srcFile, destFile, force) {
       return __awaiter(this, void 0, void 0, function* () {
         if ((yield ioUtil.lstat(srcFile)).isSymbolicLink()) {
           try {
@@ -82690,7 +82690,7 @@ var determineMicromambaInstallation = (micromambaBinPath, downloadMicromamba2) =
 var inferOptions = (inputs) => {
   const createEnvironment2 = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
   const logLevel = inputs.logLevel || (core3.isDebug() ? "debug" : "warning");
-  const micromambaSource = inputs.micromambaUrl ? (0, import_Either2.right)(inputs.micromambaUrl) : (0, import_Either2.left)(inputs.micromambaVersion || "1.5.10-0");
+  const micromambaSource = inputs.micromambaUrl ? (0, import_Either2.right)(inputs.micromambaUrl) : (0, import_Either2.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
   const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;
   const { downloadMicromamba: downloadMicromamba2, micromambaBinPath } = determineMicromambaInstallation(
@@ -82844,6 +82844,11 @@ var copyMambaInitBlockToBashProfile = () => {
     return fs3.appendFile(PATHS.bashProfile, matches[0]);
   });
 };
+var copyMambaBatToMicromambaBat = (options) => {
+  const mambaBat = import_path.default.join(options.micromambaRootPath, "condabin", "mamba.bat");
+  const micromambaBat = import_path.default.join(options.micromambaRootPath, "condabin", "micromamba.bat");
+  return fs3.copyFile(mambaBat, micromambaBat);
+};
 var shellInit = (options, shell) => {
   core4.startGroup(`Initialize micromamba for ${shell}.`);
   const rootPrefixFlag = getRootPrefixFlagForInit(options);
@@ -82857,6 +82862,11 @@ var shellInit = (options, shell) => {
   );
   if (os4.platform() === "linux" && shell === "bash") {
     return command.then(copyMambaInitBlockToBashProfile).finally(core4.endGroup);
+  }
+  if (os4.platform() === "win32" && shell === "cmd.exe") {
+    return command.then(() => {
+      return copyMambaBatToMicromambaBat(options);
+    }).finally(core4.endGroup);
   }
   return command.finally(core4.endGroup);
 };
