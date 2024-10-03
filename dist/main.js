@@ -82690,7 +82690,7 @@ var determineMicromambaInstallation = (micromambaBinPath, downloadMicromamba2) =
 var inferOptions = (inputs) => {
   const createEnvironment2 = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
   const logLevel = inputs.logLevel || (core3.isDebug() ? "debug" : "warning");
-  const micromambaSource = inputs.micromambaUrl ? (0, import_Either2.right)(inputs.micromambaUrl) : (0, import_Either2.left)(inputs.micromambaVersion || "latest");
+  const micromambaSource = inputs.micromambaUrl ? (0, import_Either2.right)(inputs.micromambaUrl) : (0, import_Either2.left)(inputs.micromambaVersion || "1.5.10-0");
   const writeToCondarc = inputs.condarcFile === void 0;
   const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;
   const { downloadMicromamba: downloadMicromamba2, micromambaBinPath } = determineMicromambaInstallation(
