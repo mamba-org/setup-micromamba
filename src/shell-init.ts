@@ -37,6 +37,12 @@ const removeMambaInitBlockFromBashProfile = () => {
   })
 }
 
+const copyMambaBatToMicromambaBat = (options: Options) => {
+  const mambaBat = path.join(options.micromambaRootPath, 'condabin', 'mamba.bat')
+  const micromambaBat = path.join(options.micromambaRootPath, 'condabin', 'micromamba.bat')
+  return fs.copyFile(mambaBat, micromambaBat)
+}
+
 export const shellInit = (options: Options, shell: string) => {
   core.startGroup(`Initialize micromamba for ${shell}.`)
   const rootPrefixFlag = getRootPrefixFlagForInit(options)
@@ -52,6 +58,15 @@ export const shellInit = (options: Options, shell: string) => {
   if (os.platform() === 'linux' && shell === 'bash') {
     return command.then(copyMambaInitBlockToBashProfile).finally(core.endGroup)
   }
+
+  if (os.platform() === 'win32' && shell === 'cmd.exe') {
+    return command
+      .then(() => {
+        return copyMambaBatToMicromambaBat(options)
+      })
+      .finally(core.endGroup)
+  }
+
   return command.finally(core.endGroup)
 }
 

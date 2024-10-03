@@ -146,7 +146,7 @@ const inferOptions = (inputs: Inputs): Options => {
   // if micromambaUrl is specified, use that, otherwise use micromambaVersion (or 'latest' if not specified)
   const micromambaSource = inputs.micromambaUrl
     ? right(inputs.micromambaUrl)
-    : left(inputs.micromambaVersion || '1.5.10-0')
+    : left(inputs.micromambaVersion || 'latest')
 
   // we write to condarc if a condarc file is not already specified
   const writeToCondarc = inputs.condarcFile === undefined

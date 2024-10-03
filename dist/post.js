@@ -21190,7 +21190,7 @@ var require_io = __commonJS({
           if (path5.relative(source, newDest) === "") {
             throw new Error(`'${newDest}' and '${source}' are the same file`);
           }
-          yield copyFile(source, newDest, force);
+          yield copyFile2(source, newDest, force);
         }
       });
     }
@@ -21329,13 +21329,13 @@ var require_io = __commonJS({
           if (srcFileStat.isDirectory()) {
             yield cpDirRecursive(srcFile, destFile, currentDepth, force);
           } else {
-            yield copyFile(srcFile, destFile, force);
+            yield copyFile2(srcFile, destFile, force);
           }
         }
         yield ioUtil.chmod(destDir, (yield ioUtil.stat(sourceDir)).mode);
       });
     }
-    function copyFile(srcFile, destFile, force) {
+    function copyFile2(srcFile, destFile, force) {
       return __awaiter(this, void 0, void 0, function* () {
         if ((yield ioUtil.lstat(srcFile)).isSymbolicLink()) {
           try {
@@ -81733,7 +81733,7 @@ var determineMicromambaInstallation = (micromambaBinPath, downloadMicromamba) =>
 var inferOptions = (inputs) => {
   const createEnvironment = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
   const logLevel = inputs.logLevel || (core3.isDebug() ? "debug" : "warning");
-  const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "1.5.10-0");
+  const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
   const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;
   const { downloadMicromamba, micromambaBinPath } = determineMicromambaInstallation(
