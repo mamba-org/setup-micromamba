@@ -138,7 +138,7 @@ jobs:
         with:
           init-shell: cmd.exe
           environment-file: 'test/environment.yml'
-          micromamba-version: 1.5.10-2
+          micromamba-version: 1.5.10-0
       - name: micromamba info (cmd.exe)
         run: micromamba info
         shell: cmd /C CALL {0}
