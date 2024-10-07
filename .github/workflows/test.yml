@@ -130,6 +130,20 @@ jobs:
         shell: cmd /C CALL {0}
       # TODO: cmd equivalent of `micromamba info | grep -q "environment : env-name"`
 
+  cmd-old-micromamba-version:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./
+        with:
+          init-shell: cmd.exe
+          environment-file: 'test/environment.yml'
+          micromamba-version: 1.5.10-2
+      - name: micromamba info (cmd.exe)
+        run: micromamba info
+        shell: cmd /C CALL {0}
+      # TODO: cmd equivalent of `micromamba info | grep -q "environment : env-name"`
+
   powershell:
     strategy:
       matrix:
