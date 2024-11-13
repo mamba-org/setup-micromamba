@@ -83066,7 +83066,7 @@ var generateInfo = (options) => {
     ).then(([_exitCode, environmentName]) => {
       core6.endGroup();
       core6.startGroup("micromamba list");
-      return execute(micromambaCmd(options, `list -r ${options.micromambaRootPath} -n ${environmentName}`));
+      return execute(micromambaCmd(options, `list --log-level 1 -r ${options.micromambaRootPath} -n ${environmentName}`));
     });
   }
   return command.finally(core6.endGroup);
