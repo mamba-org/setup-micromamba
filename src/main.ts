@@ -120,7 +120,7 @@ const generateInfo = (options: Options) => {
       .then(([_exitCode, environmentName]) => {
         core.endGroup()
         core.startGroup('micromamba list')
-        return execute(micromambaCmd(options, `list -r ${options.micromambaRootPath} -n ${environmentName}`))
+        return execute(micromambaCmd(options, `list --log-level 1 -r ${options.micromambaRootPath} -n ${environmentName}`))
       })
   }
   return command.finally(core.endGroup)
