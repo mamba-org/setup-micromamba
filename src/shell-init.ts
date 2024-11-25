@@ -44,6 +44,7 @@ const copyMambaBatToMicromambaBat = (options: Options) => {
     const micromambaBat = path.join(options.micromambaRootPath, 'condabin', 'micromamba.bat')
     return fs.copyFile(mambaBat, micromambaBat)
   }
+  return Promise.resolve(undefined)
 }
 
 export const shellInit = (options: Options, shell: string) => {

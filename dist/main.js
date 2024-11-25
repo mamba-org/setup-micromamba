@@ -82851,6 +82851,7 @@ var copyMambaBatToMicromambaBat = (options) => {
     const micromambaBat = import_path.default.join(options.micromambaRootPath, "condabin", "micromamba.bat");
     return fs3.copyFile(mambaBat, micromambaBat);
   }
+  return Promise.resolve(void 0);
 };
 var shellInit = (options, shell) => {
   core4.startGroup(`Initialize micromamba for ${shell}.`);
