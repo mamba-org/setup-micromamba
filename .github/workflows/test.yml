@@ -54,7 +54,7 @@ jobs:
           environment-file: 'test/environment.yml'
       - run: test "$(micromamba --version)" = 1.4.5
         shell: bash -el {0}
-
+  
   micromamba-old-version-2:
     runs-on: ubuntu-latest
     steps:
@@ -65,7 +65,7 @@ jobs:
           environment-file: 'test/environment.yml'
       - run: test "$(micromamba --version)" = 1.2.0
         shell: bash -el {0}
-
+  
   micromamba-shell:
     strategy:
       matrix:
@@ -123,7 +123,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./
         with:
-          micromamba-version: 2.0.2-0
           init-shell: cmd.exe
           environment-file: 'test/environment.yml'
       - name: micromamba info (cmd.exe)
@@ -188,7 +187,7 @@ jobs:
       - run: |
           micromamba list | grep -q "python              3.11.3    h2755cc3_0_cpython  conda-forge"
         shell: bash -el {0}
-
+  
   comment-in-environment-file:
     runs-on: ubuntu-latest
     steps:
