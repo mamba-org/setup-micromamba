@@ -82829,6 +82829,7 @@ var getOptions = () => {
 
 // src/shell-init.ts
 var fs3 = __toESM(require("fs/promises"));
+var import_fs = require("fs");
 var os4 = __toESM(require("os"));
 var import_path = __toESM(require("path"));
 var coreDefault3 = __toESM(require_core());
@@ -82847,7 +82848,11 @@ var copyMambaInitBlockToBashProfile = () => {
 var copyMambaBatToMicromambaBat = (options) => {
   const mambaBat = import_path.default.join(options.micromambaRootPath, "condabin", "mamba.bat");
   const micromambaBat = import_path.default.join(options.micromambaRootPath, "condabin", "micromamba.bat");
-  return fs3.copyFile(mambaBat, micromambaBat);
+  if ((0, import_fs.existsSync)(mambaBat)) {
+    return fs3.copyFile(mambaBat, micromambaBat);
+  } else {
+    return Promise.resolve(void 0);
+  }
 };
 var shellInit = (options, shell) => {
   core4.startGroup(`Initialize micromamba for ${shell}.`);
