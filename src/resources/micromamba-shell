@@ -4,4 +4,4 @@
 # The script then executes the contents of the file.
 
 chmod +x $1
-$MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
+exec $MAMBA_EXE run -r $MAMBA_ROOT_PREFIX -n $MAMBA_DEFAULT_ENV $1
