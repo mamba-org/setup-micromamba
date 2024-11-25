@@ -39,8 +39,12 @@ const removeMambaInitBlockFromBashProfile = () => {
 
 const copyMambaBatToMicromambaBat = (options: Options) => {
   const mambaBat = path.join(options.micromambaRootPath, 'condabin', 'mamba.bat')
-  const micromambaBat = path.join(options.micromambaRootPath, 'condabin', 'micromamba.bat')
-  return fs.copyFile(mambaBat, micromambaBat)
+
+  if (existsSync(mambaBat)) {
+    const micromambaBat = path.join(options.micromambaRootPath, 'condabin', 'micromamba.bat')
+    return fs.copyFile(mambaBat, micromambaBat)
+  }
+  return Promise.resolve(undefined)
 }
 
 export const shellInit = (options: Options, shell: string) => {
