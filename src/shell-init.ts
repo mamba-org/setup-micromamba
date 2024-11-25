@@ -39,13 +39,10 @@ const removeMambaInitBlockFromBashProfile = () => {
 
 const copyMambaBatToMicromambaBat = (options: Options) => {
   const mambaBat = path.join(options.micromambaRootPath, 'condabin', 'mamba.bat')
-  const micromambaBat = path.join(options.micromambaRootPath, 'condabin', 'micromamba.bat')
 
-  if (existsSync(mambaBat) && !existsSync(micromambaBat)) {
-    core.info('Copying mamba.bat to micromamba.bat (compatibility with mamba 2.0.0, 2.0.1 and 2.0.2)')
+  if (existsSync(mambaBat)) {
+    const micromambaBat = path.join(options.micromambaRootPath, 'condabin', 'micromamba.bat')
     return fs.copyFile(mambaBat, micromambaBat)
-  } else {
-    core.info('Not copying mamba.bat to micromamba.bat because it already exists')
   }
 }
 
