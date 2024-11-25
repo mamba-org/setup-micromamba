@@ -42,7 +42,7 @@ const copyMambaBatToMicromambaBat = (options: Options) => {
   const micromambaBat = path.join(options.micromambaRootPath, 'condabin', 'micromamba.bat')
 
   if (existsSync(mambaBat) && !existsSync(micromambaBat)) {
-    core.info('Copying mamba.bat to micromamba.bat (compatibility with mamba 2.0.2, 2.0.3 and 2.0.4)')
+    core.info('Copying mamba.bat to micromamba.bat (compatibility with mamba 2.0.0, 2.0.1 and 2.0.2)')
     return fs.copyFile(mambaBat, micromambaBat)
   } else {
     core.info('Not copying mamba.bat to micromamba.bat because it already exists')
