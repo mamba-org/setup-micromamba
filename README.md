@@ -30,6 +30,17 @@ GitHub Action to set up the [micromamba](https://github.com/mamba-org/mamba#micr
 
 To see all available input arguments, see the [`action.yml`](action.yml) file.
 
+### Micromamba version
+
+You can specify the version of micromamba to be installed using the `micromamba-version` input.
+
+```yml
+- uses: mamba-org/setup-micromamba@v1
+  with:
+    # Any version from https://github.com/mamba-org/micromamba-releases
+    micromamba-version: '1.5.6-0'
+```
+
 ### Environment creation
 
 `setup-micromamba` allows you to create micromamba environments from an environment file or from a list of packages.
