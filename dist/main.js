@@ -82803,7 +82803,7 @@ var getOptions = () => {
     ),
     micromambaVersion: parseOrUndefined(
       "micromamba-version",
-      unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+-\d+$/)]),
+      unionType([literalType("latest"), stringType().regex(/^\d+\.\d+\.\d+(?:\.(?:rc|alpha|beta)\d+)?-\d+$/)]),
       "micromamba-version must be either `latest` or a version matching `1.2.3-0`."
     ),
     micromambaUrl: parseOrUndefined("micromamba-url", stringType().url()),
