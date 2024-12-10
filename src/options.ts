@@ -295,7 +295,7 @@ export const getOptions = () => {
     ),
     micromambaVersion: parseOrUndefined(
       'micromamba-version',
-      z.union([z.literal('latest'), z.string().regex(/^\d+\.\d+\.\d+-\d+$/)]),
+      z.union([z.literal('latest'), z.string().regex(/^\d+\.\d+\.\d+(?:\.?(?:rc|alpha|beta|dev)\d+)?-\d+$/)]),
       'micromamba-version must be either `latest` or a version matching `1.2.3-0`.'
     ),
     micromambaUrl: parseOrUndefined('micromamba-url', z.string().url()),
