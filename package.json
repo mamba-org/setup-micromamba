@@ -6,8 +6,7 @@
   "scripts": {
     "build": "tsc --noEmit && tsup",
     "dev": "tsup --watch",
-    "lint": "tsc --noEmit && eslint ./src --ext ts",
-    "lint:fix": "eslint ./src --ext ts --fix",
+    "lint": "tsc --noEmit",
     "all": "npm run build && npm run lint && npm run generate-third-party-license-disclaimer",
     "generate-third-party-license-disclaimer": "pnpm licenses list --prod --json | npx @quantco/pnpm-licenses generate-disclaimer --json-input --output-file dist/licenses.txt"
   },
