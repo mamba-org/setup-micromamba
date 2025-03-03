@@ -11711,7 +11711,7 @@ var require_headers = __commonJS({
         return headers;
       }
     };
-    var Headers2 = class _Headers {
+    var Headers = class _Headers {
       constructor(init = void 0) {
         if (init === kConstruct) {
           return;
@@ -11906,8 +11906,8 @@ var require_headers = __commonJS({
         return this[kHeadersList];
       }
     };
-    Headers2.prototype[Symbol.iterator] = Headers2.prototype.entries;
-    Object.defineProperties(Headers2.prototype, {
+    Headers.prototype[Symbol.iterator] = Headers.prototype.entries;
+    Object.defineProperties(Headers.prototype, {
       append: kEnumerableProperty,
       delete: kEnumerableProperty,
       get: kEnumerableProperty,
@@ -11939,7 +11939,7 @@ var require_headers = __commonJS({
     };
     module2.exports = {
       fill,
-      Headers: Headers2,
+      Headers,
       HeadersList
     };
   }
@@ -11949,7 +11949,7 @@ var require_headers = __commonJS({
 var require_response = __commonJS({
   "node_modules/.pnpm/undici@5.28.5/node_modules/undici/lib/fetch/response.js"(exports2, module2) {
     "use strict";
-    var { Headers: Headers2, HeadersList, fill } = require_headers();
+    var { Headers, HeadersList, fill } = require_headers();
     var { extractBody, cloneBody, mixinBody } = require_body();
     var util4 = require_util();
     var { kEnumerableProperty } = util4;
@@ -12041,7 +12041,7 @@ var require_response = __commonJS({
         init = webidl.converters.ResponseInit(init);
         this[kRealm] = { settingsObject: {} };
         this[kState] = makeResponse({});
-        this[kHeaders] = new Headers2(kConstruct);
+        this[kHeaders] = new Headers(kConstruct);
         this[kHeaders][kGuard] = "response";
         this[kHeaders][kHeadersList] = this[kState].headersList;
         this[kHeaders][kRealm] = this[kRealm];
@@ -12329,7 +12329,7 @@ var require_request2 = __commonJS({
   "node_modules/.pnpm/undici@5.28.5/node_modules/undici/lib/fetch/request.js"(exports2, module2) {
     "use strict";
     var { extractBody, mixinBody, cloneBody } = require_body();
-    var { Headers: Headers2, fill: fillHeaders, HeadersList } = require_headers();
+    var { Headers, fill: fillHeaders, HeadersList } = require_headers();
     var { FinalizationRegistry } = require_dispatcher_weakref()();
     var util4 = require_util();
     var {
@@ -12573,7 +12573,7 @@ var require_request2 = __commonJS({
             requestFinalizer.register(ac, { signal, abort });
           }
         }
-        this[kHeaders] = new Headers2(kConstruct);
+        this[kHeaders] = new Headers(kConstruct);
         this[kHeaders][kHeadersList] = request3.headersList;
         this[kHeaders][kGuard] = "request";
         this[kHeaders][kRealm] = this[kRealm];
@@ -12772,7 +12772,7 @@ var require_request2 = __commonJS({
         const clonedRequestObject = new _Request(kConstruct);
         clonedRequestObject[kState] = clonedRequest;
         clonedRequestObject[kRealm] = this[kRealm];
-        clonedRequestObject[kHeaders] = new Headers2(kConstruct);
+        clonedRequestObject[kHeaders] = new Headers(kConstruct);
         clonedRequestObject[kHeaders][kHeadersList] = clonedRequest.headersList;
         clonedRequestObject[kHeaders][kGuard] = this[kHeaders][kGuard];
         clonedRequestObject[kHeaders][kRealm] = this[kHeaders][kRealm];
@@ -12974,7 +12974,7 @@ var require_fetch = __commonJS({
       filterResponse,
       makeResponse
     } = require_response();
-    var { Headers: Headers2 } = require_headers();
+    var { Headers } = require_headers();
     var { Request, makeRequest } = require_request2();
     var zlib2 = require("zlib");
     var {
@@ -13061,7 +13061,7 @@ var require_fetch = __commonJS({
         this.emit("terminated", error);
       }
     };
-    function fetch2(input, init = {}) {
+    function fetch(input, init = {}) {
       webidl.argumentLengthCheck(arguments, 1, { header: "globalThis.fetch" });
       const p = createDeferredPromise();
       let requestObject;
@@ -13887,7 +13887,7 @@ var require_fetch = __commonJS({
               }
               let codings = [];
               let location = "";
-              const headers = new Headers2();
+              const headers = new Headers();
               if (Array.isArray(headersList)) {
                 for (let n = 0; n < headersList.length; n += 2) {
                   const key = headersList[n + 0].toString("latin1");
@@ -13972,7 +13972,7 @@ var require_fetch = __commonJS({
               if (status !== 101) {
                 return;
               }
-              const headers = new Headers2();
+              const headers = new Headers();
               for (let n = 0; n < headersList.length; n += 2) {
                 const key = headersList[n + 0].toString("latin1");
                 const val = headersList[n + 1].toString("latin1");
@@ -13991,7 +13991,7 @@ var require_fetch = __commonJS({
       }
     }
     module2.exports = {
-      fetch: fetch2,
+      fetch,
       Fetch,
       fetching,
       finalizeAndReportTiming
@@ -15821,10 +15821,10 @@ var require_cookies = __commonJS({
     var { parseSetCookie } = require_parse();
     var { stringify, getHeadersList } = require_util6();
     var { webidl } = require_webidl();
-    var { Headers: Headers2 } = require_headers();
+    var { Headers } = require_headers();
     function getCookies(headers) {
       webidl.argumentLengthCheck(arguments, 1, { header: "getCookies" });
-      webidl.brandCheck(headers, Headers2, { strict: false });
+      webidl.brandCheck(headers, Headers, { strict: false });
       const cookie = headers.get("cookie");
       const out = {};
       if (!cookie) {
@@ -15838,7 +15838,7 @@ var require_cookies = __commonJS({
     }
     function deleteCookie(headers, name, attributes) {
       webidl.argumentLengthCheck(arguments, 2, { header: "deleteCookie" });
-      webidl.brandCheck(headers, Headers2, { strict: false });
+      webidl.brandCheck(headers, Headers, { strict: false });
       name = webidl.converters.DOMString(name);
       attributes = webidl.converters.DeleteCookieAttributes(attributes);
       setCookie(headers, {
@@ -15850,7 +15850,7 @@ var require_cookies = __commonJS({
     }
     function getSetCookies(headers) {
       webidl.argumentLengthCheck(arguments, 1, { header: "getSetCookies" });
-      webidl.brandCheck(headers, Headers2, { strict: false });
+      webidl.brandCheck(headers, Headers, { strict: false });
       const cookies = getHeadersList(headers).cookies;
       if (!cookies) {
         return [];
@@ -15859,7 +15859,7 @@ var require_cookies = __commonJS({
     }
     function setCookie(headers, cookie) {
       webidl.argumentLengthCheck(arguments, 2, { header: "setCookie" });
-      webidl.brandCheck(headers, Headers2, { strict: false });
+      webidl.brandCheck(headers, Headers, { strict: false });
       cookie = webidl.converters.Cookie(cookie);
       const str2 = stringify(cookie);
       if (str2) {
@@ -16361,7 +16361,7 @@ var require_connection = __commonJS({
     var { CloseEvent } = require_events();
     var { makeRequest } = require_request2();
     var { fetching } = require_fetch();
-    var { Headers: Headers2 } = require_headers();
+    var { Headers } = require_headers();
     var { getGlobalDispatcher } = require_global2();
     var { kHeadersList } = require_symbols();
     var channels = {};
@@ -16386,7 +16386,7 @@ var require_connection = __commonJS({
         redirect: "error"
       });
       if (options.headers) {
-        const headersList = new Headers2(options.headers)[kHeadersList];
+        const headersList = new Headers(options.headers)[kHeadersList];
         request3.headersList = headersList;
       }
       const keyValue = crypto.randomBytes(16).toString("base64");
@@ -17293,7 +17293,7 @@ var require_undici = __commonJS({
     module2.exports.getGlobalDispatcher = getGlobalDispatcher;
     if (util4.nodeMajor > 16 || util4.nodeMajor === 16 && util4.nodeMinor >= 8) {
       let fetchImpl = null;
-      module2.exports.fetch = async function fetch2(resource) {
+      module2.exports.fetch = async function fetch(resource) {
         if (!fetchImpl) {
           fetchImpl = require_fetch().fetch;
         }
@@ -17440,11 +17440,11 @@ var require_lib = __commonJS({
       HttpCodes2[HttpCodes2["ServiceUnavailable"] = 503] = "ServiceUnavailable";
       HttpCodes2[HttpCodes2["GatewayTimeout"] = 504] = "GatewayTimeout";
     })(HttpCodes || (exports2.HttpCodes = HttpCodes = {}));
-    var Headers2;
-    (function(Headers3) {
-      Headers3["Accept"] = "accept";
-      Headers3["ContentType"] = "content-type";
-    })(Headers2 || (exports2.Headers = Headers2 = {}));
+    var Headers;
+    (function(Headers2) {
+      Headers2["Accept"] = "accept";
+      Headers2["ContentType"] = "content-type";
+    })(Headers || (exports2.Headers = Headers = {}));
     var MediaTypes;
     (function(MediaTypes2) {
       MediaTypes2["ApplicationJson"] = "application/json";
@@ -17599,7 +17599,7 @@ var require_lib = __commonJS({
        */
       getJson(requestUrl, additionalHeaders = {}) {
         return __awaiter6(this, void 0, void 0, function* () {
-          additionalHeaders[Headers2.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers2.Accept, MediaTypes.ApplicationJson);
+          additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
           const res = yield this.get(requestUrl, additionalHeaders);
           return this._processResponse(res, this.requestOptions);
         });
@@ -17607,8 +17607,8 @@ var require_lib = __commonJS({
       postJson(requestUrl, obj, additionalHeaders = {}) {
         return __awaiter6(this, void 0, void 0, function* () {
           const data = JSON.stringify(obj, null, 2);
-          additionalHeaders[Headers2.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers2.Accept, MediaTypes.ApplicationJson);
-          additionalHeaders[Headers2.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers2.ContentType, MediaTypes.ApplicationJson);
+          additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
+          additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
           const res = yield this.post(requestUrl, data, additionalHeaders);
           return this._processResponse(res, this.requestOptions);
         });
@@ -17616,8 +17616,8 @@ var require_lib = __commonJS({
       putJson(requestUrl, obj, additionalHeaders = {}) {
         return __awaiter6(this, void 0, void 0, function* () {
           const data = JSON.stringify(obj, null, 2);
-          additionalHeaders[Headers2.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers2.Accept, MediaTypes.ApplicationJson);
-          additionalHeaders[Headers2.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers2.ContentType, MediaTypes.ApplicationJson);
+          additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
+          additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
           const res = yield this.put(requestUrl, data, additionalHeaders);
           return this._processResponse(res, this.requestOptions);
         });
@@ -17625,8 +17625,8 @@ var require_lib = __commonJS({
       patchJson(requestUrl, obj, additionalHeaders = {}) {
         return __awaiter6(this, void 0, void 0, function* () {
           const data = JSON.stringify(obj, null, 2);
-          additionalHeaders[Headers2.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers2.Accept, MediaTypes.ApplicationJson);
-          additionalHeaders[Headers2.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers2.ContentType, MediaTypes.ApplicationJson);
+          additionalHeaders[Headers.Accept] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.Accept, MediaTypes.ApplicationJson);
+          additionalHeaders[Headers.ContentType] = this._getExistingOrDefaultHeader(additionalHeaders, Headers.ContentType, MediaTypes.ApplicationJson);
           const res = yield this.patch(requestUrl, data, additionalHeaders);
           return this._processResponse(res, this.requestOptions);
         });
@@ -25465,9 +25465,9 @@ var require_glob = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/constants.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/constants.js
 var require_constants6 = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/constants.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/constants.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.CacheFileSizeLimit = exports2.ManifestFilename = exports2.TarFilename = exports2.SystemTarPathOnWindows = exports2.GnuTarPathOnWindows = exports2.SocketTimeout = exports2.DefaultRetryDelay = exports2.DefaultRetryAttempts = exports2.ArchiveToolType = exports2.CompressionMethod = exports2.CacheFilename = void 0;
@@ -25498,9 +25498,9 @@ var require_constants6 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/cacheUtils.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/cacheUtils.js
 var require_cacheUtils = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/cacheUtils.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/cacheUtils.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
@@ -25735,13 +25735,13 @@ var require_cacheUtils = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/pipeline.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/pipeline.js
 function createEmptyPipeline() {
   return HttpPipeline.create();
 }
 var ValidPhaseNames, HttpPipeline;
 var init_pipeline = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/pipeline.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/pipeline.js"() {
     "use strict";
     ValidPhaseNames = /* @__PURE__ */ new Set(["Deserialize", "Serialize", "Retry", "Sign"]);
     HttpPipeline = class _HttpPipeline {
@@ -26107,10 +26107,10 @@ var init_esm = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/log.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/log.js
 var logger;
 var init_log2 = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/log.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/log.js"() {
     "use strict";
     init_esm();
     logger = createClientLogger("core-rest-pipeline");
@@ -26339,10 +26339,10 @@ var init_esm3 = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/sanitizer.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/sanitizer.js
 var RedactedString, defaultAllowedHeaderNames, defaultAllowedQueryParameters, Sanitizer;
 var init_sanitizer = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/sanitizer.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/sanitizer.js"() {
     "use strict";
     init_esm3();
     RedactedString = "REDACTED";
@@ -26466,7 +26466,7 @@ var init_sanitizer = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/logPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/logPolicy.js
 function logPolicy(options = {}) {
   var _a3;
   const logger5 = (_a3 = options.logger) !== null && _a3 !== void 0 ? _a3 : logger.info;
@@ -26490,7 +26490,7 @@ function logPolicy(options = {}) {
 }
 var logPolicyName;
 var init_logPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/logPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/logPolicy.js"() {
     "use strict";
     init_log2();
     init_sanitizer();
@@ -26498,7 +26498,7 @@ var init_logPolicy = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/redirectPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/redirectPolicy.js
 function redirectPolicy(options = {}) {
   const { maxRetries = 20 } = options;
   return {
@@ -26528,14 +26528,14 @@ async function handleRedirect(next, response, maxRetries, currentRetries = 0) {
 }
 var redirectPolicyName, allowedRedirect;
 var init_redirectPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/redirectPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/redirectPolicy.js"() {
     "use strict";
     redirectPolicyName = "redirectPolicy";
     allowedRedirect = ["GET", "HEAD"];
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/userAgentPlatform.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/userAgentPlatform.js
 function getHeaderName() {
   return "User-Agent";
 }
@@ -26554,24 +26554,24 @@ async function setPlatformSpecificData(map3) {
 }
 var os5, process3;
 var init_userAgentPlatform = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/userAgentPlatform.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/userAgentPlatform.js"() {
     "use strict";
     os5 = __toESM(require("os"), 1);
     process3 = __toESM(require("process"), 1);
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/constants.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/constants.js
 var SDK_VERSION, DEFAULT_RETRY_POLICY_COUNT;
 var init_constants = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/constants.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/constants.js"() {
     "use strict";
-    SDK_VERSION = "1.18.1";
+    SDK_VERSION = "1.19.0";
     DEFAULT_RETRY_POLICY_COUNT = 3;
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/userAgent.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/userAgent.js
 function getUserAgentString(telemetryInfo) {
   const parts = [];
   for (const [key, value] of telemetryInfo) {
@@ -26592,14 +26592,14 @@ async function getUserAgentValue(prefix2) {
   return userAgentValue;
 }
 var init_userAgent = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/userAgent.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/userAgent.js"() {
     "use strict";
     init_userAgentPlatform();
     init_constants();
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/userAgentPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/userAgentPolicy.js
 function userAgentPolicy(options = {}) {
   const userAgentValue = getUserAgentValue(options.userAgentPrefix);
   return {
@@ -26614,7 +26614,7 @@ function userAgentPolicy(options = {}) {
 }
 var UserAgentHeaderName, userAgentPolicyName;
 var init_userAgentPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/userAgentPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/userAgentPolicy.js"() {
     "use strict";
     init_userAgent();
     UserAgentHeaderName = getUserAgentHeaderName();
@@ -26727,17 +26727,17 @@ var init_tslib_es6 = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/typeGuards.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/typeGuards.js
 function isBlob(x) {
   return typeof x.stream === "function";
 }
 var init_typeGuards2 = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/typeGuards.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/typeGuards.js"() {
     "use strict";
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/file.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/file.js
 function hasRawContent(x) {
   return typeof x[rawContent] === "function";
 }
@@ -26750,7 +26750,7 @@ function getRawContent(blob) {
 }
 var rawContent;
 var init_file = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/file.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/file.js"() {
     "use strict";
     init_esm3();
     init_typeGuards2();
@@ -26758,7 +26758,7 @@ var init_file = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/concat.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/concat.js
 function streamAsyncIterator() {
   return __asyncGenerator(this, arguments, function* streamAsyncIterator_1() {
     const reader = this.getReader();
@@ -26830,7 +26830,7 @@ async function concat(sources) {
 }
 var import_node_stream;
 var init_concat = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/concat.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/concat.js"() {
     "use strict";
     init_tslib_es6();
     import_node_stream = require("stream");
@@ -26839,7 +26839,7 @@ var init_concat = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/multipartPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/multipartPolicy.js
 function generateBoundary() {
   return `----AzSDKFormBoundary${randomUUID()}`;
 }
@@ -26935,7 +26935,7 @@ function multipartPolicy() {
 }
 var multipartPolicyName, maxBoundaryLength, validBoundaryCharacters;
 var init_multipartPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/multipartPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/multipartPolicy.js"() {
     "use strict";
     init_esm3();
     init_concat();
@@ -26946,7 +26946,7 @@ var init_multipartPolicy = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/decompressResponsePolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/decompressResponsePolicy.js
 function decompressResponsePolicy() {
   return {
     name: decompressResponsePolicyName,
@@ -26960,13 +26960,13 @@ function decompressResponsePolicy() {
 }
 var decompressResponsePolicyName;
 var init_decompressResponsePolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/decompressResponsePolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/decompressResponsePolicy.js"() {
     "use strict";
     decompressResponsePolicyName = "decompressResponsePolicy";
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/helpers.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/helpers.js
 function delay2(delayInMs, value, options) {
   return new Promise((resolve2, reject) => {
     let timer = void 0;
@@ -27009,14 +27009,14 @@ function parseHeaderValueAsNumber(response, headerName) {
 }
 var StandardAbortMessage2;
 var init_helpers = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/helpers.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/helpers.js"() {
     "use strict";
     init_esm2();
     StandardAbortMessage2 = "The operation was aborted.";
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/retryStrategies/throttlingRetryStrategy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/retryStrategies/throttlingRetryStrategy.js
 function getRetryAfterInMs(response) {
   if (!(response && [429, 503].includes(response.status)))
     return void 0;
@@ -27057,7 +27057,7 @@ function throttlingRetryStrategy() {
 }
 var RetryAfterHeader, AllRetryAfterHeaders;
 var init_throttlingRetryStrategy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/retryStrategies/throttlingRetryStrategy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/retryStrategies/throttlingRetryStrategy.js"() {
     "use strict";
     init_helpers();
     RetryAfterHeader = "Retry-After";
@@ -27065,7 +27065,7 @@ var init_throttlingRetryStrategy = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/retryStrategies/exponentialRetryStrategy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/retryStrategies/exponentialRetryStrategy.js
 function exponentialRetryStrategy(options = {}) {
   var _a3, _b2;
   const retryInterval = (_a3 = options.retryDelayInMs) !== null && _a3 !== void 0 ? _a3 : DEFAULT_CLIENT_RETRY_INTERVAL;
@@ -27102,7 +27102,7 @@ function isSystemError(err) {
 }
 var DEFAULT_CLIENT_RETRY_INTERVAL, DEFAULT_CLIENT_MAX_RETRY_INTERVAL;
 var init_exponentialRetryStrategy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/retryStrategies/exponentialRetryStrategy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/retryStrategies/exponentialRetryStrategy.js"() {
     "use strict";
     init_esm3();
     init_throttlingRetryStrategy();
@@ -27111,7 +27111,7 @@ var init_exponentialRetryStrategy = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/retryPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/retryPolicy.js
 function retryPolicy(strategies, options = { maxRetries: DEFAULT_RETRY_POLICY_COUNT }) {
   const logger5 = options.logger || retryPolicyLogger;
   return {
@@ -27195,7 +27195,7 @@ function retryPolicy(strategies, options = { maxRetries: DEFAULT_RETRY_POLICY_CO
 }
 var retryPolicyLogger, retryPolicyName;
 var init_retryPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/retryPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/retryPolicy.js"() {
     "use strict";
     init_helpers();
     init_esm();
@@ -27206,7 +27206,7 @@ var init_retryPolicy = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/defaultRetryPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/defaultRetryPolicy.js
 function defaultRetryPolicy(options = {}) {
   var _a3;
   return {
@@ -27218,7 +27218,7 @@ function defaultRetryPolicy(options = {}) {
 }
 var defaultRetryPolicyName;
 var init_defaultRetryPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/defaultRetryPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/defaultRetryPolicy.js"() {
     "use strict";
     init_exponentialRetryStrategy();
     init_throttlingRetryStrategy();
@@ -27228,7 +27228,7 @@ var init_defaultRetryPolicy = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/httpHeaders.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/httpHeaders.js
 function normalizeName(name) {
   return name.toLowerCase();
 }
@@ -27242,7 +27242,7 @@ function createHttpHeaders(rawHeaders) {
 }
 var HttpHeadersImpl;
 var init_httpHeaders = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/httpHeaders.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/httpHeaders.js"() {
     "use strict";
     HttpHeadersImpl = class {
       constructor(rawHeaders) {
@@ -27317,7 +27317,7 @@ var init_httpHeaders = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/formDataPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/formDataPolicy.js
 function formDataToFormDataMap(formData) {
   var _a3;
   const formDataMap = {};
@@ -27395,7 +27395,7 @@ async function prepareFormData(formData, request3) {
 }
 var formDataPolicyName;
 var init_formDataPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/formDataPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/formDataPolicy.js"() {
     "use strict";
     init_esm3();
     init_httpHeaders();
@@ -28773,7 +28773,7 @@ var require_dist3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/proxyPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/proxyPolicy.js
 function getEnvironmentValue(name) {
   if (process.env[name]) {
     return process.env[name];
@@ -28905,7 +28905,7 @@ function proxyPolicy(proxySettings, options) {
 }
 var import_https_proxy_agent, import_http_proxy_agent, HTTPS_PROXY, HTTP_PROXY, ALL_PROXY, NO_PROXY, proxyPolicyName, globalNoProxyList, noProxyListLoaded, globalBypassedMap;
 var init_proxyPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/proxyPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/proxyPolicy.js"() {
     "use strict";
     import_https_proxy_agent = __toESM(require_dist2(), 1);
     import_http_proxy_agent = __toESM(require_dist3(), 1);
@@ -28921,7 +28921,7 @@ var init_proxyPolicy = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/setClientRequestIdPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/setClientRequestIdPolicy.js
 function setClientRequestIdPolicy(requestIdHeaderName = "x-ms-client-request-id") {
   return {
     name: setClientRequestIdPolicyName,
@@ -28935,13 +28935,33 @@ function setClientRequestIdPolicy(requestIdHeaderName = "x-ms-client-request-id"
 }
 var setClientRequestIdPolicyName;
 var init_setClientRequestIdPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/setClientRequestIdPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/setClientRequestIdPolicy.js"() {
     "use strict";
     setClientRequestIdPolicyName = "setClientRequestIdPolicy";
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/tlsPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/agentPolicy.js
+function agentPolicy(agent) {
+  return {
+    name: agentPolicyName,
+    sendRequest: async (req, next) => {
+      if (!req.agent) {
+        req.agent = agent;
+      }
+      return next(req);
+    }
+  };
+}
+var agentPolicyName;
+var init_agentPolicy = __esm({
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/agentPolicy.js"() {
+    "use strict";
+    agentPolicyName = "agentPolicy";
+  }
+});
+
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/tlsPolicy.js
 function tlsPolicy(tlsSettings) {
   return {
     name: tlsPolicyName,
@@ -28955,7 +28975,7 @@ function tlsPolicy(tlsSettings) {
 }
 var tlsPolicyName;
 var init_tlsPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/tlsPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/tlsPolicy.js"() {
     "use strict";
     tlsPolicyName = "tlsPolicy";
   }
@@ -29139,17 +29159,17 @@ var init_esm4 = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/inspect.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/inspect.js
 var import_node_util2, custom;
 var init_inspect = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/inspect.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/inspect.js"() {
     "use strict";
     import_node_util2 = require("util");
     custom = import_node_util2.inspect.custom;
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/restError.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/restError.js
 function isRestError(e) {
   if (e instanceof RestError) {
     return true;
@@ -29158,7 +29178,7 @@ function isRestError(e) {
 }
 var errorSanitizer, RestError;
 var init_restError = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/restError.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/restError.js"() {
     "use strict";
     init_esm3();
     init_inspect();
@@ -29187,7 +29207,7 @@ var init_restError = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/tracingPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/tracingPolicy.js
 function tracingPolicy(options = {}) {
   const userAgentPromise = getUserAgentValue(options.userAgentPrefix);
   const sanitizer = new Sanitizer({
@@ -29279,9 +29299,11 @@ function tryProcessResponse(span, response) {
     if (serviceRequestId) {
       span.setAttribute("serviceRequestId", serviceRequestId);
     }
-    span.setStatus({
-      status: "success"
-    });
+    if (response.status >= 400) {
+      span.setStatus({
+        status: "error"
+      });
+    }
     span.end();
   } catch (e) {
     logger.warning(`Skipping tracing span processing due to an error: ${getErrorMessage(e)}`);
@@ -29289,7 +29311,7 @@ function tryProcessResponse(span, response) {
 }
 var tracingPolicyName;
 var init_tracingPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/tracingPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/tracingPolicy.js"() {
     "use strict";
     init_esm4();
     init_constants();
@@ -29302,11 +29324,14 @@ var init_tracingPolicy = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/createPipelineFromOptions.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/createPipelineFromOptions.js
 function createPipelineFromOptions(options) {
   var _a3;
   const pipeline = createEmptyPipeline();
   if (isNodeLike) {
+    if (options.agent) {
+      pipeline.addPolicy(agentPolicy(options.agent));
+    }
     if (options.tlsOptions) {
       pipeline.addPolicy(tlsPolicy(options.tlsOptions));
     }
@@ -29328,7 +29353,7 @@ function createPipelineFromOptions(options) {
   return pipeline;
 }
 var init_createPipelineFromOptions = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/createPipelineFromOptions.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/createPipelineFromOptions.js"() {
     "use strict";
     init_logPolicy();
     init_pipeline();
@@ -29341,12 +29366,13 @@ var init_createPipelineFromOptions = __esm({
     init_esm3();
     init_proxyPolicy();
     init_setClientRequestIdPolicy();
+    init_agentPolicy();
     init_tlsPolicy();
     init_tracingPolicy();
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/nodeHttpClient.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/nodeHttpClient.js
 function isReadableStream(body2) {
   return body2 && typeof body2.pipe === "function";
 }
@@ -29440,7 +29466,7 @@ function createNodeHttpClient() {
 }
 var http, https, zlib, import_node_stream2, DEFAULT_TLS_SETTINGS, ReportTransform, NodeHttpClient;
 var init_nodeHttpClient = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/nodeHttpClient.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/nodeHttpClient.js"() {
     "use strict";
     http = __toESM(require("http"), 1);
     https = __toESM(require("https"), 1);
@@ -29649,24 +29675,24 @@ var init_nodeHttpClient = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/defaultHttpClient.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/defaultHttpClient.js
 function createDefaultHttpClient() {
   return createNodeHttpClient();
 }
 var init_defaultHttpClient = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/defaultHttpClient.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/defaultHttpClient.js"() {
     "use strict";
     init_nodeHttpClient();
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/pipelineRequest.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/pipelineRequest.js
 function createPipelineRequest(options) {
   return new PipelineRequestImpl(options);
 }
 var PipelineRequestImpl;
 var init_pipelineRequest = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/pipelineRequest.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/pipelineRequest.js"() {
     "use strict";
     init_httpHeaders();
     init_esm3();
@@ -29691,14 +29717,16 @@ var init_pipelineRequest = __esm({
         this.requestId = options.requestId || randomUUID();
         this.allowInsecureConnection = (_f = options.allowInsecureConnection) !== null && _f !== void 0 ? _f : false;
         this.enableBrowserStreams = (_g = options.enableBrowserStreams) !== null && _g !== void 0 ? _g : false;
+        this.agent = options.agent;
+        this.tlsSettings = options.tlsSettings;
       }
     };
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/exponentialRetryPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/exponentialRetryPolicy.js
 var init_exponentialRetryPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/exponentialRetryPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/exponentialRetryPolicy.js"() {
     "use strict";
     init_exponentialRetryStrategy();
     init_retryPolicy();
@@ -29706,9 +29734,9 @@ var init_exponentialRetryPolicy = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/systemErrorRetryPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/systemErrorRetryPolicy.js
 var init_systemErrorRetryPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/systemErrorRetryPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/systemErrorRetryPolicy.js"() {
     "use strict";
     init_exponentialRetryStrategy();
     init_retryPolicy();
@@ -29716,9 +29744,9 @@ var init_systemErrorRetryPolicy = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/throttlingRetryPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/throttlingRetryPolicy.js
 var init_throttlingRetryPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/throttlingRetryPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/throttlingRetryPolicy.js"() {
     "use strict";
     init_throttlingRetryStrategy();
     init_retryPolicy();
@@ -29726,7 +29754,7 @@ var init_throttlingRetryPolicy = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/tokenCycler.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/tokenCycler.js
 async function beginRefresh(getAccessToken, retryIntervalInMs, refreshTimeout) {
   async function tryGetAccessToken() {
     if (Date.now() < refreshTimeout) {
@@ -29825,7 +29853,7 @@ function createTokenCycler(credential, tokenCyclerOptions) {
 }
 var DEFAULT_CYCLER_OPTIONS;
 var init_tokenCycler = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/util/tokenCycler.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/tokenCycler.js"() {
     "use strict";
     init_helpers();
     DEFAULT_CYCLER_OPTIONS = {
@@ -29839,7 +29867,7 @@ var init_tokenCycler = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/bearerTokenAuthenticationPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/bearerTokenAuthenticationPolicy.js
 async function trySendRequest(request3, next) {
   try {
     return [await next(request3), void 0];
@@ -30010,7 +30038,7 @@ function getCaeChallengeClaims(challenges) {
 }
 var bearerTokenAuthenticationPolicyName;
 var init_bearerTokenAuthenticationPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/bearerTokenAuthenticationPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/bearerTokenAuthenticationPolicy.js"() {
     "use strict";
     init_tokenCycler();
     init_log2();
@@ -30019,25 +30047,25 @@ var init_bearerTokenAuthenticationPolicy = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/ndJsonPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/ndJsonPolicy.js
 var init_ndJsonPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/ndJsonPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/ndJsonPolicy.js"() {
     "use strict";
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/auxiliaryAuthenticationHeaderPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/auxiliaryAuthenticationHeaderPolicy.js
 var init_auxiliaryAuthenticationHeaderPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/policies/auxiliaryAuthenticationHeaderPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/auxiliaryAuthenticationHeaderPolicy.js"() {
     "use strict";
     init_tokenCycler();
     init_log2();
   }
 });
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/index.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/index.js
 var init_esm5 = __esm({
-  "node_modules/.pnpm/@azure+core-rest-pipeline@1.18.1/node_modules/@azure/core-rest-pipeline/dist/esm/index.js"() {
+  "node_modules/.pnpm/@azure+core-rest-pipeline@1.19.0/node_modules/@azure/core-rest-pipeline/dist/esm/index.js"() {
     "use strict";
     init_pipeline();
     init_createPipelineFromOptions();
@@ -30063,6 +30091,7 @@ var init_esm5 = __esm({
     init_bearerTokenAuthenticationPolicy();
     init_ndJsonPolicy();
     init_auxiliaryAuthenticationHeaderPolicy();
+    init_agentPolicy();
     init_file();
   }
 });
@@ -30121,7 +30150,7 @@ var init_esm6 = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/policies/disableKeepAlivePolicy.js
+// node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/policies/disableKeepAlivePolicy.js
 function createDisableKeepAlivePolicy() {
   return {
     name: disableKeepAlivePolicyName,
@@ -30136,7 +30165,7 @@ function pipelineContainsDisableKeepAlivePolicy(pipeline) {
 }
 var disableKeepAlivePolicyName;
 var init_disableKeepAlivePolicy = __esm({
-  "node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/policies/disableKeepAlivePolicy.js"() {
+  "node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/policies/disableKeepAlivePolicy.js"() {
     "use strict";
     disableKeepAlivePolicyName = "DisableKeepAlivePolicy";
   }
@@ -31943,7 +31972,7 @@ var init_esm7 = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/util.js
+// node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/util.js
 function toPipelineRequest(webResource, options = {}) {
   const compatWebResource = webResource;
   const request3 = compatWebResource[originalRequestSymbol2];
@@ -31966,7 +31995,8 @@ function toPipelineRequest(webResource, options = {}) {
       onDownloadProgress: webResource.onDownloadProgress,
       onUploadProgress: webResource.onUploadProgress,
       proxySettings: webResource.proxySettings,
-      streamResponseStatusCodes: webResource.streamResponseStatusCodes
+      streamResponseStatusCodes: webResource.streamResponseStatusCodes,
+      agent: webResource.agent
     });
     if (options.originalRequest) {
       newRequest[originalClientRequestSymbol] = options.originalRequest;
@@ -31992,6 +32022,7 @@ function toWebResourceLike(request3, options) {
     onUploadProgress: request3.onUploadProgress,
     proxySettings: request3.proxySettings,
     streamResponseStatusCodes: request3.streamResponseStatusCodes,
+    agent: request3.agent,
     clone() {
       throw new Error("Cannot clone a non-proxied WebResourceLike");
     },
@@ -32032,7 +32063,8 @@ function toWebResourceLike(request3, options) {
           "onDownloadProgress",
           "onUploadProgress",
           "proxySettings",
-          "streamResponseStatusCodes"
+          "streamResponseStatusCodes",
+          "agent"
         ];
         if (typeof prop === "string" && passThroughProps.includes(prop)) {
           request3[prop] = value;
@@ -32052,7 +32084,7 @@ function getHeaderKey(headerName) {
 }
 var originalRequestSymbol2, originalClientRequestSymbol, HttpHeaders;
 var init_util = __esm({
-  "node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/util.js"() {
+  "node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/util.js"() {
     "use strict";
     init_esm5();
     originalRequestSymbol2 = Symbol("Original PipelineRequest");
@@ -32180,7 +32212,7 @@ var init_util = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/response.js
+// node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/response.js
 function toCompatResponse(response, options) {
   let request3 = toWebResourceLike(response.request);
   let headers = toHttpHeadersLike(response.headers);
@@ -32225,7 +32257,7 @@ function toPipelineResponse(compatResponse) {
 }
 var originalResponse;
 var init_response = __esm({
-  "node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/response.js"() {
+  "node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/response.js"() {
     "use strict";
     init_esm5();
     init_util();
@@ -32233,10 +32265,10 @@ var init_response = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/extendedClient.js
+// node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/extendedClient.js
 var ExtendedServiceClient;
 var init_extendedClient = __esm({
-  "node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/extendedClient.js"() {
+  "node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/extendedClient.js"() {
     "use strict";
     init_disableKeepAlivePolicy();
     init_esm5();
@@ -32285,7 +32317,7 @@ var init_extendedClient = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/policies/requestPolicyFactoryPolicy.js
+// node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/policies/requestPolicyFactoryPolicy.js
 function createRequestPolicyFactoryPolicy(factories) {
   const orderedFactories = factories.slice().reverse();
   return {
@@ -32308,7 +32340,7 @@ function createRequestPolicyFactoryPolicy(factories) {
 }
 var HttpPipelineLogLevel, mockRequestPolicyOptions, requestPolicyFactoryPolicyName;
 var init_requestPolicyFactoryPolicy = __esm({
-  "node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/policies/requestPolicyFactoryPolicy.js"() {
+  "node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/policies/requestPolicyFactoryPolicy.js"() {
     "use strict";
     init_util();
     init_response();
@@ -32329,7 +32361,7 @@ var init_requestPolicyFactoryPolicy = __esm({
   }
 });
 
-// node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/httpClientAdapter.js
+// node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/httpClientAdapter.js
 function convertHttpClient(requestPolicyClient) {
   return {
     sendRequest: async (request3) => {
@@ -32339,16 +32371,16 @@ function convertHttpClient(requestPolicyClient) {
   };
 }
 var init_httpClientAdapter = __esm({
-  "node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/httpClientAdapter.js"() {
+  "node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/httpClientAdapter.js"() {
     "use strict";
     init_response();
     init_util();
   }
 });
 
-// node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/index.js
+// node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/index.js
 var init_esm8 = __esm({
-  "node_modules/.pnpm/@azure+core-http-compat@2.1.2/node_modules/@azure/core-http-compat/dist/esm/index.js"() {
+  "node_modules/.pnpm/@azure+core-http-compat@2.2.0/node_modules/@azure/core-http-compat/dist/esm/index.js"() {
     "use strict";
     init_extendedClient();
     init_requestPolicyFactoryPolicy();
@@ -32358,9 +32390,9 @@ var init_esm8 = __esm({
   }
 });
 
-// node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/util.js
+// node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/util.js
 var require_util8 = __commonJS({
-  "node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/util.js"(exports2) {
+  "node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/util.js"(exports2) {
     "use strict";
     var nameStartChar = ":A-Za-z_\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD";
     var nameChar = nameStartChar + "\\-.\\d\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
@@ -32417,9 +32449,9 @@ var require_util8 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/validator.js
+// node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/validator.js
 var require_validator = __commonJS({
-  "node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/validator.js"(exports2) {
+  "node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/validator.js"(exports2) {
     "use strict";
     var util4 = require_util8();
     var defaultOptions = {
@@ -32729,9 +32761,9 @@ var require_validator = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlparser/OptionsBuilder.js
+// node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlparser/OptionsBuilder.js
 var require_OptionsBuilder = __commonJS({
-  "node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlparser/OptionsBuilder.js"(exports2) {
+  "node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlparser/OptionsBuilder.js"(exports2) {
     "use strict";
     var defaultOptions = {
       preserveOrder: false,
@@ -32785,9 +32817,9 @@ var require_OptionsBuilder = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlparser/xmlNode.js
+// node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlparser/xmlNode.js
 var require_xmlNode = __commonJS({
-  "node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlparser/xmlNode.js"(exports2, module2) {
+  "node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlparser/xmlNode.js"(exports2, module2) {
     "use strict";
     var XmlNode = class {
       constructor(tagname) {
@@ -32812,9 +32844,9 @@ var require_xmlNode = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlparser/DocTypeReader.js
+// node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlparser/DocTypeReader.js
 var require_DocTypeReader = __commonJS({
-  "node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlparser/DocTypeReader.js"(exports2, module2) {
+  "node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlparser/DocTypeReader.js"(exports2, module2) {
     "use strict";
     var util4 = require_util8();
     function readDocType(xmlData, i) {
@@ -32912,20 +32944,15 @@ var require_DocTypeReader = __commonJS({
   }
 });
 
-// node_modules/.pnpm/strnum@1.0.5/node_modules/strnum/strnum.js
+// node_modules/.pnpm/strnum@1.1.2/node_modules/strnum/strnum.js
 var require_strnum = __commonJS({
-  "node_modules/.pnpm/strnum@1.0.5/node_modules/strnum/strnum.js"(exports2, module2) {
+  "node_modules/.pnpm/strnum@1.1.2/node_modules/strnum/strnum.js"(exports2, module2) {
     "use strict";
     var hexRegex = /^[-+]?0x[a-fA-F0-9]+$/;
-    var numRegex = /^([\-\+])?(0*)(\.[0-9]+([eE]\-?[0-9]+)?|[0-9]+(\.[0-9]+([eE]\-?[0-9]+)?)?)$/;
-    if (!Number.parseInt && window.parseInt) {
-      Number.parseInt = window.parseInt;
-    }
-    if (!Number.parseFloat && window.parseFloat) {
-      Number.parseFloat = window.parseFloat;
-    }
+    var numRegex = /^([\-\+])?(0*)([0-9]*(\.[0-9]*)?)$/;
     var consider = {
       hex: true,
+      // oct: false,
       leadingZeros: true,
       decimalPoint: ".",
       eNotation: true
@@ -32936,24 +32963,37 @@ var require_strnum = __commonJS({
       if (!str2 || typeof str2 !== "string") return str2;
       let trimmedStr = str2.trim();
       if (options.skipLike !== void 0 && options.skipLike.test(trimmedStr)) return str2;
+      else if (str2 === "0") return 0;
       else if (options.hex && hexRegex.test(trimmedStr)) {
-        return Number.parseInt(trimmedStr, 16);
+        return parse_int(trimmedStr, 16);
+      } else if (trimmedStr.search(/[eE]/) !== -1) {
+        const notation = trimmedStr.match(/^([-\+])?(0*)([0-9]*(\.[0-9]*)?[eE][-\+]?[0-9]+)$/);
+        if (notation) {
+          if (options.leadingZeros) {
+            trimmedStr = (notation[1] || "") + notation[3];
+          } else {
+            if (notation[2] === "0" && notation[3][0] === ".") {
+            } else {
+              return str2;
+            }
+          }
+          return options.eNotation ? Number(trimmedStr) : str2;
+        } else {
+          return str2;
+        }
       } else {
         const match2 = numRegex.exec(trimmedStr);
         if (match2) {
           const sign = match2[1];
           const leadingZeros = match2[2];
           let numTrimmedByZeros = trimZeros(match2[3]);
-          const eNotation = match2[4] || match2[6];
           if (!options.leadingZeros && leadingZeros.length > 0 && sign && trimmedStr[2] !== ".") return str2;
           else if (!options.leadingZeros && leadingZeros.length > 0 && !sign && trimmedStr[1] !== ".") return str2;
+          else if (options.leadingZeros && leadingZeros === str2) return 0;
           else {
             const num = Number(trimmedStr);
             const numStr = "" + num;
             if (numStr.search(/[eE]/) !== -1) {
-              if (options.eNotation) return num;
-              else return str2;
-            } else if (eNotation) {
               if (options.eNotation) return num;
               else return str2;
             } else if (trimmedStr.indexOf(".") !== -1) {
@@ -32963,13 +33003,10 @@ var require_strnum = __commonJS({
               else return str2;
             }
             if (leadingZeros) {
-              if (numTrimmedByZeros === numStr) return num;
-              else if (sign + numTrimmedByZeros === numStr) return num;
-              else return str2;
+              return numTrimmedByZeros === numStr || sign + numTrimmedByZeros === numStr ? num : str2;
+            } else {
+              return trimmedStr === numStr || trimmedStr === sign + numStr ? num : str2;
             }
-            if (trimmedStr === numStr) return num;
-            else if (trimmedStr === sign + numStr) return num;
-            return str2;
           }
         } else {
           return str2;
@@ -32986,13 +33023,19 @@ var require_strnum = __commonJS({
       }
       return numStr;
     }
+    function parse_int(numStr, base) {
+      if (parseInt) return parseInt(numStr, base);
+      else if (Number.parseInt) return Number.parseInt(numStr, base);
+      else if (window && window.parseInt) return window.parseInt(numStr, base);
+      else throw new Error("parseInt, Number.parseInt, window.parseInt are not supported");
+    }
     module2.exports = toNumber;
   }
 });
 
-// node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/ignoreAttributes.js
+// node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/ignoreAttributes.js
 var require_ignoreAttributes = __commonJS({
-  "node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/ignoreAttributes.js"(exports2, module2) {
+  "node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/ignoreAttributes.js"(exports2, module2) {
     "use strict";
     function getIgnoreAttributesFn(ignoreAttributes) {
       if (typeof ignoreAttributes === "function") {
@@ -33016,9 +33059,9 @@ var require_ignoreAttributes = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlparser/OrderedObjParser.js
+// node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlparser/OrderedObjParser.js
 var require_OrderedObjParser = __commonJS({
-  "node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlparser/OrderedObjParser.js"(exports2, module2) {
+  "node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlparser/OrderedObjParser.js"(exports2, module2) {
     "use strict";
     var util4 = require_util8();
     var xmlNode = require_xmlNode();
@@ -33365,7 +33408,7 @@ var require_OrderedObjParser = __commonJS({
     };
     function saveTextToParentTag(textData, currentNode, jPath, isLeafNode) {
       if (textData) {
-        if (isLeafNode === void 0) isLeafNode = Object.keys(currentNode.child).length === 0;
+        if (isLeafNode === void 0) isLeafNode = currentNode.child.length === 0;
         textData = this.parseTextData(
           textData,
           currentNode.tagname,
@@ -33511,9 +33554,9 @@ var require_OrderedObjParser = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlparser/node2json.js
+// node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlparser/node2json.js
 var require_node2json = __commonJS({
-  "node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlparser/node2json.js"(exports2) {
+  "node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlparser/node2json.js"(exports2) {
     "use strict";
     function prettify(node, options) {
       return compress(node, options);
@@ -33598,9 +33641,9 @@ var require_node2json = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlparser/XMLParser.js
+// node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlparser/XMLParser.js
 var require_XMLParser = __commonJS({
-  "node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlparser/XMLParser.js"(exports2, module2) {
+  "node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlparser/XMLParser.js"(exports2, module2) {
     "use strict";
     var { buildOptions } = require_OptionsBuilder();
     var OrderedObjParser = require_OrderedObjParser();
@@ -33657,9 +33700,9 @@ var require_XMLParser = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlbuilder/orderedJs2Xml.js
+// node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlbuilder/orderedJs2Xml.js
 var require_orderedJs2Xml = __commonJS({
-  "node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlbuilder/orderedJs2Xml.js"(exports2, module2) {
+  "node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlbuilder/orderedJs2Xml.js"(exports2, module2) {
     "use strict";
     var EOL2 = "\n";
     function toXml(jArray, options) {
@@ -33783,9 +33826,9 @@ var require_orderedJs2Xml = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlbuilder/json2xml.js
+// node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlbuilder/json2xml.js
 var require_json2xml = __commonJS({
-  "node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/xmlbuilder/json2xml.js"(exports2, module2) {
+  "node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/xmlbuilder/json2xml.js"(exports2, module2) {
     "use strict";
     var buildFromOrderedJs = require_orderedJs2Xml();
     var getIgnoreAttributesFn = require_ignoreAttributes();
@@ -33871,6 +33914,8 @@ var require_json2xml = __commonJS({
           }
         } else if (jObj[key] === null) {
           if (this.isAttribute(key)) {
+            val += "";
+          } else if (key === this.options.cdataPropName) {
             val += "";
           } else if (key[0] === "?") {
             val += this.indentate(level) + "<" + key + "?" + this.tagEndChar;
@@ -34027,9 +34072,9 @@ var require_json2xml = __commonJS({
   }
 });
 
-// node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/fxp.js
+// node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/fxp.js
 var require_fxp = __commonJS({
-  "node_modules/.pnpm/fast-xml-parser@4.5.1/node_modules/fast-xml-parser/src/fxp.js"(exports2, module2) {
+  "node_modules/.pnpm/fast-xml-parser@4.5.3/node_modules/fast-xml-parser/src/fxp.js"(exports2, module2) {
     "use strict";
     var validator = require_validator();
     var XMLParser2 = require_XMLParser();
@@ -59016,9 +59061,9 @@ var init_src4 = __esm({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/shared/errors.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/shared/errors.js
 var require_errors2 = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/shared/errors.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/shared/errors.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.UsageError = exports2.NetworkError = exports2.GHESNotSupportedError = exports2.CacheNotFoundError = exports2.InvalidResponseError = exports2.FilesNotFoundError = void 0;
@@ -59093,9 +59138,9 @@ More info on storage limits: https://docs.github.com/en/billing/managing-billing
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/uploadUtils.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/uploadUtils.js
 var require_uploadUtils = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/uploadUtils.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/uploadUtils.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
@@ -59268,9 +59313,9 @@ var require_uploadUtils = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/requestUtils.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/requestUtils.js
 var require_requestUtils = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/requestUtils.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/requestUtils.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
@@ -59601,9 +59646,9 @@ var init_src5 = __esm({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/downloadUtils.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/downloadUtils.js
 var require_downloadUtils = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/downloadUtils.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/downloadUtils.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
@@ -59961,9 +60006,9 @@ var require_downloadUtils = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/options.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/options.js
 var require_options2 = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/options.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/options.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
@@ -60065,9 +60110,9 @@ var require_options2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/config.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/config.js
 var require_config = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/config.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/config.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.getCacheServiceURL = exports2.getCacheServiceVersion = exports2.isGhes = void 0;
@@ -60101,12 +60146,12 @@ var require_config = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/package.json
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/package.json
 var require_package = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/package.json"(exports2, module2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/package.json"(exports2, module2) {
     module2.exports = {
       name: "@actions/cache",
-      version: "4.0.0",
+      version: "4.0.2",
       preview: true,
       description: "Actions cache lib",
       keywords: [
@@ -60152,8 +60197,7 @@ var require_package = __commonJS({
         "@azure/ms-rest-js": "^2.6.0",
         "@azure/storage-blob": "^12.13.0",
         "@protobuf-ts/plugin": "^2.9.4",
-        semver: "^6.3.1",
-        "twirp-ts": "^2.5.0"
+        semver: "^6.3.1"
       },
       devDependencies: {
         "@types/semver": "^6.0.0",
@@ -60163,9 +60207,9 @@ var require_package = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/shared/user-agent.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/shared/user-agent.js
 var require_user_agent = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/shared/user-agent.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/shared/user-agent.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.getUserAgentString = void 0;
@@ -60177,9 +60221,9 @@ var require_user_agent = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/cacheHttpClient.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/cacheHttpClient.js
 var require_cacheHttpClient = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/cacheHttpClient.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/cacheHttpClient.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
@@ -60440,1458 +60484,6 @@ Other caches with similar key:`);
       });
     }
     exports2.saveCache = saveCache3;
-  }
-});
-
-// node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/context.js
-var require_context = __commonJS({
-  "node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/context.js"(exports2) {
-    "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-  }
-});
-
-// node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/hooks.js
-var require_hooks = __commonJS({
-  "node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/hooks.js"(exports2) {
-    "use strict";
-    var __awaiter6 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
-      function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve2) {
-          resolve2(value);
-        });
-      }
-      return new (P || (P = Promise))(function(resolve2, reject) {
-        function fulfilled(value) {
-          try {
-            step(generator.next(value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function rejected(value) {
-          try {
-            step(generator["throw"](value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function step(result) {
-          result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-        }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-      });
-    };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.isHook = exports2.chainHooks = void 0;
-    function chainHooks(...hooks) {
-      if (hooks.length === 0) {
-        return null;
-      }
-      if (hooks.length === 1) {
-        return hooks[0];
-      }
-      const serverHook = {
-        requestReceived(ctx) {
-          return __awaiter6(this, void 0, void 0, function* () {
-            for (const hook of hooks) {
-              if (!hook.requestReceived) {
-                continue;
-              }
-              yield hook.requestReceived(ctx);
-            }
-          });
-        },
-        requestPrepared(ctx) {
-          return __awaiter6(this, void 0, void 0, function* () {
-            for (const hook of hooks) {
-              if (!hook.requestPrepared) {
-                continue;
-              }
-              console.warn("hook requestPrepared is deprecated and will be removed in the next release. Please use responsePrepared instead.");
-              yield hook.requestPrepared(ctx);
-            }
-          });
-        },
-        responsePrepared(ctx) {
-          return __awaiter6(this, void 0, void 0, function* () {
-            for (const hook of hooks) {
-              if (!hook.responsePrepared) {
-                continue;
-              }
-              yield hook.responsePrepared(ctx);
-            }
-          });
-        },
-        requestSent(ctx) {
-          return __awaiter6(this, void 0, void 0, function* () {
-            for (const hook of hooks) {
-              if (!hook.requestSent) {
-                continue;
-              }
-              console.warn("hook requestSent is deprecated and will be removed in the next release. Please use responseSent instead.");
-              yield hook.requestSent(ctx);
-            }
-          });
-        },
-        responseSent(ctx) {
-          return __awaiter6(this, void 0, void 0, function* () {
-            for (const hook of hooks) {
-              if (!hook.responseSent) {
-                continue;
-              }
-              yield hook.responseSent(ctx);
-            }
-          });
-        },
-        requestRouted(ctx) {
-          return __awaiter6(this, void 0, void 0, function* () {
-            for (const hook of hooks) {
-              if (!hook.requestRouted) {
-                continue;
-              }
-              yield hook.requestRouted(ctx);
-            }
-          });
-        },
-        error(ctx, err) {
-          return __awaiter6(this, void 0, void 0, function* () {
-            for (const hook of hooks) {
-              if (!hook.error) {
-                continue;
-              }
-              yield hook.error(ctx, err);
-            }
-          });
-        }
-      };
-      return serverHook;
-    }
-    exports2.chainHooks = chainHooks;
-    function isHook(object) {
-      return "requestReceived" in object || "requestPrepared" in object || "requestSent" in object || "requestRouted" in object || "responsePrepared" in object || "responseSent" in object || "error" in object;
-    }
-    exports2.isHook = isHook;
-  }
-});
-
-// node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/errors.js
-var require_errors3 = __commonJS({
-  "node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/errors.js"(exports2) {
-    "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.isValidErrorCode = exports2.httpStatusFromErrorCode = exports2.TwirpErrorCode = exports2.BadRouteError = exports2.InternalServerErrorWith = exports2.InternalServerError = exports2.RequiredArgumentError = exports2.InvalidArgumentError = exports2.NotFoundError = exports2.TwirpError = void 0;
-    var TwirpError = class _TwirpError extends Error {
-      constructor(code, msg) {
-        super(msg);
-        this.code = TwirpErrorCode.Internal;
-        this.meta = {};
-        this.code = code;
-        this.msg = msg;
-        Object.setPrototypeOf(this, _TwirpError.prototype);
-      }
-      /**
-       * Adds a metadata kv to the error
-       * @param key
-       * @param value
-       */
-      withMeta(key, value) {
-        this.meta[key] = value;
-        return this;
-      }
-      /**
-       * Returns a single metadata value
-       * return "" if not found
-       * @param key
-       */
-      getMeta(key) {
-        return this.meta[key] || "";
-      }
-      /**
-       * Add the original error cause
-       * @param err
-       * @param addMeta
-       */
-      withCause(err, addMeta = false) {
-        this._originalCause = err;
-        if (addMeta) {
-          this.withMeta("cause", err.message);
-        }
-        return this;
-      }
-      cause() {
-        return this._originalCause;
-      }
-      /**
-       * Returns the error representation to JSON
-       */
-      toJSON() {
-        try {
-          return JSON.stringify({
-            code: this.code,
-            msg: this.msg,
-            meta: this.meta
-          });
-        } catch (e) {
-          return `{"code": "internal", "msg": "There was an error but it could not be serialized into JSON"}`;
-        }
-      }
-      /**
-       * Create a twirp error from an object
-       * @param obj
-       */
-      static fromObject(obj) {
-        const code = obj["code"] || TwirpErrorCode.Unknown;
-        const msg = obj["msg"] || "unknown";
-        const error = new _TwirpError(code, msg);
-        if (obj["meta"]) {
-          Object.keys(obj["meta"]).forEach((key) => {
-            error.withMeta(key, obj["meta"][key]);
-          });
-        }
-        return error;
-      }
-    };
-    exports2.TwirpError = TwirpError;
-    var NotFoundError = class extends TwirpError {
-      constructor(msg) {
-        super(TwirpErrorCode.NotFound, msg);
-      }
-    };
-    exports2.NotFoundError = NotFoundError;
-    var InvalidArgumentError = class extends TwirpError {
-      constructor(argument, validationMsg) {
-        super(TwirpErrorCode.InvalidArgument, argument + " " + validationMsg);
-        this.withMeta("argument", argument);
-      }
-    };
-    exports2.InvalidArgumentError = InvalidArgumentError;
-    var RequiredArgumentError = class extends InvalidArgumentError {
-      constructor(argument) {
-        super(argument, "is required");
-      }
-    };
-    exports2.RequiredArgumentError = RequiredArgumentError;
-    var InternalServerError = class extends TwirpError {
-      constructor(msg) {
-        super(TwirpErrorCode.Internal, msg);
-      }
-    };
-    exports2.InternalServerError = InternalServerError;
-    var InternalServerErrorWith = class extends InternalServerError {
-      constructor(err) {
-        super(err.message);
-        this.withMeta("cause", err.name);
-        this.withCause(err);
-      }
-    };
-    exports2.InternalServerErrorWith = InternalServerErrorWith;
-    var BadRouteError = class extends TwirpError {
-      constructor(msg, method, url2) {
-        super(TwirpErrorCode.BadRoute, msg);
-        this.withMeta("twirp_invalid_route", method + " " + url2);
-      }
-    };
-    exports2.BadRouteError = BadRouteError;
-    var TwirpErrorCode;
-    (function(TwirpErrorCode2) {
-      TwirpErrorCode2["Canceled"] = "canceled";
-      TwirpErrorCode2["Unknown"] = "unknown";
-      TwirpErrorCode2["InvalidArgument"] = "invalid_argument";
-      TwirpErrorCode2["Malformed"] = "malformed";
-      TwirpErrorCode2["DeadlineExceeded"] = "deadline_exceeded";
-      TwirpErrorCode2["NotFound"] = "not_found";
-      TwirpErrorCode2["BadRoute"] = "bad_route";
-      TwirpErrorCode2["AlreadyExists"] = "already_exists";
-      TwirpErrorCode2["PermissionDenied"] = "permission_denied";
-      TwirpErrorCode2["Unauthenticated"] = "unauthenticated";
-      TwirpErrorCode2["ResourceExhausted"] = "resource_exhausted";
-      TwirpErrorCode2["FailedPrecondition"] = "failed_precondition";
-      TwirpErrorCode2["Aborted"] = "aborted";
-      TwirpErrorCode2["OutOfRange"] = "out_of_range";
-      TwirpErrorCode2["Unimplemented"] = "unimplemented";
-      TwirpErrorCode2["Internal"] = "internal";
-      TwirpErrorCode2["Unavailable"] = "unavailable";
-      TwirpErrorCode2["DataLoss"] = "data_loss";
-    })(TwirpErrorCode = exports2.TwirpErrorCode || (exports2.TwirpErrorCode = {}));
-    function httpStatusFromErrorCode(code) {
-      switch (code) {
-        case TwirpErrorCode.Canceled:
-          return 408;
-        // RequestTimeout
-        case TwirpErrorCode.Unknown:
-          return 500;
-        // Internal Server Error
-        case TwirpErrorCode.InvalidArgument:
-          return 400;
-        // BadRequest
-        case TwirpErrorCode.Malformed:
-          return 400;
-        // BadRequest
-        case TwirpErrorCode.DeadlineExceeded:
-          return 408;
-        // RequestTimeout
-        case TwirpErrorCode.NotFound:
-          return 404;
-        // Not Found
-        case TwirpErrorCode.BadRoute:
-          return 404;
-        // Not Found
-        case TwirpErrorCode.AlreadyExists:
-          return 409;
-        // Conflict
-        case TwirpErrorCode.PermissionDenied:
-          return 403;
-        // Forbidden
-        case TwirpErrorCode.Unauthenticated:
-          return 401;
-        // Unauthorized
-        case TwirpErrorCode.ResourceExhausted:
-          return 429;
-        // Too Many Requests
-        case TwirpErrorCode.FailedPrecondition:
-          return 412;
-        // Precondition Failed
-        case TwirpErrorCode.Aborted:
-          return 409;
-        // Conflict
-        case TwirpErrorCode.OutOfRange:
-          return 400;
-        // Bad Request
-        case TwirpErrorCode.Unimplemented:
-          return 501;
-        // Not Implemented
-        case TwirpErrorCode.Internal:
-          return 500;
-        // Internal Server Error
-        case TwirpErrorCode.Unavailable:
-          return 503;
-        // Service Unavailable
-        case TwirpErrorCode.DataLoss:
-          return 500;
-        // Internal Server Error
-        default:
-          return 0;
-      }
-    }
-    exports2.httpStatusFromErrorCode = httpStatusFromErrorCode;
-    function isValidErrorCode(code) {
-      return httpStatusFromErrorCode(code) != 0;
-    }
-    exports2.isValidErrorCode = isValidErrorCode;
-  }
-});
-
-// node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/request.js
-var require_request3 = __commonJS({
-  "node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/request.js"(exports2) {
-    "use strict";
-    var __awaiter6 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
-      function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve2) {
-          resolve2(value);
-        });
-      }
-      return new (P || (P = Promise))(function(resolve2, reject) {
-        function fulfilled(value) {
-          try {
-            step(generator.next(value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function rejected(value) {
-          try {
-            step(generator["throw"](value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function step(result) {
-          result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-        }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-      });
-    };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.parseTwirpPath = exports2.getRequestData = exports2.validateRequest = exports2.getContentType = exports2.TwirpContentType = void 0;
-    var errors_1 = require_errors3();
-    var TwirpContentType;
-    (function(TwirpContentType2) {
-      TwirpContentType2[TwirpContentType2["Protobuf"] = 0] = "Protobuf";
-      TwirpContentType2[TwirpContentType2["JSON"] = 1] = "JSON";
-      TwirpContentType2[TwirpContentType2["Unknown"] = 2] = "Unknown";
-    })(TwirpContentType = exports2.TwirpContentType || (exports2.TwirpContentType = {}));
-    function getContentType(mimeType) {
-      switch (mimeType) {
-        case "application/protobuf":
-          return TwirpContentType.Protobuf;
-        case "application/json":
-          return TwirpContentType.JSON;
-        default:
-          return TwirpContentType.Unknown;
-      }
-    }
-    exports2.getContentType = getContentType;
-    function validateRequest(ctx, request3, pathPrefix) {
-      if (request3.method !== "POST") {
-        const msg = `unsupported method ${request3.method} (only POST is allowed)`;
-        throw new errors_1.BadRouteError(msg, request3.method || "", request3.url || "");
-      }
-      const path5 = parseTwirpPath(request3.url || "");
-      if (path5.pkgService !== (ctx.packageName ? ctx.packageName + "." : "") + ctx.serviceName) {
-        const msg = `no handler for path ${request3.url}`;
-        throw new errors_1.BadRouteError(msg, request3.method || "", request3.url || "");
-      }
-      if (path5.prefix !== pathPrefix) {
-        const msg = `invalid path prefix ${path5.prefix}, expected ${pathPrefix}, on path ${request3.url}`;
-        throw new errors_1.BadRouteError(msg, request3.method || "", request3.url || "");
-      }
-      const mimeContentType = request3.headers["content-type"] || "";
-      if (ctx.contentType === TwirpContentType.Unknown) {
-        const msg = `unexpected Content-Type: ${request3.headers["content-type"]}`;
-        throw new errors_1.BadRouteError(msg, request3.method || "", request3.url || "");
-      }
-      return Object.assign(Object.assign({}, path5), { mimeContentType, contentType: ctx.contentType });
-    }
-    exports2.validateRequest = validateRequest;
-    function getRequestData(req) {
-      return new Promise((resolve2, reject) => {
-        const reqWithRawBody = req;
-        if (reqWithRawBody.rawBody instanceof Buffer) {
-          resolve2(reqWithRawBody.rawBody);
-          return;
-        }
-        const chunks = [];
-        req.on("data", (chunk) => chunks.push(chunk));
-        req.on("end", () => __awaiter6(this, void 0, void 0, function* () {
-          const data = Buffer.concat(chunks);
-          resolve2(data);
-        }));
-        req.on("error", (err) => {
-          if (req.aborted) {
-            reject(new errors_1.TwirpError(errors_1.TwirpErrorCode.DeadlineExceeded, "failed to read request: deadline exceeded"));
-          } else {
-            reject(new errors_1.TwirpError(errors_1.TwirpErrorCode.Malformed, err.message).withCause(err));
-          }
-        });
-        req.on("close", () => {
-          reject(new errors_1.TwirpError(errors_1.TwirpErrorCode.Canceled, "failed to read request: context canceled"));
-        });
-      });
-    }
-    exports2.getRequestData = getRequestData;
-    function parseTwirpPath(path5) {
-      const parts = path5.split("/");
-      if (parts.length < 2) {
-        return {
-          pkgService: "",
-          method: "",
-          prefix: ""
-        };
-      }
-      return {
-        method: parts[parts.length - 1],
-        pkgService: parts[parts.length - 2],
-        prefix: parts.slice(0, parts.length - 2).join("/")
-      };
-    }
-    exports2.parseTwirpPath = parseTwirpPath;
-  }
-});
-
-// node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/server.js
-var require_server = __commonJS({
-  "node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/server.js"(exports2) {
-    "use strict";
-    var __awaiter6 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
-      function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve2) {
-          resolve2(value);
-        });
-      }
-      return new (P || (P = Promise))(function(resolve2, reject) {
-        function fulfilled(value) {
-          try {
-            step(generator.next(value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function rejected(value) {
-          try {
-            step(generator["throw"](value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function step(result) {
-          result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-        }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-      });
-    };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.writeError = exports2.TwirpServer = void 0;
-    var hooks_1 = require_hooks();
-    var request_1 = require_request3();
-    var errors_1 = require_errors3();
-    var TwirpServer = class {
-      constructor(options) {
-        this.pathPrefix = "/twirp";
-        this.hooks = [];
-        this.interceptors = [];
-        this.packageName = options.packageName;
-        this.serviceName = options.serviceName;
-        this.methodList = options.methodList;
-        this.matchRoute = options.matchRoute;
-        this.service = options.service;
-      }
-      /**
-       * Returns the prefix for this server
-       */
-      get prefix() {
-        return this.pathPrefix;
-      }
-      /**
-       * The http handler for twirp complaint endpoints
-       * @param options
-       */
-      httpHandler(options) {
-        return (req, resp) => {
-          if ((options === null || options === void 0 ? void 0 : options.prefix) !== void 0) {
-            this.withPrefix(options.prefix);
-          }
-          return this._httpHandler(req, resp);
-        };
-      }
-      /**
-       * Adds interceptors or hooks to the request stack
-       * @param middlewares
-       */
-      use(...middlewares) {
-        middlewares.forEach((middleware) => {
-          if (hooks_1.isHook(middleware)) {
-            this.hooks.push(middleware);
-            return this;
-          }
-          this.interceptors.push(middleware);
-        });
-        return this;
-      }
-      /**
-       * Adds a prefix to the service url path
-       * @param prefix
-       */
-      withPrefix(prefix2) {
-        if (prefix2 === false) {
-          this.pathPrefix = "";
-        } else {
-          this.pathPrefix = prefix2;
-        }
-        return this;
-      }
-      /**
-       * Returns the regex matching path for this twirp server
-       */
-      matchingPath() {
-        const baseRegex = this.baseURI().replace(/\./g, "\\.");
-        return new RegExp(`${baseRegex}/(${this.methodList.join("|")})`);
-      }
-      /**
-       * Returns the base URI for this twirp server
-       */
-      baseURI() {
-        return `${this.pathPrefix}/${this.packageName ? this.packageName + "." : ""}${this.serviceName}`;
-      }
-      /**
-       * Create a twirp context
-       * @param req
-       * @param res
-       * @private
-       */
-      createContext(req, res) {
-        return {
-          packageName: this.packageName,
-          serviceName: this.serviceName,
-          methodName: "",
-          contentType: request_1.getContentType(req.headers["content-type"]),
-          req,
-          res
-        };
-      }
-      /**
-       * Twrip server http handler implementation
-       * @param req
-       * @param resp
-       * @private
-       */
-      _httpHandler(req, resp) {
-        return __awaiter6(this, void 0, void 0, function* () {
-          const ctx = this.createContext(req, resp);
-          try {
-            yield this.invokeHook("requestReceived", ctx);
-            const { method, mimeContentType } = request_1.validateRequest(ctx, req, this.pathPrefix || "");
-            const handler = this.matchRoute(method, {
-              onMatch: (ctx2) => {
-                return this.invokeHook("requestRouted", ctx2);
-              },
-              onNotFound: () => {
-                const msg = `no handler for path ${req.url}`;
-                throw new errors_1.BadRouteError(msg, req.method || "", req.url || "");
-              }
-            });
-            const body2 = yield request_1.getRequestData(req);
-            const response = yield handler(ctx, this.service, body2, this.interceptors);
-            yield Promise.all([
-              this.invokeHook("responsePrepared", ctx),
-              // keep backwards compatibility till next release
-              this.invokeHook("requestPrepared", ctx)
-            ]);
-            resp.statusCode = 200;
-            resp.setHeader("Content-Type", mimeContentType);
-            resp.end(response);
-          } catch (e) {
-            yield this.invokeHook("error", ctx, mustBeTwirpError(e));
-            if (!resp.headersSent) {
-              writeError(resp, e);
-            }
-          } finally {
-            yield Promise.all([
-              this.invokeHook("responseSent", ctx),
-              // keep backwards compatibility till next release
-              this.invokeHook("requestSent", ctx)
-            ]);
-          }
-        });
-      }
-      /**
-       * Invoke a hook
-       * @param hookName
-       * @param ctx
-       * @param err
-       * @protected
-       */
-      invokeHook(hookName, ctx, err) {
-        return __awaiter6(this, void 0, void 0, function* () {
-          if (this.hooks.length === 0) {
-            return;
-          }
-          const chainedHooks = hooks_1.chainHooks(...this.hooks);
-          const hook = chainedHooks === null || chainedHooks === void 0 ? void 0 : chainedHooks[hookName];
-          if (hook) {
-            yield hook(ctx, err || new errors_1.InternalServerError("internal server error"));
-          }
-        });
-      }
-    };
-    exports2.TwirpServer = TwirpServer;
-    function writeError(res, error) {
-      const twirpError = mustBeTwirpError(error);
-      res.setHeader("Content-Type", "application/json");
-      res.statusCode = errors_1.httpStatusFromErrorCode(twirpError.code);
-      res.end(twirpError.toJSON());
-    }
-    exports2.writeError = writeError;
-    function mustBeTwirpError(err) {
-      if (err instanceof errors_1.TwirpError) {
-        return err;
-      }
-      return new errors_1.InternalServerErrorWith(err);
-    }
-  }
-});
-
-// node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/interceptors.js
-var require_interceptors = __commonJS({
-  "node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/interceptors.js"(exports2) {
-    "use strict";
-    var __awaiter6 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
-      function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve2) {
-          resolve2(value);
-        });
-      }
-      return new (P || (P = Promise))(function(resolve2, reject) {
-        function fulfilled(value) {
-          try {
-            step(generator.next(value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function rejected(value) {
-          try {
-            step(generator["throw"](value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function step(result) {
-          result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-        }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-      });
-    };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.chainInterceptors = void 0;
-    function chainInterceptors(...interceptors) {
-      if (interceptors.length === 0) {
-        return;
-      }
-      if (interceptors.length === 1) {
-        return interceptors[0];
-      }
-      const first = interceptors[0];
-      return (ctx, request3, handler) => __awaiter6(this, void 0, void 0, function* () {
-        let next = handler;
-        for (let i = interceptors.length - 1; i > 0; i--) {
-          next = /* @__PURE__ */ ((next2) => (ctx2, typedRequest) => {
-            return interceptors[i](ctx2, typedRequest, next2);
-          })(next);
-        }
-        return first(ctx, request3, next);
-      });
-    }
-    exports2.chainInterceptors = chainInterceptors;
-  }
-});
-
-// node_modules/.pnpm/dot-object@2.1.5/node_modules/dot-object/index.js
-var require_dot_object = __commonJS({
-  "node_modules/.pnpm/dot-object@2.1.5/node_modules/dot-object/index.js"(exports2, module2) {
-    "use strict";
-    function _process(v, mod) {
-      var i;
-      var r;
-      if (typeof mod === "function") {
-        r = mod(v);
-        if (r !== void 0) {
-          v = r;
-        }
-      } else if (Array.isArray(mod)) {
-        for (i = 0; i < mod.length; i++) {
-          r = mod[i](v);
-          if (r !== void 0) {
-            v = r;
-          }
-        }
-      }
-      return v;
-    }
-    function parseKey(key, val) {
-      if (key[0] === "-" && Array.isArray(val) && /^-\d+$/.test(key)) {
-        return val.length + parseInt(key, 10);
-      }
-      return key;
-    }
-    function isIndex(k) {
-      return /^\d+$/.test(k);
-    }
-    function isObject3(val) {
-      return Object.prototype.toString.call(val) === "[object Object]";
-    }
-    function isArrayOrObject(val) {
-      return Object(val) === val;
-    }
-    function isEmptyObject(val) {
-      return Object.keys(val).length === 0;
-    }
-    var blacklist = ["__proto__", "prototype", "constructor"];
-    var blacklistFilter = function(part) {
-      return blacklist.indexOf(part) === -1;
-    };
-    function parsePath(path5, sep) {
-      if (path5.indexOf("[") >= 0) {
-        path5 = path5.replace(/\[/g, sep).replace(/]/g, "");
-      }
-      var parts = path5.split(sep);
-      var check = parts.filter(blacklistFilter);
-      if (check.length !== parts.length) {
-        throw Error("Refusing to update blacklisted property " + path5);
-      }
-      return parts;
-    }
-    var hasOwnProperty = Object.prototype.hasOwnProperty;
-    function DotObject(separator, override, useArray, useBrackets) {
-      if (!(this instanceof DotObject)) {
-        return new DotObject(separator, override, useArray, useBrackets);
-      }
-      if (typeof override === "undefined") override = false;
-      if (typeof useArray === "undefined") useArray = true;
-      if (typeof useBrackets === "undefined") useBrackets = true;
-      this.separator = separator || ".";
-      this.override = override;
-      this.useArray = useArray;
-      this.useBrackets = useBrackets;
-      this.keepArray = false;
-      this.cleanup = [];
-    }
-    var dotDefault = new DotObject(".", false, true, true);
-    function wrap(method) {
-      return function() {
-        return dotDefault[method].apply(dotDefault, arguments);
-      };
-    }
-    DotObject.prototype._fill = function(a, obj, v, mod) {
-      var k = a.shift();
-      if (a.length > 0) {
-        obj[k] = obj[k] || (this.useArray && isIndex(a[0]) ? [] : {});
-        if (!isArrayOrObject(obj[k])) {
-          if (this.override) {
-            obj[k] = {};
-          } else {
-            if (!(isArrayOrObject(v) && isEmptyObject(v))) {
-              throw new Error(
-                "Trying to redefine `" + k + "` which is a " + typeof obj[k]
-              );
-            }
-            return;
-          }
-        }
-        this._fill(a, obj[k], v, mod);
-      } else {
-        if (!this.override && isArrayOrObject(obj[k]) && !isEmptyObject(obj[k])) {
-          if (!(isArrayOrObject(v) && isEmptyObject(v))) {
-            throw new Error("Trying to redefine non-empty obj['" + k + "']");
-          }
-          return;
-        }
-        obj[k] = _process(v, mod);
-      }
-    };
-    DotObject.prototype.object = function(obj, mods) {
-      var self2 = this;
-      Object.keys(obj).forEach(function(k) {
-        var mod = mods === void 0 ? null : mods[k];
-        var ok = parsePath(k, self2.separator).join(self2.separator);
-        if (ok.indexOf(self2.separator) !== -1) {
-          self2._fill(ok.split(self2.separator), obj, obj[k], mod);
-          delete obj[k];
-        } else {
-          obj[k] = _process(obj[k], mod);
-        }
-      });
-      return obj;
-    };
-    DotObject.prototype.str = function(path5, v, obj, mod) {
-      var ok = parsePath(path5, this.separator).join(this.separator);
-      if (path5.indexOf(this.separator) !== -1) {
-        this._fill(ok.split(this.separator), obj, v, mod);
-      } else {
-        obj[path5] = _process(v, mod);
-      }
-      return obj;
-    };
-    DotObject.prototype.pick = function(path5, obj, remove, reindexArray) {
-      var i;
-      var keys;
-      var val;
-      var key;
-      var cp;
-      keys = parsePath(path5, this.separator);
-      for (i = 0; i < keys.length; i++) {
-        key = parseKey(keys[i], obj);
-        if (obj && typeof obj === "object" && key in obj) {
-          if (i === keys.length - 1) {
-            if (remove) {
-              val = obj[key];
-              if (reindexArray && Array.isArray(obj)) {
-                obj.splice(key, 1);
-              } else {
-                delete obj[key];
-              }
-              if (Array.isArray(obj)) {
-                cp = keys.slice(0, -1).join(".");
-                if (this.cleanup.indexOf(cp) === -1) {
-                  this.cleanup.push(cp);
-                }
-              }
-              return val;
-            } else {
-              return obj[key];
-            }
-          } else {
-            obj = obj[key];
-          }
-        } else {
-          return void 0;
-        }
-      }
-      if (remove && Array.isArray(obj)) {
-        obj = obj.filter(function(n) {
-          return n !== void 0;
-        });
-      }
-      return obj;
-    };
-    DotObject.prototype.delete = function(path5, obj) {
-      return this.remove(path5, obj, true);
-    };
-    DotObject.prototype.remove = function(path5, obj, reindexArray) {
-      var i;
-      this.cleanup = [];
-      if (Array.isArray(path5)) {
-        for (i = 0; i < path5.length; i++) {
-          this.pick(path5[i], obj, true, reindexArray);
-        }
-        if (!reindexArray) {
-          this._cleanup(obj);
-        }
-        return obj;
-      } else {
-        return this.pick(path5, obj, true, reindexArray);
-      }
-    };
-    DotObject.prototype._cleanup = function(obj) {
-      var ret;
-      var i;
-      var keys;
-      var root;
-      if (this.cleanup.length) {
-        for (i = 0; i < this.cleanup.length; i++) {
-          keys = this.cleanup[i].split(".");
-          root = keys.splice(0, -1).join(".");
-          ret = root ? this.pick(root, obj) : obj;
-          ret = ret[keys[0]].filter(function(v) {
-            return v !== void 0;
-          });
-          this.set(this.cleanup[i], ret, obj);
-        }
-        this.cleanup = [];
-      }
-    };
-    DotObject.prototype.del = DotObject.prototype.remove;
-    DotObject.prototype.move = function(source, target, obj, mods, merge2) {
-      if (typeof mods === "function" || Array.isArray(mods)) {
-        this.set(target, _process(this.pick(source, obj, true), mods), obj, merge2);
-      } else {
-        merge2 = mods;
-        this.set(target, this.pick(source, obj, true), obj, merge2);
-      }
-      return obj;
-    };
-    DotObject.prototype.transfer = function(source, target, obj1, obj2, mods, merge2) {
-      if (typeof mods === "function" || Array.isArray(mods)) {
-        this.set(
-          target,
-          _process(this.pick(source, obj1, true), mods),
-          obj2,
-          merge2
-        );
-      } else {
-        merge2 = mods;
-        this.set(target, this.pick(source, obj1, true), obj2, merge2);
-      }
-      return obj2;
-    };
-    DotObject.prototype.copy = function(source, target, obj1, obj2, mods, merge2) {
-      if (typeof mods === "function" || Array.isArray(mods)) {
-        this.set(
-          target,
-          _process(
-            // clone what is picked
-            JSON.parse(JSON.stringify(this.pick(source, obj1, false))),
-            mods
-          ),
-          obj2,
-          merge2
-        );
-      } else {
-        merge2 = mods;
-        this.set(target, this.pick(source, obj1, false), obj2, merge2);
-      }
-      return obj2;
-    };
-    DotObject.prototype.set = function(path5, val, obj, merge2) {
-      var i;
-      var k;
-      var keys;
-      var key;
-      if (typeof val === "undefined") {
-        return obj;
-      }
-      keys = parsePath(path5, this.separator);
-      for (i = 0; i < keys.length; i++) {
-        key = keys[i];
-        if (i === keys.length - 1) {
-          if (merge2 && isObject3(val) && isObject3(obj[key])) {
-            for (k in val) {
-              if (hasOwnProperty.call(val, k)) {
-                obj[key][k] = val[k];
-              }
-            }
-          } else if (merge2 && Array.isArray(obj[key]) && Array.isArray(val)) {
-            for (var j = 0; j < val.length; j++) {
-              obj[keys[i]].push(val[j]);
-            }
-          } else {
-            obj[key] = val;
-          }
-        } else if (
-          // force the value to be an object
-          !hasOwnProperty.call(obj, key) || !isObject3(obj[key]) && !Array.isArray(obj[key])
-        ) {
-          if (/^\d+$/.test(keys[i + 1])) {
-            obj[key] = [];
-          } else {
-            obj[key] = {};
-          }
-        }
-        obj = obj[key];
-      }
-      return obj;
-    };
-    DotObject.prototype.transform = function(recipe, obj, tgt) {
-      obj = obj || {};
-      tgt = tgt || {};
-      Object.keys(recipe).forEach(
-        function(key) {
-          this.set(recipe[key], this.pick(key, obj), tgt);
-        }.bind(this)
-      );
-      return tgt;
-    };
-    DotObject.prototype.dot = function(obj, tgt, path5) {
-      tgt = tgt || {};
-      path5 = path5 || [];
-      var isArray = Array.isArray(obj);
-      Object.keys(obj).forEach(
-        function(key) {
-          var index = isArray && this.useBrackets ? "[" + key + "]" : key;
-          if (isArrayOrObject(obj[key]) && (isObject3(obj[key]) && !isEmptyObject(obj[key]) || Array.isArray(obj[key]) && !this.keepArray && obj[key].length !== 0)) {
-            if (isArray && this.useBrackets) {
-              var previousKey = path5[path5.length - 1] || "";
-              return this.dot(
-                obj[key],
-                tgt,
-                path5.slice(0, -1).concat(previousKey + index)
-              );
-            } else {
-              return this.dot(obj[key], tgt, path5.concat(index));
-            }
-          } else {
-            if (isArray && this.useBrackets) {
-              tgt[path5.join(this.separator).concat("[" + key + "]")] = obj[key];
-            } else {
-              tgt[path5.concat(index).join(this.separator)] = obj[key];
-            }
-          }
-        }.bind(this)
-      );
-      return tgt;
-    };
-    DotObject.pick = wrap("pick");
-    DotObject.move = wrap("move");
-    DotObject.transfer = wrap("transfer");
-    DotObject.transform = wrap("transform");
-    DotObject.copy = wrap("copy");
-    DotObject.object = wrap("object");
-    DotObject.str = wrap("str");
-    DotObject.set = wrap("set");
-    DotObject.delete = wrap("delete");
-    DotObject.del = DotObject.remove = wrap("remove");
-    DotObject.dot = wrap("dot");
-    ["override", "overwrite"].forEach(function(prop) {
-      Object.defineProperty(DotObject, prop, {
-        get: function() {
-          return dotDefault.override;
-        },
-        set: function(val) {
-          dotDefault.override = !!val;
-        }
-      });
-    });
-    ["useArray", "keepArray", "useBrackets"].forEach(function(prop) {
-      Object.defineProperty(DotObject, prop, {
-        get: function() {
-          return dotDefault[prop];
-        },
-        set: function(val) {
-          dotDefault[prop] = val;
-        }
-      });
-    });
-    DotObject._process = _process;
-    module2.exports = DotObject;
-  }
-});
-
-// node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/http.client.js
-var require_http_client = __commonJS({
-  "node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/http.client.js"(exports2) {
-    "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      Object.defineProperty(o, k2, { enumerable: true, get: function() {
-        return m[k];
-      } });
-    } : function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      o[k2] = m[k];
-    });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o, v) {
-      Object.defineProperty(o, "default", { enumerable: true, value: v });
-    } : function(o, v) {
-      o["default"] = v;
-    });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
-      if (mod && mod.__esModule) return mod;
-      var result = {};
-      if (mod != null) {
-        for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-      }
-      __setModuleDefault(result, mod);
-      return result;
-    };
-    var __awaiter6 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
-      function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve2) {
-          resolve2(value);
-        });
-      }
-      return new (P || (P = Promise))(function(resolve2, reject) {
-        function fulfilled(value) {
-          try {
-            step(generator.next(value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function rejected(value) {
-          try {
-            step(generator["throw"](value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function step(result) {
-          result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-        }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-      });
-    };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.FetchRPC = exports2.wrapErrorResponseToTwirpError = exports2.NodeHttpRPC = void 0;
-    var http2 = __importStar(require("http"));
-    var https2 = __importStar(require("https"));
-    var url_1 = require("url");
-    var errors_1 = require_errors3();
-    var NodeHttpRPC = (options) => ({
-      request(service, method, contentType2, data) {
-        let client;
-        return new Promise((resolve2, rejected) => {
-          const responseChunks = [];
-          const requestData = contentType2 === "application/protobuf" ? Buffer.from(data) : JSON.stringify(data);
-          const url2 = new url_1.URL(options.baseUrl);
-          const isHttps = url2.protocol === "https:";
-          if (isHttps) {
-            client = https2;
-          } else {
-            client = http2;
-          }
-          const prefix2 = url2.pathname !== "/" ? url2.pathname : "";
-          const req = client.request(Object.assign(Object.assign({}, options ? options : {}), { method: "POST", protocol: url2.protocol, host: url2.hostname, port: url2.port ? url2.port : isHttps ? 443 : 80, path: `${prefix2}/${service}/${method}`, headers: Object.assign(Object.assign({}, options.headers ? options.headers : {}), { "Content-Type": contentType2, "Content-Length": contentType2 === "application/protobuf" ? Buffer.byteLength(requestData) : Buffer.from(requestData).byteLength }) }), (res) => {
-            res.on("data", (chunk) => responseChunks.push(chunk));
-            res.on("end", () => {
-              const data2 = Buffer.concat(responseChunks);
-              if (res.statusCode != 200) {
-                rejected(wrapErrorResponseToTwirpError(data2.toString()));
-              } else {
-                if (contentType2 === "application/json") {
-                  resolve2(JSON.parse(data2.toString()));
-                } else {
-                  resolve2(data2);
-                }
-              }
-            });
-            res.on("error", (err) => {
-              rejected(err);
-            });
-          }).on("error", (err) => {
-            rejected(err);
-          });
-          req.end(requestData);
-        });
-      }
-    });
-    exports2.NodeHttpRPC = NodeHttpRPC;
-    function wrapErrorResponseToTwirpError(errorResponse) {
-      return errors_1.TwirpError.fromObject(JSON.parse(errorResponse));
-    }
-    exports2.wrapErrorResponseToTwirpError = wrapErrorResponseToTwirpError;
-    var FetchRPC = (options) => ({
-      request(service, method, contentType2, data) {
-        return __awaiter6(this, void 0, void 0, function* () {
-          const headers = new Headers(options.headers);
-          headers.set("content-type", contentType2);
-          const response = yield fetch(`${options.baseUrl}/${service}/${method}`, Object.assign(Object.assign({}, options), { method: "POST", headers, body: data instanceof Uint8Array ? data : JSON.stringify(data) }));
-          if (response.status === 200) {
-            if (contentType2 === "application/json") {
-              return yield response.json();
-            }
-            return new Uint8Array(yield response.arrayBuffer());
-          }
-          throw errors_1.TwirpError.fromObject(yield response.json());
-        });
-      }
-    });
-    exports2.FetchRPC = FetchRPC;
-  }
-});
-
-// node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/gateway.js
-var require_gateway = __commonJS({
-  "node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/gateway.js"(exports2) {
-    "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      Object.defineProperty(o, k2, { enumerable: true, get: function() {
-        return m[k];
-      } });
-    } : function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      o[k2] = m[k];
-    });
-    var __setModuleDefault = exports2 && exports2.__setModuleDefault || (Object.create ? function(o, v) {
-      Object.defineProperty(o, "default", { enumerable: true, value: v });
-    } : function(o, v) {
-      o["default"] = v;
-    });
-    var __importStar = exports2 && exports2.__importStar || function(mod) {
-      if (mod && mod.__esModule) return mod;
-      var result = {};
-      if (mod != null) {
-        for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-      }
-      __setModuleDefault(result, mod);
-      return result;
-    };
-    var __awaiter6 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
-      function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve2) {
-          resolve2(value);
-        });
-      }
-      return new (P || (P = Promise))(function(resolve2, reject) {
-        function fulfilled(value) {
-          try {
-            step(generator.next(value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function rejected(value) {
-          try {
-            step(generator["throw"](value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function step(result) {
-          result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-        }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-      });
-    };
-    var __rest2 = exports2 && exports2.__rest || function(s, e) {
-      var t = {};
-      for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
-        t[p] = s[p];
-      if (s != null && typeof Object.getOwnPropertySymbols === "function")
-        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
-          if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
-            t[p[i]] = s[p[i]];
-        }
-      return t;
-    };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.Gateway = exports2.Pattern = void 0;
-    var querystring_1 = require("querystring");
-    var dotObject = __importStar(require_dot_object());
-    var request_1 = require_request3();
-    var errors_1 = require_errors3();
-    var http_client_1 = require_http_client();
-    var server_1 = require_server();
-    var Pattern;
-    (function(Pattern2) {
-      Pattern2["POST"] = "post";
-      Pattern2["GET"] = "get";
-      Pattern2["PATCH"] = "patch";
-      Pattern2["PUT"] = "put";
-      Pattern2["DELETE"] = "delete";
-    })(Pattern = exports2.Pattern || (exports2.Pattern = {}));
-    var Gateway = class {
-      constructor(routes) {
-        this.routes = routes;
-      }
-      /**
-       * Middleware that rewrite the current request
-       * to a Twirp compliant request
-       */
-      twirpRewrite(prefix2 = "/twirp") {
-        return (req, resp, next) => {
-          this.rewrite(req, resp, prefix2).then(() => next()).catch((e) => {
-            if (e instanceof errors_1.TwirpError) {
-              if (e.code !== errors_1.TwirpErrorCode.NotFound) {
-                server_1.writeError(resp, e);
-              } else {
-                next();
-              }
-            }
-          });
-        };
-      }
-      /**
-       * Rewrite an incoming request to a Twirp compliant request
-       * @param req
-       * @param resp
-       * @param prefix
-       */
-      rewrite(req, resp, prefix2 = "/twirp") {
-        return __awaiter6(this, void 0, void 0, function* () {
-          const [match2, route] = this.matchRoute(req);
-          const body2 = yield this.prepareTwirpBody(req, match2, route);
-          const twirpUrl = `${prefix2}/${route.packageName}.${route.serviceName}/${route.methodName}`;
-          req.url = twirpUrl;
-          req.originalUrl = twirpUrl;
-          req.method = "POST";
-          req.headers["content-type"] = "application/json";
-          req.rawBody = Buffer.from(JSON.stringify(body2));
-          if (route.responseBodyKey) {
-            const endFn = resp.end.bind(resp);
-            resp.end = function(chunk) {
-              if (resp.statusCode === 200) {
-                endFn(`{ "${route.responseBodyKey}": ${chunk} }`);
-              } else {
-                endFn(chunk);
-              }
-            };
-          }
-        });
-      }
-      /**
-       * Create a reverse proxy handler to
-       * proxy http requests to Twirp Compliant handlers
-       * @param httpClientOption
-       */
-      reverseProxy(httpClientOption) {
-        const client = http_client_1.NodeHttpRPC(httpClientOption);
-        return (req, res) => __awaiter6(this, void 0, void 0, function* () {
-          try {
-            const [match2, route] = this.matchRoute(req);
-            const body2 = yield this.prepareTwirpBody(req, match2, route);
-            const response = yield client.request(`${route.packageName}.${route.serviceName}`, route.methodName, "application/json", body2);
-            res.statusCode = 200;
-            res.setHeader("content-type", "application/json");
-            let jsonResponse;
-            if (route.responseBodyKey) {
-              jsonResponse = JSON.stringify({ [route.responseBodyKey]: response });
-            } else {
-              jsonResponse = JSON.stringify(response);
-            }
-            res.end(jsonResponse);
-          } catch (e) {
-            server_1.writeError(res, e);
-          }
-        });
-      }
-      /**
-       * Prepares twirp body requests using http.google.annotions
-       * compliant spec
-       *
-       * @param req
-       * @param match
-       * @param route
-       * @protected
-       */
-      prepareTwirpBody(req, match2, route) {
-        return __awaiter6(this, void 0, void 0, function* () {
-          const _a3 = match2.params, { query_string } = _a3, params = __rest2(_a3, ["query_string"]);
-          let requestBody = Object.assign({}, params);
-          if (query_string && route.bodyKey !== "*") {
-            const queryParams = this.parseQueryString(query_string);
-            requestBody = Object.assign(Object.assign({}, queryParams), requestBody);
-          }
-          let body2 = {};
-          if (route.bodyKey) {
-            const data = yield request_1.getRequestData(req);
-            try {
-              const jsonBody = JSON.parse(data.toString() || "{}");
-              if (route.bodyKey === "*") {
-                body2 = jsonBody;
-              } else {
-                body2[route.bodyKey] = jsonBody;
-              }
-            } catch (e) {
-              const msg = "the json request could not be decoded";
-              throw new errors_1.TwirpError(errors_1.TwirpErrorCode.Malformed, msg).withCause(e, true);
-            }
-          }
-          return Object.assign(Object.assign({}, body2), requestBody);
-        });
-      }
-      /**
-       * Matches a route
-       * @param req
-       */
-      matchRoute(req) {
-        var _a3;
-        const httpMethod = (_a3 = req.method) === null || _a3 === void 0 ? void 0 : _a3.toLowerCase();
-        if (!httpMethod) {
-          throw new errors_1.BadRouteError(`method not allowed`, req.method || "", req.url || "");
-        }
-        const routes = this.routes[httpMethod];
-        for (const route of routes) {
-          const match2 = route.matcher(req.url || "/");
-          if (match2) {
-            return [match2, route];
-          }
-        }
-        throw new errors_1.NotFoundError(`url ${req.url} not found`);
-      }
-      /**
-       * Parse query string
-       * @param queryString
-       */
-      parseQueryString(queryString) {
-        const queryParams = querystring_1.parse(queryString.replace("?", ""));
-        return dotObject.object(queryParams);
-      }
-    };
-    exports2.Gateway = Gateway;
-  }
-});
-
-// node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/index.js
-var require_twirp = __commonJS({
-  "node_modules/.pnpm/twirp-ts@2.5.0_@protobuf-ts+plugin@2.9.4/node_modules/twirp-ts/build/twirp/index.js"(exports2) {
-    "use strict";
-    var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      Object.defineProperty(o, k2, { enumerable: true, get: function() {
-        return m[k];
-      } });
-    } : function(o, m, k, k2) {
-      if (k2 === void 0) k2 = k;
-      o[k2] = m[k];
-    });
-    var __exportStar = exports2 && exports2.__exportStar || function(m, exports3) {
-      for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports3, p)) __createBinding(exports3, m, p);
-    };
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.TwirpContentType = void 0;
-    __exportStar(require_context(), exports2);
-    __exportStar(require_server(), exports2);
-    __exportStar(require_interceptors(), exports2);
-    __exportStar(require_hooks(), exports2);
-    __exportStar(require_errors3(), exports2);
-    __exportStar(require_gateway(), exports2);
-    __exportStar(require_http_client(), exports2);
-    var request_1 = require_request3();
-    Object.defineProperty(exports2, "TwirpContentType", { enumerable: true, get: function() {
-      return request_1.TwirpContentType;
-    } });
   }
 });
 
@@ -65839,295 +64431,9 @@ var init_es20152 = __esm({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/generated/google/protobuf/timestamp.js
-var require_timestamp = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/generated/google/protobuf/timestamp.js"(exports2) {
-    "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.Timestamp = void 0;
-    var runtime_1 = (init_es2015(), __toCommonJS(es2015_exports));
-    var runtime_2 = (init_es2015(), __toCommonJS(es2015_exports));
-    var runtime_3 = (init_es2015(), __toCommonJS(es2015_exports));
-    var runtime_4 = (init_es2015(), __toCommonJS(es2015_exports));
-    var runtime_5 = (init_es2015(), __toCommonJS(es2015_exports));
-    var runtime_6 = (init_es2015(), __toCommonJS(es2015_exports));
-    var runtime_7 = (init_es2015(), __toCommonJS(es2015_exports));
-    var Timestamp$Type = class extends runtime_7.MessageType {
-      constructor() {
-        super("google.protobuf.Timestamp", [
-          {
-            no: 1,
-            name: "seconds",
-            kind: "scalar",
-            T: 3
-            /*ScalarType.INT64*/
-          },
-          {
-            no: 2,
-            name: "nanos",
-            kind: "scalar",
-            T: 5
-            /*ScalarType.INT32*/
-          }
-        ]);
-      }
-      /**
-       * Creates a new `Timestamp` for the current time.
-       */
-      now() {
-        const msg = this.create();
-        const ms = Date.now();
-        msg.seconds = runtime_6.PbLong.from(Math.floor(ms / 1e3)).toString();
-        msg.nanos = ms % 1e3 * 1e6;
-        return msg;
-      }
-      /**
-       * Converts a `Timestamp` to a JavaScript Date.
-       */
-      toDate(message) {
-        return new Date(runtime_6.PbLong.from(message.seconds).toNumber() * 1e3 + Math.ceil(message.nanos / 1e6));
-      }
-      /**
-       * Converts a JavaScript Date to a `Timestamp`.
-       */
-      fromDate(date) {
-        const msg = this.create();
-        const ms = date.getTime();
-        msg.seconds = runtime_6.PbLong.from(Math.floor(ms / 1e3)).toString();
-        msg.nanos = ms % 1e3 * 1e6;
-        return msg;
-      }
-      /**
-       * In JSON format, the `Timestamp` type is encoded as a string
-       * in the RFC 3339 format.
-       */
-      internalJsonWrite(message, options) {
-        let ms = runtime_6.PbLong.from(message.seconds).toNumber() * 1e3;
-        if (ms < Date.parse("0001-01-01T00:00:00Z") || ms > Date.parse("9999-12-31T23:59:59Z"))
-          throw new Error("Unable to encode Timestamp to JSON. Must be from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z inclusive.");
-        if (message.nanos < 0)
-          throw new Error("Unable to encode invalid Timestamp to JSON. Nanos must not be negative.");
-        let z = "Z";
-        if (message.nanos > 0) {
-          let nanosStr = (message.nanos + 1e9).toString().substring(1);
-          if (nanosStr.substring(3) === "000000")
-            z = "." + nanosStr.substring(0, 3) + "Z";
-          else if (nanosStr.substring(6) === "000")
-            z = "." + nanosStr.substring(0, 6) + "Z";
-          else
-            z = "." + nanosStr + "Z";
-        }
-        return new Date(ms).toISOString().replace(".000Z", z);
-      }
-      /**
-       * In JSON format, the `Timestamp` type is encoded as a string
-       * in the RFC 3339 format.
-       */
-      internalJsonRead(json2, options, target) {
-        if (typeof json2 !== "string")
-          throw new Error("Unable to parse Timestamp from JSON " + (0, runtime_5.typeofJsonValue)(json2) + ".");
-        let matches = json2.match(/^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(?:Z|\.([0-9]{3,9})Z|([+-][0-9][0-9]:[0-9][0-9]))$/);
-        if (!matches)
-          throw new Error("Unable to parse Timestamp from JSON. Invalid format.");
-        let ms = Date.parse(matches[1] + "-" + matches[2] + "-" + matches[3] + "T" + matches[4] + ":" + matches[5] + ":" + matches[6] + (matches[8] ? matches[8] : "Z"));
-        if (Number.isNaN(ms))
-          throw new Error("Unable to parse Timestamp from JSON. Invalid value.");
-        if (ms < Date.parse("0001-01-01T00:00:00Z") || ms > Date.parse("9999-12-31T23:59:59Z"))
-          throw new globalThis.Error("Unable to parse Timestamp from JSON. Must be from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z inclusive.");
-        if (!target)
-          target = this.create();
-        target.seconds = runtime_6.PbLong.from(ms / 1e3).toString();
-        target.nanos = 0;
-        if (matches[7])
-          target.nanos = parseInt("1" + matches[7] + "0".repeat(9 - matches[7].length)) - 1e9;
-        return target;
-      }
-      create(value) {
-        const message = { seconds: "0", nanos: 0 };
-        globalThis.Object.defineProperty(message, runtime_4.MESSAGE_TYPE, { enumerable: false, value: this });
-        if (value !== void 0)
-          (0, runtime_3.reflectionMergePartial)(this, message, value);
-        return message;
-      }
-      internalBinaryRead(reader, length, options, target) {
-        let message = target !== null && target !== void 0 ? target : this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-          let [fieldNo, wireType] = reader.tag();
-          switch (fieldNo) {
-            case /* int64 seconds */
-            1:
-              message.seconds = reader.int64().toString();
-              break;
-            case /* int32 nanos */
-            2:
-              message.nanos = reader.int32();
-              break;
-            default:
-              let u = options.readUnknownField;
-              if (u === "throw")
-                throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-              let d = reader.skip(wireType);
-              if (u !== false)
-                (u === true ? runtime_2.UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-          }
-        }
-        return message;
-      }
-      internalBinaryWrite(message, writer, options) {
-        if (message.seconds !== "0")
-          writer.tag(1, runtime_1.WireType.Varint).int64(message.seconds);
-        if (message.nanos !== 0)
-          writer.tag(2, runtime_1.WireType.Varint).int32(message.nanos);
-        let u = options.writeUnknownFields;
-        if (u !== false)
-          (u == true ? runtime_2.UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-      }
-    };
-    exports2.Timestamp = new Timestamp$Type();
-  }
-});
-
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/generated/results/entities/v1/cacheentry.js
-var require_cacheentry = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/generated/results/entities/v1/cacheentry.js"(exports2) {
-    "use strict";
-    Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.CacheEntry = void 0;
-    var runtime_1 = (init_es2015(), __toCommonJS(es2015_exports));
-    var runtime_2 = (init_es2015(), __toCommonJS(es2015_exports));
-    var runtime_3 = (init_es2015(), __toCommonJS(es2015_exports));
-    var runtime_4 = (init_es2015(), __toCommonJS(es2015_exports));
-    var runtime_5 = (init_es2015(), __toCommonJS(es2015_exports));
-    var timestamp_1 = require_timestamp();
-    var CacheEntry$Type = class extends runtime_5.MessageType {
-      constructor() {
-        super("github.actions.results.entities.v1.CacheEntry", [
-          {
-            no: 1,
-            name: "key",
-            kind: "scalar",
-            T: 9
-            /*ScalarType.STRING*/
-          },
-          {
-            no: 2,
-            name: "hash",
-            kind: "scalar",
-            T: 9
-            /*ScalarType.STRING*/
-          },
-          {
-            no: 3,
-            name: "size_bytes",
-            kind: "scalar",
-            T: 3
-            /*ScalarType.INT64*/
-          },
-          {
-            no: 4,
-            name: "scope",
-            kind: "scalar",
-            T: 9
-            /*ScalarType.STRING*/
-          },
-          {
-            no: 5,
-            name: "version",
-            kind: "scalar",
-            T: 9
-            /*ScalarType.STRING*/
-          },
-          { no: 6, name: "created_at", kind: "message", T: () => timestamp_1.Timestamp },
-          { no: 7, name: "last_accessed_at", kind: "message", T: () => timestamp_1.Timestamp },
-          { no: 8, name: "expires_at", kind: "message", T: () => timestamp_1.Timestamp }
-        ]);
-      }
-      create(value) {
-        const message = { key: "", hash: "", sizeBytes: "0", scope: "", version: "" };
-        globalThis.Object.defineProperty(message, runtime_4.MESSAGE_TYPE, { enumerable: false, value: this });
-        if (value !== void 0)
-          (0, runtime_3.reflectionMergePartial)(this, message, value);
-        return message;
-      }
-      internalBinaryRead(reader, length, options, target) {
-        let message = target !== null && target !== void 0 ? target : this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-          let [fieldNo, wireType] = reader.tag();
-          switch (fieldNo) {
-            case /* string key */
-            1:
-              message.key = reader.string();
-              break;
-            case /* string hash */
-            2:
-              message.hash = reader.string();
-              break;
-            case /* int64 size_bytes */
-            3:
-              message.sizeBytes = reader.int64().toString();
-              break;
-            case /* string scope */
-            4:
-              message.scope = reader.string();
-              break;
-            case /* string version */
-            5:
-              message.version = reader.string();
-              break;
-            case /* google.protobuf.Timestamp created_at */
-            6:
-              message.createdAt = timestamp_1.Timestamp.internalBinaryRead(reader, reader.uint32(), options, message.createdAt);
-              break;
-            case /* google.protobuf.Timestamp last_accessed_at */
-            7:
-              message.lastAccessedAt = timestamp_1.Timestamp.internalBinaryRead(reader, reader.uint32(), options, message.lastAccessedAt);
-              break;
-            case /* google.protobuf.Timestamp expires_at */
-            8:
-              message.expiresAt = timestamp_1.Timestamp.internalBinaryRead(reader, reader.uint32(), options, message.expiresAt);
-              break;
-            default:
-              let u = options.readUnknownField;
-              if (u === "throw")
-                throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-              let d = reader.skip(wireType);
-              if (u !== false)
-                (u === true ? runtime_2.UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-          }
-        }
-        return message;
-      }
-      internalBinaryWrite(message, writer, options) {
-        if (message.key !== "")
-          writer.tag(1, runtime_1.WireType.LengthDelimited).string(message.key);
-        if (message.hash !== "")
-          writer.tag(2, runtime_1.WireType.LengthDelimited).string(message.hash);
-        if (message.sizeBytes !== "0")
-          writer.tag(3, runtime_1.WireType.Varint).int64(message.sizeBytes);
-        if (message.scope !== "")
-          writer.tag(4, runtime_1.WireType.LengthDelimited).string(message.scope);
-        if (message.version !== "")
-          writer.tag(5, runtime_1.WireType.LengthDelimited).string(message.version);
-        if (message.createdAt)
-          timestamp_1.Timestamp.internalBinaryWrite(message.createdAt, writer.tag(6, runtime_1.WireType.LengthDelimited).fork(), options).join();
-        if (message.lastAccessedAt)
-          timestamp_1.Timestamp.internalBinaryWrite(message.lastAccessedAt, writer.tag(7, runtime_1.WireType.LengthDelimited).fork(), options).join();
-        if (message.expiresAt)
-          timestamp_1.Timestamp.internalBinaryWrite(message.expiresAt, writer.tag(8, runtime_1.WireType.LengthDelimited).fork(), options).join();
-        let u = options.writeUnknownFields;
-        if (u !== false)
-          (u == true ? runtime_2.UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-      }
-    };
-    exports2.CacheEntry = new CacheEntry$Type();
-  }
-});
-
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/generated/results/entities/v1/cachescope.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/generated/results/entities/v1/cachescope.js
 var require_cachescope = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/generated/results/entities/v1/cachescope.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/generated/results/entities/v1/cachescope.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.CacheScope = void 0;
@@ -66201,9 +64507,9 @@ var require_cachescope = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/generated/results/entities/v1/cachemetadata.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/generated/results/entities/v1/cachemetadata.js
 var require_cachemetadata = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/generated/results/entities/v1/cachemetadata.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/generated/results/entities/v1/cachemetadata.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.CacheMetadata = void 0;
@@ -66272,19 +64578,18 @@ var require_cachemetadata = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/generated/results/api/v1/cache.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/generated/results/api/v1/cache.js
 var require_cache2 = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/generated/results/api/v1/cache.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/generated/results/api/v1/cache.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.CacheService = exports2.LookupCacheEntryResponse = exports2.LookupCacheEntryRequest = exports2.ListCacheEntriesResponse = exports2.ListCacheEntriesRequest = exports2.DeleteCacheEntryResponse = exports2.DeleteCacheEntryRequest = exports2.GetCacheEntryDownloadURLResponse = exports2.GetCacheEntryDownloadURLRequest = exports2.FinalizeCacheEntryUploadResponse = exports2.FinalizeCacheEntryUploadRequest = exports2.CreateCacheEntryResponse = exports2.CreateCacheEntryRequest = void 0;
+    exports2.CacheService = exports2.GetCacheEntryDownloadURLResponse = exports2.GetCacheEntryDownloadURLRequest = exports2.FinalizeCacheEntryUploadResponse = exports2.FinalizeCacheEntryUploadRequest = exports2.CreateCacheEntryResponse = exports2.CreateCacheEntryRequest = void 0;
     var runtime_rpc_1 = (init_es20152(), __toCommonJS(es2015_exports2));
     var runtime_1 = (init_es2015(), __toCommonJS(es2015_exports));
     var runtime_2 = (init_es2015(), __toCommonJS(es2015_exports));
     var runtime_3 = (init_es2015(), __toCommonJS(es2015_exports));
     var runtime_4 = (init_es2015(), __toCommonJS(es2015_exports));
     var runtime_5 = (init_es2015(), __toCommonJS(es2015_exports));
-    var cacheentry_1 = require_cacheentry();
     var cachemetadata_1 = require_cachemetadata();
     var CreateCacheEntryRequest$Type = class extends runtime_5.MessageType {
       constructor() {
@@ -66719,421 +65024,20 @@ var require_cache2 = __commonJS({
       }
     };
     exports2.GetCacheEntryDownloadURLResponse = new GetCacheEntryDownloadURLResponse$Type();
-    var DeleteCacheEntryRequest$Type = class extends runtime_5.MessageType {
-      constructor() {
-        super("github.actions.results.api.v1.DeleteCacheEntryRequest", [
-          { no: 1, name: "metadata", kind: "message", T: () => cachemetadata_1.CacheMetadata },
-          {
-            no: 2,
-            name: "key",
-            kind: "scalar",
-            T: 9
-            /*ScalarType.STRING*/
-          }
-        ]);
-      }
-      create(value) {
-        const message = { key: "" };
-        globalThis.Object.defineProperty(message, runtime_4.MESSAGE_TYPE, { enumerable: false, value: this });
-        if (value !== void 0)
-          (0, runtime_3.reflectionMergePartial)(this, message, value);
-        return message;
-      }
-      internalBinaryRead(reader, length, options, target) {
-        let message = target !== null && target !== void 0 ? target : this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-          let [fieldNo, wireType] = reader.tag();
-          switch (fieldNo) {
-            case /* github.actions.results.entities.v1.CacheMetadata metadata */
-            1:
-              message.metadata = cachemetadata_1.CacheMetadata.internalBinaryRead(reader, reader.uint32(), options, message.metadata);
-              break;
-            case /* string key */
-            2:
-              message.key = reader.string();
-              break;
-            default:
-              let u = options.readUnknownField;
-              if (u === "throw")
-                throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-              let d = reader.skip(wireType);
-              if (u !== false)
-                (u === true ? runtime_2.UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-          }
-        }
-        return message;
-      }
-      internalBinaryWrite(message, writer, options) {
-        if (message.metadata)
-          cachemetadata_1.CacheMetadata.internalBinaryWrite(message.metadata, writer.tag(1, runtime_1.WireType.LengthDelimited).fork(), options).join();
-        if (message.key !== "")
-          writer.tag(2, runtime_1.WireType.LengthDelimited).string(message.key);
-        let u = options.writeUnknownFields;
-        if (u !== false)
-          (u == true ? runtime_2.UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-      }
-    };
-    exports2.DeleteCacheEntryRequest = new DeleteCacheEntryRequest$Type();
-    var DeleteCacheEntryResponse$Type = class extends runtime_5.MessageType {
-      constructor() {
-        super("github.actions.results.api.v1.DeleteCacheEntryResponse", [
-          {
-            no: 1,
-            name: "ok",
-            kind: "scalar",
-            T: 8
-            /*ScalarType.BOOL*/
-          },
-          {
-            no: 2,
-            name: "entry_id",
-            kind: "scalar",
-            T: 3
-            /*ScalarType.INT64*/
-          }
-        ]);
-      }
-      create(value) {
-        const message = { ok: false, entryId: "0" };
-        globalThis.Object.defineProperty(message, runtime_4.MESSAGE_TYPE, { enumerable: false, value: this });
-        if (value !== void 0)
-          (0, runtime_3.reflectionMergePartial)(this, message, value);
-        return message;
-      }
-      internalBinaryRead(reader, length, options, target) {
-        let message = target !== null && target !== void 0 ? target : this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-          let [fieldNo, wireType] = reader.tag();
-          switch (fieldNo) {
-            case /* bool ok */
-            1:
-              message.ok = reader.bool();
-              break;
-            case /* int64 entry_id */
-            2:
-              message.entryId = reader.int64().toString();
-              break;
-            default:
-              let u = options.readUnknownField;
-              if (u === "throw")
-                throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-              let d = reader.skip(wireType);
-              if (u !== false)
-                (u === true ? runtime_2.UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-          }
-        }
-        return message;
-      }
-      internalBinaryWrite(message, writer, options) {
-        if (message.ok !== false)
-          writer.tag(1, runtime_1.WireType.Varint).bool(message.ok);
-        if (message.entryId !== "0")
-          writer.tag(2, runtime_1.WireType.Varint).int64(message.entryId);
-        let u = options.writeUnknownFields;
-        if (u !== false)
-          (u == true ? runtime_2.UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-      }
-    };
-    exports2.DeleteCacheEntryResponse = new DeleteCacheEntryResponse$Type();
-    var ListCacheEntriesRequest$Type = class extends runtime_5.MessageType {
-      constructor() {
-        super("github.actions.results.api.v1.ListCacheEntriesRequest", [
-          { no: 1, name: "metadata", kind: "message", T: () => cachemetadata_1.CacheMetadata },
-          {
-            no: 2,
-            name: "key",
-            kind: "scalar",
-            T: 9
-            /*ScalarType.STRING*/
-          },
-          {
-            no: 3,
-            name: "restore_keys",
-            kind: "scalar",
-            repeat: 2,
-            T: 9
-            /*ScalarType.STRING*/
-          }
-        ]);
-      }
-      create(value) {
-        const message = { key: "", restoreKeys: [] };
-        globalThis.Object.defineProperty(message, runtime_4.MESSAGE_TYPE, { enumerable: false, value: this });
-        if (value !== void 0)
-          (0, runtime_3.reflectionMergePartial)(this, message, value);
-        return message;
-      }
-      internalBinaryRead(reader, length, options, target) {
-        let message = target !== null && target !== void 0 ? target : this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-          let [fieldNo, wireType] = reader.tag();
-          switch (fieldNo) {
-            case /* github.actions.results.entities.v1.CacheMetadata metadata */
-            1:
-              message.metadata = cachemetadata_1.CacheMetadata.internalBinaryRead(reader, reader.uint32(), options, message.metadata);
-              break;
-            case /* string key */
-            2:
-              message.key = reader.string();
-              break;
-            case /* repeated string restore_keys */
-            3:
-              message.restoreKeys.push(reader.string());
-              break;
-            default:
-              let u = options.readUnknownField;
-              if (u === "throw")
-                throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-              let d = reader.skip(wireType);
-              if (u !== false)
-                (u === true ? runtime_2.UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-          }
-        }
-        return message;
-      }
-      internalBinaryWrite(message, writer, options) {
-        if (message.metadata)
-          cachemetadata_1.CacheMetadata.internalBinaryWrite(message.metadata, writer.tag(1, runtime_1.WireType.LengthDelimited).fork(), options).join();
-        if (message.key !== "")
-          writer.tag(2, runtime_1.WireType.LengthDelimited).string(message.key);
-        for (let i = 0; i < message.restoreKeys.length; i++)
-          writer.tag(3, runtime_1.WireType.LengthDelimited).string(message.restoreKeys[i]);
-        let u = options.writeUnknownFields;
-        if (u !== false)
-          (u == true ? runtime_2.UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-      }
-    };
-    exports2.ListCacheEntriesRequest = new ListCacheEntriesRequest$Type();
-    var ListCacheEntriesResponse$Type = class extends runtime_5.MessageType {
-      constructor() {
-        super("github.actions.results.api.v1.ListCacheEntriesResponse", [
-          { no: 1, name: "entries", kind: "message", repeat: 1, T: () => cacheentry_1.CacheEntry }
-        ]);
-      }
-      create(value) {
-        const message = { entries: [] };
-        globalThis.Object.defineProperty(message, runtime_4.MESSAGE_TYPE, { enumerable: false, value: this });
-        if (value !== void 0)
-          (0, runtime_3.reflectionMergePartial)(this, message, value);
-        return message;
-      }
-      internalBinaryRead(reader, length, options, target) {
-        let message = target !== null && target !== void 0 ? target : this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-          let [fieldNo, wireType] = reader.tag();
-          switch (fieldNo) {
-            case /* repeated github.actions.results.entities.v1.CacheEntry entries */
-            1:
-              message.entries.push(cacheentry_1.CacheEntry.internalBinaryRead(reader, reader.uint32(), options));
-              break;
-            default:
-              let u = options.readUnknownField;
-              if (u === "throw")
-                throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-              let d = reader.skip(wireType);
-              if (u !== false)
-                (u === true ? runtime_2.UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-          }
-        }
-        return message;
-      }
-      internalBinaryWrite(message, writer, options) {
-        for (let i = 0; i < message.entries.length; i++)
-          cacheentry_1.CacheEntry.internalBinaryWrite(message.entries[i], writer.tag(1, runtime_1.WireType.LengthDelimited).fork(), options).join();
-        let u = options.writeUnknownFields;
-        if (u !== false)
-          (u == true ? runtime_2.UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-      }
-    };
-    exports2.ListCacheEntriesResponse = new ListCacheEntriesResponse$Type();
-    var LookupCacheEntryRequest$Type = class extends runtime_5.MessageType {
-      constructor() {
-        super("github.actions.results.api.v1.LookupCacheEntryRequest", [
-          { no: 1, name: "metadata", kind: "message", T: () => cachemetadata_1.CacheMetadata },
-          {
-            no: 2,
-            name: "key",
-            kind: "scalar",
-            T: 9
-            /*ScalarType.STRING*/
-          },
-          {
-            no: 3,
-            name: "restore_keys",
-            kind: "scalar",
-            repeat: 2,
-            T: 9
-            /*ScalarType.STRING*/
-          },
-          {
-            no: 4,
-            name: "version",
-            kind: "scalar",
-            T: 9
-            /*ScalarType.STRING*/
-          }
-        ]);
-      }
-      create(value) {
-        const message = { key: "", restoreKeys: [], version: "" };
-        globalThis.Object.defineProperty(message, runtime_4.MESSAGE_TYPE, { enumerable: false, value: this });
-        if (value !== void 0)
-          (0, runtime_3.reflectionMergePartial)(this, message, value);
-        return message;
-      }
-      internalBinaryRead(reader, length, options, target) {
-        let message = target !== null && target !== void 0 ? target : this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-          let [fieldNo, wireType] = reader.tag();
-          switch (fieldNo) {
-            case /* github.actions.results.entities.v1.CacheMetadata metadata */
-            1:
-              message.metadata = cachemetadata_1.CacheMetadata.internalBinaryRead(reader, reader.uint32(), options, message.metadata);
-              break;
-            case /* string key */
-            2:
-              message.key = reader.string();
-              break;
-            case /* repeated string restore_keys */
-            3:
-              message.restoreKeys.push(reader.string());
-              break;
-            case /* string version */
-            4:
-              message.version = reader.string();
-              break;
-            default:
-              let u = options.readUnknownField;
-              if (u === "throw")
-                throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-              let d = reader.skip(wireType);
-              if (u !== false)
-                (u === true ? runtime_2.UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-          }
-        }
-        return message;
-      }
-      internalBinaryWrite(message, writer, options) {
-        if (message.metadata)
-          cachemetadata_1.CacheMetadata.internalBinaryWrite(message.metadata, writer.tag(1, runtime_1.WireType.LengthDelimited).fork(), options).join();
-        if (message.key !== "")
-          writer.tag(2, runtime_1.WireType.LengthDelimited).string(message.key);
-        for (let i = 0; i < message.restoreKeys.length; i++)
-          writer.tag(3, runtime_1.WireType.LengthDelimited).string(message.restoreKeys[i]);
-        if (message.version !== "")
-          writer.tag(4, runtime_1.WireType.LengthDelimited).string(message.version);
-        let u = options.writeUnknownFields;
-        if (u !== false)
-          (u == true ? runtime_2.UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-      }
-    };
-    exports2.LookupCacheEntryRequest = new LookupCacheEntryRequest$Type();
-    var LookupCacheEntryResponse$Type = class extends runtime_5.MessageType {
-      constructor() {
-        super("github.actions.results.api.v1.LookupCacheEntryResponse", [
-          {
-            no: 1,
-            name: "exists",
-            kind: "scalar",
-            T: 8
-            /*ScalarType.BOOL*/
-          },
-          { no: 2, name: "entry", kind: "message", T: () => cacheentry_1.CacheEntry }
-        ]);
-      }
-      create(value) {
-        const message = { exists: false };
-        globalThis.Object.defineProperty(message, runtime_4.MESSAGE_TYPE, { enumerable: false, value: this });
-        if (value !== void 0)
-          (0, runtime_3.reflectionMergePartial)(this, message, value);
-        return message;
-      }
-      internalBinaryRead(reader, length, options, target) {
-        let message = target !== null && target !== void 0 ? target : this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-          let [fieldNo, wireType] = reader.tag();
-          switch (fieldNo) {
-            case /* bool exists */
-            1:
-              message.exists = reader.bool();
-              break;
-            case /* github.actions.results.entities.v1.CacheEntry entry */
-            2:
-              message.entry = cacheentry_1.CacheEntry.internalBinaryRead(reader, reader.uint32(), options, message.entry);
-              break;
-            default:
-              let u = options.readUnknownField;
-              if (u === "throw")
-                throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-              let d = reader.skip(wireType);
-              if (u !== false)
-                (u === true ? runtime_2.UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-          }
-        }
-        return message;
-      }
-      internalBinaryWrite(message, writer, options) {
-        if (message.exists !== false)
-          writer.tag(1, runtime_1.WireType.Varint).bool(message.exists);
-        if (message.entry)
-          cacheentry_1.CacheEntry.internalBinaryWrite(message.entry, writer.tag(2, runtime_1.WireType.LengthDelimited).fork(), options).join();
-        let u = options.writeUnknownFields;
-        if (u !== false)
-          (u == true ? runtime_2.UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-      }
-    };
-    exports2.LookupCacheEntryResponse = new LookupCacheEntryResponse$Type();
     exports2.CacheService = new runtime_rpc_1.ServiceType("github.actions.results.api.v1.CacheService", [
       { name: "CreateCacheEntry", options: {}, I: exports2.CreateCacheEntryRequest, O: exports2.CreateCacheEntryResponse },
       { name: "FinalizeCacheEntryUpload", options: {}, I: exports2.FinalizeCacheEntryUploadRequest, O: exports2.FinalizeCacheEntryUploadResponse },
-      { name: "GetCacheEntryDownloadURL", options: {}, I: exports2.GetCacheEntryDownloadURLRequest, O: exports2.GetCacheEntryDownloadURLResponse },
-      { name: "DeleteCacheEntry", options: {}, I: exports2.DeleteCacheEntryRequest, O: exports2.DeleteCacheEntryResponse },
-      { name: "ListCacheEntries", options: {}, I: exports2.ListCacheEntriesRequest, O: exports2.ListCacheEntriesResponse },
-      { name: "LookupCacheEntry", options: {}, I: exports2.LookupCacheEntryRequest, O: exports2.LookupCacheEntryResponse }
+      { name: "GetCacheEntryDownloadURL", options: {}, I: exports2.GetCacheEntryDownloadURLRequest, O: exports2.GetCacheEntryDownloadURLResponse }
     ]);
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/generated/results/api/v1/cache.twirp.js
-var require_cache_twirp = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/generated/results/api/v1/cache.twirp.js"(exports2) {
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/generated/results/api/v1/cache.twirp-client.js
+var require_cache_twirp_client = __commonJS({
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/generated/results/api/v1/cache.twirp-client.js"(exports2) {
     "use strict";
-    var __awaiter6 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
-      function adopt(value) {
-        return value instanceof P ? value : new P(function(resolve2) {
-          resolve2(value);
-        });
-      }
-      return new (P || (P = Promise))(function(resolve2, reject) {
-        function fulfilled(value) {
-          try {
-            step(generator.next(value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function rejected(value) {
-          try {
-            step(generator["throw"](value));
-          } catch (e) {
-            reject(e);
-          }
-        }
-        function step(result) {
-          result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-        }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-      });
-    };
     Object.defineProperty(exports2, "__esModule", { value: true });
-    exports2.createCacheServiceServer = exports2.CacheServiceMethodList = exports2.CacheServiceMethod = exports2.CacheServiceClientProtobuf = exports2.CacheServiceClientJSON = void 0;
-    var twirp_ts_1 = require_twirp();
+    exports2.CacheServiceClientProtobuf = exports2.CacheServiceClientJSON = void 0;
     var cache_1 = require_cache2();
     var CacheServiceClientJSON = class {
       constructor(rpc) {
@@ -67141,9 +65045,6 @@ var require_cache_twirp = __commonJS({
         this.CreateCacheEntry.bind(this);
         this.FinalizeCacheEntryUpload.bind(this);
         this.GetCacheEntryDownloadURL.bind(this);
-        this.DeleteCacheEntry.bind(this);
-        this.ListCacheEntries.bind(this);
-        this.LookupCacheEntry.bind(this);
       }
       CreateCacheEntry(request3) {
         const data = cache_1.CreateCacheEntryRequest.toJson(request3, {
@@ -67175,36 +65076,6 @@ var require_cache_twirp = __commonJS({
           ignoreUnknownFields: true
         }));
       }
-      DeleteCacheEntry(request3) {
-        const data = cache_1.DeleteCacheEntryRequest.toJson(request3, {
-          useProtoFieldName: true,
-          emitDefaultValues: false
-        });
-        const promise = this.rpc.request("github.actions.results.api.v1.CacheService", "DeleteCacheEntry", "application/json", data);
-        return promise.then((data2) => cache_1.DeleteCacheEntryResponse.fromJson(data2, {
-          ignoreUnknownFields: true
-        }));
-      }
-      ListCacheEntries(request3) {
-        const data = cache_1.ListCacheEntriesRequest.toJson(request3, {
-          useProtoFieldName: true,
-          emitDefaultValues: false
-        });
-        const promise = this.rpc.request("github.actions.results.api.v1.CacheService", "ListCacheEntries", "application/json", data);
-        return promise.then((data2) => cache_1.ListCacheEntriesResponse.fromJson(data2, {
-          ignoreUnknownFields: true
-        }));
-      }
-      LookupCacheEntry(request3) {
-        const data = cache_1.LookupCacheEntryRequest.toJson(request3, {
-          useProtoFieldName: true,
-          emitDefaultValues: false
-        });
-        const promise = this.rpc.request("github.actions.results.api.v1.CacheService", "LookupCacheEntry", "application/json", data);
-        return promise.then((data2) => cache_1.LookupCacheEntryResponse.fromJson(data2, {
-          ignoreUnknownFields: true
-        }));
-      }
     };
     exports2.CacheServiceClientJSON = CacheServiceClientJSON;
     var CacheServiceClientProtobuf = class {
@@ -67213,9 +65084,6 @@ var require_cache_twirp = __commonJS({
         this.CreateCacheEntry.bind(this);
         this.FinalizeCacheEntryUpload.bind(this);
         this.GetCacheEntryDownloadURL.bind(this);
-        this.DeleteCacheEntry.bind(this);
-        this.ListCacheEntries.bind(this);
-        this.LookupCacheEntry.bind(this);
       }
       CreateCacheEntry(request3) {
         const data = cache_1.CreateCacheEntryRequest.toBinary(request3);
@@ -67232,478 +65100,14 @@ var require_cache_twirp = __commonJS({
         const promise = this.rpc.request("github.actions.results.api.v1.CacheService", "GetCacheEntryDownloadURL", "application/protobuf", data);
         return promise.then((data2) => cache_1.GetCacheEntryDownloadURLResponse.fromBinary(data2));
       }
-      DeleteCacheEntry(request3) {
-        const data = cache_1.DeleteCacheEntryRequest.toBinary(request3);
-        const promise = this.rpc.request("github.actions.results.api.v1.CacheService", "DeleteCacheEntry", "application/protobuf", data);
-        return promise.then((data2) => cache_1.DeleteCacheEntryResponse.fromBinary(data2));
-      }
-      ListCacheEntries(request3) {
-        const data = cache_1.ListCacheEntriesRequest.toBinary(request3);
-        const promise = this.rpc.request("github.actions.results.api.v1.CacheService", "ListCacheEntries", "application/protobuf", data);
-        return promise.then((data2) => cache_1.ListCacheEntriesResponse.fromBinary(data2));
-      }
-      LookupCacheEntry(request3) {
-        const data = cache_1.LookupCacheEntryRequest.toBinary(request3);
-        const promise = this.rpc.request("github.actions.results.api.v1.CacheService", "LookupCacheEntry", "application/protobuf", data);
-        return promise.then((data2) => cache_1.LookupCacheEntryResponse.fromBinary(data2));
-      }
     };
     exports2.CacheServiceClientProtobuf = CacheServiceClientProtobuf;
-    var CacheServiceMethod;
-    (function(CacheServiceMethod2) {
-      CacheServiceMethod2["CreateCacheEntry"] = "CreateCacheEntry";
-      CacheServiceMethod2["FinalizeCacheEntryUpload"] = "FinalizeCacheEntryUpload";
-      CacheServiceMethod2["GetCacheEntryDownloadURL"] = "GetCacheEntryDownloadURL";
-      CacheServiceMethod2["DeleteCacheEntry"] = "DeleteCacheEntry";
-      CacheServiceMethod2["ListCacheEntries"] = "ListCacheEntries";
-      CacheServiceMethod2["LookupCacheEntry"] = "LookupCacheEntry";
-    })(CacheServiceMethod || (exports2.CacheServiceMethod = CacheServiceMethod = {}));
-    exports2.CacheServiceMethodList = [
-      CacheServiceMethod.CreateCacheEntry,
-      CacheServiceMethod.FinalizeCacheEntryUpload,
-      CacheServiceMethod.GetCacheEntryDownloadURL,
-      CacheServiceMethod.DeleteCacheEntry,
-      CacheServiceMethod.ListCacheEntries,
-      CacheServiceMethod.LookupCacheEntry
-    ];
-    function createCacheServiceServer(service) {
-      return new twirp_ts_1.TwirpServer({
-        service,
-        packageName: "github.actions.results.api.v1",
-        serviceName: "CacheService",
-        methodList: exports2.CacheServiceMethodList,
-        matchRoute: matchCacheServiceRoute
-      });
-    }
-    exports2.createCacheServiceServer = createCacheServiceServer;
-    function matchCacheServiceRoute(method, events) {
-      switch (method) {
-        case "CreateCacheEntry":
-          return (ctx, service, data, interceptors) => __awaiter6(this, void 0, void 0, function* () {
-            ctx = Object.assign(Object.assign({}, ctx), { methodName: "CreateCacheEntry" });
-            yield events.onMatch(ctx);
-            return handleCacheServiceCreateCacheEntryRequest(ctx, service, data, interceptors);
-          });
-        case "FinalizeCacheEntryUpload":
-          return (ctx, service, data, interceptors) => __awaiter6(this, void 0, void 0, function* () {
-            ctx = Object.assign(Object.assign({}, ctx), { methodName: "FinalizeCacheEntryUpload" });
-            yield events.onMatch(ctx);
-            return handleCacheServiceFinalizeCacheEntryUploadRequest(ctx, service, data, interceptors);
-          });
-        case "GetCacheEntryDownloadURL":
-          return (ctx, service, data, interceptors) => __awaiter6(this, void 0, void 0, function* () {
-            ctx = Object.assign(Object.assign({}, ctx), { methodName: "GetCacheEntryDownloadURL" });
-            yield events.onMatch(ctx);
-            return handleCacheServiceGetCacheEntryDownloadURLRequest(ctx, service, data, interceptors);
-          });
-        case "DeleteCacheEntry":
-          return (ctx, service, data, interceptors) => __awaiter6(this, void 0, void 0, function* () {
-            ctx = Object.assign(Object.assign({}, ctx), { methodName: "DeleteCacheEntry" });
-            yield events.onMatch(ctx);
-            return handleCacheServiceDeleteCacheEntryRequest(ctx, service, data, interceptors);
-          });
-        case "ListCacheEntries":
-          return (ctx, service, data, interceptors) => __awaiter6(this, void 0, void 0, function* () {
-            ctx = Object.assign(Object.assign({}, ctx), { methodName: "ListCacheEntries" });
-            yield events.onMatch(ctx);
-            return handleCacheServiceListCacheEntriesRequest(ctx, service, data, interceptors);
-          });
-        case "LookupCacheEntry":
-          return (ctx, service, data, interceptors) => __awaiter6(this, void 0, void 0, function* () {
-            ctx = Object.assign(Object.assign({}, ctx), { methodName: "LookupCacheEntry" });
-            yield events.onMatch(ctx);
-            return handleCacheServiceLookupCacheEntryRequest(ctx, service, data, interceptors);
-          });
-        default:
-          events.onNotFound();
-          const msg = `no handler found`;
-          throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.BadRoute, msg);
-      }
-    }
-    function handleCacheServiceCreateCacheEntryRequest(ctx, service, data, interceptors) {
-      switch (ctx.contentType) {
-        case twirp_ts_1.TwirpContentType.JSON:
-          return handleCacheServiceCreateCacheEntryJSON(ctx, service, data, interceptors);
-        case twirp_ts_1.TwirpContentType.Protobuf:
-          return handleCacheServiceCreateCacheEntryProtobuf(ctx, service, data, interceptors);
-        default:
-          const msg = "unexpected Content-Type";
-          throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.BadRoute, msg);
-      }
-    }
-    function handleCacheServiceFinalizeCacheEntryUploadRequest(ctx, service, data, interceptors) {
-      switch (ctx.contentType) {
-        case twirp_ts_1.TwirpContentType.JSON:
-          return handleCacheServiceFinalizeCacheEntryUploadJSON(ctx, service, data, interceptors);
-        case twirp_ts_1.TwirpContentType.Protobuf:
-          return handleCacheServiceFinalizeCacheEntryUploadProtobuf(ctx, service, data, interceptors);
-        default:
-          const msg = "unexpected Content-Type";
-          throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.BadRoute, msg);
-      }
-    }
-    function handleCacheServiceGetCacheEntryDownloadURLRequest(ctx, service, data, interceptors) {
-      switch (ctx.contentType) {
-        case twirp_ts_1.TwirpContentType.JSON:
-          return handleCacheServiceGetCacheEntryDownloadURLJSON(ctx, service, data, interceptors);
-        case twirp_ts_1.TwirpContentType.Protobuf:
-          return handleCacheServiceGetCacheEntryDownloadURLProtobuf(ctx, service, data, interceptors);
-        default:
-          const msg = "unexpected Content-Type";
-          throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.BadRoute, msg);
-      }
-    }
-    function handleCacheServiceDeleteCacheEntryRequest(ctx, service, data, interceptors) {
-      switch (ctx.contentType) {
-        case twirp_ts_1.TwirpContentType.JSON:
-          return handleCacheServiceDeleteCacheEntryJSON(ctx, service, data, interceptors);
-        case twirp_ts_1.TwirpContentType.Protobuf:
-          return handleCacheServiceDeleteCacheEntryProtobuf(ctx, service, data, interceptors);
-        default:
-          const msg = "unexpected Content-Type";
-          throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.BadRoute, msg);
-      }
-    }
-    function handleCacheServiceListCacheEntriesRequest(ctx, service, data, interceptors) {
-      switch (ctx.contentType) {
-        case twirp_ts_1.TwirpContentType.JSON:
-          return handleCacheServiceListCacheEntriesJSON(ctx, service, data, interceptors);
-        case twirp_ts_1.TwirpContentType.Protobuf:
-          return handleCacheServiceListCacheEntriesProtobuf(ctx, service, data, interceptors);
-        default:
-          const msg = "unexpected Content-Type";
-          throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.BadRoute, msg);
-      }
-    }
-    function handleCacheServiceLookupCacheEntryRequest(ctx, service, data, interceptors) {
-      switch (ctx.contentType) {
-        case twirp_ts_1.TwirpContentType.JSON:
-          return handleCacheServiceLookupCacheEntryJSON(ctx, service, data, interceptors);
-        case twirp_ts_1.TwirpContentType.Protobuf:
-          return handleCacheServiceLookupCacheEntryProtobuf(ctx, service, data, interceptors);
-        default:
-          const msg = "unexpected Content-Type";
-          throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.BadRoute, msg);
-      }
-    }
-    function handleCacheServiceCreateCacheEntryJSON(ctx, service, data, interceptors) {
-      return __awaiter6(this, void 0, void 0, function* () {
-        let request3;
-        let response;
-        try {
-          const body2 = JSON.parse(data.toString() || "{}");
-          request3 = cache_1.CreateCacheEntryRequest.fromJson(body2, {
-            ignoreUnknownFields: true
-          });
-        } catch (e) {
-          if (e instanceof Error) {
-            const msg = "the json request could not be decoded";
-            throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.Malformed, msg).withCause(e, true);
-          }
-        }
-        if (interceptors && interceptors.length > 0) {
-          const interceptor = (0, twirp_ts_1.chainInterceptors)(...interceptors);
-          response = yield interceptor(ctx, request3, (ctx2, inputReq) => {
-            return service.CreateCacheEntry(ctx2, inputReq);
-          });
-        } else {
-          response = yield service.CreateCacheEntry(ctx, request3);
-        }
-        return JSON.stringify(cache_1.CreateCacheEntryResponse.toJson(response, {
-          useProtoFieldName: true,
-          emitDefaultValues: false
-        }));
-      });
-    }
-    function handleCacheServiceFinalizeCacheEntryUploadJSON(ctx, service, data, interceptors) {
-      return __awaiter6(this, void 0, void 0, function* () {
-        let request3;
-        let response;
-        try {
-          const body2 = JSON.parse(data.toString() || "{}");
-          request3 = cache_1.FinalizeCacheEntryUploadRequest.fromJson(body2, {
-            ignoreUnknownFields: true
-          });
-        } catch (e) {
-          if (e instanceof Error) {
-            const msg = "the json request could not be decoded";
-            throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.Malformed, msg).withCause(e, true);
-          }
-        }
-        if (interceptors && interceptors.length > 0) {
-          const interceptor = (0, twirp_ts_1.chainInterceptors)(...interceptors);
-          response = yield interceptor(ctx, request3, (ctx2, inputReq) => {
-            return service.FinalizeCacheEntryUpload(ctx2, inputReq);
-          });
-        } else {
-          response = yield service.FinalizeCacheEntryUpload(ctx, request3);
-        }
-        return JSON.stringify(cache_1.FinalizeCacheEntryUploadResponse.toJson(response, {
-          useProtoFieldName: true,
-          emitDefaultValues: false
-        }));
-      });
-    }
-    function handleCacheServiceGetCacheEntryDownloadURLJSON(ctx, service, data, interceptors) {
-      return __awaiter6(this, void 0, void 0, function* () {
-        let request3;
-        let response;
-        try {
-          const body2 = JSON.parse(data.toString() || "{}");
-          request3 = cache_1.GetCacheEntryDownloadURLRequest.fromJson(body2, {
-            ignoreUnknownFields: true
-          });
-        } catch (e) {
-          if (e instanceof Error) {
-            const msg = "the json request could not be decoded";
-            throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.Malformed, msg).withCause(e, true);
-          }
-        }
-        if (interceptors && interceptors.length > 0) {
-          const interceptor = (0, twirp_ts_1.chainInterceptors)(...interceptors);
-          response = yield interceptor(ctx, request3, (ctx2, inputReq) => {
-            return service.GetCacheEntryDownloadURL(ctx2, inputReq);
-          });
-        } else {
-          response = yield service.GetCacheEntryDownloadURL(ctx, request3);
-        }
-        return JSON.stringify(cache_1.GetCacheEntryDownloadURLResponse.toJson(response, {
-          useProtoFieldName: true,
-          emitDefaultValues: false
-        }));
-      });
-    }
-    function handleCacheServiceDeleteCacheEntryJSON(ctx, service, data, interceptors) {
-      return __awaiter6(this, void 0, void 0, function* () {
-        let request3;
-        let response;
-        try {
-          const body2 = JSON.parse(data.toString() || "{}");
-          request3 = cache_1.DeleteCacheEntryRequest.fromJson(body2, {
-            ignoreUnknownFields: true
-          });
-        } catch (e) {
-          if (e instanceof Error) {
-            const msg = "the json request could not be decoded";
-            throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.Malformed, msg).withCause(e, true);
-          }
-        }
-        if (interceptors && interceptors.length > 0) {
-          const interceptor = (0, twirp_ts_1.chainInterceptors)(...interceptors);
-          response = yield interceptor(ctx, request3, (ctx2, inputReq) => {
-            return service.DeleteCacheEntry(ctx2, inputReq);
-          });
-        } else {
-          response = yield service.DeleteCacheEntry(ctx, request3);
-        }
-        return JSON.stringify(cache_1.DeleteCacheEntryResponse.toJson(response, {
-          useProtoFieldName: true,
-          emitDefaultValues: false
-        }));
-      });
-    }
-    function handleCacheServiceListCacheEntriesJSON(ctx, service, data, interceptors) {
-      return __awaiter6(this, void 0, void 0, function* () {
-        let request3;
-        let response;
-        try {
-          const body2 = JSON.parse(data.toString() || "{}");
-          request3 = cache_1.ListCacheEntriesRequest.fromJson(body2, {
-            ignoreUnknownFields: true
-          });
-        } catch (e) {
-          if (e instanceof Error) {
-            const msg = "the json request could not be decoded";
-            throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.Malformed, msg).withCause(e, true);
-          }
-        }
-        if (interceptors && interceptors.length > 0) {
-          const interceptor = (0, twirp_ts_1.chainInterceptors)(...interceptors);
-          response = yield interceptor(ctx, request3, (ctx2, inputReq) => {
-            return service.ListCacheEntries(ctx2, inputReq);
-          });
-        } else {
-          response = yield service.ListCacheEntries(ctx, request3);
-        }
-        return JSON.stringify(cache_1.ListCacheEntriesResponse.toJson(response, {
-          useProtoFieldName: true,
-          emitDefaultValues: false
-        }));
-      });
-    }
-    function handleCacheServiceLookupCacheEntryJSON(ctx, service, data, interceptors) {
-      return __awaiter6(this, void 0, void 0, function* () {
-        let request3;
-        let response;
-        try {
-          const body2 = JSON.parse(data.toString() || "{}");
-          request3 = cache_1.LookupCacheEntryRequest.fromJson(body2, {
-            ignoreUnknownFields: true
-          });
-        } catch (e) {
-          if (e instanceof Error) {
-            const msg = "the json request could not be decoded";
-            throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.Malformed, msg).withCause(e, true);
-          }
-        }
-        if (interceptors && interceptors.length > 0) {
-          const interceptor = (0, twirp_ts_1.chainInterceptors)(...interceptors);
-          response = yield interceptor(ctx, request3, (ctx2, inputReq) => {
-            return service.LookupCacheEntry(ctx2, inputReq);
-          });
-        } else {
-          response = yield service.LookupCacheEntry(ctx, request3);
-        }
-        return JSON.stringify(cache_1.LookupCacheEntryResponse.toJson(response, {
-          useProtoFieldName: true,
-          emitDefaultValues: false
-        }));
-      });
-    }
-    function handleCacheServiceCreateCacheEntryProtobuf(ctx, service, data, interceptors) {
-      return __awaiter6(this, void 0, void 0, function* () {
-        let request3;
-        let response;
-        try {
-          request3 = cache_1.CreateCacheEntryRequest.fromBinary(data);
-        } catch (e) {
-          if (e instanceof Error) {
-            const msg = "the protobuf request could not be decoded";
-            throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.Malformed, msg).withCause(e, true);
-          }
-        }
-        if (interceptors && interceptors.length > 0) {
-          const interceptor = (0, twirp_ts_1.chainInterceptors)(...interceptors);
-          response = yield interceptor(ctx, request3, (ctx2, inputReq) => {
-            return service.CreateCacheEntry(ctx2, inputReq);
-          });
-        } else {
-          response = yield service.CreateCacheEntry(ctx, request3);
-        }
-        return Buffer.from(cache_1.CreateCacheEntryResponse.toBinary(response));
-      });
-    }
-    function handleCacheServiceFinalizeCacheEntryUploadProtobuf(ctx, service, data, interceptors) {
-      return __awaiter6(this, void 0, void 0, function* () {
-        let request3;
-        let response;
-        try {
-          request3 = cache_1.FinalizeCacheEntryUploadRequest.fromBinary(data);
-        } catch (e) {
-          if (e instanceof Error) {
-            const msg = "the protobuf request could not be decoded";
-            throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.Malformed, msg).withCause(e, true);
-          }
-        }
-        if (interceptors && interceptors.length > 0) {
-          const interceptor = (0, twirp_ts_1.chainInterceptors)(...interceptors);
-          response = yield interceptor(ctx, request3, (ctx2, inputReq) => {
-            return service.FinalizeCacheEntryUpload(ctx2, inputReq);
-          });
-        } else {
-          response = yield service.FinalizeCacheEntryUpload(ctx, request3);
-        }
-        return Buffer.from(cache_1.FinalizeCacheEntryUploadResponse.toBinary(response));
-      });
-    }
-    function handleCacheServiceGetCacheEntryDownloadURLProtobuf(ctx, service, data, interceptors) {
-      return __awaiter6(this, void 0, void 0, function* () {
-        let request3;
-        let response;
-        try {
-          request3 = cache_1.GetCacheEntryDownloadURLRequest.fromBinary(data);
-        } catch (e) {
-          if (e instanceof Error) {
-            const msg = "the protobuf request could not be decoded";
-            throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.Malformed, msg).withCause(e, true);
-          }
-        }
-        if (interceptors && interceptors.length > 0) {
-          const interceptor = (0, twirp_ts_1.chainInterceptors)(...interceptors);
-          response = yield interceptor(ctx, request3, (ctx2, inputReq) => {
-            return service.GetCacheEntryDownloadURL(ctx2, inputReq);
-          });
-        } else {
-          response = yield service.GetCacheEntryDownloadURL(ctx, request3);
-        }
-        return Buffer.from(cache_1.GetCacheEntryDownloadURLResponse.toBinary(response));
-      });
-    }
-    function handleCacheServiceDeleteCacheEntryProtobuf(ctx, service, data, interceptors) {
-      return __awaiter6(this, void 0, void 0, function* () {
-        let request3;
-        let response;
-        try {
-          request3 = cache_1.DeleteCacheEntryRequest.fromBinary(data);
-        } catch (e) {
-          if (e instanceof Error) {
-            const msg = "the protobuf request could not be decoded";
-            throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.Malformed, msg).withCause(e, true);
-          }
-        }
-        if (interceptors && interceptors.length > 0) {
-          const interceptor = (0, twirp_ts_1.chainInterceptors)(...interceptors);
-          response = yield interceptor(ctx, request3, (ctx2, inputReq) => {
-            return service.DeleteCacheEntry(ctx2, inputReq);
-          });
-        } else {
-          response = yield service.DeleteCacheEntry(ctx, request3);
-        }
-        return Buffer.from(cache_1.DeleteCacheEntryResponse.toBinary(response));
-      });
-    }
-    function handleCacheServiceListCacheEntriesProtobuf(ctx, service, data, interceptors) {
-      return __awaiter6(this, void 0, void 0, function* () {
-        let request3;
-        let response;
-        try {
-          request3 = cache_1.ListCacheEntriesRequest.fromBinary(data);
-        } catch (e) {
-          if (e instanceof Error) {
-            const msg = "the protobuf request could not be decoded";
-            throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.Malformed, msg).withCause(e, true);
-          }
-        }
-        if (interceptors && interceptors.length > 0) {
-          const interceptor = (0, twirp_ts_1.chainInterceptors)(...interceptors);
-          response = yield interceptor(ctx, request3, (ctx2, inputReq) => {
-            return service.ListCacheEntries(ctx2, inputReq);
-          });
-        } else {
-          response = yield service.ListCacheEntries(ctx, request3);
-        }
-        return Buffer.from(cache_1.ListCacheEntriesResponse.toBinary(response));
-      });
-    }
-    function handleCacheServiceLookupCacheEntryProtobuf(ctx, service, data, interceptors) {
-      return __awaiter6(this, void 0, void 0, function* () {
-        let request3;
-        let response;
-        try {
-          request3 = cache_1.LookupCacheEntryRequest.fromBinary(data);
-        } catch (e) {
-          if (e instanceof Error) {
-            const msg = "the protobuf request could not be decoded";
-            throw new twirp_ts_1.TwirpError(twirp_ts_1.TwirpErrorCode.Malformed, msg).withCause(e, true);
-          }
-        }
-        if (interceptors && interceptors.length > 0) {
-          const interceptor = (0, twirp_ts_1.chainInterceptors)(...interceptors);
-          response = yield interceptor(ctx, request3, (ctx2, inputReq) => {
-            return service.LookupCacheEntry(ctx2, inputReq);
-          });
-        } else {
-          response = yield service.LookupCacheEntry(ctx, request3);
-        }
-        return Buffer.from(cache_1.LookupCacheEntryResponse.toBinary(response));
-      });
-    }
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/shared/cacheTwirpClient.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/shared/cacheTwirpClient.js
 var require_cacheTwirpClient = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/shared/cacheTwirpClient.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/shared/cacheTwirpClient.js"(exports2) {
     "use strict";
     var __awaiter6 = exports2 && exports2.__awaiter || function(thisArg, _arguments, P, generator) {
       function adopt(value) {
@@ -67741,7 +65145,7 @@ var require_cacheTwirpClient = __commonJS({
     var cacheUtils_1 = require_cacheUtils();
     var auth_1 = require_auth();
     var http_client_1 = require_lib();
-    var cache_twirp_1 = require_cache_twirp();
+    var cache_twirp_client_1 = require_cache_twirp_client();
     var CacheServiceClient = class {
       constructor(userAgent, maxAttempts, baseRetryIntervalMilliseconds, retryMultiplier) {
         this.maxAttempts = 5;
@@ -67870,15 +65274,15 @@ var require_cacheTwirpClient = __commonJS({
     };
     function internalCacheTwirpClient(options) {
       const client = new CacheServiceClient((0, user_agent_1.getUserAgentString)(), options === null || options === void 0 ? void 0 : options.maxAttempts, options === null || options === void 0 ? void 0 : options.retryIntervalMs, options === null || options === void 0 ? void 0 : options.retryMultiplier);
-      return new cache_twirp_1.CacheServiceClientJSON(client);
+      return new cache_twirp_client_1.CacheServiceClientJSON(client);
     }
     exports2.internalCacheTwirpClient = internalCacheTwirpClient;
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/tar.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/tar.js
 var require_tar = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/internal/tar.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/internal/tar.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
@@ -68119,9 +65523,9 @@ var require_tar = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/cache.js
+// node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/cache.js
 var require_cache3 = __commonJS({
-  "node_modules/.pnpm/@actions+cache@4.0.0/node_modules/@actions/cache/lib/cache.js"(exports2) {
+  "node_modules/.pnpm/@actions+cache@4.0.2/node_modules/@actions/cache/lib/cache.js"(exports2) {
     "use strict";
     var __createBinding = exports2 && exports2.__createBinding || (Object.create ? function(o, m, k, k2) {
       if (k2 === void 0) k2 = k;
@@ -68314,7 +65718,7 @@ var require_cache3 = __commonJS({
           };
           const response = yield twirpClient.GetCacheEntryDownloadURL(request3);
           if (!response.ok) {
-            core7.warning(`Cache not found for keys: ${keys.join(", ")}`);
+            core7.debug(`Cache not found for keys: ${keys.join(", ")}`);
             return void 0;
           }
           core7.info(`Cache hit for: ${request3.key}`);
@@ -68460,12 +65864,19 @@ var require_cache3 = __commonJS({
             key,
             version: version2
           };
-          const response = yield twirpClient.CreateCacheEntry(request3);
-          if (!response.ok) {
+          let signedUploadUrl;
+          try {
+            const response = yield twirpClient.CreateCacheEntry(request3);
+            if (!response.ok) {
+              throw new Error("Response was not ok");
+            }
+            signedUploadUrl = response.signedUploadUrl;
+          } catch (error) {
+            core7.debug(`Failed to reserve cache: ${error}`);
             throw new ReserveCacheError(`Unable to reserve cache with key ${key}, another job may be creating this cache.`);
           }
           core7.debug(`Attempting to upload cache located at: ${archivePath}`);
-          yield cacheHttpClient.saveCache(cacheId, archivePath, response.signedUploadUrl, options);
+          yield cacheHttpClient.saveCache(cacheId, archivePath, signedUploadUrl, options);
           const finalizeRequest = {
             key,
             version: version2,
@@ -71242,7 +68653,7 @@ var _FromEither = {
   fromEither: FromEither.fromEither
 };
 
-// node_modules/.pnpm/zod@3.24.1/node_modules/zod/lib/index.mjs
+// node_modules/.pnpm/zod@3.24.2/node_modules/zod/lib/index.mjs
 var util;
 (function(util4) {
   util4.assertEqual = (val) => val;
