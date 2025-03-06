@@ -35,10 +35,10 @@ To see all available input arguments, see the [`action.yml`](action.yml) file.
 You can specify the version of micromamba to be installed using the `micromamba-version` input.
 
 ```yml
-- uses: mamba-org/setup-micromamba@v1
+- uses: mamba-org/setup-micromamba@v2
   with:
     # Any version from https://github.com/mamba-org/micromamba-releases
-    micromamba-version: '1.5.6-0'
+    micromamba-version: '2.0.5-0'
 ```
 
 ### Environment creation
