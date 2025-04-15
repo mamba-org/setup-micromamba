@@ -34196,7 +34196,8 @@ var getCondaArch = () => {
     "linux-x64": "linux-64",
     "linux-arm64": "linux-aarch64",
     "linux-ppc64": "linux-ppc64le",
-    "win32-x64": "win-64"
+    "win32-x64": "win-64",
+    "win32-arm64": "win-arm64"
   };
   const arch3 = archDict[`${os6.platform()}-${os6.arch()}`];
   if (!arch3) {
