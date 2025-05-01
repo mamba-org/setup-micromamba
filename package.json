@@ -28,27 +28,27 @@
     "@actions/exec": "^1.1.1",
     "@actions/io": "^1.1.3",
     "@actions/tool-cache": "^2.0.2",
-    "fp-ts": "^2.16.9",
+    "fp-ts": "^2.16.10",
     "js-yaml": "^4.1.0",
     "untildify": "^5.0.0",
     "which": "^5.0.0",
-    "zod": "^3.24.2"
+    "zod": "^3.24.3"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^22.13.17",
+    "@types/node": "^22.15.3",
     "@types/which": "^3.0.4",
-    "@typescript-eslint/eslint-plugin": "^8.29.0",
-    "@typescript-eslint/parser": "^8.29.0",
-    "eslint": "^9.23.0",
-    "eslint-config-prettier": "^10.1.1",
+    "@typescript-eslint/eslint-plugin": "^8.31.1",
+    "@typescript-eslint/parser": "^8.31.1",
+    "eslint": "^9.25.1",
+    "eslint-config-prettier": "^10.1.2",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-n": "^17.17.0",
-    "eslint-plugin-prettier": "^5.2.5",
+    "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-promise": "^7.2.1",
     "prettier": "^3.5.3",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   }
 }
