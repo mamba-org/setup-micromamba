@@ -22178,9 +22178,9 @@ var require_balanced_match = __commonJS({
   }
 });
 
-// node_modules/.pnpm/brace-expansion@1.1.11/node_modules/brace-expansion/index.js
+// node_modules/.pnpm/brace-expansion@1.1.12/node_modules/brace-expansion/index.js
 var require_brace_expansion = __commonJS({
-  "node_modules/.pnpm/brace-expansion@1.1.11/node_modules/brace-expansion/index.js"(exports2, module2) {
+  "node_modules/.pnpm/brace-expansion@1.1.12/node_modules/brace-expansion/index.js"(exports2, module2) {
     "use strict";
     var concatMap = require_concat_map();
     var balanced = require_balanced_match();
@@ -22248,7 +22248,7 @@ var require_brace_expansion = __commonJS({
       var isSequence = isNumericSequence || isAlphaSequence;
       var isOptions = m.body.indexOf(",") >= 0;
       if (!isSequence && !isOptions) {
-        if (m.post.match(/,.*\}/)) {
+        if (m.post.match(/,(?!,).*\}/)) {
           str2 = m.pre + "{" + m.body + escClose + m.post;
           return expand(str2);
         }
@@ -65201,7 +65201,7 @@ var os3 = __toESM(require("os"));
 var fs2 = __toESM(require("fs"));
 var coreDefault2 = __toESM(require_core());
 
-// node_modules/.pnpm/zod@3.25.46/node_modules/zod/dist/esm/v3/helpers/util.js
+// node_modules/.pnpm/zod@3.25.67/node_modules/zod/dist/esm/v3/helpers/util.js
 var util;
 (function(util4) {
   util4.assertEqual = (_) => {
@@ -65335,7 +65335,7 @@ var getParsedType = (data) => {
   }
 };
 
-// node_modules/.pnpm/zod@3.25.46/node_modules/zod/dist/esm/v3/ZodError.js
+// node_modules/.pnpm/zod@3.25.67/node_modules/zod/dist/esm/v3/ZodError.js
 var ZodIssueCode = util.arrayToEnum([
   "invalid_type",
   "invalid_literal",
@@ -65448,7 +65448,7 @@ ZodError.create = (issues) => {
   return error;
 };
 
-// node_modules/.pnpm/zod@3.25.46/node_modules/zod/dist/esm/v3/locales/en.js
+// node_modules/.pnpm/zod@3.25.67/node_modules/zod/dist/esm/v3/locales/en.js
 var errorMap = (issue, _ctx) => {
   let message;
   switch (issue.code) {
@@ -65549,13 +65549,13 @@ var errorMap = (issue, _ctx) => {
 };
 var en_default = errorMap;
 
-// node_modules/.pnpm/zod@3.25.46/node_modules/zod/dist/esm/v3/errors.js
+// node_modules/.pnpm/zod@3.25.67/node_modules/zod/dist/esm/v3/errors.js
 var overrideErrorMap = en_default;
 function getErrorMap() {
   return overrideErrorMap;
 }
 
-// node_modules/.pnpm/zod@3.25.46/node_modules/zod/dist/esm/v3/helpers/parseUtil.js
+// node_modules/.pnpm/zod@3.25.67/node_modules/zod/dist/esm/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
   const { data, path: path5, errorMaps, issueData } = params;
   const fullPath = [...path5, ...issueData.path || []];
@@ -65664,14 +65664,14 @@ var isDirty = (x) => x.status === "dirty";
 var isValid = (x) => x.status === "valid";
 var isAsync = (x) => typeof Promise !== "undefined" && x instanceof Promise;
 
-// node_modules/.pnpm/zod@3.25.46/node_modules/zod/dist/esm/v3/helpers/errorUtil.js
+// node_modules/.pnpm/zod@3.25.67/node_modules/zod/dist/esm/v3/helpers/errorUtil.js
 var errorUtil;
 (function(errorUtil2) {
   errorUtil2.errToObj = (message) => typeof message === "string" ? { message } : message || {};
   errorUtil2.toString = (message) => typeof message === "string" ? message : message?.message;
 })(errorUtil || (errorUtil = {}));
 
-// node_modules/.pnpm/zod@3.25.46/node_modules/zod/dist/esm/v3/types.js
+// node_modules/.pnpm/zod@3.25.67/node_modules/zod/dist/esm/v3/types.js
 var ParseInputLazyPath = class {
   constructor(parent, value, path5, key) {
     this._cachedPath = [];
