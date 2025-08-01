@@ -32,7 +32,7 @@
     "js-yaml": "^4.1.0",
     "untildify": "^5.0.0",
     "which": "^5.0.0",
-    "zod": "^3.25.76"
+    "zod": "^4.0.14"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
@@ -40,15 +40,15 @@
     "@types/which": "^3.0.4",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
-    "eslint": "^9.31.0",
+    "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-n": "^17.21.0",
+    "eslint-plugin-n": "^17.21.3",
     "eslint-plugin-prettier": "^5.5.3",
     "eslint-plugin-promise": "^7.2.1",
     "prettier": "^3.6.2",
     "tsup": "^8.5.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   }
 }
