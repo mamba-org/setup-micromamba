@@ -39,7 +39,7 @@ jobs:
             binary-exists: '! '
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # This is a fork of webiny/action-post-run. If webiny/action-post-run is updated, this should be updated as well.
       - uses: lisanna-dettwyler/action-post-run@d053b9b43d788b87a409f6cdb3b6fc87c6c8a4fe
         with:

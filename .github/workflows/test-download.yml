@@ -12,7 +12,7 @@ jobs:
     ensure-download:
         runs-on: ubuntu-latest
         steps:
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@v5
         - run: |
             echo "exit 1" >> micromamba
 
@@ -30,7 +30,7 @@ jobs:
     ensure-local-default:
         runs-on: ubuntu-latest
         steps:
-        - uses: actions/checkout@v4
+        - uses: actions/checkout@v5
         - run: |
             curl -Ls https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-linux-64 > micromamba
             sudo cp micromamba /usr/bin/micromamba
