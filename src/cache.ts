@@ -35,17 +35,17 @@ const restoreCache = (cachePath: string, cacheKey: string) => {
   })
 }
 
-const generateEnvironmentKey = (options: Options, prefix: string) => {
+const generateEnvironmentKey = async (options: Options, prefix: string) => {
   const arch = `-${getCondaArch()}`
   const envName = options.environmentName ? `-${options.environmentName}` : ''
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : ''
   const rootPrefix = `-root-${sha256Short(options.micromambaRootPath)}`
-  const binHash = fs.readFile(options.micromambaBinPath).then(sha256)
+  const binHash = await fs.readFile(options.micromambaBinPath, 'utf-8').then(sha256)
 
   const key = `${prefix}${arch}${envName}${createArgs}${rootPrefix}-bin-${binHash}`
 
   if (options.environmentFile) {
-    return fs.readFile(options.environmentFile, 'utf-8').then((content) => {
+    return await fs.readFile(options.environmentFile, 'utf-8').then((content) => {
       const keyWithFileSha = `${key}-file-${sha256(content)}`
       core.debug(`Generated key \`${keyWithFileSha}\`.`)
       return keyWithFileSha
@@ -53,7 +53,7 @@ const generateEnvironmentKey = (options: Options, prefix: string) => {
   }
 
   core.debug(`Generated key \`${key}\`.`)
-  return Promise.resolve(key)
+  return key
 }
 
 const generateDownloadsKey = (prefix: string) => `${prefix}-${getCondaArch()}`
