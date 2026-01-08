@@ -12,7 +12,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - uses: Quantco/ui-actions/version-metadata@v1
         id: version-metadata
         with:
@@ -24,7 +24,7 @@ jobs:
           TAG_NAME: v${{ steps.version-metadata.outputs.newVersion }}
       - name: Create release
         if: steps.version-metadata.outputs.changed == 'true'
-        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
         with:
           generate_release_notes: true
           tag_name: v${{ steps.version-metadata.outputs.newVersion }}
