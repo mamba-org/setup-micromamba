@@ -82663,7 +82663,7 @@ var generateEnvironmentKey = async (options, prefix) => {
   const envName = options.environmentName ? `-${options.environmentName}` : "";
   const createArgs = options.createArgs ? `-args-${sha256Short(JSON.stringify(options.createArgs))}` : "";
   const rootPrefix = `-root-${sha256Short(options.micromambaRootPath)}`;
-  const binHash = await fs4.readFile(options.micromambaBinPath, "utf-8").then(sha256);
+  const binHash = await fs4.readFile(options.micromambaBinPath).then(sha256);
   const key = `${prefix}${arch2}${envName}${createArgs}${rootPrefix}-bin-${binHash}`;
   if (options.environmentFile) {
     return await fs4.readFile(options.environmentFile, "utf-8").then((content) => {
