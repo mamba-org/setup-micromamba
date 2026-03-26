@@ -12,8 +12,8 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: Quantco/ui-actions/version-metadata@v1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: Quantco/ui-actions/version-metadata@adeb1cf49655487534b4ddaab09c3b7bdfd1d628 # v1.0.19
         id: version-metadata
         with:
           file: ./package.json
