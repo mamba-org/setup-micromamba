@@ -369,6 +369,44 @@ jobs:
           micromamba info | grep .condarc.yml
         shell: bash -elo pipefail {0}
 
+  test-prerelease:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            subdir: linux-64
+          - os: macos-latest
+            subdir: osx-arm64
+          #- os: windows-latest
+          #  subdir: win-64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Download and extract micromamba pre-release (unix)
+        if: runner.os != 'Windows'
+        run: |
+          curl -Ls "https://conda.anaconda.org/conda-forge/label/micromamba_prerelease/${{ matrix.subdir }}/micromamba-2.6.0.rc0-0.tar.bz2" \
+            | tar -xj -C /tmp bin/micromamba
+          sudo mv /tmp/bin/micromamba /usr/local/bin/micromamba
+          chmod +x /usr/local/bin/micromamba
+
+      - name: Download and extract micromamba pre-release (windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $url = "https://conda.anaconda.org/conda-forge/label/micromamba_prerelease/win-64/micromamba-2.6.0.rc0-0.tar.bz2"
+          Invoke-WebRequest $url -OutFile micromamba.tar.bz2
+          # bzip2 + tar are available on Windows runners
+          & tar -xj -f micromamba.tar.bz2 Library/bin/micromamba.exe
+          New-Item -ItemType Directory -Force "$env:USERPROFILE\micromamba-bin"
+          Move-Item Library\bin\micromamba.exe "$env:USERPROFILE\micromamba-bin\micromamba.exe"
+
+      - uses: ./
+        with:
+          download-micromamba: false
+          environment-file: 'test/environment.yml'
+
   # not properly testable
   # https://github.com/actions/runner/issues/2347
   # https://github.com/orgs/community/discussions/15452
