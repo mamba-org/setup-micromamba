@@ -1,38 +1,95 @@
 import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
+import { exec as execChild } from 'child_process'
+import { promisify } from 'util'
 import { exit } from 'process'
 import * as coreDefault from '@actions/core'
 import * as io from '@actions/io'
 import { downloadTool } from '@actions/tool-cache'
-import { getMicromambaUrl, micromambaCmd, execute, determineEnvironmentName } from './util'
+import type { ResolvedMicromambaDownload } from './util'
+import { resolveMicromambaSource, micromambaCmd, execute, determineEnvironmentName } from './util'
 import { coreMocked } from './mocking'
 import { PATHS, type Options, getOptions } from './options'
 import { addEnvironmentToAutoActivate, shellInit } from './shell-init'
 import { restoreCacheDownloads, restoreCacheEnvironment, saveCacheEnvironment } from './cache'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
+const execAsync = promisify(execChild)
 
-const downloadMicromamba = (options: Options, url: string) => {
+const getCondaPackageExtension = (packageUrl: string): string => {
+  const pathname = new URL(packageUrl).pathname
+  if (pathname.endsWith('.tar.bz2')) {
+    return '.tar.bz2'
+  }
+  if (pathname.endsWith('.conda')) {
+    return '.conda'
+  }
+  return '.tar.bz2'
+}
+
+const extractMicromambaFromCondaPackage = async (
+  packagePath: string,
+  destBinaryPath: string,
+  binaryMember: string
+) => {
+  const extractDir = path.join(path.dirname(packagePath), 'micromamba-extract')
+  await fs.mkdir(extractDir, { recursive: true })
+
+  if (packagePath.endsWith('.tar.bz2')) {
+    await execAsync(
+      `tar -xjf ${JSON.stringify(packagePath)} -C ${JSON.stringify(extractDir)} ${binaryMember}`
+    )
+  } else if (packagePath.endsWith('.conda')) {
+    throw new Error(
+      'Prerelease micromamba packages in .conda format are not supported yet. Use a .tar.bz2 build or specify micromamba-url.'
+    )
+  } else {
+    throw new Error(`Unsupported micromamba package format: ${packagePath}`)
+  }
+
+  await fs.copyFile(path.join(extractDir, binaryMember), destBinaryPath)
+}
+
+const installMicromambaBinary = async (options: Options, download: ResolvedMicromambaDownload) => {
+  await fs.mkdir(path.dirname(options.micromambaBinPath), { recursive: true })
+
+  if (download.source === 'direct') {
+    core.debug(`Downloading micromamba from ${download.url} ...`)
+    await downloadTool(download.url, options.micromambaBinPath)
+  } else {
+    core.debug(`Downloading micromamba conda package from ${download.packageUrl} ...`)
+    const packageDest = path.join(
+      path.dirname(options.micromambaBinPath),
+      `micromamba-package${getCondaPackageExtension(download.packageUrl)}`
+    )
+    const packagePath = await downloadTool(download.packageUrl, packageDest)
+    await extractMicromambaFromCondaPackage(packagePath, options.micromambaBinPath, download.binaryMember)
+  }
+
+  if (os.platform() !== 'win32') {
+    await fs.chmod(options.micromambaBinPath, 0o755)
+  }
+  await core.addPath(path.dirname(options.micromambaBinPath))
+  core.info(`micromamba installed to ${options.micromambaBinPath}`)
+}
+
+const downloadMicromamba = async (options: Options, download: ResolvedMicromambaDownload) => {
   if (options.downloadMicromamba === false) {
     core.info('Skipping micromamba download.')
     core.addPath(path.dirname(options.micromambaBinPath))
-    return Promise.resolve(undefined)
+    return
   }
   core.startGroup('Install micromamba')
-  core.debug(`Downloading micromamba from ${url} ...`)
-
-  return fs
-    .mkdir(path.dirname(options.micromambaBinPath), { recursive: true })
-    .then(() => downloadTool(url, options.micromambaBinPath))
-    .then((_downloadPath) => fs.chmod(options.micromambaBinPath, 0o755))
-    .then(() => core.addPath(path.dirname(options.micromambaBinPath)))
-    .then(() => core.info(`micromamba installed to ${options.micromambaBinPath}`))
-    .catch((err) => {
-      core.error(`Error installing micromamba: ${err.message}`)
-      throw err
-    })
-    .finally(core.endGroup)
+  try {
+    await installMicromambaBinary(options, download)
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    core.error(`Error installing micromamba: ${message}`)
+    throw err
+  } finally {
+    core.endGroup()
+  }
 }
 
 const generateCondarc = (options: Options) => {
@@ -185,7 +242,7 @@ const run = async () => {
     core.addPath(path.dirname(await io.which('cygpath', true)))
   }
 
-  await downloadMicromamba(options, getMicromambaUrl(options.micromambaSource))
+  await downloadMicromamba(options, await resolveMicromambaSource(options.micromambaSource))
   await generateCondarc(options)
   await Promise.all(options.initShell.map((shell) => shellInit(options, shell)))
   const cacheDownloadsKey = await restoreCacheDownloads(options)

@@ -13467,7 +13467,7 @@ var require_fetch = __commonJS({
     function handleFetchDone(response) {
       finalizeAndReportTiming(response, "fetch");
     }
-    function fetch(input, init = void 0) {
+    function fetch2(input, init = void 0) {
       webidl.argumentLengthCheck(arguments, 1, "globalThis.fetch");
       let p = createDeferredPromise();
       let requestObject;
@@ -14424,7 +14424,7 @@ var require_fetch = __commonJS({
       }
     }
     module2.exports = {
-      fetch,
+      fetch: fetch2,
       Fetch,
       fetching,
       finalizeAndReportTiming
@@ -18780,7 +18780,7 @@ var require_undici = __commonJS({
     module2.exports.setGlobalDispatcher = setGlobalDispatcher;
     module2.exports.getGlobalDispatcher = getGlobalDispatcher;
     var fetchImpl = require_fetch().fetch;
-    module2.exports.fetch = async function fetch(init, options = void 0) {
+    module2.exports.fetch = async function fetch2(init, options = void 0) {
       try {
         return await fetchImpl(init, options);
       } catch (err) {
@@ -31730,6 +31730,27 @@ function untildify(pathWithTilde) {
 // src/options.ts
 var import_which = __toESM(require_lib());
 
+// src/micromamba-version.ts
+var core = process.env.MOCKING ? coreMocked : core_exports;
+var PRERELEASE_IN_VERSION = /(?:^|[.])(?:rc|alpha|beta|dev)\d/i;
+var PRERELEASE_WITHOUT_DOT = /\d(?:rc|alpha|beta|dev)\d/i;
+var isMicromambaPrereleaseVersion = (version4) => {
+  const versionPart = version4.replace(/-\d+$/, "");
+  return PRERELEASE_IN_VERSION.test(versionPart) || PRERELEASE_WITHOUT_DOT.test(versionPart);
+};
+var isValidMicromambaVersionInput = (input) => {
+  if (input === "latest") {
+    return true;
+  }
+  if (/^\d+\.\d+\.\d+-\d+$/.test(input)) {
+    return true;
+  }
+  if (!/^\d+\.\d+\.\d+/.test(input)) {
+    return false;
+  }
+  return isMicromambaPrereleaseVersion(input);
+};
+
 // src/util.ts
 var fs3 = __toESM(require("fs/promises"));
 var os7 = __toESM(require("os"));
@@ -34097,7 +34118,7 @@ var { Type, Schema, FAILSAFE_SCHEMA, JSON_SCHEMA, CORE_SCHEMA, DEFAULT_SCHEMA, l
 var index_vite_proxy_tmp_default = import_js_yaml.default;
 
 // src/util.ts
-var core = process.env.MOCKING ? coreMocked : core_exports;
+var core2 = process.env.MOCKING ? coreMocked : core_exports;
 var getCondaArch = () => {
   const archDict = {
     "darwin-x64": "osx-64",
@@ -34115,15 +34136,15 @@ var getCondaArch = () => {
   return arch3;
 };
 var determineEnvironmentName = (environmentName, environmentFile) => {
-  core.debug("Determining environment name from inputs.");
-  core.debug(`environmentName: ${environmentName}`);
-  core.debug(`environmentFile: ${environmentFile}`);
+  core2.debug("Determining environment name from inputs.");
+  core2.debug(`environmentName: ${environmentName}`);
+  core2.debug(`environmentFile: ${environmentFile}`);
   if (environmentName) {
-    core.debug(`Determined environment name: ${environmentName}`);
+    core2.debug(`Determined environment name: ${environmentName}`);
     return Promise.resolve(environmentName);
   }
   if (!environmentFile) {
-    core.error("No environment name or file specified.");
+    core2.error("No environment name or file specified.");
     throw new Error("No environment name or file specified.");
   }
   return fs3.readFile(environmentFile).then((fileContents) => {
@@ -34131,12 +34152,12 @@ var determineEnvironmentName = (environmentName, environmentFile) => {
       name: string2()
     });
     const environmentName2 = environmentFileSchema.parse(load(fileContents.toString())).name;
-    core.debug(`Determined environment name from file ${environmentFile}: ${environmentName2}`);
+    core2.debug(`Determined environment name from file ${environmentFile}: ${environmentName2}`);
     return environmentName2;
   }).catch((error2) => {
-    core.error(`Could not determine environment name from file ${environmentFile}`);
-    core.error(`Error: ${error2}`);
-    core.error(
+    core2.error(`Could not determine environment name from file ${environmentFile}`);
+    core2.error(`Error: ${error2}`);
+    core2.error(
       "If your environment file is not a YAML file containing `name` at the top level, please specify the environment name directly."
     );
     throw error2;
@@ -34154,7 +34175,7 @@ var micromambaCmd = (options, command, logLevel, condarcFile) => {
   return commandArray;
 };
 var execute = (cmd) => {
-  core.debug(`Executing: ${cmd.join(" ")}`);
+  core2.debug(`Executing: ${cmd.join(" ")}`);
   return exec(cmd[0], cmd.slice(1));
 };
 var getTempDirectory = () => {
@@ -34166,7 +34187,7 @@ var getTempDirectory = () => {
 };
 
 // src/options.ts
-var core2 = process.env.MOCKING ? coreMocked : core_exports;
+var core3 = process.env.MOCKING ? coreMocked : core_exports;
 var PATHS = {
   micromambaBin: path6.join(os8.homedir(), "micromamba-bin", `micromamba${os8.platform() === "win32" ? ".exe" : ""}`),
   micromambaRoot: path6.join(os8.homedir(), "micromamba"),
@@ -34177,7 +34198,7 @@ var postCleanupSchema = _enum(["none", "shell-init", "environment", "all"]);
 var logLevelSchema = _enum(["off", "critical", "error", "warning", "info", "debug", "trace"]);
 var shellSchema = _enum(["none", "bash", "cmd.exe", "fish", "powershell", "tcsh", "xonsh", "zsh"]);
 var parseOrUndefined = (key, schema, errorMessage) => {
-  const input = core2.getInput(key);
+  const input = core3.getInput(key);
   if (input === "") {
     return void 0;
   }
@@ -34191,14 +34212,14 @@ var parseOrUndefined = (key, schema, errorMessage) => {
   return maybeResult.data;
 };
 var parseOrUndefinedJSON = (key, schema) => {
-  const input = core2.getInput(key);
+  const input = core3.getInput(key);
   if (input === "") {
     return void 0;
   }
   return schema.parse(JSON.parse(input));
 };
 var parseOrUndefinedList = (key, schema) => {
-  const input = core2.getInput(key);
+  const input = core3.getInput(key);
   if (input === "") {
     return void 0;
   }
@@ -34207,10 +34228,10 @@ var parseOrUndefinedList = (key, schema) => {
 var determineMicromambaInstallation = (micromambaBinPath, downloadMicromamba) => {
   const preinstalledMicromamba = import_which.default.sync("micromamba", { nothrow: true });
   if (preinstalledMicromamba) {
-    core2.debug(`Found pre-installed micromamba at ${preinstalledMicromamba}`);
+    core3.debug(`Found pre-installed micromamba at ${preinstalledMicromamba}`);
   }
   if (micromambaBinPath) {
-    core2.debug(`Using micromamba binary path ${micromambaBinPath}`);
+    core3.debug(`Using micromamba binary path ${micromambaBinPath}`);
     try {
       const resolvedPath = path6.resolve(untildify(micromambaBinPath));
       return { downloadMicromamba: downloadMicromamba !== false, micromambaBinPath: resolvedPath };
@@ -34228,7 +34249,7 @@ var determineMicromambaInstallation = (micromambaBinPath, downloadMicromamba) =>
 };
 var inferOptions = (inputs) => {
   const createEnvironment = inputs.environmentName !== void 0 || inputs.environmentFile !== void 0;
-  const logLevel = inputs.logLevel || (core2.isDebug() ? "debug" : "warning");
+  const logLevel = inputs.logLevel || (core3.isDebug() ? "debug" : "warning");
   const micromambaSource = inputs.micromambaUrl ? (0, import_Either.right)(inputs.micromambaUrl) : (0, import_Either.left)(inputs.micromambaVersion || "latest");
   const writeToCondarc = inputs.condarcFile === void 0;
   const initShell = !inputs.initShell ? ["bash"] : inputs.initShell.includes("none") ? [] : inputs.initShell;
@@ -34237,9 +34258,9 @@ var inferOptions = (inputs) => {
     inputs.downloadMicromamba
   );
   if (downloadMicromamba) {
-    core2.info(`Will download micromamba to ${micromambaBinPath}`);
+    core3.info(`Will download micromamba to ${micromambaBinPath}`);
   } else {
-    core2.info(`Will use pre-installed micromamba at ${micromambaBinPath}`);
+    core3.info(`Will use pre-installed micromamba at ${micromambaBinPath}`);
   }
   const tempDirectory = path6.join(getTempDirectory(), "setup-micromamba");
   fs4.mkdir(tempDirectory, { recursive: true }, (err) => {
@@ -34315,14 +34336,14 @@ var getRootPrefixFlagForInit = (options) => {
 };
 var checkForKnownIssues = (options) => {
   if (options.initShell && getRootPrefixFlagForInit(options) === "-p") {
-    core2.warning(
+    core3.warning(
       "You are using a micromamba version < 1.4.5-0 and initialize the shell. This is behavior is deprecated. Please update the micromamba version. For further informations, see https://github.com/mamba-org/setup-micromamba/pull/107"
     );
   }
   const condarcBasename = path6.basename(options.condarcFile);
   const hasValidCondarcName = condarcBasename === ".condarc" || condarcBasename === "condarc" || condarcBasename === ".mambarc" || condarcBasename === "mambarc" || condarcBasename.endsWith(".yml") || condarcBasename.endsWith(".yaml");
   if (!hasValidCondarcName) {
-    core2.warning(
+    core3.warning(
       `You are using a condarc file that is not named '.condarc'. This is currently not supported by micromamba, see https://github.com/mamba-org/mamba/issues/1394`
     );
   }
@@ -34341,8 +34362,13 @@ var getOptions = () => {
     ),
     micromambaVersion: parseOrUndefined(
       "micromamba-version",
-      union([literal("latest"), string2().regex(/^\d+\.\d+\.\d+(?:\.?(?:rc|alpha|beta|dev)\d+)?-\d+$/)]),
-      "micromamba-version must be either `latest` or a version matching `1.2.3-0`."
+      union([
+        literal("latest"),
+        string2().refine(isValidMicromambaVersionInput, {
+          message: "micromamba-version must be `latest`, a stable release tag such as `2.6.0-0`, or a prerelease such as `2.6.0.rc0`."
+        })
+      ]),
+      "micromamba-version must be `latest`, a stable release tag such as `2.6.0-0`, or a prerelease such as `2.6.0.rc0`."
     ),
     micromambaUrl: parseOrUndefined("micromamba-url", string2().url()),
     downloadMicromamba: parseOrUndefinedJSON("download-micromamba", boolean2()),
@@ -34356,10 +34382,10 @@ var getOptions = () => {
     micromambaRootPath: parseOrUndefined("micromamba-root-path", string2()),
     micromambaBinPath: parseOrUndefined("micromamba-binary-path", string2())
   };
-  core2.debug(`Inputs: ${JSON.stringify(inputs)}`);
+  core3.debug(`Inputs: ${JSON.stringify(inputs)}`);
   validateInputs(inputs);
   const options = inferOptions(inputs);
-  core2.debug(`Inferred options: ${JSON.stringify(options)}`);
+  core3.debug(`Inferred options: ${JSON.stringify(options)}`);
   checkForKnownIssues(options);
   assertOptions(options);
   return options;
@@ -34370,20 +34396,20 @@ var fs5 = __toESM(require("fs/promises"));
 var import_fs2 = require("fs");
 var os9 = __toESM(require("os"));
 var import_path = __toESM(require("path"));
-var core3 = process.env.MOCKING ? coreMocked : core_exports;
+var core4 = process.env.MOCKING ? coreMocked : core_exports;
 var removeMambaInitBlockFromBashProfile = () => {
-  core3.info("Removing mamba initialize block from .bash_profile");
+  core4.info("Removing mamba initialize block from .bash_profile");
   return fs5.readFile(PATHS.bashProfile, { encoding: "utf-8" }).then((bashProfile) => {
     const matches = bashProfile.match(mambaRegexBlock);
     if (!matches) {
       throw new Error("Could not find mamba initialization block in .bash_profile");
     }
-    core3.debug(`Removing mamba initialization block from .bash_profile: ${matches[0]}`);
+    core4.debug(`Removing mamba initialization block from .bash_profile: ${matches[0]}`);
     return fs5.writeFile(PATHS.bashProfile, bashProfile.replace(mambaRegexBlock, ""));
   });
 };
 var shellDeinit = (options, shell) => {
-  core3.startGroup(`Deinitialize micromamba for ${shell}`);
+  core4.startGroup(`Deinitialize micromamba for ${shell}`);
   const rootPrefixFlag = getRootPrefixFlagForInit(options);
   const command = execute(
     micromambaCmd(
@@ -34394,7 +34420,7 @@ var shellDeinit = (options, shell) => {
     )
   );
   if (os9.platform() === "linux" && shell === "bash") {
-    return command.then(removeMambaInitBlockFromBashProfile).finally(core3.endGroup);
+    return command.then(removeMambaInitBlockFromBashProfile).finally(core4.endGroup);
   }
   return command;
 };
@@ -34410,9 +34436,9 @@ var getRcFileDict = (options) => ({
   pwshUnix: import_path.default.join(os9.homedir(), ".config", "powershell", "profile.ps1")
 });
 var removeEnvironmentFromAutoActivate = (options, environmentName, shell) => {
-  core3.info(`Removing environment ${environmentName} from auto-activate ${shell} ...`);
+  core4.info(`Removing environment ${environmentName} from auto-activate ${shell} ...`);
   if (shell === "powershell") {
-    core3.warning("powershell is not supported");
+    core4.warning("powershell is not supported");
     return Promise.resolve(void 0);
   }
   const rcFilePath = getRcFileDict(options)[shell];
@@ -34422,11 +34448,11 @@ var removeEnvironmentFromAutoActivate = (options, environmentName, shell) => {
       if (!matches) {
         throw new Error(`Could not find micromamba activate ${environmentName} in ${rcFilePath}`);
       }
-      core3.debug(`Removing micromamba activate ${environmentName} from ${rcFilePath}`);
+      core4.debug(`Removing micromamba activate ${environmentName} from ${rcFilePath}`);
       return fs5.writeFile(rcFilePath, rcFile.replace(matches[0], ""));
     });
   } else {
-    core3.debug(`Could not find ${rcFilePath} to remove micromamba activate ${environmentName} from.
+    core4.debug(`Could not find ${rcFilePath} to remove micromamba activate ${environmentName} from.
      This is because \`micromamba shell deinit -s cmd.exe\` already did that.`);
     return Promise.resolve(void 0);
   }
@@ -71414,103 +71440,103 @@ function saveCacheV2(paths_1, key_1, options_1) {
 }
 
 // src/cache.ts
-var core4 = process.env.MOCKING ? coreMocked : core_exports;
+var core5 = process.env.MOCKING ? coreMocked : core_exports;
 var saveCache3 = (cachePath, cacheKey) => {
-  core4.debug(`Saving cache with key \`${cacheKey}\` ...`);
-  core4.debug(`Cache path: ${cachePath}`);
+  core5.debug(`Saving cache with key \`${cacheKey}\` ...`);
+  core5.debug(`Cache path: ${cachePath}`);
   return saveCache2([cachePath], cacheKey, void 0, false).then((cacheId) => {
-    core4.info(`Saved cache with ID \`${cacheId}\``);
+    core5.info(`Saved cache with ID \`${cacheId}\``);
   }).catch((err) => {
-    core4.error(`Error saving cache: ${err.message}`);
+    core5.error(`Error saving cache: ${err.message}`);
   });
 };
 var generateDownloadsKey = (prefix2) => `${prefix2}-${getCondaArch()}`;
 var trimPkgsCacheFolder = (cacheFolder) => {
-  core4.startGroup("Removing uncompressed packages to trim down cache folder...");
+  core5.startGroup("Removing uncompressed packages to trim down cache folder...");
   return fs10.readdir(cacheFolder).then((files) => {
-    core4.debug(`Files in \`${cacheFolder}\`: ${JSON.stringify(files)}`);
+    core5.debug(`Files in \`${cacheFolder}\`: ${JSON.stringify(files)}`);
     return Promise.all(
       files.filter((f) => f !== "cache").map((f) => import_path2.default.join(cacheFolder, f)).map((f) => fs10.lstat(f).then((stat2) => ({ path: f, stat: stat2 })))
     );
   }).then((files) => files.filter((f) => f.stat.isDirectory())).then((dirs) => {
-    core4.debug(`Directories in \`${cacheFolder}\`: ${JSON.stringify(dirs.map((d) => import_path2.default.basename(d.path)))}`);
+    core5.debug(`Directories in \`${cacheFolder}\`: ${JSON.stringify(dirs.map((d) => import_path2.default.basename(d.path)))}`);
     return Promise.all(
       dirs.map((d) => {
-        core4.info(`Removing \`${import_path2.default.basename(d.path)}\``);
+        core5.info(`Removing \`${import_path2.default.basename(d.path)}\``);
         return fs10.rm(d.path, { recursive: true, force: true });
       })
     );
-  }).finally(() => core4.endGroup());
+  }).finally(() => core5.endGroup());
 };
 var saveCacheDownloads = (options) => {
-  core4.debug(`Cache downloads key: ${options.cacheDownloadsKey}`);
+  core5.debug(`Cache downloads key: ${options.cacheDownloadsKey}`);
   if (!options.cacheDownloadsKey) {
     return Promise.resolve(void 0);
   }
   const cachePath = import_path2.default.join(options.micromambaRootPath, "pkgs");
   const cacheDownloadsKey = generateDownloadsKey(options.cacheDownloadsKey);
   if (!(0, import_fs4.existsSync)(cachePath)) {
-    core4.debug(`Cache folder \`${cachePath}\` doesn't exist, skipping cache saving.`);
+    core5.debug(`Cache folder \`${cachePath}\` doesn't exist, skipping cache saving.`);
     return Promise.resolve(void 0);
   }
   return trimPkgsCacheFolder(cachePath).then(() => {
-    core4.startGroup(`Saving cache for \`${cachePath}\` ...`);
+    core5.startGroup(`Saving cache for \`${cachePath}\` ...`);
     return saveCache3(cachePath, cacheDownloadsKey);
-  }).finally(core4.endGroup);
+  }).finally(core5.endGroup);
 };
 
 // src/post.ts
-var core5 = process.env.MOCKING ? coreMocked : core_exports;
+var core6 = process.env.MOCKING ? coreMocked : core_exports;
 var removeMicromambaRunShell = (options) => {
   if (!options.generateRunShell || os13.platform() === "win32") {
     return Promise.resolve(void 0);
   }
-  core5.info("Removing micromamba run shell ...");
+  core6.info("Removing micromamba run shell ...");
   return fs11.rm(options.micromambaRunShellPath);
 };
 var uninstallEnvironment = (options) => {
   return determineEnvironmentName(options.environmentName, options.environmentFile).then((environmentName) => {
     const envPath = import_path3.default.join(options.micromambaRootPath, "envs", environmentName);
-    core5.info(`Removing environment ${environmentName} ...`);
-    core5.debug(`Deleting ${envPath}`);
+    core6.info(`Removing environment ${environmentName} ...`);
+    core6.debug(`Deleting ${envPath}`);
     return fs11.rm(envPath, { recursive: true });
   });
 };
 var removeRoot = (options) => {
-  core5.info("Removing micromamba root ...");
-  core5.debug(`Deleting ${options.micromambaRootPath}`);
+  core6.info("Removing micromamba root ...");
+  core6.debug(`Deleting ${options.micromambaRootPath}`);
   return fs11.rm(options.micromambaRootPath, { recursive: true });
 };
 var removeCustomCondarc = (options) => {
   if (!options.writeToCondarc) {
     return Promise.resolve(void 0);
   }
-  core5.info("Removing custom condarc ...");
-  core5.debug(`Deleting ${options.condarcFile}`);
+  core6.info("Removing custom condarc ...");
+  core6.debug(`Deleting ${options.condarcFile}`);
   return fs11.rm(options.condarcFile);
 };
 var removeMicromambaBinaryParentIfEmpty = (options) => {
   const parentDir = import_path3.default.dirname(options.micromambaBinPath);
   return fs11.readdir(parentDir).then((files) => {
     if (files.length === 0) {
-      core5.debug(`Deleting ${parentDir}`);
+      core6.debug(`Deleting ${parentDir}`);
       return fs11.rmdir(parentDir);
     }
     return Promise.resolve(void 0);
   });
 };
 var removeMicromambaBinary = (options) => {
-  core5.info("Removing micromamba binary ...");
+  core6.info("Removing micromamba binary ...");
   if (options.downloadMicromamba === false) {
-    core5.debug("Skipping micromamba binary removal.");
+    core6.debug("Skipping micromamba binary removal.");
     return Promise.resolve(void 0);
   }
-  core5.debug(`Deleting ${options.micromambaBinPath}`);
+  core6.debug(`Deleting ${options.micromambaBinPath}`);
   return fs11.rm(options.micromambaBinPath, { force: false });
 };
 var removeAutoActivation = (options) => {
   if (!options.createEnvironment) {
-    core5.debug("No environment created. Skipping removal of auto activation line.");
+    core6.debug("No environment created. Skipping removal of auto activation line.");
     return Promise.resolve(void 0);
   }
   return determineEnvironmentName(options.environmentName, options.environmentFile).then(
@@ -71553,21 +71579,21 @@ var cleanup = (options) => {
 };
 var run = async () => {
   const options = getOptions();
-  const cacheDownloadsCacheHit = JSON.parse(core5.getState("cacheDownloadsCacheHit"));
+  const cacheDownloadsCacheHit = JSON.parse(core6.getState("cacheDownloadsCacheHit"));
   if (!cacheDownloadsCacheHit) {
     await saveCacheDownloads(options);
   }
   await cleanup(options);
 };
 run().catch((error2) => {
-  if (core5.isDebug()) {
+  if (core6.isDebug()) {
     throw error2;
   }
   if (error2 instanceof Error) {
-    core5.setFailed(error2.message);
+    core6.setFailed(error2.message);
     (0, import_process.exit)(1);
   } else if (typeof error2 === "string") {
-    core5.setFailed(error2);
+    core6.setFailed(error2);
     (0, import_process.exit)(1);
   }
   throw error2;

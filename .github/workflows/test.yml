@@ -44,6 +44,16 @@ jobs:
           micromamba info | grep -q "environment : base"
         shell: bash -el {0}
 
+  micromamba-prerelease-version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: ./
+        with:
+          micromamba-version: '2.6.0.rc0'
+      - run: test "$(micromamba --version)" = "2.6.0.rc0"
+        shell: bash -el {0}
+
   micromamba-old-version-1:
     runs-on: ubuntu-latest
     steps:

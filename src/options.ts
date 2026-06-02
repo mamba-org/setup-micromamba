@@ -8,6 +8,7 @@ import type { Either } from 'fp-ts/lib/Either'
 import untildify from 'untildify'
 import which from 'which'
 import { coreMocked } from './mocking'
+import { isValidMicromambaVersionInput } from './micromamba-version'
 import { getTempDirectory } from './util'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
@@ -295,8 +296,14 @@ export const getOptions = () => {
     ),
     micromambaVersion: parseOrUndefined(
       'micromamba-version',
-      z.union([z.literal('latest'), z.string().regex(/^\d+\.\d+\.\d+(?:\.?(?:rc|alpha|beta|dev)\d+)?-\d+$/)]),
-      'micromamba-version must be either `latest` or a version matching `1.2.3-0`.'
+      z.union([
+        z.literal('latest'),
+        z.string().refine(isValidMicromambaVersionInput, {
+          message:
+            'micromamba-version must be `latest`, a stable release tag such as `2.6.0-0`, or a prerelease such as `2.6.0.rc0`.'
+        })
+      ]),
+      'micromamba-version must be `latest`, a stable release tag such as `2.6.0-0`, or a prerelease such as `2.6.0.rc0`.'
     ),
     micromambaUrl: parseOrUndefined('micromamba-url', z.string().url()),
     downloadMicromamba: parseOrUndefinedJSON('download-micromamba', z.boolean()),

@@ -9,16 +9,12 @@ import { match } from 'fp-ts/Either'
 import { pipe } from 'fp-ts/function'
 import * as z from 'zod'
 import { coreMocked } from './mocking'
+import { resolveMicromambaDownload, type ResolvedMicromambaDownload } from './micromamba-version'
 import type { LogLevelType, MicromambaSourceType, Options } from './options'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
 
-const getMicromambaUrlFromVersion = (arch: string, version: string) => {
-  if (version === 'latest') {
-    return `https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-${arch}`
-  }
-  return `https://github.com/mamba-org/micromamba-releases/releases/download/${version}/micromamba-${arch}`
-}
+export type { ResolvedMicromambaDownload }
 
 export const getCondaArch = () => {
   const archDict: Record<string, string> = {
@@ -74,12 +70,12 @@ export const determineEnvironmentName = (environmentName?: string, environmentFi
 export const mambaRegexBlock =
   /\n# >>> mamba initialize >>>(?:\n|\r\n)?([\s\S]*?)# <<< mamba initialize <<<(?:\n|\r\n)?/
 
-export const getMicromambaUrl = (micromambaSource: MicromambaSourceType) => {
+export const resolveMicromambaSource = (micromambaSource: MicromambaSourceType): Promise<ResolvedMicromambaDownload> => {
   return pipe(
     micromambaSource,
     match(
-      (version) => getMicromambaUrlFromVersion(getCondaArch(), version),
-      (url) => url
+      (version) => resolveMicromambaDownload(version, getCondaArch()),
+      (url) => Promise.resolve({ source: 'direct', url })
     )
   )
 }

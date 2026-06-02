@@ -33,12 +33,23 @@ To see all available input arguments, see the [`action.yml`](action.yml) file.
 ### Micromamba version
 
 You can specify the version of micromamba to be installed using the `micromamba-version` input.
+If omitted, the action installs the latest **stable** release (prereleases are excluded).
 
 ```yml
 - uses: mamba-org/setup-micromamba@v3
   with:
-    # Any version from https://github.com/mamba-org/micromamba-releases
+    # Any stable version from https://github.com/mamba-org/micromamba-releases
     micromamba-version: '2.0.5-0'
+```
+
+Prerelease versions (for example `2.6.0.rc0` or `2.6.0.alpha0`) are only installed when
+you set `micromamba-version` explicitly. They are fetched from the
+[`conda-forge/label/micromamba_prerelease`](https://anaconda.org/conda-forge/label/micromamba_prerelease) channel.
+
+```yml
+- uses: mamba-org/setup-micromamba@v3
+  with:
+    micromamba-version: '2.6.0.rc0'
 ```
 
 ### Environment creation
