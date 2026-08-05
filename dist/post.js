@@ -34365,10 +34365,10 @@ var getOptions = () => {
       union([
         literal("latest"),
         string2().refine(isValidMicromambaVersionInput, {
-          message: "micromamba-version must be `latest`, a stable release tag such as `2.6.0-0`, or a prerelease such as `2.6.0.rc0`."
+          message: "micromamba-version must be `latest`, a stable release tag such as `2.8.1-0`, or a prerelease such as `2.9.0.rc1`."
         })
       ]),
-      "micromamba-version must be `latest`, a stable release tag such as `2.6.0-0`, or a prerelease such as `2.6.0.rc0`."
+      "micromamba-version must be `latest`, a stable release tag such as `2.8.1-0`, or a prerelease such as `2.9.0.rc1`."
     ),
     micromambaUrl: parseOrUndefined("micromamba-url", string2().url()),
     downloadMicromamba: parseOrUndefinedJSON("download-micromamba", boolean2()),

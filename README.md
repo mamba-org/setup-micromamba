@@ -42,14 +42,14 @@ If omitted, the action installs the latest **stable** release (prereleases are e
     micromamba-version: '2.0.5-0'
 ```
 
-Prerelease versions (for example `2.6.0.rc0` or `2.6.0.alpha0`) are only installed when
+Prerelease versions (for example `2.9.0.rc1` or `2.7.0.alpha0`) are only installed when
 you set `micromamba-version` explicitly. They are fetched from the
 [`conda-forge/label/micromamba_prerelease`](https://anaconda.org/conda-forge/label/micromamba_prerelease) channel.
 
 ```yml
 - uses: mamba-org/setup-micromamba@v3
   with:
-    micromamba-version: '2.6.0.rc0'
+    micromamba-version: '2.9.0.rc1'
 ```
 
 ### Environment creation

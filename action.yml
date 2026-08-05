@@ -38,8 +38,8 @@ inputs:
     description: |
       Version of micromamba to install.
       Defaults to `latest` (latest stable release, excluding prereleases).
-      Stable versions use https://github.com/mamba-org/micromamba-releases (e.g. `2.6.0-0`).
-      Prereleases (e.g. `2.6.0.rc0`, `2.6.0.alpha0`) are installed from the
+      Stable versions use https://github.com/mamba-org/micromamba-releases (e.g. `2.8.1-0`).
+      Prereleases (e.g. `2.9.0.rc1`, `2.7.0.alpha0`) are installed from the
       `conda-forge/label/micromamba_prerelease` channel when explicitly specified.
   micromamba-url:
     description: |
