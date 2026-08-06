@@ -1,8 +1,6 @@
 import fs from 'fs/promises'
 import os from 'os'
 import path from 'path'
-import { exec as execChild } from 'child_process'
-import { promisify } from 'util'
 import { exit } from 'process'
 import * as coreDefault from '@actions/core'
 import * as io from '@actions/io'
@@ -13,43 +11,9 @@ import { coreMocked } from './mocking'
 import { PATHS, type Options, getOptions } from './options'
 import { addEnvironmentToAutoActivate, shellInit } from './shell-init'
 import { restoreCacheDownloads, restoreCacheEnvironment, saveCacheEnvironment } from './cache'
+import { extractMicromambaFromCondaPackage, getCondaPackageExtension } from './conda-package'
 
 const core = process.env.MOCKING ? coreMocked : coreDefault
-const execAsync = promisify(execChild)
-
-const getCondaPackageExtension = (packageUrl: string): string => {
-  const pathname = new URL(packageUrl).pathname
-  if (pathname.endsWith('.tar.bz2')) {
-    return '.tar.bz2'
-  }
-  if (pathname.endsWith('.conda')) {
-    return '.conda'
-  }
-  return '.tar.bz2'
-}
-
-const extractMicromambaFromCondaPackage = async (
-  packagePath: string,
-  destBinaryPath: string,
-  binaryMember: string
-) => {
-  const extractDir = path.join(path.dirname(packagePath), 'micromamba-extract')
-  await fs.mkdir(extractDir, { recursive: true })
-
-  if (packagePath.endsWith('.tar.bz2')) {
-    await execAsync(
-      `tar -xjf ${JSON.stringify(packagePath)} -C ${JSON.stringify(extractDir)} ${binaryMember}`
-    )
-  } else if (packagePath.endsWith('.conda')) {
-    throw new Error(
-      'Prerelease micromamba packages in .conda format are not supported yet. Use a .tar.bz2 build or specify micromamba-url.'
-    )
-  } else {
-    throw new Error(`Unsupported micromamba package format: ${packagePath}`)
-  }
-
-  await fs.copyFile(path.join(extractDir, binaryMember), destBinaryPath)
-}
 
 const installMicromambaBinary = async (options: Options, download: ResolvedMicromambaDownload) => {
   await fs.mkdir(path.dirname(options.micromambaBinPath), { recursive: true })

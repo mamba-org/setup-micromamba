@@ -7,7 +7,8 @@
     "build": "tsc --noEmit && tsup",
     "dev": "tsup --watch",
     "lint": "tsc --noEmit",
-    "all": "npm run build && npm run lint && npm run generate-third-party-license-disclaimer",
+    "test": "tsx --test test/*.test.ts",
+    "all": "npm run build && npm run lint && npm run test && npm run generate-third-party-license-disclaimer",
     "generate-third-party-license-disclaimer": "pnpm licenses list --prod --json | npx @quantco/pnpm-licenses generate-disclaimer --json-input --output-file dist/licenses.txt"
   },
   "repository": {
@@ -49,6 +50,7 @@
     "eslint-plugin-promise": "^7.3.0",
     "prettier": "^3.8.3",
     "tsup": "^8.5.1",
+    "tsx": "^4.23.9",
     "typescript": "^6.0.3"
   }
 }
