@@ -1,6 +1,5 @@
 import * as fs from 'fs/promises'
 import * as os from 'os'
-import type { BinaryLike } from 'crypto'
 import { createHash } from 'crypto'
 import * as yaml from 'js-yaml'
 import * as coreDefault from '@actions/core'
@@ -80,9 +79,9 @@ export const resolveMicromambaSource = (micromambaSource: MicromambaSourceType):
   )
 }
 
-export const sha256 = (s: BinaryLike) => createHash('sha256').update(s).digest('hex')
+export const sha256 = (s: string | NodeJS.ArrayBufferView) => createHash('sha256').update(s).digest('hex')
 
-export const sha256Short = (s: BinaryLike) => sha256(s).slice(0, 7)
+export const sha256Short = (s: string | NodeJS.ArrayBufferView) => sha256(s).slice(0, 7)
 
 export const micromambaCmd = (options: Options, command: string, logLevel?: LogLevelType, condarcFile?: string) => {
   let commandArray = [options.micromambaBinPath].concat(command.split(' '))

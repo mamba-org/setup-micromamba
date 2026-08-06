@@ -80,44 +80,44 @@ var require_tunnel = __commonJS({
       return agent;
     }
     function TunnelingAgent(options) {
-      var self2 = this;
-      self2.options = options || {};
-      self2.proxyOptions = self2.options.proxy || {};
-      self2.maxSockets = self2.options.maxSockets || http4.Agent.defaultMaxSockets;
-      self2.requests = [];
-      self2.sockets = [];
-      self2.on("free", function onFree(socket, host, port, localAddress) {
+      var self = this;
+      self.options = options || {};
+      self.proxyOptions = self.options.proxy || {};
+      self.maxSockets = self.options.maxSockets || http4.Agent.defaultMaxSockets;
+      self.requests = [];
+      self.sockets = [];
+      self.on("free", function onFree(socket, host, port, localAddress) {
         var options2 = toOptions(host, port, localAddress);
-        for (var i = 0, len = self2.requests.length; i < len; ++i) {
-          var pending = self2.requests[i];
+        for (var i = 0, len = self.requests.length; i < len; ++i) {
+          var pending = self.requests[i];
           if (pending.host === options2.host && pending.port === options2.port) {
-            self2.requests.splice(i, 1);
+            self.requests.splice(i, 1);
             pending.request.onSocket(socket);
             return;
           }
         }
         socket.destroy();
-        self2.removeSocket(socket);
+        self.removeSocket(socket);
       });
     }
     util6.inherits(TunnelingAgent, events2.EventEmitter);
     TunnelingAgent.prototype.addRequest = function addRequest(req, host, port, localAddress) {
-      var self2 = this;
-      var options = mergeOptions({ request: req }, self2.options, toOptions(host, port, localAddress));
-      if (self2.sockets.length >= this.maxSockets) {
-        self2.requests.push(options);
+      var self = this;
+      var options = mergeOptions({ request: req }, self.options, toOptions(host, port, localAddress));
+      if (self.sockets.length >= this.maxSockets) {
+        self.requests.push(options);
         return;
       }
-      self2.createSocket(options, function(socket) {
+      self.createSocket(options, function(socket) {
         socket.on("free", onFree);
         socket.on("close", onCloseOrRemove);
         socket.on("agentRemove", onCloseOrRemove);
         req.onSocket(socket);
         function onFree() {
-          self2.emit("free", socket, options);
+          self.emit("free", socket, options);
         }
         function onCloseOrRemove(err) {
-          self2.removeSocket(socket);
+          self.removeSocket(socket);
           socket.removeListener("free", onFree);
           socket.removeListener("close", onCloseOrRemove);
           socket.removeListener("agentRemove", onCloseOrRemove);
@@ -125,10 +125,10 @@ var require_tunnel = __commonJS({
       });
     };
     TunnelingAgent.prototype.createSocket = function createSocket(options, cb) {
-      var self2 = this;
+      var self = this;
       var placeholder = {};
-      self2.sockets.push(placeholder);
-      var connectOptions = mergeOptions({}, self2.proxyOptions, {
+      self.sockets.push(placeholder);
+      var connectOptions = mergeOptions({}, self.proxyOptions, {
         method: "CONNECT",
         path: options.host + ":" + options.port,
         agent: false,
@@ -144,7 +144,7 @@ var require_tunnel = __commonJS({
         connectOptions.headers["Proxy-Authorization"] = "Basic " + new Buffer(connectOptions.proxyAuth).toString("base64");
       }
       debug2("making CONNECT request");
-      var connectReq = self2.request(connectOptions);
+      var connectReq = self.request(connectOptions);
       connectReq.useChunkedEncodingByDefault = false;
       connectReq.once("response", onResponse);
       connectReq.once("upgrade", onUpgrade);
@@ -171,7 +171,7 @@ var require_tunnel = __commonJS({
           var error2 = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
           error2.code = "ECONNRESET";
           options.request.emit("error", error2);
-          self2.removeSocket(placeholder);
+          self.removeSocket(placeholder);
           return;
         }
         if (head2.length > 0) {
@@ -180,11 +180,11 @@ var require_tunnel = __commonJS({
           var error2 = new Error("got illegal response body from proxy");
           error2.code = "ECONNRESET";
           options.request.emit("error", error2);
-          self2.removeSocket(placeholder);
+          self.removeSocket(placeholder);
           return;
         }
         debug2("tunneling connection has established");
-        self2.sockets[self2.sockets.indexOf(placeholder)] = socket;
+        self.sockets[self.sockets.indexOf(placeholder)] = socket;
         return cb(socket);
       }
       function onError(cause) {
@@ -197,7 +197,7 @@ var require_tunnel = __commonJS({
         var error2 = new Error("tunneling socket could not be established, cause=" + cause.message);
         error2.code = "ECONNRESET";
         options.request.emit("error", error2);
-        self2.removeSocket(placeholder);
+        self.removeSocket(placeholder);
       }
     };
     TunnelingAgent.prototype.removeSocket = function removeSocket(socket) {
@@ -214,15 +214,15 @@ var require_tunnel = __commonJS({
       }
     };
     function createSecureSocket(options, cb) {
-      var self2 = this;
-      TunnelingAgent.prototype.createSocket.call(self2, options, function(socket) {
+      var self = this;
+      TunnelingAgent.prototype.createSocket.call(self, options, function(socket) {
         var hostHeader = options.request.getHeader("host");
-        var tlsOptions = mergeOptions({}, self2.options, {
+        var tlsOptions = mergeOptions({}, self.options, {
           socket,
           servername: hostHeader ? hostHeader.replace(/:.*$/, "") : options.host
         });
         var secureSocket = tls.connect(0, tlsOptions);
-        self2.sockets[self2.sockets.indexOf(socket)] = secureSocket;
+        self.sockets[self.sockets.indexOf(socket)] = secureSocket;
         cb(secureSocket);
       });
     }
@@ -278,9 +278,9 @@ var require_tunnel2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/symbols.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/symbols.js
 var require_symbols = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/symbols.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/symbols.js"(exports2, module2) {
     "use strict";
     module2.exports = {
       kClose: /* @__PURE__ */ Symbol("close"),
@@ -352,9 +352,9 @@ var require_symbols = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/errors.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/errors.js
 var require_errors = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/errors.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/errors.js"(exports2, module2) {
     "use strict";
     var kUndiciError = /* @__PURE__ */ Symbol.for("undici.error.UND_ERR");
     var _a3, _b;
@@ -733,9 +733,9 @@ var require_errors = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/constants.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/constants.js
 var require_constants = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/constants.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/constants.js"(exports2, module2) {
     "use strict";
     var headerNameLowerCasedRecord = {};
     var wellknownHeaderNames = [
@@ -848,9 +848,9 @@ var require_constants = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/tree.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/tree.js
 var require_tree = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/tree.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/tree.js"(exports2, module2) {
     "use strict";
     var {
       wellknownHeaderNames,
@@ -990,9 +990,9 @@ var require_tree = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/util.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/util.js
 var require_util = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/util.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/util.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
     var { kDestroyed, kBodyUsed, kListeners, kBody } = require_symbols();
@@ -1496,9 +1496,9 @@ var require_util = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/diagnostics.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/diagnostics.js
 var require_diagnostics = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/diagnostics.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/diagnostics.js"(exports2, module2) {
     "use strict";
     var diagnosticsChannel = require("diagnostics_channel");
     var util6 = require("util");
@@ -1681,9 +1681,9 @@ var require_diagnostics = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/request.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/request.js
 var require_request = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/request.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/request.js"(exports2, module2) {
     "use strict";
     var {
       InvalidArgumentError,
@@ -1962,7 +1962,11 @@ var require_request = __commonJS({
           } else if (typeof val[i] === "object") {
             throw new InvalidArgumentError(`invalid ${key} header`);
           } else {
-            arr.push(`${val[i]}`);
+            const str = `${val[i]}`;
+            if (!isValidHeaderValue(str)) {
+              throw new InvalidArgumentError(`invalid ${key} header`);
+            }
+            arr.push(str);
           }
         }
         val = arr;
@@ -1974,6 +1978,9 @@ var require_request = __commonJS({
         val = "";
       } else {
         val = `${val}`;
+        if (!isValidHeaderValue(val)) {
+          throw new InvalidArgumentError(`invalid ${key} header`);
+        }
       }
       if (headerName === "host") {
         if (request.host !== null) {
@@ -2014,9 +2021,9 @@ var require_request = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/dispatcher.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/dispatcher.js
 var require_dispatcher = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/dispatcher.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/dispatcher.js"(exports2, module2) {
     "use strict";
     var EventEmitter4 = require("events");
     var Dispatcher = class extends EventEmitter4 {
@@ -2072,9 +2079,9 @@ var require_dispatcher = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/dispatcher-base.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/dispatcher-base.js
 var require_dispatcher_base = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/dispatcher-base.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/dispatcher-base.js"(exports2, module2) {
     "use strict";
     var Dispatcher = require_dispatcher();
     var {
@@ -2098,6 +2105,7 @@ var require_dispatcher_base = __commonJS({
       }
       get webSocketOptions() {
         return {
+          maxFragments: this[kWebSocketOptions].maxFragments ?? 131072,
           maxPayloadSize: this[kWebSocketOptions].maxPayloadSize ?? 128 * 1024 * 1024
         };
       }
@@ -2240,9 +2248,9 @@ var require_dispatcher_base = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/util/timers.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/util/timers.js
 var require_timers = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/util/timers.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/util/timers.js"(exports2, module2) {
     "use strict";
     var fastNow = 0;
     var RESOLUTION_MS = 1e3;
@@ -2473,9 +2481,9 @@ var require_timers = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/connect.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/connect.js
 var require_connect = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/core/connect.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/core/connect.js"(exports2, module2) {
     "use strict";
     var net = require("net");
     var assert6 = require("assert");
@@ -2653,9 +2661,9 @@ var require_connect = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/llhttp/utils.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/llhttp/utils.js
 var require_utils = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/llhttp/utils.js"(exports2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/llhttp/utils.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.enumToMap = void 0;
@@ -2673,9 +2681,9 @@ var require_utils = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/llhttp/constants.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/llhttp/constants.js
 var require_constants2 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/llhttp/constants.js"(exports2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/llhttp/constants.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.SPECIAL_HEADERS = exports2.HEADER_STATE = exports2.MINOR = exports2.MAJOR = exports2.CONNECTION_TOKEN_CHARS = exports2.HEADER_CHARS = exports2.TOKEN = exports2.STRICT_TOKEN = exports2.HEX = exports2.URL_CHAR = exports2.STRICT_URL_CHAR = exports2.USERINFO_CHARS = exports2.MARK = exports2.ALPHANUM = exports2.NUM = exports2.HEX_MAP = exports2.NUM_MAP = exports2.ALPHA = exports2.FINISH = exports2.H_METHOD_MAP = exports2.METHOD_MAP = exports2.METHODS_RTSP = exports2.METHODS_ICE = exports2.METHODS_HTTP = exports2.METHODS = exports2.LENIENT_FLAGS = exports2.FLAGS = exports2.TYPE = exports2.ERROR = void 0;
@@ -2994,27 +3002,27 @@ var require_constants2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/llhttp/llhttp-wasm.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/llhttp/llhttp-wasm.js
 var require_llhttp_wasm = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/llhttp/llhttp-wasm.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/llhttp/llhttp-wasm.js"(exports2, module2) {
     "use strict";
     var { Buffer: Buffer3 } = require("buffer");
     module2.exports = Buffer3.from("AGFzbQEAAAABJwdgAX8Bf2ADf39/AX9gAX8AYAJ/fwBgBH9/f38Bf2AAAGADf39/AALLAQgDZW52GHdhc21fb25faGVhZGVyc19jb21wbGV0ZQAEA2VudhV3YXNtX29uX21lc3NhZ2VfYmVnaW4AAANlbnYLd2FzbV9vbl91cmwAAQNlbnYOd2FzbV9vbl9zdGF0dXMAAQNlbnYUd2FzbV9vbl9oZWFkZXJfZmllbGQAAQNlbnYUd2FzbV9vbl9oZWFkZXJfdmFsdWUAAQNlbnYMd2FzbV9vbl9ib2R5AAEDZW52GHdhc21fb25fbWVzc2FnZV9jb21wbGV0ZQAAAy0sBQYAAAIAAAAAAAACAQIAAgICAAADAAAAAAMDAwMBAQEBAQEBAQEAAAIAAAAEBQFwARISBQMBAAIGCAF/AUGA1AQLB9EFIgZtZW1vcnkCAAtfaW5pdGlhbGl6ZQAIGV9faW5kaXJlY3RfZnVuY3Rpb25fdGFibGUBAAtsbGh0dHBfaW5pdAAJGGxsaHR0cF9zaG91bGRfa2VlcF9hbGl2ZQAvDGxsaHR0cF9hbGxvYwALBm1hbGxvYwAxC2xsaHR0cF9mcmVlAAwEZnJlZQAMD2xsaHR0cF9nZXRfdHlwZQANFWxsaHR0cF9nZXRfaHR0cF9tYWpvcgAOFWxsaHR0cF9nZXRfaHR0cF9taW5vcgAPEWxsaHR0cF9nZXRfbWV0aG9kABAWbGxodHRwX2dldF9zdGF0dXNfY29kZQAREmxsaHR0cF9nZXRfdXBncmFkZQASDGxsaHR0cF9yZXNldAATDmxsaHR0cF9leGVjdXRlABQUbGxodHRwX3NldHRpbmdzX2luaXQAFQ1sbGh0dHBfZmluaXNoABYMbGxodHRwX3BhdXNlABcNbGxodHRwX3Jlc3VtZQAYG2xsaHR0cF9yZXN1bWVfYWZ0ZXJfdXBncmFkZQAZEGxsaHR0cF9nZXRfZXJybm8AGhdsbGh0dHBfZ2V0X2Vycm9yX3JlYXNvbgAbF2xsaHR0cF9zZXRfZXJyb3JfcmVhc29uABwUbGxodHRwX2dldF9lcnJvcl9wb3MAHRFsbGh0dHBfZXJybm9fbmFtZQAeEmxsaHR0cF9tZXRob2RfbmFtZQAfEmxsaHR0cF9zdGF0dXNfbmFtZQAgGmxsaHR0cF9zZXRfbGVuaWVudF9oZWFkZXJzACEhbGxodHRwX3NldF9sZW5pZW50X2NodW5rZWRfbGVuZ3RoACIdbGxodHRwX3NldF9sZW5pZW50X2tlZXBfYWxpdmUAIyRsbGh0dHBfc2V0X2xlbmllbnRfdHJhbnNmZXJfZW5jb2RpbmcAJBhsbGh0dHBfbWVzc2FnZV9uZWVkc19lb2YALgkXAQBBAQsRAQIDBAUKBgcrLSwqKSglJyYK07MCLBYAQYjQACgCAARAAAtBiNAAQQE2AgALFAAgABAwIAAgAjYCOCAAIAE6ACgLFAAgACAALwEyIAAtAC4gABAvEAALHgEBf0HAABAyIgEQMCABQYAINgI4IAEgADoAKCABC48MAQd/AkAgAEUNACAAQQhrIgEgAEEEaygCACIAQXhxIgRqIQUCQCAAQQFxDQAgAEEDcUUNASABIAEoAgAiAGsiAUGc0AAoAgBJDQEgACAEaiEEAkACQEGg0AAoAgAgAUcEQCAAQf8BTQRAIABBA3YhAyABKAIIIgAgASgCDCICRgRAQYzQAEGM0AAoAgBBfiADd3E2AgAMBQsgAiAANgIIIAAgAjYCDAwECyABKAIYIQYgASABKAIMIgBHBEAgACABKAIIIgI2AgggAiAANgIMDAMLIAFBFGoiAygCACICRQRAIAEoAhAiAkUNAiABQRBqIQMLA0AgAyEHIAIiAEEUaiIDKAIAIgINACAAQRBqIQMgACgCECICDQALIAdBADYCAAwCCyAFKAIEIgBBA3FBA0cNAiAFIABBfnE2AgRBlNAAIAQ2AgAgBSAENgIAIAEgBEEBcjYCBAwDC0EAIQALIAZFDQACQCABKAIcIgJBAnRBvNIAaiIDKAIAIAFGBEAgAyAANgIAIAANAUGQ0ABBkNAAKAIAQX4gAndxNgIADAILIAZBEEEUIAYoAhAgAUYbaiAANgIAIABFDQELIAAgBjYCGCABKAIQIgIEQCAAIAI2AhAgAiAANgIYCyABQRRqKAIAIgJFDQAgAEEUaiACNgIAIAIgADYCGAsgASAFTw0AIAUoAgQiAEEBcUUNAAJAAkACQAJAIABBAnFFBEBBpNAAKAIAIAVGBEBBpNAAIAE2AgBBmNAAQZjQACgCACAEaiIANgIAIAEgAEEBcjYCBCABQaDQACgCAEcNBkGU0ABBADYCAEGg0ABBADYCAAwGC0Gg0AAoAgAgBUYEQEGg0AAgATYCAEGU0ABBlNAAKAIAIARqIgA2AgAgASAAQQFyNgIEIAAgAWogADYCAAwGCyAAQXhxIARqIQQgAEH/AU0EQCAAQQN2IQMgBSgCCCIAIAUoAgwiAkYEQEGM0ABBjNAAKAIAQX4gA3dxNgIADAULIAIgADYCCCAAIAI2AgwMBAsgBSgCGCEGIAUgBSgCDCIARwRAQZzQACgCABogACAFKAIIIgI2AgggAiAANgIMDAMLIAVBFGoiAygCACICRQRAIAUoAhAiAkUNAiAFQRBqIQMLA0AgAyEHIAIiAEEUaiIDKAIAIgINACAAQRBqIQMgACgCECICDQALIAdBADYCAAwCCyAFIABBfnE2AgQgASAEaiAENgIAIAEgBEEBcjYCBAwDC0EAIQALIAZFDQACQCAFKAIcIgJBAnRBvNIAaiIDKAIAIAVGBEAgAyAANgIAIAANAUGQ0ABBkNAAKAIAQX4gAndxNgIADAILIAZBEEEUIAYoAhAgBUYbaiAANgIAIABFDQELIAAgBjYCGCAFKAIQIgIEQCAAIAI2AhAgAiAANgIYCyAFQRRqKAIAIgJFDQAgAEEUaiACNgIAIAIgADYCGAsgASAEaiAENgIAIAEgBEEBcjYCBCABQaDQACgCAEcNAEGU0AAgBDYCAAwBCyAEQf8BTQRAIARBeHFBtNAAaiEAAn9BjNAAKAIAIgJBASAEQQN2dCIDcUUEQEGM0AAgAiADcjYCACAADAELIAAoAggLIgIgATYCDCAAIAE2AgggASAANgIMIAEgAjYCCAwBC0EfIQIgBEH///8HTQRAIARBJiAEQQh2ZyIAa3ZBAXEgAEEBdGtBPmohAgsgASACNgIcIAFCADcCECACQQJ0QbzSAGohAAJAQZDQACgCACIDQQEgAnQiB3FFBEAgACABNgIAQZDQACADIAdyNgIAIAEgADYCGCABIAE2AgggASABNgIMDAELIARBGSACQQF2a0EAIAJBH0cbdCECIAAoAgAhAAJAA0AgACIDKAIEQXhxIARGDQEgAkEddiEAIAJBAXQhAiADIABBBHFqQRBqIgcoAgAiAA0ACyAHIAE2AgAgASADNgIYIAEgATYCDCABIAE2AggMAQsgAygCCCIAIAE2AgwgAyABNgIIIAFBADYCGCABIAM2AgwgASAANgIIC0Gs0ABBrNAAKAIAQQFrIgBBfyAAGzYCAAsLBwAgAC0AKAsHACAALQAqCwcAIAAtACsLBwAgAC0AKQsHACAALwEyCwcAIAAtAC4LQAEEfyAAKAIYIQEgAC0ALSECIAAtACghAyAAKAI4IQQgABAwIAAgBDYCOCAAIAM6ACggACACOgAtIAAgATYCGAu74gECB38DfiABIAJqIQQCQCAAIgIoAgwiAA0AIAIoAgQEQCACIAE2AgQLIwBBEGsiCCQAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACfwJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAIAIoAhwiA0EBaw7dAdoBAdkBAgMEBQYHCAkKCwwNDtgBDxDXARES1gETFBUWFxgZGhvgAd8BHB0e1QEfICEiIyQl1AEmJygpKiss0wHSAS0u0QHQAS8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRtsBR0hJSs8BzgFLzQFMzAFNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AAYEBggGDAYQBhQGGAYcBiAGJAYoBiwGMAY0BjgGPAZABkQGSAZMBlAGVAZYBlwGYAZkBmgGbAZwBnQGeAZ8BoAGhAaIBowGkAaUBpgGnAagBqQGqAasBrAGtAa4BrwGwAbEBsgGzAbQBtQG2AbcBywHKAbgByQG5AcgBugG7AbwBvQG+Ab8BwAHBAcIBwwHEAcUBxgEA3AELQQAMxgELQQ4MxQELQQ0MxAELQQ8MwwELQRAMwgELQRMMwQELQRQMwAELQRUMvwELQRYMvgELQRgMvQELQRkMvAELQRoMuwELQRsMugELQRwMuQELQR0MuAELQQgMtwELQR4MtgELQSAMtQELQR8MtAELQQcMswELQSEMsgELQSIMsQELQSMMsAELQSQMrwELQRIMrgELQREMrQELQSUMrAELQSYMqwELQScMqgELQSgMqQELQcMBDKgBC0EqDKcBC0ErDKYBC0EsDKUBC0EtDKQBC0EuDKMBC0EvDKIBC0HEAQyhAQtBMAygAQtBNAyfAQtBDAyeAQtBMQydAQtBMgycAQtBMwybAQtBOQyaAQtBNQyZAQtBxQEMmAELQQsMlwELQToMlgELQTYMlQELQQoMlAELQTcMkwELQTgMkgELQTwMkQELQTsMkAELQT0MjwELQQkMjgELQSkMjQELQT4MjAELQT8MiwELQcAADIoBC0HBAAyJAQtBwgAMiAELQcMADIcBC0HEAAyGAQtBxQAMhQELQcYADIQBC0EXDIMBC0HHAAyCAQtByAAMgQELQckADIABC0HKAAx/C0HLAAx+C0HNAAx9C0HMAAx8C0HOAAx7C0HPAAx6C0HQAAx5C0HRAAx4C0HSAAx3C0HTAAx2C0HUAAx1C0HWAAx0C0HVAAxzC0EGDHILQdcADHELQQUMcAtB2AAMbwtBBAxuC0HZAAxtC0HaAAxsC0HbAAxrC0HcAAxqC0EDDGkLQd0ADGgLQd4ADGcLQd8ADGYLQeEADGULQeAADGQLQeIADGMLQeMADGILQQIMYQtB5AAMYAtB5QAMXwtB5gAMXgtB5wAMXQtB6AAMXAtB6QAMWwtB6gAMWgtB6wAMWQtB7AAMWAtB7QAMVwtB7gAMVgtB7wAMVQtB8AAMVAtB8QAMUwtB8gAMUgtB8wAMUQtB9AAMUAtB9QAMTwtB9gAMTgtB9wAMTQtB+AAMTAtB+QAMSwtB+gAMSgtB+wAMSQtB/AAMSAtB/QAMRwtB/gAMRgtB/wAMRQtBgAEMRAtBgQEMQwtBggEMQgtBgwEMQQtBhAEMQAtBhQEMPwtBhgEMPgtBhwEMPQtBiAEMPAtBiQEMOwtBigEMOgtBiwEMOQtBjAEMOAtBjQEMNwtBjgEMNgtBjwEMNQtBkAEMNAtBkQEMMwtBkgEMMgtBkwEMMQtBlAEMMAtBlQEMLwtBlgEMLgtBlwEMLQtBmAEMLAtBmQEMKwtBmgEMKgtBmwEMKQtBnAEMKAtBnQEMJwtBngEMJgtBnwEMJQtBoAEMJAtBoQEMIwtBogEMIgtBowEMIQtBpAEMIAtBpQEMHwtBpgEMHgtBpwEMHQtBqAEMHAtBqQEMGwtBqgEMGgtBqwEMGQtBrAEMGAtBrQEMFwtBrgEMFgtBAQwVC0GvAQwUC0GwAQwTC0GxAQwSC0GzAQwRC0GyAQwQC0G0AQwPC0G1AQwOC0G2AQwNC0G3AQwMC0G4AQwLC0G5AQwKC0G6AQwJC0G7AQwIC0HGAQwHC0G8AQwGC0G9AQwFC0G+AQwEC0G/AQwDC0HAAQwCC0HCAQwBC0HBAQshAwNAAkACQAJAAkACQAJAAkACQAJAIAICfwJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJ/AkACQAJAAkACQAJAAkACQAJAAkACQAJAAkAgAgJ/AkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACfwJAAkACfwJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkAC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iQEhAwykAgtBASABLQAAQd8ARw1nGiABQQFqIQEMXgtBigEhAyABIARGDaICIAIoAgAiACAEIAFraiEFIAEgAGtBAWohBgNAIAEtAAAgAEGMzwBqLQAARw1kIABBAUYN+gEgAEEBaiEAIAQgAUEBaiIBRw0ACyACIAU2AgAMogILQYsBIQMgASAERg2hAiACKAIAIgAgBCABa2ohBSABIABrQQJqIQYCQANAIAEtAAAgAEGOzwBqLQAARw1kIABBAkYNASAAQQFqIQAgBCABQQFqIgFHDQALIAIgBTYCAAyiAgsgAkEANgIAIAZBAWohAUECDGULQYwBIQMgASAERg2gAiACKAIAIgAgBCABa2ohBSABIABrQQFqIQYCQANAIAEtAAAgAEHwzwBqLQAARw1jIABBAUYNASAAQQFqIQAgBCABQQFqIgFHDQALIAIgBTYCAAyhAgsgAkEANgIAIAZBAWohAUEfDGQLQY0BIQMgASAERg2fAiACKAIAIgAgBCABa2ohBSABIABrQQFqIQYCQANAIAEtAAAgAEHyzwBqLQAARw1iIABBAUYNASAAQQFqIQAgBCABQQFqIgFHDQALIAIgBTYCAAygAgsgAkEANgIAIAZBAWohAUEJDGMLIAEgBEYEQEGOASEDDJ8CCwJAAkAgAS0AAEHJAGsOBwBiYmJiYgFiCyABQQFqIQFB+AAhAwyGAgsgAUEBaiEBQfkAIQMMhQILQY8BIQMgASAERg2dAiACKAIAIgAgBCABa2ohBSABIABrQQVqIQYCQANAIAEtAAAgAEGRzwBqLQAARw1gIABBBUYNASAAQQFqIQAgBCABQQFqIgFHDQALIAIgBTYCAAyeAgsgAkEANgIAIAZBAWohAUEYDGELQZABIQMgASAERg2cAiACKAIAIgAgBCABa2ohBSABIABrQQJqIQYCQANAIAEtAAAgAEGXzwBqLQAARw1fIABBAkYNASAAQQFqIQAgBCABQQFqIgFHDQALIAIgBTYCAAydAgsgAkEANgIAIAZBAWohAUEXDGALQZEBIQMgASAERg2bAiACKAIAIgAgBCABa2ohBSABIABrQQZqIQYCQANAIAEtAAAgAEGazwBqLQAARw1eIABBBkYNASAAQQFqIQAgBCABQQFqIgFHDQALIAIgBTYCAAycAgsgAkEANgIAIAZBAWohAUEV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JSIARQ0RIAJB5QA2AhwgAiABNgIUIAIgADYCDEEAIQMMtAELIAIoAgQhACACQQA2AgQgAiAAIAEQJSIARQ0gIAJB0wA2AhwgAiABNgIUIAIgADYCDEEAIQMMswELIAIoAgQhACACQQA2AgQgAiAAIAEQJSIARQ0iIAJB0gA2AhwgAiABNgIUIAIgADYCDEEAIQMMsgELIAIoAgQhACACQQA2AgQgAiAAIAEQJSIARQ0OIAJB5QA2AhwgAiABNgIUIAIgADYCDEEAIQMMsQELIAIoAgQhACACQQA2AgQgAiAAIAEQJSIARQ0dIAJB0wA2AhwgAiABNgIUIAIgADYCDEEAIQMMsAELIAIoAgQhACACQQA2AgQgAiAAIAEQJSIARQ0fIAJB0gA2AhwgAiABNgIUIAIgADYCDEEAIQMMrwELIABBP0cNASABQQFqCyEBQQUhAwyUAQtBACEDIAJBADYCHCACIAE2AhQgAkH9EjYCECACQQc2AgwMrAELIAJBADYCHCACIAE2AhQgAkHcCDYCECACQQc2AgxBACEDDKsBCyACKAIEIQAgAkEANgIEIAIgACABECUiAEUNByACQeUANgIcIAIgATYCFCACIAA2AgxBACEDDKoBCyACKAIEIQAgAkEANgIEIAIgACABECUiAEUNFiACQdMANgIcIAIgATYCFCACIAA2AgxBACEDDKkBCyACKAIEIQAgAkEANgIEIAIgACABECUiAEUNGCACQdIANgIcIAIgATYCFCACIAA2AgxBACEDDKgBCyACQQA2AhwgAiABNgIUIAJBxgo2AhAgAkEHNgIMQQAhAwynAQsgAigCBCEAIAJBADYCBCACIAAgARAlIgBFDQMgAkHlADYCHCACIAE2AhQgAiAANgIMQQAhAwymAQsgAigCBCEAIAJBADYCBCACIAAgARAlIgBFDRIgAkHTADYCHCACIAE2AhQgAiAANgIMQQAhAwylAQsgAigCBCEAIAJBADYCBCACIAAgARAlIgBFDRQgAkHSADYCHCACIAE2AhQgAiAANgIMQQAhAwykAQsgAigCBCEAIAJBADYCBCACIAAgARAlIgBFDQAgAkHlADYCHCACIAE2AhQgAiAANgIMQQAhAwyjAQtB1QAhAwyJAQsgAEEVRwRAIAJBADYCHCACIAE2AhQgAkG5DTYCECACQRo2AgxB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AkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAIABB5ABrDvQDY2IAAWFhYWFhYQIDBAVhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhBgcICQoLDA0OD2FhYWFhEGFhYWFhYWFhYWFhEWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYRITFBUWFxgZGhthYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2YTc4OTphYWFhYWFhYTthYWE8YWFhYT0+P2FhYWFhYWFhQGFhQWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYUJDREVGR0hJSktMTU5PUFFSU2FhYWFhYWFhVFVWV1hZWlthXF1hYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFeYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhX2BhC0HhJw8LQaQhDwtByywPC0H+MQ8LQcAkDwtBqyQPC0GNKA8LQeImDwtBgDAPC0G5Lw8LQdckDwtB7x8PC0HhHw8LQfofDwtB8iAPC0GoLw8LQa4yDwtBiDAPC0HsJw8LQYIiDwtBjh0PC0HQLg8LQcojDwtBxTIPC0HfHA8LQdIcDwtBxCAPC0HXIA8LQaIfDwtB7S4PC0GrMA8LQdQlDwtBzC4PC0H6Lg8LQfwrDwtB0jAPC0HxHQ8LQbsgDwtB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CABB3AgLii1JbnZhbGlkIGNoYXIgaW4gdXJsIHF1ZXJ5AFNwYW4gY2FsbGJhY2sgZXJyb3IgaW4gb25fYm9keQBDb250ZW50LUxlbmd0aCBvdmVyZmxvdwBDaHVuayBzaXplIG92ZXJmbG93AFJlc3BvbnNlIG92ZXJmbG93AEludmFsaWQgbWV0aG9kIGZvciBIVFRQL3gueCByZXF1ZXN0AEludmFsaWQgbWV0aG9kIGZvciBSVFNQL3gueCByZXF1ZXN0AEV4cGVjdGVkIFNPVVJDRSBtZXRob2QgZm9yIElDRS94LnggcmVxdWVzdABJbnZhbGlkIGNoYXIgaW4gdXJsIGZyYWdtZW50IHN0YXJ0AEV4cGVjdGVkIGRvdABTcGFuIGNhbGxiYWNrIGVycm9yIGluIG9uX3N0YXR1cwBJbnZhbGlkIHJlc3BvbnNlIHN0YXR1cwBJbnZhbGlkIGNoYXJhY3RlciBpbiBjaHVuayBleHRlbnNpb25zAFVzZXIgY2FsbGJhY2sgZXJyb3IAYG9uX3Jlc2V0YCBjYWxsYmFjayBlcnJvcgBgb25fY2h1bmtfaGVhZGVyYCBjYWxsYmFjayBlcnJvcgBgb25fbWVzc2FnZV9iZWdpbmAgY2FsbGJhY2sgZXJyb3IAYG9uX2NodW5rX2V4dGVuc2lvbl92YWx1ZWAgY2FsbGJhY2sgZXJyb3IAYG9uX3N0YXR1c19jb21wbGV0ZWAgY2FsbGJhY2sgZXJyb3IAYG9uX3ZlcnNpb25fY29tcGxldGVgIGNhbGxiYWNrIGVycm9yAGBvbl91cmxfY29tcGxldGVgIGNhbGxiYWNrIGVycm9yAGBvbl9jaHVua19jb21wbGV0ZWAgY2FsbGJhY2sgZXJyb3IAYG9uX2hlYWRlcl92YWx1ZV9jb21wbGV0ZWAgY2FsbGJhY2sgZXJyb3IAYG9uX21lc3NhZ2VfY29tcGxldGVgIGNhbGxiYWNrIGVycm9yAGBvbl9tZXRob2RfY29tcGxldGVgIGNhbGxiYWNrIGVycm9yAGBvbl9oZWFkZXJfZmllbGRfY29tcGxldGVgIGNhbGxiYWNrIGVycm9yAGBvbl9jaHVua19leHRlbnNpb25fbmFtZWAgY2FsbGJhY2sgZXJyb3IAVW5leHBlY3RlZCBjaGFyIGluIHVybCBzZXJ2ZXIASW52YWxpZCBoZWFkZXIgdmFsdWUgY2hhcgBJbnZhbGlkIGhlYWRlciBmaWVsZCBjaGFyAFNwYW4gY2FsbGJhY2sgZXJyb3IgaW4gb25fdmVyc2lvbgBJbnZhbGlkIG1pbm9yIHZlcnNpb24ASW52YWxpZCBtYWpvciB2ZXJzaW9uAEV4cGVjdGVkIHNwYWNlIGFmdGVyIHZlcnNpb24ARXhwZWN0ZWQgQ1JMRiBhZnRlciB2ZXJzaW9uAEludmFsaWQgSFRUUCB2ZXJzaW9uAEludmFsaWQgaGVhZGVyIHRva2VuAFNwYW4gY2FsbGJhY2sgZXJyb3IgaW4gb25fdXJsAEludmFsaWQgY2hhcmFjdGVycyBpbiB1cmwAVW5leHBlY3RlZCBzdGFydCBjaGFyIGluIHVybABEb3VibGUgQCBpbiB1cmwARW1wdHkgQ29udGVudC1MZW5ndGgASW52YWxpZCBjaGFyYWN0ZXIgaW4gQ29udGVudC1MZW5ndGgARHVwbGljYXRlIENvbnRlbnQtTGVuZ3RoAEludmFsaWQgY2hhciBpbiB1cmwgcGF0aABDb250ZW50LUxlbmd0aCBjYW4ndCBiZSBwcmVzZW50IHdpdGggVHJhbnNmZXItRW5jb2RpbmcASW52YWxpZCBjaGFyYWN0ZXIgaW4gY2h1bmsgc2l6ZQBTcGFuIGNhbGxiYWNrIGVycm9yIGluIG9uX2hlYWRlcl92YWx1ZQBTcGFuIGNhbGxiYWNrIGVycm9yIGluIG9uX2NodW5rX2V4dGVuc2lvbl92YWx1ZQBJbnZhbGlkIGNoYXJhY3RlciBpbiBjaHVuayBleHRlbnNpb25zIHZhbHVlAE1pc3NpbmcgZXhwZWN0ZWQgTEYgYWZ0ZXIgaGVhZGVyIHZhbHVlAEludmFsaWQgYFRyYW5zZmVyLUVuY29kaW5nYCBoZWFkZXIgdmFsdWUASW52YWxpZCBjaGFyYWN0ZXIgaW4gY2h1bmsgZXh0ZW5zaW9ucyBxdW90ZSB2YWx1ZQBJbnZhbGlkIGNoYXJhY3RlciBpbiBjaHVuayBleHRlbnNpb25zIHF1b3RlZCB2YWx1ZQBQYXVzZWQgYnkgb25faGVhZGVyc19jb21wbGV0ZQBJbnZhbGlkIEVPRiBzdGF0ZQBvbl9yZXNldCBwYXVzZQBvbl9jaHVua19oZWFkZXIgcGF1c2UAb25fbWVzc2FnZV9iZWdpbiBwYXVzZQBvbl9jaHVua19leHRlbnNpb25fdmFsdWUgcGF1c2UAb25fc3RhdHVzX2NvbXBsZXRlIHBhdXNlAG9uX3ZlcnNpb25fY29tcGxldGUgcGF1c2UAb25fdXJsX2NvbXBsZXRlIHBhdXNlAG9uX2NodW5rX2NvbXBsZXRlIHBhdXNlAG9uX2hlYWRlcl92YWx1ZV9jb21wbGV0ZSBwYXVzZQBvbl9tZXNzYWdlX2NvbXBsZXRlIHBhdXNlAG9uX21ldGhvZF9jb21wbGV0ZSBwYXVzZQBvbl9oZWFkZXJfZmllbGRfY29tcGxldGUgcGF1c2UAb25fY2h1bmtfZXh0ZW5zaW9uX25hbWUgcGF1c2UAVW5leHBlY3RlZCBzcGFjZSBhZnRlciBzdGFydCBsaW5lAFNwYW4gY2FsbGJhY2sgZXJyb3IgaW4gb25fY2h1bmtfZXh0ZW5zaW9uX25hbWUASW52YWxpZCBjaGFyYWN0ZXIgaW4gY2h1bmsgZXh0ZW5zaW9ucyBuYW1lAFBhdXNlIG9uIENPTk5FQ1QvVXBncmFkZQBQYXVzZSBvbiBQUkkvVXBncmFkZQBFeHBlY3RlZCBIVFRQLzIgQ29ubmVjdGlvbiBQcmVmYWNlAFNwYW4gY2FsbGJhY2sgZXJyb3IgaW4gb25fbWV0aG9kAEV4cGVjdGVkIHNwYWNlIGFmdGVyIG1ldGhvZABTcGFuIGNhbGxiYWNrIGVycm9yIGluIG9uX2hlYWRlcl9maWVsZABQYXVzZWQASW52YWxpZCB3b3JkIGVuY291bnRlcmVkAEludmFsaWQgbWV0aG9kIGVuY291bnRlcmVkAFVuZXhwZWN0ZWQgY2hhciBpbiB1cmwgc2NoZW1hAFJlcXVlc3QgaGFzIGludmFsaWQgYFRyYW5zZmVyLUVuY29kaW5nYABTV0lUQ0hfUFJPWFkAVVNFX1BST1hZAE1LQUNUSVZJVFkAVU5QUk9DRVNTQUJMRV9FTlRJVFkAQ09QWQBNT1ZFRF9QRVJNQU5FTlRMWQBUT09fRUFSTFkATk9USUZZAEZBSUxFRF9ERVBFTkRFTkNZAEJBRF9HQVRFV0FZAFBMQVkAUFVUAENIRUNLT1VUAEdBVEVXQVlfVElNRU9VVABSRVFVRVNUX1RJTUVPVVQATkVUV09SS19DT05ORUNUX1RJTUVPVVQAQ09OTkVDVElPTl9USU1FT1VUAExPR0lOX1RJTUVPVVQATkVUV09SS19SRUFEX1RJTUVPVVQAUE9TVABNSVNESVJFQ1RFRF9SRVFVRVNUAENMSUVOVF9DTE9TRURfUkVRVUVTVABDTElFTlRfQ0xPU0VEX0xPQURfQkFMQU5DRURfUkVRVUVTVABCQURfUkVRVUVTVABIVFRQX1JFUVVFU1RfU0VOVF9UT19IVFRQU19QT1JUAFJFUE9SVABJTV9BX1RFQVBPVABSRVNFVF9DT05URU5UAE5PX0NPTlRFTlQAUEFSVElBTF9DT05URU5UAEhQRV9JTlZBTElEX0NPTlNUQU5UAEhQRV9DQl9SRVNFVABHRVQASFBFX1NUUklDVABDT05GTElDVABURU1QT1JBUllfUkVESVJFQ1QAUEVSTUFORU5UX1JFRElSRUNUAENPTk5FQ1QATVVMVElfU1RBVFVTAEhQRV9JTlZBTElEX1NUQVRVUwBUT09fTUFOWV9SRVFVRVNUUwBFQVJMWV9ISU5UUwBVTkFWQUlMQUJMRV9GT1JfTEVHQUxfUkVBU09OUwBPUFRJT05TAFNXSVRDSElOR19QUk9UT0NPTFMAVkFSSUFOVF9BTFNPX05FR09USUFURVMATVVMVElQTEVfQ0hPSUNFUwBJTlRFUk5BTF9TRVJWRVJfRVJST1IAV0VCX1NFUlZFUl9VTktOT1dOX0VSUk9SAFJBSUxHVU5fRVJST1IASURFTlRJVFlfUFJPVklERVJfQVVUSEVOVElDQVRJT05fRVJST1IAU1NMX0NFUlRJRklDQVRFX0VSUk9SAElOVkFMSURfWF9GT1JXQVJERURfRk9SAFNFVF9QQVJBTUVURVIAR0VUX1BBUkFNRVRFUgBIUEVfVVNFUgBTRUVfT1RIRVIASFBFX0NCX0NIVU5LX0hFQURFUgBNS0NBTEVOREFSAFNFVFVQAFdFQl9TRVJWRVJfSVNfRE9XTgBURUFSRE9XTgBIUEVfQ0xPU0VEX0NPTk5FQ1RJT04ASEVVUklTVElDX0VYUElSQVRJT04ARElTQ09OTkVDVEVEX09QRVJBVElPTgBOT05fQVVUSE9SSVRBVElWRV9JTkZPUk1BVElPTgBIUEVfSU5WQUxJRF9WRVJTSU9OAEhQRV9DQl9NRVNTQUdFX0JFR0lOAFNJVEVfSVNfRlJPWkVOAEhQRV9JTlZBTElEX0hFQURFUl9UT0tFTgBJTlZBTElEX1RPS0VOAEZPUkJJRERFTgBFTkhBTkNFX1lPVVJfQ0FMTQBIUEVfSU5WQUxJRF9VUkwAQkxPQ0tFRF9CWV9QQVJFTlRBTF9DT05UUk9MAE1LQ09MAEFDTABIUEVfSU5URVJOQUwAUkVRVUVTVF9IRUFERVJfRklFTERTX1RPT19MQVJHRV9VTk9GRklDSUFMAEhQRV9PSwBVTkxJTksAVU5MT0NLAFBSSQBSRVRSWV9XSVRIAEhQRV9JTlZBTElEX0NPTlRFTlRfTEVOR1RIAEhQRV9VTkVYUEVDVEVEX0NPTlRFTlRfTEVOR1RIAEZMVVNIAFBST1BQQVRDSABNLVNFQVJDSABVUklfVE9PX0xPTkcAUFJPQ0VTU0lORwBNSVNDRUxMQU5FT1VTX1BFUlNJU1RFTlRfV0FSTklORwBNSVNDRUxMQU5FT1VTX1dBUk5JTkcASFBFX0lOVkFMSURfVFJBTlNGRVJfRU5DT0RJTkcARXhwZWN0ZWQgQ1JMRgBIUEVfSU5WQUxJRF9DSFVOS19TSVpFAE1PVkUAQ09OVElOVUUASFBFX0NCX1NUQVRVU19DT01QTEVURQBIUEVfQ0JfSEVBREVSU19DT01QTEVURQBIUEVfQ0JfVkVSU0lPTl9DT01QTEVURQBIUEVfQ0JfVVJMX0NPTVBMRVRFAEhQRV9DQl9DSFVOS19DT01QTEVURQBIUEVfQ0JfSEVBREVSX1ZBTFVFX0NPTVBMRVRFAEhQRV9DQl9DSFVOS19FWFRFTlNJT05fVkFMVUVfQ09NUExFVEUASFBFX0NCX0NIVU5LX0VYVEVOU0lPTl9OQU1FX0NPTVBMRVRFAEhQRV9DQl9NRVNTQUdFX0NPTVBMRVRFAEhQRV9DQl9NRVRIT0RfQ09NUExFVEUASFBFX0NCX0hFQURFUl9GSUVMRF9DT01QTEVURQBERUxFVEUASFBFX0lOVkFMSURfRU9GX1NUQVRFAElOVkFMSURfU1NMX0NFUlRJRklDQVRFAFBBVVNFAE5PX1JFU1BPTlNFAFVOU1VQUE9SVEVEX01FRElBX1RZUEUAR09ORQBOT1RfQUNDRVBUQUJMRQBTRVJWSUNFX1VOQVZBSUxBQkxFAFJBTkdFX05PVF9TQVRJU0ZJQUJMRQBPUklHSU5fSVNfVU5SRUFDSEFCTEUAUkVTUE9OU0VfSVNfU1RBTEUAUFVSR0UATUVSR0UAUkVRVUVTVF9IRUFERVJfRklFTERTX1RPT19MQVJHRQBSRVFVRVNUX0hFQURFUl9UT09fTEFSR0UAUEFZTE9BRF9UT09fTEFSR0UASU5TVUZGSUNJRU5UX1NUT1JBR0UASFBFX1BBVVNFRF9VUEdSQURFAEhQRV9QQVVTRURfSDJfVVBHUkFERQBTT1VSQ0UAQU5OT1VOQ0UAVFJBQ0UASFBFX1VORVhQRUNURURfU1BBQ0UAREVTQ1JJQkUAVU5TVUJTQ1JJQkUAUkVDT1JEAEhQRV9JTlZBTElEX01FVEhPRABOT1RfRk9VTkQAUFJPUEZJTkQAVU5CSU5EAFJFQklORABVTkFVVEhPUklaRUQATUVUSE9EX05PVF9BTExPV0VEAEhUVFBfVkVSU0lPTl9OT1RfU1VQUE9SVEVEAEFMUkVBRFlfUkVQT1JURUQAQUNDRVBURUQATk9UX0lNUExFTUVOVEVEAExPT1BfREVURUNURUQASFBFX0NSX0VYUEVDVEVEAEhQRV9MRl9FWFBFQ1RFRABDUkVBVEVEAElNX1VTRUQASFBFX1BBVVNFRABUSU1FT1VUX09DQ1VSRUQAUEFZTUVOVF9SRVFVSVJFRABQUkVDT05ESVRJT05fUkVRVUlSRUQAUFJPWFlfQVVUSEVOVElDQVRJT05fUkVRVUlSRUQATkVUV09SS19BVVRIRU5USUNBVElPTl9SRVFVSVJFRABMRU5HVEhfUkVRVUlSRUQAU1NMX0NFUlRJRklDQVRFX1JFUVVJUkVEAFVQR1JBREVfUkVRVUlSRUQAUEFHRV9FWFBJUkVEAFBSRUNPTkRJVElPTl9GQUlMRUQARVhQRUNUQVRJT05fRkFJTEVEAFJFVkFMSURBVElPTl9GQUlMRUQAU1NMX0hBTkRTSEFLRV9GQUlMRUQATE9DS0VEAFRSQU5TRk9STUFUSU9OX0FQUExJRUQATk9UX01PRElGSUVEAE5PVF9FWFRFTkRFRABCQU5EV0lEVEhfTElNSVRfRVhDRUVERUQAU0lURV9JU19PVkVSTE9BREVEAEhFQUQARXhwZWN0ZWQgSFRUUC8AAF4TAAAmEwAAMBAAAPAXAACdEwAAFRIAADkXAADwEgAAChAAAHUSAACtEgAAghMAAE8UAAB/EAAAoBUAACMUAACJEgAAixQAAE0VAADUEQAAzxQAABAYAADJFgAA3BYAAMERAADgFwAAuxQAAHQUAAB8FQAA5RQAAAgXAAAfEAAAZRUAAKMUAAAoFQAAAhUAAJkVAAAsEAAAixkAAE8PAADUDgAAahAAAM4QAAACFwAAiQ4AAG4TAAAcEwAAZhQAAFYXAADBEwAAzRMAAGwTAABoFwAAZhcAAF8XAAAiEwAAzg8AAGkOAADYDgAAYxYAAMsTAACqDgAAKBcAACYXAADFEwAAXRYAAOgRAABnEwAAZRMAAPIWAABzEwAAHRcAAPkWAADzEQAAzw4AAM4VAAAMEgAAsxEAAKURAABhEAAAMhcAALsTAEH5NQsBAQBBkDYL4AEBAQIBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQBB/TcLAQEAQZE4C14CAwICAgICAAACAgACAgACAgICAgICAgICAAQAAAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAgACAEH9OQsBAQBBkToLXgIAAgICAgIAAAICAAICAAICAgICAgICAgIAAwAEAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgIAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgACAAIAQfA7Cw1sb3NlZWVwLWFsaXZlAEGJPAsBAQBBoDwL4AEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQBBiT4LAQEAQaA+C+cBAQEBAQEBAQEBAQEBAgEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQFjaHVua2VkAEGwwAALXwEBAAEBAQEBAAABAQABAQABAQEBAQEBAQEBAAAAAAAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAAAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAQABAEGQwgALIWVjdGlvbmVudC1sZW5ndGhvbnJveHktY29ubmVjdGlvbgBBwMIACy1yYW5zZmVyLWVuY29kaW5ncGdyYWRlDQoNCg0KU00NCg0KVFRQL0NFL1RTUC8AQfnCAAsFAQIAAQMAQZDDAAvgAQQBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAEH5xAALBQECAAEDAEGQxQAL4AEEAQEFAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQBB+cYACwQBAAABAEGRxwAL3wEBAQABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAEH6yAALBAEAAAIAQZDJAAtfAwQAAAQEBAQEBAQEBAQEBQQEBAQEBAQEBAQEBAAEAAYHBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAQABAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAAAAQAQfrKAAsEAQAAAQBBkMsACwEBAEGqywALQQIAAAAAAAADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwAAAAAAAAMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAEH6zAALBAEAAAEAQZDNAAsBAQBBms0ACwYCAAAAAAIAQbHNAAs6AwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMAAAAAAAADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwBB8M4AC5YBTk9VTkNFRUNLT1VUTkVDVEVURUNSSUJFTFVTSEVURUFEU0VBUkNIUkdFQ1RJVklUWUxFTkRBUlZFT1RJRllQVElPTlNDSFNFQVlTVEFUQ0hHRU9SRElSRUNUT1JUUkNIUEFSQU1FVEVSVVJDRUJTQ1JJQkVBUkRPV05BQ0VJTkROS0NLVUJTQ1JJQkVIVFRQL0FEVFAv", "base64");
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/llhttp/llhttp_simd-wasm.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/llhttp/llhttp_simd-wasm.js
 var require_llhttp_simd_wasm = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/llhttp/llhttp_simd-wasm.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/llhttp/llhttp_simd-wasm.js"(exports2, module2) {
     "use strict";
     var { Buffer: Buffer3 } = require("buffer");
     module2.exports = Buffer3.from("AGFzbQEAAAABJwdgAX8Bf2ADf39/AX9gAX8AYAJ/fwBgBH9/f38Bf2AAAGADf39/AALLAQgDZW52GHdhc21fb25faGVhZGVyc19jb21wbGV0ZQAEA2VudhV3YXNtX29uX21lc3NhZ2VfYmVnaW4AAANlbnYLd2FzbV9vbl91cmwAAQNlbnYOd2FzbV9vbl9zdGF0dXMAAQNlbnYUd2FzbV9vbl9oZWFkZXJfZmllbGQAAQNlbnYUd2FzbV9vbl9oZWFkZXJfdmFsdWUAAQNlbnYMd2FzbV9vbl9ib2R5AAEDZW52GHdhc21fb25fbWVzc2FnZV9jb21wbGV0ZQAAAy0sBQYAAAIAAAAAAAACAQIAAgICAAADAAAAAAMDAwMBAQEBAQEBAQEAAAIAAAAEBQFwARISBQMBAAIGCAF/AUGA1AQLB9EFIgZtZW1vcnkCAAtfaW5pdGlhbGl6ZQAIGV9faW5kaXJlY3RfZnVuY3Rpb25fdGFibGUBAAtsbGh0dHBfaW5pdAAJGGxsaHR0cF9zaG91bGRfa2VlcF9hbGl2ZQAvDGxsaHR0cF9hbGxvYwALBm1hbGxvYwAxC2xsaHR0cF9mcmVlAAwEZnJlZQAMD2xsaHR0cF9nZXRfdHlwZQANFWxsaHR0cF9nZXRfaHR0cF9tYWpvcgAOFWxsaHR0cF9nZXRfaHR0cF9taW5vcgAPEWxsaHR0cF9nZXRfbWV0aG9kABAWbGxodHRwX2dldF9zdGF0dXNfY29kZQAREmxsaHR0cF9nZXRfdXBncmFkZQASDGxsaHR0cF9yZXNldAATDmxsaHR0cF9leGVjdXRlABQUbGxodHRwX3NldHRpbmdzX2luaXQAFQ1sbGh0dHBfZmluaXNoABYMbGxodHRwX3BhdXNlABcNbGxodHRwX3Jlc3VtZQAYG2xsaHR0cF9yZXN1bWVfYWZ0ZXJfdXBncmFkZQAZEGxsaHR0cF9nZXRfZXJybm8AGhdsbGh0dHBfZ2V0X2Vycm9yX3JlYXNvbgAbF2xsaHR0cF9zZXRfZXJyb3JfcmVhc29uABwUbGxodHRwX2dldF9lcnJvcl9wb3MAHRFsbGh0dHBfZXJybm9fbmFtZQAeEmxsaHR0cF9tZXRob2RfbmFtZQAfEmxsaHR0cF9zdGF0dXNfbmFtZQAgGmxsaHR0cF9zZXRfbGVuaWVudF9oZWFkZXJzACEhbGxodHRwX3NldF9sZW5pZW50X2NodW5rZWRfbGVuZ3RoACIdbGxodHRwX3NldF9sZW5pZW50X2tlZXBfYWxpdmUAIyRsbGh0dHBfc2V0X2xlbmllbnRfdHJhbnNmZXJfZW5jb2RpbmcAJBhsbGh0dHBfbWVzc2FnZV9uZWVkc19lb2YALgkXAQBBAQsRAQIDBAUKBgcrLSwqKSglJyYK77MCLBYAQYjQACgCAARAAAtBiNAAQQE2AgALFAAgABAwIAAgAjYCOCAAIAE6ACgLFAAgACAALwEyIAAtAC4gABAvEAALHgEBf0HAABAyIgEQMCABQYAINgI4IAEgADoAKCABC48MAQd/AkAgAEUNACAAQQhrIgEgAEEEaygCACIAQXhxIgRqIQUCQCAAQQFxDQAgAEEDcUUNASABIAEoAgAiAGsiAUGc0AAoAgBJDQEgACAEaiEEAkACQEGg0AAoAgAgAUcEQCAAQf8BTQRAIABBA3YhAyABKAIIIgAgASgCDCICRgRAQYzQAEGM0AAoAgBBfiADd3E2AgAMBQsgAiAANgIIIAAgAjYCDAwECyABKAIYIQYgASABKAIMIgBHBEAgACABKAIIIgI2AgggAiAANgIMDAMLIAFBFGoiAygCACICRQRAIAEoAhAiAkUNAiABQRBqIQMLA0AgAyEHIAIiAEEUaiIDKAIAIgINACAAQRBqIQMgACgCECICDQALIAdBADYCAAwCCyAFKAIEIgBBA3FBA0cNAiAFIABBfnE2AgRBlNAAIAQ2AgAgBSAENgIAIAEgBEEBcjYCBAwDC0EAIQALIAZFDQACQCABKAIcIgJBAnRBvNIAaiIDKAIAIAFGBEAgAyAANgIAIAANAUGQ0ABBkNAAKAIAQX4gAndxNgIADAILIAZBEEEUIAYoAhAgAUYbaiAANgIAIABFDQELIAAgBjYCGCABKAIQIgIEQCAAIAI2AhAgAiAANgIYCyABQRRqKAIAIgJFDQAgAEEUaiACNgIAIAIgADYCGAsgASAFTw0AIAUoAgQiAEEBcUUNAAJAAkACQAJAIABBAnFFBEBBpNAAKAIAIAVGBEBBpNAAIAE2AgBBmNAAQZjQACgCACAEaiIANgIAIAEgAEEBcjYCBCABQaDQACgCAEcNBkGU0ABBADYCAEGg0ABBADYCAAwGC0Gg0AAoAgAgBUYEQEGg0AAgATYCAEGU0ABBlNAAKAIAIARqIgA2AgAgASAAQQFyNgIEIAAgAWogADYCAAwGCyAAQXhxIARqIQQgAEH/AU0EQCAAQQN2IQMgBSgCCCIAIAUoAgwiAkYEQEGM0ABBjNAAKAIAQX4gA3dxNgIADAULIAIgADYCCCAAIAI2AgwMBAsgBSgCGCEGIAUgBSgCDCIARwRAQZzQACgCABogACAFKAIIIgI2AgggAiAANgIMDAMLIAVBFGoiAygCACICRQRAIAUoAhAiAkUNAiAFQRBqIQMLA0AgAyEHIAIiAEEUaiIDKAIAIgINACAAQRBqIQMgACgCECICDQALIAdBADYCAAwCCyAFIABBfnE2AgQgASAEaiAENgIAIAEgBEEBcjYCBAwDC0EAIQALIAZFDQACQCAFKAIcIgJBAnRBvNIAaiIDKAIAIAVGBEAgAyAANgIAIAANAUGQ0ABBkNAAKAIAQX4gAndxNgIADAILIAZBEEEUIAYoAhAgBUYbaiAANgIAIABFDQELIAAgBjYCGCAFKAIQIgIEQCAAIAI2AhAgAiAANgIYCyAFQRRqKAIAIgJFDQAgAEEUaiACNgIAIAIgADYCGAsgASAEaiAENgIAIAEgBEEBcjYCBCABQaDQACgCAEcNAEGU0AAgBDYCAAwBCyAEQf8BTQRAIARBeHFBtNAAaiEAAn9BjNAAKAIAIgJBASAEQQN2dCIDcUUEQEGM0AAgAiADcjYCACAADAELIAAoAggLIgIgATYCDCAAIAE2AgggASAANgIMIAEgAjYCCAwBC0EfIQIgBEH///8HTQRAIARBJiAEQQh2ZyIAa3ZBAXEgAEEBdGtBPmohAgsgASACNgIcIAFCADcCECACQQJ0QbzSAGohAAJAQZDQACgCACIDQQEgAnQiB3FFBEAgACABNgIAQZDQACADIAdyNgIAIAEgADYCGCABIAE2AgggASABNgIMDAELIARBGSACQQF2a0EAIAJBH0cbdCECIAAoAgAhAAJAA0AgACIDKAIEQXhxIARGDQEgAkEddiEAIAJBAXQhAiADIABBBHFqQRBqIgcoAgAiAA0ACyAHIAE2AgAgASADNgIYIAEgATYCDCABIAE2AggMAQsgAygCCCIAIAE2AgwgAyABNgIIIAFBADYCGCABIAM2AgwgASAANgIIC0Gs0ABBrNAAKAIAQQFrIgBBfyAAGzYCAAsLBwAgAC0AKAsHACAALQAqCwcAIAAtACsLBwAgAC0AKQsHACAALwEyCwcAIAAtAC4LQAEEfyAAKAIYIQEgAC0ALSECIAAtACghAyAAKAI4IQQgABAwIAAgBDYCOCAAIAM6ACggACACOgAtIAAgATYCGAu74gECB38DfiABIAJqIQQCQCAAIgIoAgwiAA0AIAIoAgQEQCACIAE2AgQLIwBBEGsiCCQAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACfwJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAIAIoAhwiA0EBaw7dAdoBAdkBAgMEBQYHCAkKCwwNDtgBDxDXARES1gETFBUWFxgZGhvgAd8BHB0e1QEfICEiIyQl1AEmJygpKiss0wHSAS0u0QHQAS8wMTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRtsBR0hJSs8BzgFLzQFMzAFNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn+AAYEBggGDAYQBhQGGAYcBiAGJAYoBiwGMAY0BjgGPAZABkQGSAZMBlAGVAZYBlwGYAZkBmgGbAZwBnQGeAZ8BoAGhAaIBowGkAaUBpgGnAagBqQGqAasBrAGtAa4BrwGwAbEBsgGzAbQBtQG2AbcBywHKAbgByQG5AcgBugG7AbwBvQG+Ab8BwAHBAcIBwwHEAcUBxgEA3AELQQAMxgELQQ4MxQELQQ0MxAELQQ8MwwELQRAMwgELQRMMwQELQRQMwAELQRUMvwELQRYMvgELQRgMvQELQRkMvAELQRoMuwELQRsMugELQRwMuQELQR0MuAELQQgMtwELQR4MtgELQSAMtQELQR8MtAELQQcMswELQSEMsgELQSIMsQELQSMMsAELQSQMrwELQRIMrgELQREMrQELQSUMrAELQSYMqwELQScMqgELQSgMqQELQcMBDKgBC0EqDKcBC0ErDKYBC0EsDKUBC0EtDKQBC0EuDKMBC0EvDKIBC0HEAQyhAQtBMAygAQtBNAyfAQtBDAyeAQtBMQydAQtBMgycAQtBMwybAQtBOQyaAQtBNQyZAQtBxQEMmAELQQsMlwELQToMlgELQTYMlQELQQoMlAELQTcMkwELQTgMkgELQTwMkQELQTsMkAELQT0MjwELQQkMjgELQSkMjQELQT4MjAELQT8MiwELQcAADIoBC0HBAAyJAQtBwgAMiAELQcMADIcBC0HEAAyGAQtBxQAMhQELQcYADIQBC0EXDIMBC0HHAAyCAQtByAAMgQELQckADIABC0HKAAx/C0HLAAx+C0HNAAx9C0HMAAx8C0HOAAx7C0HPAAx6C0HQAAx5C0HRAAx4C0HSAAx3C0HTAAx2C0HUAAx1C0HWAAx0C0HVAAxzC0EGDHILQdcADHELQQUMcAtB2AAMbwtBBAxuC0HZAAxtC0HaAAxsC0HbAAxrC0HcAAxqC0EDDGkLQd0ADGgLQd4ADGcLQd8ADGYLQeEADGULQeAADGQLQeIADGMLQeMADGILQQIMYQtB5AAMYAtB5QAMXwtB5gAMXgtB5wAMXQtB6AAMXAtB6QAMWwtB6gAMWgtB6wAMWQtB7AAMWAtB7QAMVwtB7gAMVgtB7wAMVQtB8AAMVAtB8QAMUwtB8gAMUgtB8wAMUQtB9AAMUAtB9QAMTwtB9gAMTgtB9wAMTQtB+AAMTAtB+QAMSwtB+gAMSgtB+wAMSQtB/AAMSAtB/QAMRwtB/gAMRgtB/wAMRQtBgAEMRAtBgQEMQwtBggEMQgtBgwEMQQtBhAEMQAtBhQEMPwtBhgEMPgtBhwEMPQtBiAEMPAtBiQEMOwtBigEMOgtBiwEMOQtBjAEMOAtBjQEMNwtBjgEMNgtBjwEMNQtBkAEMNAtBkQEMMwtBkgEMMgtBkwEMMQtBlAEMMAtBlQEMLwtBlgEMLgtBlwEMLQtBmAEMLAtBmQEMKwtBmgEMKgtBmwEMKQtBnAEMKAtBnQEMJwtBngEMJgtBnwEMJQtBoAEMJAtBoQEMIwtBogEMIgtBowEMIQtBpAEMIAtBpQEMHwtBpgEMHgtBpwEMHQtBqAEMHAtBqQEMGwtBqgEMGgtBqwEMGQtBrAEMGAtBrQEMFwtBrgEMFgtBAQwVC0GvAQwUC0GwAQwTC0GxAQwSC0GzAQwRC0GyAQwQC0G0AQwPC0G1AQwOC0G2AQwNC0G3AQwMC0G4AQwLC0G5AQwKC0G6AQwJC0G7AQwIC0HGAQwHC0G8AQwGC0G9AQwFC0G+AQwEC0G/AQwDC0HAAQwCC0HCAQwBC0HBAQshAwNAAkACQAJAAkACQAJAAkACQAJAIAICfwJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJ/AkACQAJAAkACQAJAAkACQAJAAkACQAJAAkAgAgJ/AkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACfwJAAkACfwJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkAC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iQEhAwykAgtBASABLQAAQd8ARw1nGiABQQFqIQEMXgtBigEhAyABIARGDaICIAIoAgAiACAEIAFraiEFIAEgAGtBAWohBgNAIAEtAAAgAEGMzwBqLQAARw1kIABBAUYN+gEgAEEBaiEAIAQgAUEBaiIBRw0ACyACIAU2AgAMogILQYsBIQMgASAERg2hAiACKAIAIgAgBCABa2ohBSABIABrQQJqIQYCQANAIAEtAAAgAEGOzwBqLQAARw1kIABBAkYNASAAQQFqIQAgBCABQQFqIgFHDQALIAIgBTYCAAyiAgsgAkEANgIAIAZBAWohAUECDGULQYwBIQMgASAERg2gAiACKAIAIgAgBCABa2ohBSABIABrQQFqIQYCQANAIAEtAAAgAEHwzwBqLQAARw1jIABBAUYNASAAQQFqIQAgBCABQQFqIgFHDQALIAIgBTYCAAyhAgsgAkEANgIAIAZBAWohAUEfDGQLQY0BIQMgASAERg2fAiACKAIAIgAgBCABa2ohBSABIABrQQFqIQYCQANAIAEtAAAgAEHyzwBqLQAARw1iIABBAUYNASAAQQFqIQAgBCABQQFqIgFHDQALIAIgBTYCAAygAgsgAkEANgIAIAZBAWohAUEJDGMLIAEgBEYEQEGOASEDDJ8CCwJAAkAgAS0AAEHJAGsOBwBiYmJiYgFiCyABQQFqIQFB+AAhAwyGAgsgAUEBaiEBQfkAIQMMhQILQY8BIQMgASAERg2dAiACKAIAIgAgBCABa2ohBSABIABrQQVqIQYCQANAIAEtAAAgAEGRzwBqLQAARw1gIABBBUYNASAAQQFqIQAgBCABQQFqIgFHDQALIAIgBTYCAAyeAgsgAkEANgIAIAZBAWohAUEYDGELQZABIQMgASAERg2cAiACKAIAIgAgBCABa2ohBSABIABrQQJqIQYCQANAIAEtAAAgAEGXzwBqLQAARw1fIABBAkYNASAAQQFqIQAgBCABQQFqIgFHDQALIAIgBTYCAAydAgsgAkEANgIAIAZBAWohAUEXDGALQZEBIQMgASAERg2bAiACKAIAIgAgBCABa2ohBSABIABrQQZqIQYCQANAIAEtAAAgAEGazwBqLQAARw1eIABBBkYNASAAQQFqIQAgBCABQQFqIgFHDQALIAIgBTYCAAycAgsgAkEANgIAIAZBAWohAUEV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JSIARQ0RIAJB5QA2AhwgAiABNgIUIAIgADYCDEEAIQMMtAELIAIoAgQhACACQQA2AgQgAiAAIAEQJSIARQ0gIAJB0wA2AhwgAiABNgIUIAIgADYCDEEAIQMMswELIAIoAgQhACACQQA2AgQgAiAAIAEQJSIARQ0iIAJB0gA2AhwgAiABNgIUIAIgADYCDEEAIQMMsgELIAIoAgQhACACQQA2AgQgAiAAIAEQJSIARQ0OIAJB5QA2AhwgAiABNgIUIAIgADYCDEEAIQMMsQELIAIoAgQhACACQQA2AgQgAiAAIAEQJSIARQ0dIAJB0wA2AhwgAiABNgIUIAIgADYCDEEAIQMMsAELIAIoAgQhACACQQA2AgQgAiAAIAEQJSIARQ0fIAJB0gA2AhwgAiABNgIUIAIgADYCDEEAIQMMrwELIABBP0cNASABQQFqCyEBQQUhAwyUAQtBACEDIAJBADYCHCACIAE2AhQgAkH9EjYCECACQQc2AgwMrAELIAJBADYCHCACIAE2AhQgAkHcCDYCECACQQc2AgxBACEDDKsBCyACKAIEIQAgAkEANgIEIAIgACABECUiAEUNByACQeUANgIcIAIgATYCFCACIAA2AgxBACEDDKoBCyACKAIEIQAgAkEANgIEIAIgACABECUiAEUNFiACQdMANgIcIAIgATYCFCACIAA2AgxBACEDDKkBCyACKAIEIQAgAkEANgIEIAIgACABECUiAEUNGCACQdIANgIcIAIgATYCFCACIAA2AgxBACEDDKgBCyACQQA2AhwgAiABNgIUIAJBxgo2AhAgAkEHNgIMQQAhAwynAQsgAigCBCEAIAJBADYCBCACIAAgARAlIgBFDQMgAkHlADYCHCACIAE2AhQgAiAANgIMQQAhAwymAQsgAigCBCEAIAJBADYCBCACIAAgARAlIgBFDRIgAkHTADYCHCACIAE2AhQgAiAANgIMQQAhAwylAQsgAigCBCEAIAJBADYCBCACIAAgARAlIgBFDRQgAkHSADYCHCACIAE2AhQgAiAANgIMQQAhAwykAQsgAigCBCEAIAJBADYCBCACIAAgARAlIgBFDQAgAkHlADYCHCACIAE2AhQgAiAANgIMQQAhAwyjAQtB1QAhAwyJAQsgAEEVRwRAIAJBADYCHCACIAE2AhQgAkG5DTYCECACQRo2AgxB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AkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAAkACQAJAIABB5ABrDvQDY2IAAWFhYWFhYQIDBAVhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhBgcICQoLDA0OD2FhYWFhEGFhYWFhYWFhYWFhEWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYRITFBUWFxgZGhthYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhHB0eHyAhIiMkJSYnKCkqKywtLi8wMTIzNDU2YTc4OTphYWFhYWFhYTthYWE8YWFhYT0+P2FhYWFhYWFhQGFhQWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYUJDREVGR0hJSktMTU5PUFFSU2FhYWFhYWFhVFVWV1hZWlthXF1hYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFeYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhX2BhC0HhJw8LQaQhDwtByywPC0H+MQ8LQcAkDwtBqyQPC0GNKA8LQeImDwtBgDAPC0G5Lw8LQdckDwtB7x8PC0HhHw8LQfofDwtB8iAPC0GoLw8LQa4yDwtBiDAPC0HsJw8LQYIiDwtBjh0PC0HQLg8LQcojDwtBxTIPC0HfHA8LQdIcDwtBxCAPC0HXIA8LQaIfDwtB7S4PC0GrMA8LQdQlDwtBzC4PC0H6Lg8LQfwrDwtB0jAPC0HxHQ8LQbsgDwtB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AAADAEGUCAsFBAAAAAUAQaQICwkGAAAABwAAAAgAQdwIC4otSW52YWxpZCBjaGFyIGluIHVybCBxdWVyeQBTcGFuIGNhbGxiYWNrIGVycm9yIGluIG9uX2JvZHkAQ29udGVudC1MZW5ndGggb3ZlcmZsb3cAQ2h1bmsgc2l6ZSBvdmVyZmxvdwBSZXNwb25zZSBvdmVyZmxvdwBJbnZhbGlkIG1ldGhvZCBmb3IgSFRUUC94LnggcmVxdWVzdABJbnZhbGlkIG1ldGhvZCBmb3IgUlRTUC94LnggcmVxdWVzdABFeHBlY3RlZCBTT1VSQ0UgbWV0aG9kIGZvciBJQ0UveC54IHJlcXVlc3QASW52YWxpZCBjaGFyIGluIHVybCBmcmFnbWVudCBzdGFydABFeHBlY3RlZCBkb3QAU3BhbiBjYWxsYmFjayBlcnJvciBpbiBvbl9zdGF0dXMASW52YWxpZCByZXNwb25zZSBzdGF0dXMASW52YWxpZCBjaGFyYWN0ZXIgaW4gY2h1bmsgZXh0ZW5zaW9ucwBVc2VyIGNhbGxiYWNrIGVycm9yAGBvbl9yZXNldGAgY2FsbGJhY2sgZXJyb3IAYG9uX2NodW5rX2hlYWRlcmAgY2FsbGJhY2sgZXJyb3IAYG9uX21lc3NhZ2VfYmVnaW5gIGNhbGxiYWNrIGVycm9yAGBvbl9jaHVua19leHRlbnNpb25fdmFsdWVgIGNhbGxiYWNrIGVycm9yAGBvbl9zdGF0dXNfY29tcGxldGVgIGNhbGxiYWNrIGVycm9yAGBvbl92ZXJzaW9uX2NvbXBsZXRlYCBjYWxsYmFjayBlcnJvcgBgb25fdXJsX2NvbXBsZXRlYCBjYWxsYmFjayBlcnJvcgBgb25fY2h1bmtfY29tcGxldGVgIGNhbGxiYWNrIGVycm9yAGBvbl9oZWFkZXJfdmFsdWVfY29tcGxldGVgIGNhbGxiYWNrIGVycm9yAGBvbl9tZXNzYWdlX2NvbXBsZXRlYCBjYWxsYmFjayBlcnJvcgBgb25fbWV0aG9kX2NvbXBsZXRlYCBjYWxsYmFjayBlcnJvcgBgb25faGVhZGVyX2ZpZWxkX2NvbXBsZXRlYCBjYWxsYmFjayBlcnJvcgBgb25fY2h1bmtfZXh0ZW5zaW9uX25hbWVgIGNhbGxiYWNrIGVycm9yAFVuZXhwZWN0ZWQgY2hhciBpbiB1cmwgc2VydmVyAEludmFsaWQgaGVhZGVyIHZhbHVlIGNoYXIASW52YWxpZCBoZWFkZXIgZmllbGQgY2hhcgBTcGFuIGNhbGxiYWNrIGVycm9yIGluIG9uX3ZlcnNpb24ASW52YWxpZCBtaW5vciB2ZXJzaW9uAEludmFsaWQgbWFqb3IgdmVyc2lvbgBFeHBlY3RlZCBzcGFjZSBhZnRlciB2ZXJzaW9uAEV4cGVjdGVkIENSTEYgYWZ0ZXIgdmVyc2lvbgBJbnZhbGlkIEhUVFAgdmVyc2lvbgBJbnZhbGlkIGhlYWRlciB0b2tlbgBTcGFuIGNhbGxiYWNrIGVycm9yIGluIG9uX3VybABJbnZhbGlkIGNoYXJhY3RlcnMgaW4gdXJsAFVuZXhwZWN0ZWQgc3RhcnQgY2hhciBpbiB1cmwARG91YmxlIEAgaW4gdXJsAEVtcHR5IENvbnRlbnQtTGVuZ3RoAEludmFsaWQgY2hhcmFjdGVyIGluIENvbnRlbnQtTGVuZ3RoAER1cGxpY2F0ZSBDb250ZW50LUxlbmd0aABJbnZhbGlkIGNoYXIgaW4gdXJsIHBhdGgAQ29udGVudC1MZW5ndGggY2FuJ3QgYmUgcHJlc2VudCB3aXRoIFRyYW5zZmVyLUVuY29kaW5nAEludmFsaWQgY2hhcmFjdGVyIGluIGNodW5rIHNpemUAU3BhbiBjYWxsYmFjayBlcnJvciBpbiBvbl9oZWFkZXJfdmFsdWUAU3BhbiBjYWxsYmFjayBlcnJvciBpbiBvbl9jaHVua19leHRlbnNpb25fdmFsdWUASW52YWxpZCBjaGFyYWN0ZXIgaW4gY2h1bmsgZXh0ZW5zaW9ucyB2YWx1ZQBNaXNzaW5nIGV4cGVjdGVkIExGIGFmdGVyIGhlYWRlciB2YWx1ZQBJbnZhbGlkIGBUcmFuc2Zlci1FbmNvZGluZ2AgaGVhZGVyIHZhbHVlAEludmFsaWQgY2hhcmFjdGVyIGluIGNodW5rIGV4dGVuc2lvbnMgcXVvdGUgdmFsdWUASW52YWxpZCBjaGFyYWN0ZXIgaW4gY2h1bmsgZXh0ZW5zaW9ucyBxdW90ZWQgdmFsdWUAUGF1c2VkIGJ5IG9uX2hlYWRlcnNfY29tcGxldGUASW52YWxpZCBFT0Ygc3RhdGUAb25fcmVzZXQgcGF1c2UAb25fY2h1bmtfaGVhZGVyIHBhdXNlAG9uX21lc3NhZ2VfYmVnaW4gcGF1c2UAb25fY2h1bmtfZXh0ZW5zaW9uX3ZhbHVlIHBhdXNlAG9uX3N0YXR1c19jb21wbGV0ZSBwYXVzZQBvbl92ZXJzaW9uX2NvbXBsZXRlIHBhdXNlAG9uX3VybF9jb21wbGV0ZSBwYXVzZQBvbl9jaHVua19jb21wbGV0ZSBwYXVzZQBvbl9oZWFkZXJfdmFsdWVfY29tcGxldGUgcGF1c2UAb25fbWVzc2FnZV9jb21wbGV0ZSBwYXVzZQBvbl9tZXRob2RfY29tcGxldGUgcGF1c2UAb25faGVhZGVyX2ZpZWxkX2NvbXBsZXRlIHBhdXNlAG9uX2NodW5rX2V4dGVuc2lvbl9uYW1lIHBhdXNlAFVuZXhwZWN0ZWQgc3BhY2UgYWZ0ZXIgc3RhcnQgbGluZQBTcGFuIGNhbGxiYWNrIGVycm9yIGluIG9uX2NodW5rX2V4dGVuc2lvbl9uYW1lAEludmFsaWQgY2hhcmFjdGVyIGluIGNodW5rIGV4dGVuc2lvbnMgbmFtZQBQYXVzZSBvbiBDT05ORUNUL1VwZ3JhZGUAUGF1c2Ugb24gUFJJL1VwZ3JhZGUARXhwZWN0ZWQgSFRUUC8yIENvbm5lY3Rpb24gUHJlZmFjZQBTcGFuIGNhbGxiYWNrIGVycm9yIGluIG9uX21ldGhvZABFeHBlY3RlZCBzcGFjZSBhZnRlciBtZXRob2QAU3BhbiBjYWxsYmFjayBlcnJvciBpbiBvbl9oZWFkZXJfZmllbGQAUGF1c2VkAEludmFsaWQgd29yZCBlbmNvdW50ZXJlZABJbnZhbGlkIG1ldGhvZCBlbmNvdW50ZXJlZABVbmV4cGVjdGVkIGNoYXIgaW4gdXJsIHNjaGVtYQBSZXF1ZXN0IGhhcyBpbnZhbGlkIGBUcmFuc2Zlci1FbmNvZGluZ2AAU1dJVENIX1BST1hZAFVTRV9QUk9YWQBNS0FDVElWSVRZAFVOUFJPQ0VTU0FCTEVfRU5USVRZAENPUFkATU9WRURfUEVSTUFORU5UTFkAVE9PX0VBUkxZAE5PVElGWQBGQUlMRURfREVQRU5ERU5DWQBCQURfR0FURVdBWQBQTEFZAFBVVABDSEVDS09VVABHQVRFV0FZX1RJTUVPVVQAUkVRVUVTVF9USU1FT1VUAE5FVFdPUktfQ09OTkVDVF9USU1FT1VUAENPTk5FQ1RJT05fVElNRU9VVABMT0dJTl9USU1FT1VUAE5FVFdPUktfUkVBRF9USU1FT1VUAFBPU1QATUlTRElSRUNURURfUkVRVUVTVABDTElFTlRfQ0xPU0VEX1JFUVVFU1QAQ0xJRU5UX0NMT1NFRF9MT0FEX0JBTEFOQ0VEX1JFUVVFU1QAQkFEX1JFUVVFU1QASFRUUF9SRVFVRVNUX1NFTlRfVE9fSFRUUFNfUE9SVABSRVBPUlQASU1fQV9URUFQT1QAUkVTRVRfQ09OVEVOVABOT19DT05URU5UAFBBUlRJQUxfQ09OVEVOVABIUEVfSU5WQUxJRF9DT05TVEFOVABIUEVfQ0JfUkVTRVQAR0VUAEhQRV9TVFJJQ1QAQ09ORkxJQ1QAVEVNUE9SQVJZX1JFRElSRUNUAFBFUk1BTkVOVF9SRURJUkVDVABDT05ORUNUAE1VTFRJX1NUQVRVUwBIUEVfSU5WQUxJRF9TVEFUVVMAVE9PX01BTllfUkVRVUVTVFMARUFSTFlfSElOVFMAVU5BVkFJTEFCTEVfRk9SX0xFR0FMX1JFQVNPTlMAT1BUSU9OUwBTV0lUQ0hJTkdfUFJPVE9DT0xTAFZBUklBTlRfQUxTT19ORUdPVElBVEVTAE1VTFRJUExFX0NIT0lDRVMASU5URVJOQUxfU0VSVkVSX0VSUk9SAFdFQl9TRVJWRVJfVU5LTk9XTl9FUlJPUgBSQUlMR1VOX0VSUk9SAElERU5USVRZX1BST1ZJREVSX0FVVEhFTlRJQ0FUSU9OX0VSUk9SAFNTTF9DRVJUSUZJQ0FURV9FUlJPUgBJTlZBTElEX1hfRk9SV0FSREVEX0ZPUgBTRVRfUEFSQU1FVEVSAEdFVF9QQVJBTUVURVIASFBFX1VTRVIAU0VFX09USEVSAEhQRV9DQl9DSFVOS19IRUFERVIATUtDQUxFTkRBUgBTRVRVUABXRUJfU0VSVkVSX0lTX0RPV04AVEVBUkRPV04ASFBFX0NMT1NFRF9DT05ORUNUSU9OAEhFVVJJU1RJQ19FWFBJUkFUSU9OAERJU0NPTk5FQ1RFRF9PUEVSQVRJT04ATk9OX0FVVEhPUklUQVRJVkVfSU5GT1JNQVRJT04ASFBFX0lOVkFMSURfVkVSU0lPTgBIUEVfQ0JfTUVTU0FHRV9CRUdJTgBTSVRFX0lTX0ZST1pFTgBIUEVfSU5WQUxJRF9IRUFERVJfVE9LRU4ASU5WQUxJRF9UT0tFTgBGT1JCSURERU4ARU5IQU5DRV9ZT1VSX0NBTE0ASFBFX0lOVkFMSURfVVJMAEJMT0NLRURfQllfUEFSRU5UQUxfQ09OVFJPTABNS0NPTABBQ0wASFBFX0lOVEVSTkFMAFJFUVVFU1RfSEVBREVSX0ZJRUxEU19UT09fTEFSR0VfVU5PRkZJQ0lBTABIUEVfT0sAVU5MSU5LAFVOTE9DSwBQUkkAUkVUUllfV0lUSABIUEVfSU5WQUxJRF9DT05URU5UX0xFTkdUSABIUEVfVU5FWFBFQ1RFRF9DT05URU5UX0xFTkdUSABGTFVTSABQUk9QUEFUQ0gATS1TRUFSQ0gAVVJJX1RPT19MT05HAFBST0NFU1NJTkcATUlTQ0VMTEFORU9VU19QRVJTSVNURU5UX1dBUk5JTkcATUlTQ0VMTEFORU9VU19XQVJOSU5HAEhQRV9JTlZBTElEX1RSQU5TRkVSX0VOQ09ESU5HAEV4cGVjdGVkIENSTEYASFBFX0lOVkFMSURfQ0hVTktfU0laRQBNT1ZFAENPTlRJTlVFAEhQRV9DQl9TVEFUVVNfQ09NUExFVEUASFBFX0NCX0hFQURFUlNfQ09NUExFVEUASFBFX0NCX1ZFUlNJT05fQ09NUExFVEUASFBFX0NCX1VSTF9DT01QTEVURQBIUEVfQ0JfQ0hVTktfQ09NUExFVEUASFBFX0NCX0hFQURFUl9WQUxVRV9DT01QTEVURQBIUEVfQ0JfQ0hVTktfRVhURU5TSU9OX1ZBTFVFX0NPTVBMRVRFAEhQRV9DQl9DSFVOS19FWFRFTlNJT05fTkFNRV9DT01QTEVURQBIUEVfQ0JfTUVTU0FHRV9DT01QTEVURQBIUEVfQ0JfTUVUSE9EX0NPTVBMRVRFAEhQRV9DQl9IRUFERVJfRklFTERfQ09NUExFVEUAREVMRVRFAEhQRV9JTlZBTElEX0VPRl9TVEFURQBJTlZBTElEX1NTTF9DRVJUSUZJQ0FURQBQQVVTRQBOT19SRVNQT05TRQBVTlNVUFBPUlRFRF9NRURJQV9UWVBFAEdPTkUATk9UX0FDQ0VQVEFCTEUAU0VSVklDRV9VTkFWQUlMQUJMRQBSQU5HRV9OT1RfU0FUSVNGSUFCTEUAT1JJR0lOX0lTX1VOUkVBQ0hBQkxFAFJFU1BPTlNFX0lTX1NUQUxFAFBVUkdFAE1FUkdFAFJFUVVFU1RfSEVBREVSX0ZJRUxEU19UT09fTEFSR0UAUkVRVUVTVF9IRUFERVJfVE9PX0xBUkdFAFBBWUxPQURfVE9PX0xBUkdFAElOU1VGRklDSUVOVF9TVE9SQUdFAEhQRV9QQVVTRURfVVBHUkFERQBIUEVfUEFVU0VEX0gyX1VQR1JBREUAU09VUkNFAEFOTk9VTkNFAFRSQUNFAEhQRV9VTkVYUEVDVEVEX1NQQUNFAERFU0NSSUJFAFVOU1VCU0NSSUJFAFJFQ09SRABIUEVfSU5WQUxJRF9NRVRIT0QATk9UX0ZPVU5EAFBST1BGSU5EAFVOQklORABSRUJJTkQAVU5BVVRIT1JJWkVEAE1FVEhPRF9OT1RfQUxMT1dFRABIVFRQX1ZFUlNJT05fTk9UX1NVUFBPUlRFRABBTFJFQURZX1JFUE9SVEVEAEFDQ0VQVEVEAE5PVF9JTVBMRU1FTlRFRABMT09QX0RFVEVDVEVEAEhQRV9DUl9FWFBFQ1RFRABIUEVfTEZfRVhQRUNURUQAQ1JFQVRFRABJTV9VU0VEAEhQRV9QQVVTRUQAVElNRU9VVF9PQ0NVUkVEAFBBWU1FTlRfUkVRVUlSRUQAUFJFQ09ORElUSU9OX1JFUVVJUkVEAFBST1hZX0FVVEhFTlRJQ0FUSU9OX1JFUVVJUkVEAE5FVFdPUktfQVVUSEVOVElDQVRJT05fUkVRVUlSRUQATEVOR1RIX1JFUVVJUkVEAFNTTF9DRVJUSUZJQ0FURV9SRVFVSVJFRABVUEdSQURFX1JFUVVJUkVEAFBBR0VfRVhQSVJFRABQUkVDT05ESVRJT05fRkFJTEVEAEVYUEVDVEFUSU9OX0ZBSUxFRABSRVZBTElEQVRJT05fRkFJTEVEAFNTTF9IQU5EU0hBS0VfRkFJTEVEAExPQ0tFRABUUkFOU0ZPUk1BVElPTl9BUFBMSUVEAE5PVF9NT0RJRklFRABOT1RfRVhURU5ERUQAQkFORFdJRFRIX0xJTUlUX0VYQ0VFREVEAFNJVEVfSVNfT1ZFUkxPQURFRABIRUFEAEV4cGVjdGVkIEhUVFAvAABeEwAAJhMAADAQAADwFwAAnRMAABUSAAA5FwAA8BIAAAoQAAB1EgAArRIAAIITAABPFAAAfxAAAKAVAAAjFAAAiRIAAIsUAABNFQAA1BEAAM8UAAAQGAAAyRYAANwWAADBEQAA4BcAALsUAAB0FAAAfBUAAOUUAAAIFwAAHxAAAGUVAACjFAAAKBUAAAIVAACZFQAALBAAAIsZAABPDwAA1A4AAGoQAADOEAAAAhcAAIkOAABuEwAAHBMAAGYUAABWFwAAwRMAAM0TAABsEwAAaBcAAGYXAABfFwAAIhMAAM4PAABpDgAA2A4AAGMWAADLEwAAqg4AACgXAAAmFwAAxRMAAF0WAADoEQAAZxMAAGUTAADyFgAAcxMAAB0XAAD5FgAA8xEAAM8OAADOFQAADBIAALMRAAClEQAAYRAAADIXAAC7EwBB+TULAQEAQZA2C+ABAQECAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAQf03CwEBAEGROAteAgMCAgICAgAAAgIAAgIAAgICAgICAgICAgAEAAAAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAgICAAIAAgBB/TkLAQEAQZE6C14CAAICAgICAAACAgACAgACAgICAgICAgICAAMABAAAAAICAgICAgICAgICAgICAgICAgICAgICAgICAAAAAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAAgACAEHwOwsNbG9zZWVlcC1hbGl2ZQBBiTwLAQEAQaA8C+ABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAQYk+CwEBAEGgPgvnAQEBAQEBAQEBAQEBAQIBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBY2h1bmtlZABBsMAAC18BAQABAQEBAQAAAQEAAQEAAQEBAQEBAQEBAQAAAAAAAAABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEAAQBBkMIACyFlY3Rpb25lbnQtbGVuZ3Rob25yb3h5LWNvbm5lY3Rpb24AQcDCAAstcmFuc2Zlci1lbmNvZGluZ3BncmFkZQ0KDQoNClNNDQoNClRUUC9DRS9UU1AvAEH5wgALBQECAAEDAEGQwwAL4AEEAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQBB+cQACwUBAgABAwBBkMUAC+ABBAEBBQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEAQfnGAAsEAQAAAQBBkccAC98BAQEAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQBB+sgACwQBAAACAEGQyQALXwMEAAAEBAQEBAQEBAQEBAUEBAQEBAQEBAQEBAQABAAGBwQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAAEAAQABAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQAAAAEAEH6ygALBAEAAAEAQZDLAAsBAQBBqssAC0ECAAAAAAAAAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMAAAAAAAADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwBB+swACwQBAAABAEGQzQALAQEAQZrNAAsGAgAAAAACAEGxzQALOgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAAAAAAAAAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMAQfDOAAuWAU5PVU5DRUVDS09VVE5FQ1RFVEVDUklCRUxVU0hFVEVBRFNFQVJDSFJHRUNUSVZJVFlMRU5EQVJWRU9USUZZUFRJT05TQ0hTRUFZU1RBVENIR0VPUkRJUkVDVE9SVFJDSFBBUkFNRVRFUlVSQ0VCU0NSSUJFQVJET1dOQUNFSU5ETktDS1VCU0NSSUJFSFRUUC9BRFRQLw==", "base64");
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/constants.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/constants.js
 var require_constants3 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/constants.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/constants.js"(exports2, module2) {
     "use strict";
     var corsSafeListedMethods = (
       /** @type {const} */
@@ -3230,9 +3238,9 @@ var require_constants3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/global.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/global.js
 var require_global = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/global.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/global.js"(exports2, module2) {
     "use strict";
     var globalOrigin = /* @__PURE__ */ Symbol.for("undici.globalOrigin.1");
     function getGlobalOrigin() {
@@ -3266,9 +3274,9 @@ var require_global = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/data-url.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/data-url.js
 var require_data_url = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/data-url.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/data-url.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
     var encoder = new TextEncoder();
@@ -3618,11 +3626,11 @@ var require_data_url = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/webidl.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/webidl.js
 var require_webidl = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/webidl.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/webidl.js"(exports2, module2) {
     "use strict";
-    var { types: types2, inspect: inspect2 } = require("util");
+    var { types, inspect: inspect2 } = require("util");
     var { markAsUncloneable } = require("worker_threads");
     var { toUSVString } = require_util();
     var webidl = {};
@@ -3812,7 +3820,7 @@ var require_webidl = __commonJS({
           });
         }
         const result = {};
-        if (!types2.isProxy(O)) {
+        if (!types.isProxy(O)) {
           const keys2 = [...Object.getOwnPropertyNames(O), ...Object.getOwnPropertySymbols(O)];
           for (const key of keys2) {
             const typedKey = keyConverter(key, prefix2, argument);
@@ -3941,14 +3949,14 @@ var require_webidl = __commonJS({
       return x;
     };
     webidl.converters.ArrayBuffer = function(V, prefix2, argument, opts) {
-      if (webidl.util.Type(V) !== "Object" || !types2.isAnyArrayBuffer(V)) {
+      if (webidl.util.Type(V) !== "Object" || !types.isAnyArrayBuffer(V)) {
         throw webidl.errors.conversionFailed({
           prefix: prefix2,
           argument: `${argument} ("${webidl.util.Stringify(V)}")`,
           types: ["ArrayBuffer"]
         });
       }
-      if (opts?.allowShared === false && types2.isSharedArrayBuffer(V)) {
+      if (opts?.allowShared === false && types.isSharedArrayBuffer(V)) {
         throw webidl.errors.exception({
           header: "ArrayBuffer",
           message: "SharedArrayBuffer is not allowed."
@@ -3963,14 +3971,14 @@ var require_webidl = __commonJS({
       return V;
     };
     webidl.converters.TypedArray = function(V, T, prefix2, name, opts) {
-      if (webidl.util.Type(V) !== "Object" || !types2.isTypedArray(V) || V.constructor.name !== T.name) {
+      if (webidl.util.Type(V) !== "Object" || !types.isTypedArray(V) || V.constructor.name !== T.name) {
         throw webidl.errors.conversionFailed({
           prefix: prefix2,
           argument: `${name} ("${webidl.util.Stringify(V)}")`,
           types: [T.name]
         });
       }
-      if (opts?.allowShared === false && types2.isSharedArrayBuffer(V.buffer)) {
+      if (opts?.allowShared === false && types.isSharedArrayBuffer(V.buffer)) {
         throw webidl.errors.exception({
           header: "ArrayBuffer",
           message: "SharedArrayBuffer is not allowed."
@@ -3985,13 +3993,13 @@ var require_webidl = __commonJS({
       return V;
     };
     webidl.converters.DataView = function(V, prefix2, name, opts) {
-      if (webidl.util.Type(V) !== "Object" || !types2.isDataView(V)) {
+      if (webidl.util.Type(V) !== "Object" || !types.isDataView(V)) {
         throw webidl.errors.exception({
           header: prefix2,
           message: `${name} is not a DataView.`
         });
       }
-      if (opts?.allowShared === false && types2.isSharedArrayBuffer(V.buffer)) {
+      if (opts?.allowShared === false && types.isSharedArrayBuffer(V.buffer)) {
         throw webidl.errors.exception({
           header: "ArrayBuffer",
           message: "SharedArrayBuffer is not allowed."
@@ -4006,13 +4014,13 @@ var require_webidl = __commonJS({
       return V;
     };
     webidl.converters.BufferSource = function(V, prefix2, name, opts) {
-      if (types2.isAnyArrayBuffer(V)) {
+      if (types.isAnyArrayBuffer(V)) {
         return webidl.converters.ArrayBuffer(V, prefix2, name, { ...opts, allowShared: false });
       }
-      if (types2.isTypedArray(V)) {
+      if (types.isTypedArray(V)) {
         return webidl.converters.TypedArray(V, V.constructor, prefix2, name, { ...opts, allowShared: false });
       }
-      if (types2.isDataView(V)) {
+      if (types.isDataView(V)) {
         return webidl.converters.DataView(V, prefix2, name, { ...opts, allowShared: false });
       }
       throw webidl.errors.conversionFailed({
@@ -4037,9 +4045,9 @@ var require_webidl = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/util.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/util.js
 var require_util2 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/util.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/util.js"(exports2, module2) {
     "use strict";
     var { Transform: Transform2 } = require("stream");
     var zlib2 = require("zlib");
@@ -4052,11 +4060,11 @@ var require_util2 = __commonJS({
     var { isUint8Array } = require("util/types");
     var { webidl } = require_webidl();
     var supportedHashes = [];
-    var crypto5;
+    var crypto4;
     try {
-      crypto5 = require("crypto");
+      crypto4 = require("crypto");
       const possibleRelevantHashes = ["sha256", "sha384", "sha512"];
-      supportedHashes = crypto5.getHashes().filter((hash) => possibleRelevantHashes.includes(hash));
+      supportedHashes = crypto4.getHashes().filter((hash) => possibleRelevantHashes.includes(hash));
     } catch {
     }
     function responseURL(response) {
@@ -4329,7 +4337,7 @@ var require_util2 = __commonJS({
       }
     }
     function bytesMatch(bytes, metadataList) {
-      if (crypto5 === void 0) {
+      if (crypto4 === void 0) {
         return true;
       }
       const parsedMetadata = parseMetadata(metadataList);
@@ -4344,7 +4352,7 @@ var require_util2 = __commonJS({
       for (const item of metadata2) {
         const algorithm = item.algo;
         const expectedValue = item.hash;
-        let actualValue = crypto5.createHash(algorithm).update(bytes).digest("base64");
+        let actualValue = crypto4.createHash(algorithm).update(bytes).digest("base64");
         if (actualValue[actualValue.length - 1] === "=") {
           if (actualValue[actualValue.length - 2] === "=") {
             actualValue = actualValue.slice(0, -2);
@@ -4917,9 +4925,9 @@ var require_util2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/symbols.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/symbols.js
 var require_symbols2 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/symbols.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/symbols.js"(exports2, module2) {
     "use strict";
     module2.exports = {
       kUrl: /* @__PURE__ */ Symbol("url"),
@@ -4931,9 +4939,9 @@ var require_symbols2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/file.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/file.js
 var require_file = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/file.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/file.js"(exports2, module2) {
     "use strict";
     var { Blob: Blob2, File: File2 } = require("buffer");
     var { kState } = require_symbols2();
@@ -4994,9 +5002,9 @@ var require_file = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/formdata.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/formdata.js
 var require_formdata = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/formdata.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/formdata.js"(exports2, module2) {
     "use strict";
     var { isBlobLike, iteratorMixin } = require_util2();
     var { kState } = require_symbols2();
@@ -5141,9 +5149,9 @@ var require_formdata = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/formdata-parser.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/formdata-parser.js
 var require_formdata_parser = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/formdata-parser.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/formdata-parser.js"(exports2, module2) {
     "use strict";
     var { isUSVString, bufferToLowerCasedHeaderName } = require_util();
     var { utf8DecodeBytes } = require_util2();
@@ -5392,9 +5400,9 @@ var require_formdata_parser = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/body.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/body.js
 var require_body = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/body.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/body.js"(exports2, module2) {
     "use strict";
     var util6 = require_util();
     var {
@@ -5418,8 +5426,8 @@ var require_body = __commonJS({
     var { multipartFormDataParser } = require_formdata_parser();
     var random;
     try {
-      const crypto5 = require("crypto");
-      random = (max) => crypto5.randomInt(0, max);
+      const crypto4 = require("crypto");
+      random = (max) => crypto4.randomInt(0, max);
     } catch {
       random = (max) => Math.floor(Math.random(max));
     }
@@ -5706,9 +5714,9 @@ Content-Type: ${value.type || "application/octet-stream"}\r
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/client-h1.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/client-h1.js
 var require_client_h1 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/client-h1.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/client-h1.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
     var util6 = require_util();
@@ -5718,6 +5726,7 @@ var require_client_h1 = __commonJS({
       RequestContentLengthMismatchError,
       ResponseContentLengthMismatchError,
       RequestAbortedError,
+      InvalidArgumentError,
       HeadersTimeoutError,
       HeadersOverflowError,
       SocketError,
@@ -5764,6 +5773,9 @@ var require_client_h1 = __commonJS({
     var FastBuffer = Buffer[Symbol.species];
     var addListener = util6.addListener;
     var removeAllListeners = util6.removeAllListeners;
+    var kIdleSocketValidation = /* @__PURE__ */ Symbol("kIdleSocketValidation");
+    var kIdleSocketValidationTimeout = /* @__PURE__ */ Symbol("kIdleSocketValidationTimeout");
+    var kSocketUsed = /* @__PURE__ */ Symbol("kSocketUsed");
     var extractBody;
     async function lazyllhttp() {
       const llhttpWasmData = process.env.JEST_WORKER_ID ? require_llhttp_wasm() : void 0;
@@ -5994,6 +6006,10 @@ var require_client_h1 = __commonJS({
         if (socket.destroyed) {
           return -1;
         }
+        if (client[kRunning] === 0) {
+          util6.destroy(socket, new SocketError("bad response", util6.getSocketInfo(socket)));
+          return -1;
+        }
         const request = client[kQueue][client[kRunningIdx]];
         if (!request) {
           return -1;
@@ -6071,6 +6087,10 @@ var require_client_h1 = __commonJS({
       onHeadersComplete(statusCode, upgrade, shouldKeepAlive) {
         const { client, socket, headers, statusText } = this;
         if (socket.destroyed) {
+          return -1;
+        }
+        if (client[kRunning] === 0) {
+          util6.destroy(socket, new SocketError("bad response", util6.getSocketInfo(socket)));
           return -1;
         }
         const request = client[kQueue][client[kRunningIdx]];
@@ -6198,6 +6218,7 @@ var require_client_h1 = __commonJS({
         }
         request.onComplete(headers);
         client[kQueue][client[kRunningIdx]++] = null;
+        socket[kSocketUsed] = true;
         if (socket[kWriting]) {
           assert6(client[kRunning] === 0);
           util6.destroy(socket, new InformationalError("reset"));
@@ -6241,6 +6262,9 @@ var require_client_h1 = __commonJS({
       socket[kWriting] = false;
       socket[kReset] = false;
       socket[kBlocking] = false;
+      socket[kIdleSocketValidation] = 0;
+      socket[kIdleSocketValidationTimeout] = null;
+      socket[kSocketUsed] = false;
       socket[kParser] = new Parser(client, socket, llhttpInstance);
       addListener(socket, "error", function(err) {
         assert6(err.code !== "ERR_TLS_CERT_ALTNAME_INVALID");
@@ -6276,6 +6300,7 @@ var require_client_h1 = __commonJS({
       addListener(socket, "close", function() {
         const client2 = this[kClient];
         const parser = this[kParser];
+        clearIdleSocketValidation(this);
         if (parser) {
           if (!this[kError] && parser.statusCode && !parser.shouldKeepAlive) {
             this[kError] = parser.finish() || this[kError];
@@ -6327,7 +6352,7 @@ var require_client_h1 = __commonJS({
           return socket.destroyed;
         },
         busy(request) {
-          if (socket[kWriting] || socket[kReset] || socket[kBlocking]) {
+          if (socket[kWriting] || socket[kReset] || socket[kBlocking] || socket[kIdleSocketValidation] === 1) {
             return true;
           }
           if (request) {
@@ -6345,6 +6370,24 @@ var require_client_h1 = __commonJS({
         }
       };
     }
+    function clearIdleSocketValidation(socket) {
+      if (socket[kIdleSocketValidationTimeout]) {
+        clearTimeout(socket[kIdleSocketValidationTimeout]);
+        socket[kIdleSocketValidationTimeout] = null;
+      }
+      socket[kIdleSocketValidation] = 0;
+    }
+    function scheduleIdleSocketValidation(client, socket) {
+      socket[kIdleSocketValidation] = 1;
+      socket[kIdleSocketValidationTimeout] = setTimeout(() => {
+        socket[kIdleSocketValidationTimeout] = null;
+        socket[kIdleSocketValidation] = 2;
+        if (client[kSocket] === socket && !socket.destroyed) {
+          client[kResume]();
+        }
+      }, 0);
+      socket[kIdleSocketValidationTimeout].unref?.();
+    }
     function resumeH1(client) {
       const socket = client[kSocket];
       if (socket && !socket.destroyed) {
@@ -6356,6 +6399,29 @@ var require_client_h1 = __commonJS({
         } else if (socket[kNoRef] && socket.ref) {
           socket.ref();
           socket[kNoRef] = false;
+        }
+        if (client[kRunning] === 0 && client[kPending] > 0 && socket[kSocketUsed]) {
+          if (socket[kIdleSocketValidation] === 0) {
+            scheduleIdleSocketValidation(client, socket);
+            socket[kParser].readMore();
+            if (socket.destroyed) {
+              return;
+            }
+            return;
+          }
+          if (socket[kIdleSocketValidation] === 1) {
+            socket[kParser].readMore();
+            if (socket.destroyed) {
+              return;
+            }
+            return;
+          }
+        }
+        if (client[kRunning] === 0) {
+          socket[kParser].readMore();
+          if (socket.destroyed) {
+            return;
+          }
         }
         if (client[kSize] === 0) {
           if (socket[kParser].timeoutType !== TIMEOUT_KEEP_ALIVE) {
@@ -6387,8 +6453,16 @@ var require_client_h1 = __commonJS({
         }
         body2 = bodyStream.stream;
         contentLength2 = bodyStream.length;
-      } else if (util6.isBlobLike(body2) && request.contentType == null && body2.type) {
-        headers.push("content-type", body2.type);
+      } else if (util6.isBlobLike(body2) && request.contentType == null) {
+        const contentType2 = body2.type;
+        if (contentType2) {
+          const contentTypeValue = `${contentType2}`;
+          if (!util6.isValidHeaderValue(contentTypeValue)) {
+            util6.errorRequest(client, request, new InvalidArgumentError("invalid content-type header"));
+            return false;
+          }
+          headers.push("content-type", contentTypeValue);
+        }
       }
       if (body2 && typeof body2.read === "function") {
         body2.read(0);
@@ -6409,6 +6483,7 @@ var require_client_h1 = __commonJS({
         process.emitWarning(new RequestContentLengthMismatchError());
       }
       const socket = client[kSocket];
+      clearIdleSocketValidation(socket);
       const abort = (err) => {
         if (request.aborted || request.completed) {
           return;
@@ -6764,9 +6839,9 @@ ${len.toString(16)}\r
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/client-h2.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/client-h2.js
 var require_client_h2 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/client-h2.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/client-h2.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
     var { pipeline: pipeline3 } = require("stream");
@@ -7305,9 +7380,9 @@ var require_client_h2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/handler/redirect-handler.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/handler/redirect-handler.js
 var require_redirect_handler = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/handler/redirect-handler.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/handler/redirect-handler.js"(exports2, module2) {
     "use strict";
     var util6 = require_util();
     var { kBodyUsed } = require_symbols();
@@ -7464,9 +7539,9 @@ var require_redirect_handler = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/interceptor/redirect-interceptor.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/interceptor/redirect-interceptor.js
 var require_redirect_interceptor = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/interceptor/redirect-interceptor.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/interceptor/redirect-interceptor.js"(exports2, module2) {
     "use strict";
     var RedirectHandler = require_redirect_handler();
     function createRedirectInterceptor({ maxRedirections: defaultMaxRedirections }) {
@@ -7486,9 +7561,9 @@ var require_redirect_interceptor = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/client.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/client.js
 var require_client = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/client.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/client.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
     var net = require("net");
@@ -7987,9 +8062,9 @@ var require_client = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/fixed-queue.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/fixed-queue.js
 var require_fixed_queue = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/fixed-queue.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/fixed-queue.js"(exports2, module2) {
     "use strict";
     var kSize = 2048;
     var kMask = kSize - 1;
@@ -8044,9 +8119,9 @@ var require_fixed_queue = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/pool-stats.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/pool-stats.js
 var require_pool_stats = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/pool-stats.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/pool-stats.js"(exports2, module2) {
     "use strict";
     var { kFree, kConnected, kPending, kQueued, kRunning, kSize } = require_symbols();
     var kPool = /* @__PURE__ */ Symbol("pool");
@@ -8077,9 +8152,9 @@ var require_pool_stats = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/pool-base.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/pool-base.js
 var require_pool_base = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/pool-base.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/pool-base.js"(exports2, module2) {
     "use strict";
     var DispatcherBase = require_dispatcher_base();
     var FixedQueue = require_fixed_queue();
@@ -8232,9 +8307,9 @@ var require_pool_base = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/pool.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/pool.js
 var require_pool = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/pool.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/pool.js"(exports2, module2) {
     "use strict";
     var {
       PoolBase,
@@ -8323,9 +8398,9 @@ var require_pool = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/balanced-pool.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/balanced-pool.js
 var require_balanced_pool = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/balanced-pool.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/balanced-pool.js"(exports2, module2) {
     "use strict";
     var {
       BalancedPoolMissingUpstreamError,
@@ -8467,9 +8542,9 @@ var require_balanced_pool = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/agent.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/agent.js
 var require_agent = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/agent.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/agent.js"(exports2, module2) {
     "use strict";
     var { InvalidArgumentError } = require_errors();
     var { kClients, kRunning, kClose, kDestroy, kDispatch, kInterceptors } = require_symbols();
@@ -8564,9 +8639,9 @@ var require_agent = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/proxy-agent.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/proxy-agent.js
 var require_proxy_agent = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/proxy-agent.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/proxy-agent.js"(exports2, module2) {
     "use strict";
     var { kProxy, kClose, kDestroy, kDispatch, kInterceptors } = require_symbols();
     var { URL: URL3 } = require("url");
@@ -8792,9 +8867,9 @@ var require_proxy_agent = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/env-http-proxy-agent.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/env-http-proxy-agent.js
 var require_env_http_proxy_agent = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/env-http-proxy-agent.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/env-http-proxy-agent.js"(exports2, module2) {
     "use strict";
     var DispatcherBase = require_dispatcher_base();
     var { kClose, kDestroy, kClosed, kDestroyed, kDispatch, kNoProxyAgent, kHttpProxyAgent, kHttpsProxyAgent } = require_symbols();
@@ -8934,9 +9009,9 @@ var require_env_http_proxy_agent = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/handler/retry-handler.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/handler/retry-handler.js
 var require_retry_handler = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/handler/retry-handler.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/handler/retry-handler.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
     var { kRetryHandlerDefaultRetry } = require_symbols();
@@ -8950,6 +9025,24 @@ var require_retry_handler = __commonJS({
     function calculateRetryAfterHeader(retryAfter) {
       const current = Date.now();
       return new Date(retryAfter).getTime() - current;
+    }
+    function validatePartialResponseContentLength(headers, range2, statusCode, retryCount) {
+      const contentLength2 = headers["content-length"];
+      if (contentLength2 == null) {
+        return null;
+      }
+      if (!Number.isFinite(range2.start) || !Number.isFinite(range2.end)) {
+        return null;
+      }
+      const length = Number(contentLength2);
+      const expectedLength = range2.end - range2.start + 1;
+      if (!Number.isFinite(length) || length !== expectedLength) {
+        return new RequestRetryError("Content-Length mismatch", statusCode, {
+          headers,
+          data: { count: retryCount }
+        });
+      }
+      return null;
     }
     var RetryHandler = class _RetryHandler {
       constructor(opts, handlers) {
@@ -9123,6 +9216,11 @@ var require_retry_handler = __commonJS({
             );
             return false;
           }
+          const contentLengthError = validatePartialResponseContentLength(headers, contentRange, statusCode, this.retryCount);
+          if (contentLengthError != null) {
+            this.abort(contentLengthError);
+            return false;
+          }
           const { start, size, end = size - 1 } = contentRange;
           assert6(this.start === start, "content-range mismatch");
           assert6(this.end == null || this.end === end, "content-range mismatch");
@@ -9139,6 +9237,11 @@ var require_retry_handler = __commonJS({
                 resume,
                 statusMessage
               );
+            }
+            const contentLengthError = validatePartialResponseContentLength(headers, range2, statusCode, this.retryCount);
+            if (contentLengthError != null) {
+              this.abort(contentLengthError);
+              return false;
             }
             const { start, size, end = size - 1 } = range2;
             assert6(
@@ -9232,9 +9335,9 @@ var require_retry_handler = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/retry-agent.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/retry-agent.js
 var require_retry_agent = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/dispatcher/retry-agent.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/dispatcher/retry-agent.js"(exports2, module2) {
     "use strict";
     var Dispatcher = require_dispatcher();
     var RetryHandler = require_retry_handler();
@@ -9270,12 +9373,12 @@ var require_retry_agent = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/readable.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/readable.js
 var require_readable = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/readable.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/readable.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
-    var { Readable: Readable5 } = require("stream");
+    var { Readable: Readable7 } = require("stream");
     var { RequestAbortedError, NotSupportedError, InvalidArgumentError, AbortError: AbortError3 } = require_errors();
     var util6 = require_util();
     var { ReadableStreamFrom } = require_util();
@@ -9287,7 +9390,7 @@ var require_readable = __commonJS({
     var kContentLength = /* @__PURE__ */ Symbol("kContentLength");
     var noop = () => {
     };
-    var BodyReadable = class extends Readable5 {
+    var BodyReadable = class extends Readable7 {
       constructor({
         resume,
         abort,
@@ -9426,11 +9529,11 @@ var require_readable = __commonJS({
         });
       }
     };
-    function isLocked(self2) {
-      return self2[kBody] && self2[kBody].locked === true || self2[kConsume];
+    function isLocked(self) {
+      return self[kBody] && self[kBody].locked === true || self[kConsume];
     }
-    function isUnusable(self2) {
-      return util6.isDisturbed(self2) || isLocked(self2);
+    function isUnusable(self) {
+      return util6.isDisturbed(self) || isLocked(self);
     }
     async function consume(stream3, type) {
       assert6(!stream3[kConsume]);
@@ -9563,9 +9666,9 @@ var require_readable = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/util.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/util.js
 var require_util3 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/util.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/util.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
     var {
@@ -9625,12 +9728,12 @@ var require_util3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/api-request.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/api-request.js
 var require_api_request = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/api-request.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/api-request.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
-    var { Readable: Readable5 } = require_readable();
+    var { Readable: Readable7 } = require_readable();
     var { InvalidArgumentError, RequestAbortedError } = require_errors();
     var util6 = require_util();
     var { getResolveErrorBodyCallback } = require_util3();
@@ -9725,7 +9828,7 @@ var require_api_request = __commonJS({
         const parsedHeaders = responseHeaders === "raw" ? util6.parseHeaders(rawHeaders) : headers;
         const contentType2 = parsedHeaders["content-type"];
         const contentLength2 = parsedHeaders["content-length"];
-        const res = new Readable5({
+        const res = new Readable7({
           resume,
           abort,
           contentType: contentType2,
@@ -9811,50 +9914,50 @@ var require_api_request = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/abort-signal.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/abort-signal.js
 var require_abort_signal = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/abort-signal.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/abort-signal.js"(exports2, module2) {
     "use strict";
     var { addAbortListener } = require_util();
     var { RequestAbortedError } = require_errors();
     var kListener = /* @__PURE__ */ Symbol("kListener");
     var kSignal = /* @__PURE__ */ Symbol("kSignal");
-    function abort(self2) {
-      if (self2.abort) {
-        self2.abort(self2[kSignal]?.reason);
+    function abort(self) {
+      if (self.abort) {
+        self.abort(self[kSignal]?.reason);
       } else {
-        self2.reason = self2[kSignal]?.reason ?? new RequestAbortedError();
+        self.reason = self[kSignal]?.reason ?? new RequestAbortedError();
       }
-      removeSignal(self2);
+      removeSignal(self);
     }
-    function addSignal(self2, signal) {
-      self2.reason = null;
-      self2[kSignal] = null;
-      self2[kListener] = null;
+    function addSignal(self, signal) {
+      self.reason = null;
+      self[kSignal] = null;
+      self[kListener] = null;
       if (!signal) {
         return;
       }
       if (signal.aborted) {
-        abort(self2);
+        abort(self);
         return;
       }
-      self2[kSignal] = signal;
-      self2[kListener] = () => {
-        abort(self2);
+      self[kSignal] = signal;
+      self[kListener] = () => {
+        abort(self);
       };
-      addAbortListener(self2[kSignal], self2[kListener]);
+      addAbortListener(self[kSignal], self[kListener]);
     }
-    function removeSignal(self2) {
-      if (!self2[kSignal]) {
+    function removeSignal(self) {
+      if (!self[kSignal]) {
         return;
       }
-      if ("removeEventListener" in self2[kSignal]) {
-        self2[kSignal].removeEventListener("abort", self2[kListener]);
+      if ("removeEventListener" in self[kSignal]) {
+        self[kSignal].removeEventListener("abort", self[kListener]);
       } else {
-        self2[kSignal].removeListener("abort", self2[kListener]);
+        self[kSignal].removeListener("abort", self[kListener]);
       }
-      self2[kSignal] = null;
-      self2[kListener] = null;
+      self[kSignal] = null;
+      self[kListener] = null;
     }
     module2.exports = {
       addSignal,
@@ -9863,9 +9966,9 @@ var require_abort_signal = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/api-stream.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/api-stream.js
 var require_api_stream = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/api-stream.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/api-stream.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
     var { finished, PassThrough } = require("stream");
@@ -10036,12 +10139,12 @@ var require_api_stream = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/api-pipeline.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/api-pipeline.js
 var require_api_pipeline = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/api-pipeline.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/api-pipeline.js"(exports2, module2) {
     "use strict";
     var {
-      Readable: Readable5,
+      Readable: Readable7,
       Duplex,
       PassThrough
     } = require("stream");
@@ -10055,7 +10158,7 @@ var require_api_pipeline = __commonJS({
     var { addSignal, removeSignal } = require_abort_signal();
     var assert6 = require("assert");
     var kResume = /* @__PURE__ */ Symbol("resume");
-    var PipelineRequest = class extends Readable5 {
+    var PipelineRequest = class extends Readable7 {
       constructor() {
         super({ autoDestroy: true });
         this[kResume] = null;
@@ -10072,7 +10175,7 @@ var require_api_pipeline = __commonJS({
         callback(err);
       }
     };
-    var PipelineResponse = class extends Readable5 {
+    var PipelineResponse = class extends Readable7 {
       constructor(resume) {
         super({ autoDestroy: true });
         this[kResume] = resume;
@@ -10236,9 +10339,9 @@ var require_api_pipeline = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/api-upgrade.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/api-upgrade.js
 var require_api_upgrade = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/api-upgrade.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/api-upgrade.js"(exports2, module2) {
     "use strict";
     var { InvalidArgumentError, SocketError } = require_errors();
     var { AsyncResource } = require("async_hooks");
@@ -10328,9 +10431,9 @@ var require_api_upgrade = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/api-connect.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/api-connect.js
 var require_api_connect = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/api-connect.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/api-connect.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
     var { AsyncResource } = require("async_hooks");
@@ -10418,9 +10521,9 @@ var require_api_connect = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/index.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/index.js
 var require_api = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/api/index.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/api/index.js"(exports2, module2) {
     "use strict";
     module2.exports.request = require_api_request();
     module2.exports.stream = require_api_stream();
@@ -10430,9 +10533,9 @@ var require_api = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-errors.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-errors.js
 var require_mock_errors = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-errors.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-errors.js"(exports2, module2) {
     "use strict";
     var { UndiciError } = require_errors();
     var kMockNotMatchedError = /* @__PURE__ */ Symbol.for("undici.error.UND_MOCK_ERR_MOCK_NOT_MATCHED");
@@ -10456,9 +10559,9 @@ var require_mock_errors = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-symbols.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-symbols.js
 var require_mock_symbols = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-symbols.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-symbols.js"(exports2, module2) {
     "use strict";
     module2.exports = {
       kAgent: /* @__PURE__ */ Symbol("agent"),
@@ -10484,9 +10587,9 @@ var require_mock_symbols = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-utils.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-utils.js
 var require_mock_utils = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-utils.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-utils.js"(exports2, module2) {
     "use strict";
     var { MockNotMatchedError } = require_mock_errors();
     var {
@@ -10780,9 +10883,9 @@ var require_mock_utils = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-interceptor.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-interceptor.js
 var require_mock_interceptor = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-interceptor.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-interceptor.js"(exports2, module2) {
     "use strict";
     var { getResponseData, buildKey, addMockDispatch } = require_mock_utils();
     var {
@@ -10942,9 +11045,9 @@ var require_mock_interceptor = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-client.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-client.js
 var require_mock_client = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-client.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-client.js"(exports2, module2) {
     "use strict";
     var { promisify: promisify5 } = require("util");
     var Client = require_client();
@@ -10995,9 +11098,9 @@ var require_mock_client = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-pool.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-pool.js
 var require_mock_pool = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-pool.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-pool.js"(exports2, module2) {
     "use strict";
     var { promisify: promisify5 } = require("util");
     var Pool = require_pool();
@@ -11048,9 +11151,9 @@ var require_mock_pool = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/pluralizer.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/pluralizer.js
 var require_pluralizer = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/pluralizer.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/pluralizer.js"(exports2, module2) {
     "use strict";
     var singulars = {
       pronoun: "it",
@@ -11079,9 +11182,9 @@ var require_pluralizer = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/pending-interceptors-formatter.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/pending-interceptors-formatter.js
 var require_pending_interceptors_formatter = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/pending-interceptors-formatter.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/pending-interceptors-formatter.js"(exports2, module2) {
     "use strict";
     var { Transform: Transform2 } = require("stream");
     var { Console } = require("console");
@@ -11120,9 +11223,9 @@ var require_pending_interceptors_formatter = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-agent.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-agent.js
 var require_mock_agent = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/mock/mock-agent.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/mock/mock-agent.js"(exports2, module2) {
     "use strict";
     var { kClients } = require_symbols();
     var Agent5 = require_agent();
@@ -11250,9 +11353,9 @@ ${pendingInterceptorsFormatter.format(pending)}
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/global.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/global.js
 var require_global2 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/global.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/global.js"(exports2, module2) {
     "use strict";
     var globalDispatcher = /* @__PURE__ */ Symbol.for("undici.globalDispatcher.1");
     var { InvalidArgumentError } = require_errors();
@@ -11281,9 +11384,9 @@ var require_global2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/handler/decorator-handler.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/handler/decorator-handler.js
 var require_decorator_handler = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/handler/decorator-handler.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/handler/decorator-handler.js"(exports2, module2) {
     "use strict";
     var _handler, _a3;
     module2.exports = (_a3 = class {
@@ -11322,9 +11425,9 @@ var require_decorator_handler = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/interceptor/redirect.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/interceptor/redirect.js
 var require_redirect = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/interceptor/redirect.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/interceptor/redirect.js"(exports2, module2) {
     "use strict";
     var RedirectHandler = require_redirect_handler();
     module2.exports = (opts) => {
@@ -11348,9 +11451,9 @@ var require_redirect = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/interceptor/retry.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/interceptor/retry.js
 var require_retry = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/interceptor/retry.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/interceptor/retry.js"(exports2, module2) {
     "use strict";
     var RetryHandler = require_retry_handler();
     module2.exports = (globalOpts) => {
@@ -11372,9 +11475,9 @@ var require_retry = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/interceptor/dump.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/interceptor/dump.js
 var require_dump = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/interceptor/dump.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/interceptor/dump.js"(exports2, module2) {
     "use strict";
     var util6 = require_util();
     var { InvalidArgumentError, RequestAbortedError } = require_errors();
@@ -11480,9 +11583,9 @@ var require_dump = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/interceptor/dns.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/interceptor/dns.js
 var require_dns = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/interceptor/dns.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/interceptor/dns.js"(exports2, module2) {
     "use strict";
     var { isIP } = require("net");
     var { lookup } = require("dns");
@@ -11781,9 +11884,9 @@ var require_dns = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/headers.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/headers.js
 var require_headers = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/headers.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/headers.js"(exports2, module2) {
     "use strict";
     var { kConstruct } = require_symbols();
     var { kEnumerableProperty } = require_util();
@@ -12229,9 +12332,9 @@ var require_headers = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/response.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/response.js
 var require_response = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/response.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/response.js"(exports2, module2) {
     "use strict";
     var { Headers: Headers3, HeadersList, fill, getHeadersGuard, setHeadersGuard, setHeadersList } = require_headers();
     var { extractBody, cloneBody, mixinBody, hasFinalizationRegistry, streamRegistry, bodyUnusable } = require_body();
@@ -12258,9 +12361,9 @@ var require_response = __commonJS({
     var { URLSerializer } = require_data_url();
     var { kConstruct } = require_symbols();
     var assert6 = require("assert");
-    var { types: types2 } = require("util");
+    var { types } = require("util");
     var textEncoder = new TextEncoder("utf-8");
-    var Response = class _Response {
+    var Response2 = class _Response {
       // Creates network error Response.
       static error() {
         const responseObject = fromInnerResponse(makeNetworkError(), "immutable");
@@ -12403,8 +12506,8 @@ var require_response = __commonJS({
         return `Response ${nodeUtil.formatWithOptions(options, properties)}`;
       }
     };
-    mixinBody(Response);
-    Object.defineProperties(Response.prototype, {
+    mixinBody(Response2);
+    Object.defineProperties(Response2.prototype, {
       type: kEnumerableProperty,
       url: kEnumerableProperty,
       status: kEnumerableProperty,
@@ -12420,7 +12523,7 @@ var require_response = __commonJS({
         configurable: true
       }
     });
-    Object.defineProperties(Response, {
+    Object.defineProperties(Response2, {
       json: kEnumerableProperty,
       redirect: kEnumerableProperty,
       error: kEnumerableProperty
@@ -12553,7 +12656,7 @@ var require_response = __commonJS({
       }
     }
     function fromInnerResponse(innerResponse, guard) {
-      const response = new Response(kConstruct);
+      const response = new Response2(kConstruct);
       response[kState] = innerResponse;
       response[kHeaders] = new Headers3(kConstruct);
       setHeadersList(response[kHeaders], innerResponse.headersList);
@@ -12579,7 +12682,7 @@ var require_response = __commonJS({
       if (isBlobLike(V)) {
         return webidl.converters.Blob(V, prefix2, name, { strict: false });
       }
-      if (ArrayBuffer.isView(V) || types2.isArrayBuffer(V)) {
+      if (ArrayBuffer.isView(V) || types.isArrayBuffer(V)) {
         return webidl.converters.BufferSource(V, prefix2, name);
       }
       if (util6.isFormDataLike(V)) {
@@ -12621,16 +12724,16 @@ var require_response = __commonJS({
       makeResponse,
       makeAppropriateNetworkError,
       filterResponse,
-      Response,
+      Response: Response2,
       cloneResponse,
       fromInnerResponse
     };
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/dispatcher-weakref.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/dispatcher-weakref.js
 var require_dispatcher_weakref = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/dispatcher-weakref.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/dispatcher-weakref.js"(exports2, module2) {
     "use strict";
     var { kConnected, kSize } = require_symbols();
     var CompatWeakRef = class {
@@ -12670,9 +12773,9 @@ var require_dispatcher_weakref = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/request.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/request.js
 var require_request2 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/request.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/request.js"(exports2, module2) {
     "use strict";
     var { extractBody, mixinBody, cloneBody, bodyUnusable } = require_body();
     var { Headers: Headers3, fill: fillHeaders, HeadersList, setHeadersGuard, getHeadersGuard, setHeadersList, getHeadersList } = require_headers();
@@ -13365,9 +13468,9 @@ var require_request2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/index.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/index.js
 var require_fetch = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fetch/index.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fetch/index.js"(exports2, module2) {
     "use strict";
     var {
       makeNetworkError,
@@ -13425,7 +13528,7 @@ var require_fetch = __commonJS({
       subresourceSet
     } = require_constants3();
     var EE = require("events");
-    var { Readable: Readable5, pipeline: pipeline3, finished } = require("stream");
+    var { Readable: Readable7, pipeline: pipeline3, finished } = require("stream");
     var { addAbortListener, isErrored, isReadable, bufferToLowerCasedHeaderName } = require_util();
     var { dataURLProcessor, serializeAMimeType, minimizeSupportedMimeType } = require_data_url();
     var { getGlobalDispatcher } = require_global2();
@@ -14326,7 +14429,7 @@ var require_fetch = __commonJS({
                 headersList.append(bufferToLowerCasedHeaderName(rawHeaders[i]), rawHeaders[i + 1].toString("latin1"), true);
               }
               location = headersList.get("location", true);
-              this.body = new Readable5({ read: resume });
+              this.body = new Readable7({ read: resume });
               const decoders = [];
               const willFollow = location && request.redirect === "follow" && redirectStatusSet.has(status);
               if (request.method !== "HEAD" && request.method !== "CONNECT" && !nullBodyStatus.includes(status) && !willFollow) {
@@ -14432,9 +14535,9 @@ var require_fetch = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fileapi/symbols.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fileapi/symbols.js
 var require_symbols3 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fileapi/symbols.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fileapi/symbols.js"(exports2, module2) {
     "use strict";
     module2.exports = {
       kState: /* @__PURE__ */ Symbol("FileReader state"),
@@ -14447,9 +14550,9 @@ var require_symbols3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fileapi/progressevent.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fileapi/progressevent.js
 var require_progressevent = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fileapi/progressevent.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fileapi/progressevent.js"(exports2, module2) {
     "use strict";
     var { webidl } = require_webidl();
     var kState = /* @__PURE__ */ Symbol("ProgressEvent state");
@@ -14515,9 +14618,9 @@ var require_progressevent = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fileapi/encoding.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fileapi/encoding.js
 var require_encoding = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fileapi/encoding.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fileapi/encoding.js"(exports2, module2) {
     "use strict";
     function getEncoding(label) {
       if (!label) {
@@ -14801,9 +14904,9 @@ var require_encoding = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fileapi/util.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fileapi/util.js
 var require_util4 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fileapi/util.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fileapi/util.js"(exports2, module2) {
     "use strict";
     var {
       kState,
@@ -14815,7 +14918,7 @@ var require_util4 = __commonJS({
     var { ProgressEvent } = require_progressevent();
     var { getEncoding } = require_encoding();
     var { serializeAMimeType, parseMIMEType } = require_data_url();
-    var { types: types2 } = require("util");
+    var { types } = require("util");
     var { StringDecoder: StringDecoder2 } = require("string_decoder");
     var { btoa: btoa2 } = require("buffer");
     var staticPropertyDescriptors = {
@@ -14845,7 +14948,7 @@ var require_util4 = __commonJS({
               });
             }
             isFirstChunk = false;
-            if (!done && types2.isUint8Array(value)) {
+            if (!done && types.isUint8Array(value)) {
               bytes.push(value);
               if ((fr[kLastProgressEventFired] === void 0 || Date.now() - fr[kLastProgressEventFired] >= 50) && !fr[kAborted]) {
                 fr[kLastProgressEventFired] = Date.now();
@@ -14986,9 +15089,9 @@ var require_util4 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fileapi/filereader.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fileapi/filereader.js
 var require_filereader = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/fileapi/filereader.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/fileapi/filereader.js"(exports2, module2) {
     "use strict";
     var {
       staticPropertyDescriptors,
@@ -15245,9 +15348,9 @@ var require_filereader = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cache/symbols.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cache/symbols.js
 var require_symbols4 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cache/symbols.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cache/symbols.js"(exports2, module2) {
     "use strict";
     module2.exports = {
       kConstruct: require_symbols().kConstruct
@@ -15255,9 +15358,9 @@ var require_symbols4 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cache/util.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cache/util.js
 var require_util5 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cache/util.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cache/util.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
     var { URLSerializer } = require_data_url();
@@ -15285,15 +15388,15 @@ var require_util5 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cache/cache.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cache/cache.js
 var require_cache = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cache/cache.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cache/cache.js"(exports2, module2) {
     "use strict";
     var { kConstruct } = require_symbols4();
     var { urlEquals, getFieldValues } = require_util5();
     var { kEnumerableProperty, isDisturbed } = require_util();
     var { webidl } = require_webidl();
-    var { Response, cloneResponse, fromInnerResponse } = require_response();
+    var { Response: Response2, cloneResponse, fromInnerResponse } = require_response();
     var { Request, fromInnerRequest } = require_request2();
     var { kState } = require_symbols2();
     var { fetching } = require_fetch();
@@ -15825,7 +15928,7 @@ var require_cache = __commonJS({
         converter: webidl.converters.DOMString
       }
     ]);
-    webidl.converters.Response = webidl.interfaceConverter(Response);
+    webidl.converters.Response = webidl.interfaceConverter(Response2);
     webidl.converters["sequence<RequestInfo>"] = webidl.sequenceConverter(
       webidl.converters.RequestInfo
     );
@@ -15835,9 +15938,9 @@ var require_cache = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cache/cachestorage.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cache/cachestorage.js
 var require_cachestorage = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cache/cachestorage.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cache/cachestorage.js"(exports2, module2) {
     "use strict";
     var { kConstruct } = require_symbols4();
     var { Cache } = require_cache();
@@ -15948,9 +16051,9 @@ var require_cachestorage = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cookies/constants.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cookies/constants.js
 var require_constants4 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cookies/constants.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cookies/constants.js"(exports2, module2) {
     "use strict";
     var maxAttributeValueSize = 1024;
     var maxNameValuePairSize = 4096;
@@ -15961,9 +16064,9 @@ var require_constants4 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cookies/util.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cookies/util.js
 var require_util6 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cookies/util.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cookies/util.js"(exports2, module2) {
     "use strict";
     function isCTLExcludingHtab(value) {
       for (let i = 0; i < value.length; ++i) {
@@ -16026,14 +16129,48 @@ var require_util6 = __commonJS({
       for (let i = 0; i < path19.length; ++i) {
         const code = path19.charCodeAt(i);
         if (code < 32 || // exclude CTLs (0-31)
-        code === 127 || // DEL
+        code > 126 || // exclude DEL and non-ascii
         code === 59) {
           throw new Error("Invalid cookie path");
         }
       }
     }
+    function isLetterOrDigit(code) {
+      return code >= 48 && code <= 57 || // 0-9
+      code >= 65 && code <= 90 || // A-Z
+      code >= 97 && code <= 122;
+    }
     function validateCookieDomain(domain) {
-      if (domain.startsWith("-") || domain.endsWith(".") || domain.endsWith("-")) {
+      if (domain === " ") {
+        return;
+      }
+      if (domain.length > 255) {
+        throw new Error("Invalid cookie domain");
+      }
+      let labelLength = 0;
+      for (let i = 0; i < domain.length; ++i) {
+        const code = domain.charCodeAt(i);
+        if (code === 46) {
+          if (labelLength === 0) {
+            throw new Error("Invalid cookie domain");
+          }
+          if (domain.charCodeAt(i - 1) === 45) {
+            throw new Error("Invalid cookie domain");
+          }
+          labelLength = 0;
+          continue;
+        }
+        if (labelLength === 0 && !isLetterOrDigit(code)) {
+          throw new Error("Invalid cookie domain");
+        }
+        if (!isLetterOrDigit(code) && code !== 45) {
+          throw new Error("Invalid cookie domain");
+        }
+        if (++labelLength > 63) {
+          throw new Error("Invalid cookie domain");
+        }
+      }
+      if (labelLength === 0 || domain.charCodeAt(domain.length - 1) === 45) {
         throw new Error("Invalid cookie domain");
       }
     }
@@ -16116,7 +16253,11 @@ var require_util6 = __commonJS({
           throw new Error("Invalid unparsed");
         }
         const [key, ...value] = part.split("=");
-        out.push(`${key.trim()}=${value.join("=")}`);
+        const trimmedKey = key.trim();
+        const joinedValue = value.join("=");
+        validateCookieName(trimmedKey);
+        validateCookieValue(joinedValue);
+        out.push(`${trimmedKey}=${joinedValue}`);
       }
       return out.join("; ");
     }
@@ -16131,9 +16272,9 @@ var require_util6 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cookies/parse.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cookies/parse.js
 var require_parse = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cookies/parse.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cookies/parse.js"(exports2, module2) {
     "use strict";
     var { maxNameValuePairSize, maxAttributeValueSize } = require_constants4();
     var { isCTLExcludingHtab } = require_util6();
@@ -16246,18 +16387,14 @@ var require_parse = __commonJS({
       } else if (attributeNameLowercase === "httponly") {
         cookieAttributeList.httpOnly = true;
       } else if (attributeNameLowercase === "samesite") {
-        let enforcement = "Default";
         const attributeValueLowercase = attributeValue.toLowerCase();
-        if (attributeValueLowercase.includes("none")) {
-          enforcement = "None";
+        if (attributeValueLowercase === "none") {
+          cookieAttributeList.sameSite = "None";
+        } else if (attributeValueLowercase === "strict") {
+          cookieAttributeList.sameSite = "Strict";
+        } else if (attributeValueLowercase === "lax") {
+          cookieAttributeList.sameSite = "Lax";
         }
-        if (attributeValueLowercase.includes("strict")) {
-          enforcement = "Strict";
-        }
-        if (attributeValueLowercase.includes("lax")) {
-          enforcement = "Lax";
-        }
-        cookieAttributeList.sameSite = enforcement;
       } else {
         cookieAttributeList.unparsed ?? (cookieAttributeList.unparsed = []);
         cookieAttributeList.unparsed.push(`${attributeName}=${attributeValue}`);
@@ -16271,9 +16408,9 @@ var require_parse = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cookies/index.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cookies/index.js
 var require_cookies = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/cookies/index.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/cookies/index.js"(exports2, module2) {
     "use strict";
     var { parseSetCookie } = require_parse();
     var { stringify } = require_util6();
@@ -16400,9 +16537,9 @@ var require_cookies = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/events.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/events.js
 var require_events = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/events.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/events.js"(exports2, module2) {
     "use strict";
     var { webidl } = require_webidl();
     var { kEnumerableProperty } = require_util();
@@ -16680,9 +16817,9 @@ var require_events = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/constants.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/constants.js
 var require_constants5 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/constants.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/constants.js"(exports2, module2) {
     "use strict";
     var uid = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
     var staticPropertyDescriptors = {
@@ -16737,9 +16874,9 @@ var require_constants5 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/symbols.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/symbols.js
 var require_symbols5 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/symbols.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/symbols.js"(exports2, module2) {
     "use strict";
     module2.exports = {
       kWebSocketURL: /* @__PURE__ */ Symbol("url"),
@@ -16754,9 +16891,9 @@ var require_symbols5 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/util.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/util.js
 var require_util7 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/util.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/util.js"(exports2, module2) {
     "use strict";
     var { kReadyState, kController, kResponse, kBinaryType, kWebSocketURL } = require_symbols5();
     var { states, opcodes } = require_constants5();
@@ -16927,19 +17064,19 @@ var require_util7 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/frame.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/frame.js
 var require_frame = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/frame.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/frame.js"(exports2, module2) {
     "use strict";
     var { maxUnsigned16Bit } = require_constants5();
     var BUFFER_SIZE = 16386;
-    var crypto5;
+    var crypto4;
     var buffer3 = null;
     var bufIdx = BUFFER_SIZE;
     try {
-      crypto5 = require("crypto");
+      crypto4 = require("crypto");
     } catch {
-      crypto5 = {
+      crypto4 = {
         // not full compatibility, but minimum.
         randomFillSync: function randomFillSync(buffer4, _offset, _size2) {
           for (let i = 0; i < buffer4.length; ++i) {
@@ -16952,7 +17089,7 @@ var require_frame = __commonJS({
     function generateMask() {
       if (bufIdx === BUFFER_SIZE) {
         bufIdx = 0;
-        crypto5.randomFillSync(buffer3 ?? (buffer3 = Buffer.allocUnsafe(BUFFER_SIZE)), 0, BUFFER_SIZE);
+        crypto4.randomFillSync(buffer3 ?? (buffer3 = Buffer.allocUnsafe(BUFFER_SIZE)), 0, BUFFER_SIZE);
       }
       return [buffer3[bufIdx++], buffer3[bufIdx++], buffer3[bufIdx++], buffer3[bufIdx++]];
     }
@@ -17004,9 +17141,9 @@ var require_frame = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/connection.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/connection.js
 var require_connection = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/connection.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/connection.js"(exports2, module2) {
     "use strict";
     var { uid, states, sentCloseFrameState, emptyBuffer, opcodes } = require_constants5();
     var {
@@ -17024,9 +17161,9 @@ var require_connection = __commonJS({
     var { Headers: Headers3, getHeadersList } = require_headers();
     var { getDecodeSplit } = require_util2();
     var { WebsocketFrameSend } = require_frame();
-    var crypto5;
+    var crypto4;
     try {
-      crypto5 = require("crypto");
+      crypto4 = require("crypto");
     } catch {
     }
     function establishWebSocketConnection(url2, protocols, client, ws, onEstablish, options) {
@@ -17046,7 +17183,7 @@ var require_connection = __commonJS({
         const headersList = getHeadersList(new Headers3(options.headers));
         request.headersList = headersList;
       }
-      const keyValue = crypto5.randomBytes(16).toString("base64");
+      const keyValue = crypto4.randomBytes(16).toString("base64");
       request.headersList.append("sec-websocket-key", keyValue);
       request.headersList.append("sec-websocket-version", "13");
       for (const protocol of protocols) {
@@ -17076,7 +17213,7 @@ var require_connection = __commonJS({
             return;
           }
           const secWSAccept = response.headersList.get("Sec-WebSocket-Accept");
-          const digest = crypto5.createHash("sha1").update(keyValue + uid).digest("base64");
+          const digest = crypto4.createHash("sha1").update(keyValue + uid).digest("base64");
           if (secWSAccept !== digest) {
             failWebsocketConnection(ws, "Incorrect hash received in Sec-WebSocket-Accept header.");
             return;
@@ -17189,9 +17326,9 @@ var require_connection = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/permessage-deflate.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/permessage-deflate.js
 var require_permessage_deflate = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/permessage-deflate.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/permessage-deflate.js"(exports2, module2) {
     "use strict";
     var { createInflateRaw, Z_DEFAULT_WINDOWBITS } = require("zlib");
     var { isValidClientWindowBits } = require_util7();
@@ -17274,9 +17411,9 @@ var require_permessage_deflate = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/receiver.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/receiver.js
 var require_receiver = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/receiver.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/receiver.js"(exports2, module2) {
     "use strict";
     var { Writable } = require("stream");
     var assert6 = require("assert");
@@ -17297,12 +17434,16 @@ var require_receiver = __commonJS({
     var { closeWebSocketConnection } = require_connection();
     var { PerMessageDeflate } = require_permessage_deflate();
     var { MessageSizeExceededError } = require_errors();
-    var _buffers, _fragmentsBytes, _byteOffset, _loop, _state, _info, _fragments, _extensions, _maxPayloadSize, _ByteParser_instances, validatePayloadLength_fn;
+    function failWebsocketConnectionWithCode(ws, code, reason) {
+      closeWebSocketConnection(ws, code, reason, Buffer.byteLength(reason));
+      failWebsocketConnection(ws, reason);
+    }
+    var _buffers, _fragmentsBytes, _byteOffset, _loop, _state, _info, _fragments, _extensions, _maxFragments, _maxPayloadSize, _ByteParser_instances, validatePayloadLength_fn;
     var ByteParser = class extends Writable {
       /**
        * @param {import('./websocket').WebSocket} ws
        * @param {Map<string, string>|null} extensions
-       * @param {{ maxPayloadSize?: number }} [options]
+       * @param {{ maxFragments?: number, maxPayloadSize?: number }} [options]
        */
       constructor(ws, extensions, options = {}) {
         super();
@@ -17317,9 +17458,12 @@ var require_receiver = __commonJS({
         /** @type {Map<string, PerMessageDeflate>} */
         __privateAdd(this, _extensions);
         /** @type {number} */
+        __privateAdd(this, _maxFragments);
+        /** @type {number} */
         __privateAdd(this, _maxPayloadSize);
         this.ws = ws;
         __privateSet(this, _extensions, extensions == null ? /* @__PURE__ */ new Map() : extensions);
+        __privateSet(this, _maxFragments, options.maxFragments ?? 0);
         __privateSet(this, _maxPayloadSize, options.maxPayloadSize ?? 0);
         if (__privateGet(this, _extensions).has("permessage-deflate")) {
           __privateGet(this, _extensions).set("permessage-deflate", new PerMessageDeflate(extensions, options));
@@ -17446,9 +17590,11 @@ var require_receiver = __commonJS({
               __privateSet(this, _state, parserStates.INFO);
             } else {
               if (!__privateGet(this, _info).compressed) {
-                this.writeFragments(body2);
+                if (!this.writeFragments(body2)) {
+                  return;
+                }
                 if (__privateGet(this, _maxPayloadSize) > 0 && __privateGet(this, _fragmentsBytes) > __privateGet(this, _maxPayloadSize)) {
-                  failWebsocketConnection(this.ws, new MessageSizeExceededError().message);
+                  failWebsocketConnectionWithCode(this.ws, 1009, new MessageSizeExceededError().message);
                   return;
                 }
                 if (!__privateGet(this, _info).fragmented && __privateGet(this, _info).fin) {
@@ -17461,12 +17607,15 @@ var require_receiver = __commonJS({
                   __privateGet(this, _info).fin,
                   (error2, data) => {
                     if (error2) {
-                      failWebsocketConnection(this.ws, error2.message);
+                      const code = error2 instanceof MessageSizeExceededError ? 1009 : 1007;
+                      failWebsocketConnectionWithCode(this.ws, code, error2.message);
                       return;
                     }
-                    this.writeFragments(data);
+                    if (!this.writeFragments(data)) {
+                      return;
+                    }
                     if (__privateGet(this, _maxPayloadSize) > 0 && __privateGet(this, _fragmentsBytes) > __privateGet(this, _maxPayloadSize)) {
-                      failWebsocketConnection(this.ws, new MessageSizeExceededError().message);
+                      failWebsocketConnectionWithCode(this.ws, 1009, new MessageSizeExceededError().message);
                       return;
                     }
                     if (!__privateGet(this, _info).fin) {
@@ -17524,8 +17673,13 @@ var require_receiver = __commonJS({
         return buffer3;
       }
       writeFragments(fragment) {
+        if (__privateGet(this, _maxFragments) > 0 && __privateGet(this, _fragments).length === __privateGet(this, _maxFragments)) {
+          failWebsocketConnectionWithCode(this.ws, 1008, "Too many message fragments");
+          return false;
+        }
         __privateSet(this, _fragmentsBytes, __privateGet(this, _fragmentsBytes) + fragment.length);
         __privateGet(this, _fragments).push(fragment);
+        return true;
       }
       consumeFragments() {
         const fragments = __privateGet(this, _fragments);
@@ -17626,11 +17780,12 @@ var require_receiver = __commonJS({
     _info = new WeakMap();
     _fragments = new WeakMap();
     _extensions = new WeakMap();
+    _maxFragments = new WeakMap();
     _maxPayloadSize = new WeakMap();
     _ByteParser_instances = new WeakSet();
     validatePayloadLength_fn = function() {
-      if (__privateGet(this, _maxPayloadSize) > 0 && !isControlFrame(__privateGet(this, _info).opcode) && __privateGet(this, _info).payloadLength > __privateGet(this, _maxPayloadSize)) {
-        failWebsocketConnection(this.ws, "Payload size exceeds maximum allowed size");
+      if (__privateGet(this, _maxPayloadSize) > 0 && !isControlFrame(__privateGet(this, _info).opcode) && __privateGet(this, _info).payloadLength + __privateGet(this, _fragmentsBytes) > __privateGet(this, _maxPayloadSize)) {
+        failWebsocketConnectionWithCode(this.ws, 1009, "Payload size exceeds maximum allowed size");
         return false;
       }
       return true;
@@ -17641,9 +17796,9 @@ var require_receiver = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/sender.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/sender.js
 var require_sender = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/sender.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/sender.js"(exports2, module2) {
     "use strict";
     var { WebsocketFrameSend } = require_frame();
     var { opcodes, sendHints } = require_constants5();
@@ -17729,9 +17884,9 @@ var require_sender = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/websocket.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/websocket.js
 var require_websocket = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/websocket/websocket.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/websocket/websocket.js"(exports2, module2) {
     "use strict";
     var { webidl } = require_webidl();
     var { URLSerializer } = require_data_url();
@@ -17757,7 +17912,7 @@ var require_websocket = __commonJS({
     var { ByteParser } = require_receiver();
     var { kEnumerableProperty, isBlobLike } = require_util();
     var { getGlobalDispatcher } = require_global2();
-    var { types: types2 } = require("util");
+    var { types } = require("util");
     var { ErrorEvent, CloseEvent } = require_events();
     var { SendQueue } = require_sender();
     var _events, _bufferedAmount, _protocol, _extensions, _sendQueue, _WebSocket_instances, onConnectionEstablished_fn;
@@ -17882,7 +18037,7 @@ var require_websocket = __commonJS({
           __privateGet(this, _sendQueue).add(data, () => {
             __privateSet(this, _bufferedAmount, __privateGet(this, _bufferedAmount) - length);
           }, sendHints.string);
-        } else if (types2.isArrayBuffer(data)) {
+        } else if (types.isArrayBuffer(data)) {
           __privateSet(this, _bufferedAmount, __privateGet(this, _bufferedAmount) + data.byteLength);
           __privateGet(this, _sendQueue).add(data, () => {
             __privateSet(this, _bufferedAmount, __privateGet(this, _bufferedAmount) - data.byteLength);
@@ -18007,8 +18162,11 @@ var require_websocket = __commonJS({
      */
     onConnectionEstablished_fn = function(response, parsedExtensions) {
       this[kResponse] = response;
-      const maxPayloadSize = this[kController]?.dispatcher?.webSocketOptions?.maxPayloadSize;
+      const webSocketOptions = this[kController]?.dispatcher?.webSocketOptions;
+      const maxFragments = webSocketOptions?.maxFragments;
+      const maxPayloadSize = webSocketOptions?.maxPayloadSize;
       const parser = new ByteParser(this, parsedExtensions, {
+        maxFragments,
         maxPayloadSize
       });
       parser.on("drain", onParserDrain);
@@ -18098,7 +18256,7 @@ var require_websocket = __commonJS({
         if (isBlobLike(V)) {
           return webidl.converters.Blob(V, { strict: false });
         }
-        if (ArrayBuffer.isView(V) || types2.isArrayBuffer(V)) {
+        if (ArrayBuffer.isView(V) || types.isArrayBuffer(V)) {
           return webidl.converters.BufferSource(V);
         }
       }
@@ -18125,9 +18283,9 @@ var require_websocket = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/eventsource/util.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/eventsource/util.js
 var require_util8 = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/eventsource/util.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/eventsource/util.js"(exports2, module2) {
     "use strict";
     function isValidLastEventId(value) {
       return value.indexOf("\0") === -1;
@@ -18152,9 +18310,9 @@ var require_util8 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/eventsource/eventsource-stream.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/eventsource/eventsource-stream.js
 var require_eventsource_stream = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/eventsource/eventsource-stream.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/eventsource/eventsource-stream.js"(exports2, module2) {
     "use strict";
     var { Transform: Transform2 } = require("stream");
     var { isASCIINumber, isValidLastEventId } = require_util8();
@@ -18382,9 +18540,9 @@ ${value}`;
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/eventsource/eventsource.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/eventsource/eventsource.js
 var require_eventsource = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/lib/web/eventsource/eventsource.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/lib/web/eventsource/eventsource.js"(exports2, module2) {
     "use strict";
     var { pipeline: pipeline3 } = require("stream");
     var { fetching } = require_fetch();
@@ -18687,9 +18845,9 @@ var require_eventsource = __commonJS({
   }
 });
 
-// node_modules/.pnpm/undici@6.26.0/node_modules/undici/index.js
+// node_modules/.pnpm/undici@6.28.0/node_modules/undici/index.js
 var require_undici = __commonJS({
-  "node_modules/.pnpm/undici@6.26.0/node_modules/undici/index.js"(exports2, module2) {
+  "node_modules/.pnpm/undici@6.28.0/node_modules/undici/index.js"(exports2, module2) {
     "use strict";
     var Client = require_client();
     var Dispatcher = require_dispatcher();
@@ -24071,7 +24229,7 @@ var require_data_url2 = __commonJS({
 var require_webidl2 = __commonJS({
   "node_modules/.pnpm/undici@6.23.0/node_modules/undici/lib/web/fetch/webidl.js"(exports2, module2) {
     "use strict";
-    var { types: types2, inspect: inspect2 } = require("util");
+    var { types, inspect: inspect2 } = require("util");
     var { markAsUncloneable } = require("worker_threads");
     var { toUSVString } = require_util9();
     var webidl = {};
@@ -24261,7 +24419,7 @@ var require_webidl2 = __commonJS({
           });
         }
         const result = {};
-        if (!types2.isProxy(O)) {
+        if (!types.isProxy(O)) {
           const keys2 = [...Object.getOwnPropertyNames(O), ...Object.getOwnPropertySymbols(O)];
           for (const key of keys2) {
             const typedKey = keyConverter(key, prefix2, argument);
@@ -24390,14 +24548,14 @@ var require_webidl2 = __commonJS({
       return x;
     };
     webidl.converters.ArrayBuffer = function(V, prefix2, argument, opts) {
-      if (webidl.util.Type(V) !== "Object" || !types2.isAnyArrayBuffer(V)) {
+      if (webidl.util.Type(V) !== "Object" || !types.isAnyArrayBuffer(V)) {
         throw webidl.errors.conversionFailed({
           prefix: prefix2,
           argument: `${argument} ("${webidl.util.Stringify(V)}")`,
           types: ["ArrayBuffer"]
         });
       }
-      if (opts?.allowShared === false && types2.isSharedArrayBuffer(V)) {
+      if (opts?.allowShared === false && types.isSharedArrayBuffer(V)) {
         throw webidl.errors.exception({
           header: "ArrayBuffer",
           message: "SharedArrayBuffer is not allowed."
@@ -24412,14 +24570,14 @@ var require_webidl2 = __commonJS({
       return V;
     };
     webidl.converters.TypedArray = function(V, T, prefix2, name, opts) {
-      if (webidl.util.Type(V) !== "Object" || !types2.isTypedArray(V) || V.constructor.name !== T.name) {
+      if (webidl.util.Type(V) !== "Object" || !types.isTypedArray(V) || V.constructor.name !== T.name) {
         throw webidl.errors.conversionFailed({
           prefix: prefix2,
           argument: `${name} ("${webidl.util.Stringify(V)}")`,
           types: [T.name]
         });
       }
-      if (opts?.allowShared === false && types2.isSharedArrayBuffer(V.buffer)) {
+      if (opts?.allowShared === false && types.isSharedArrayBuffer(V.buffer)) {
         throw webidl.errors.exception({
           header: "ArrayBuffer",
           message: "SharedArrayBuffer is not allowed."
@@ -24434,13 +24592,13 @@ var require_webidl2 = __commonJS({
       return V;
     };
     webidl.converters.DataView = function(V, prefix2, name, opts) {
-      if (webidl.util.Type(V) !== "Object" || !types2.isDataView(V)) {
+      if (webidl.util.Type(V) !== "Object" || !types.isDataView(V)) {
         throw webidl.errors.exception({
           header: prefix2,
           message: `${name} is not a DataView.`
         });
       }
-      if (opts?.allowShared === false && types2.isSharedArrayBuffer(V.buffer)) {
+      if (opts?.allowShared === false && types.isSharedArrayBuffer(V.buffer)) {
         throw webidl.errors.exception({
           header: "ArrayBuffer",
           message: "SharedArrayBuffer is not allowed."
@@ -24455,13 +24613,13 @@ var require_webidl2 = __commonJS({
       return V;
     };
     webidl.converters.BufferSource = function(V, prefix2, name, opts) {
-      if (types2.isAnyArrayBuffer(V)) {
+      if (types.isAnyArrayBuffer(V)) {
         return webidl.converters.ArrayBuffer(V, prefix2, name, { ...opts, allowShared: false });
       }
-      if (types2.isTypedArray(V)) {
+      if (types.isTypedArray(V)) {
         return webidl.converters.TypedArray(V, V.constructor, prefix2, name, { ...opts, allowShared: false });
       }
-      if (types2.isDataView(V)) {
+      if (types.isDataView(V)) {
         return webidl.converters.DataView(V, prefix2, name, { ...opts, allowShared: false });
       }
       throw webidl.errors.conversionFailed({
@@ -24501,11 +24659,11 @@ var require_util10 = __commonJS({
     var { isUint8Array } = require("util/types");
     var { webidl } = require_webidl2();
     var supportedHashes = [];
-    var crypto5;
+    var crypto4;
     try {
-      crypto5 = require("crypto");
+      crypto4 = require("crypto");
       const possibleRelevantHashes = ["sha256", "sha384", "sha512"];
-      supportedHashes = crypto5.getHashes().filter((hash) => possibleRelevantHashes.includes(hash));
+      supportedHashes = crypto4.getHashes().filter((hash) => possibleRelevantHashes.includes(hash));
     } catch {
     }
     function responseURL(response) {
@@ -24778,7 +24936,7 @@ var require_util10 = __commonJS({
       }
     }
     function bytesMatch(bytes, metadataList) {
-      if (crypto5 === void 0) {
+      if (crypto4 === void 0) {
         return true;
       }
       const parsedMetadata = parseMetadata(metadataList);
@@ -24793,7 +24951,7 @@ var require_util10 = __commonJS({
       for (const item of metadata2) {
         const algorithm = item.algo;
         const expectedValue = item.hash;
-        let actualValue = crypto5.createHash(algorithm).update(bytes).digest("base64");
+        let actualValue = crypto4.createHash(algorithm).update(bytes).digest("base64");
         if (actualValue[actualValue.length - 1] === "=") {
           if (actualValue[actualValue.length - 2] === "=") {
             actualValue = actualValue.slice(0, -2);
@@ -25867,8 +26025,8 @@ var require_body2 = __commonJS({
     var { multipartFormDataParser } = require_formdata_parser2();
     var random;
     try {
-      const crypto5 = require("crypto");
-      random = (max) => crypto5.randomInt(0, max);
+      const crypto4 = require("crypto");
+      random = (max) => crypto4.randomInt(0, max);
     } catch {
       random = (max) => Math.floor(Math.random(max));
     }
@@ -29685,7 +29843,7 @@ var require_readable2 = __commonJS({
   "node_modules/.pnpm/undici@6.23.0/node_modules/undici/lib/api/readable.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
-    var { Readable: Readable5 } = require("stream");
+    var { Readable: Readable7 } = require("stream");
     var { RequestAbortedError, NotSupportedError, InvalidArgumentError, AbortError: AbortError3 } = require_errors2();
     var util6 = require_util9();
     var { ReadableStreamFrom } = require_util9();
@@ -29697,7 +29855,7 @@ var require_readable2 = __commonJS({
     var kContentLength = /* @__PURE__ */ Symbol("kContentLength");
     var noop = () => {
     };
-    var BodyReadable = class extends Readable5 {
+    var BodyReadable = class extends Readable7 {
       constructor({
         resume,
         abort,
@@ -29836,11 +29994,11 @@ var require_readable2 = __commonJS({
         });
       }
     };
-    function isLocked(self2) {
-      return self2[kBody] && self2[kBody].locked === true || self2[kConsume];
+    function isLocked(self) {
+      return self[kBody] && self[kBody].locked === true || self[kConsume];
     }
-    function isUnusable(self2) {
-      return util6.isDisturbed(self2) || isLocked(self2);
+    function isUnusable(self) {
+      return util6.isDisturbed(self) || isLocked(self);
     }
     async function consume(stream3, type) {
       assert6(!stream3[kConsume]);
@@ -30040,7 +30198,7 @@ var require_api_request2 = __commonJS({
   "node_modules/.pnpm/undici@6.23.0/node_modules/undici/lib/api/api-request.js"(exports2, module2) {
     "use strict";
     var assert6 = require("assert");
-    var { Readable: Readable5 } = require_readable2();
+    var { Readable: Readable7 } = require_readable2();
     var { InvalidArgumentError, RequestAbortedError } = require_errors2();
     var util6 = require_util9();
     var { getResolveErrorBodyCallback } = require_util11();
@@ -30135,7 +30293,7 @@ var require_api_request2 = __commonJS({
         const parsedHeaders = responseHeaders === "raw" ? util6.parseHeaders(rawHeaders) : headers;
         const contentType2 = parsedHeaders["content-type"];
         const contentLength2 = parsedHeaders["content-length"];
-        const res = new Readable5({
+        const res = new Readable7({
           resume,
           abort,
           contentType: contentType2,
@@ -30229,42 +30387,42 @@ var require_abort_signal2 = __commonJS({
     var { RequestAbortedError } = require_errors2();
     var kListener = /* @__PURE__ */ Symbol("kListener");
     var kSignal = /* @__PURE__ */ Symbol("kSignal");
-    function abort(self2) {
-      if (self2.abort) {
-        self2.abort(self2[kSignal]?.reason);
+    function abort(self) {
+      if (self.abort) {
+        self.abort(self[kSignal]?.reason);
       } else {
-        self2.reason = self2[kSignal]?.reason ?? new RequestAbortedError();
+        self.reason = self[kSignal]?.reason ?? new RequestAbortedError();
       }
-      removeSignal(self2);
+      removeSignal(self);
     }
-    function addSignal(self2, signal) {
-      self2.reason = null;
-      self2[kSignal] = null;
-      self2[kListener] = null;
+    function addSignal(self, signal) {
+      self.reason = null;
+      self[kSignal] = null;
+      self[kListener] = null;
       if (!signal) {
         return;
       }
       if (signal.aborted) {
-        abort(self2);
+        abort(self);
         return;
       }
-      self2[kSignal] = signal;
-      self2[kListener] = () => {
-        abort(self2);
+      self[kSignal] = signal;
+      self[kListener] = () => {
+        abort(self);
       };
-      addAbortListener(self2[kSignal], self2[kListener]);
+      addAbortListener(self[kSignal], self[kListener]);
     }
-    function removeSignal(self2) {
-      if (!self2[kSignal]) {
+    function removeSignal(self) {
+      if (!self[kSignal]) {
         return;
       }
-      if ("removeEventListener" in self2[kSignal]) {
-        self2[kSignal].removeEventListener("abort", self2[kListener]);
+      if ("removeEventListener" in self[kSignal]) {
+        self[kSignal].removeEventListener("abort", self[kListener]);
       } else {
-        self2[kSignal].removeListener("abort", self2[kListener]);
+        self[kSignal].removeListener("abort", self[kListener]);
       }
-      self2[kSignal] = null;
-      self2[kListener] = null;
+      self[kSignal] = null;
+      self[kListener] = null;
     }
     module2.exports = {
       addSignal,
@@ -30451,7 +30609,7 @@ var require_api_pipeline2 = __commonJS({
   "node_modules/.pnpm/undici@6.23.0/node_modules/undici/lib/api/api-pipeline.js"(exports2, module2) {
     "use strict";
     var {
-      Readable: Readable5,
+      Readable: Readable7,
       Duplex,
       PassThrough
     } = require("stream");
@@ -30465,7 +30623,7 @@ var require_api_pipeline2 = __commonJS({
     var { addSignal, removeSignal } = require_abort_signal2();
     var assert6 = require("assert");
     var kResume = /* @__PURE__ */ Symbol("resume");
-    var PipelineRequest = class extends Readable5 {
+    var PipelineRequest = class extends Readable7 {
       constructor() {
         super({ autoDestroy: true });
         this[kResume] = null;
@@ -30482,7 +30640,7 @@ var require_api_pipeline2 = __commonJS({
         callback(err);
       }
     };
-    var PipelineResponse = class extends Readable5 {
+    var PipelineResponse = class extends Readable7 {
       constructor(resume) {
         super({ autoDestroy: true });
         this[kResume] = resume;
@@ -32668,9 +32826,9 @@ var require_response2 = __commonJS({
     var { URLSerializer } = require_data_url2();
     var { kConstruct } = require_symbols6();
     var assert6 = require("assert");
-    var { types: types2 } = require("util");
+    var { types } = require("util");
     var textEncoder = new TextEncoder("utf-8");
-    var Response = class _Response {
+    var Response2 = class _Response {
       // Creates network error Response.
       static error() {
         const responseObject = fromInnerResponse(makeNetworkError(), "immutable");
@@ -32813,8 +32971,8 @@ var require_response2 = __commonJS({
         return `Response ${nodeUtil.formatWithOptions(options, properties)}`;
       }
     };
-    mixinBody(Response);
-    Object.defineProperties(Response.prototype, {
+    mixinBody(Response2);
+    Object.defineProperties(Response2.prototype, {
       type: kEnumerableProperty,
       url: kEnumerableProperty,
       status: kEnumerableProperty,
@@ -32830,7 +32988,7 @@ var require_response2 = __commonJS({
         configurable: true
       }
     });
-    Object.defineProperties(Response, {
+    Object.defineProperties(Response2, {
       json: kEnumerableProperty,
       redirect: kEnumerableProperty,
       error: kEnumerableProperty
@@ -32963,7 +33121,7 @@ var require_response2 = __commonJS({
       }
     }
     function fromInnerResponse(innerResponse, guard) {
-      const response = new Response(kConstruct);
+      const response = new Response2(kConstruct);
       response[kState] = innerResponse;
       response[kHeaders] = new Headers3(kConstruct);
       setHeadersList(response[kHeaders], innerResponse.headersList);
@@ -32989,7 +33147,7 @@ var require_response2 = __commonJS({
       if (isBlobLike(V)) {
         return webidl.converters.Blob(V, prefix2, name, { strict: false });
       }
-      if (ArrayBuffer.isView(V) || types2.isArrayBuffer(V)) {
+      if (ArrayBuffer.isView(V) || types.isArrayBuffer(V)) {
         return webidl.converters.BufferSource(V, prefix2, name);
       }
       if (util6.isFormDataLike(V)) {
@@ -33031,7 +33189,7 @@ var require_response2 = __commonJS({
       makeResponse,
       makeAppropriateNetworkError,
       filterResponse,
-      Response,
+      Response: Response2,
       cloneResponse,
       fromInnerResponse
     };
@@ -33835,7 +33993,7 @@ var require_fetch2 = __commonJS({
       subresourceSet
     } = require_constants9();
     var EE = require("events");
-    var { Readable: Readable5, pipeline: pipeline3, finished } = require("stream");
+    var { Readable: Readable7, pipeline: pipeline3, finished } = require("stream");
     var { addAbortListener, isErrored, isReadable, bufferToLowerCasedHeaderName } = require_util9();
     var { dataURLProcessor, serializeAMimeType, minimizeSupportedMimeType } = require_data_url2();
     var { getGlobalDispatcher } = require_global4();
@@ -34736,7 +34894,7 @@ var require_fetch2 = __commonJS({
                 headersList.append(bufferToLowerCasedHeaderName(rawHeaders[i]), rawHeaders[i + 1].toString("latin1"), true);
               }
               location = headersList.get("location", true);
-              this.body = new Readable5({ read: resume });
+              this.body = new Readable7({ read: resume });
               const decoders = [];
               const willFollow = location && request.redirect === "follow" && redirectStatusSet.has(status);
               if (request.method !== "HEAD" && request.method !== "CONNECT" && !nullBodyStatus.includes(status) && !willFollow) {
@@ -35225,7 +35383,7 @@ var require_util12 = __commonJS({
     var { ProgressEvent } = require_progressevent2();
     var { getEncoding } = require_encoding2();
     var { serializeAMimeType, parseMIMEType } = require_data_url2();
-    var { types: types2 } = require("util");
+    var { types } = require("util");
     var { StringDecoder: StringDecoder2 } = require("string_decoder");
     var { btoa: btoa2 } = require("buffer");
     var staticPropertyDescriptors = {
@@ -35255,7 +35413,7 @@ var require_util12 = __commonJS({
               });
             }
             isFirstChunk = false;
-            if (!done && types2.isUint8Array(value)) {
+            if (!done && types.isUint8Array(value)) {
               bytes.push(value);
               if ((fr[kLastProgressEventFired] === void 0 || Date.now() - fr[kLastProgressEventFired] >= 50) && !fr[kAborted]) {
                 fr[kLastProgressEventFired] = Date.now();
@@ -35703,7 +35861,7 @@ var require_cache2 = __commonJS({
     var { urlEquals, getFieldValues } = require_util13();
     var { kEnumerableProperty, isDisturbed } = require_util9();
     var { webidl } = require_webidl2();
-    var { Response, cloneResponse, fromInnerResponse } = require_response2();
+    var { Response: Response2, cloneResponse, fromInnerResponse } = require_response2();
     var { Request, fromInnerRequest } = require_request4();
     var { kState } = require_symbols7();
     var { fetching } = require_fetch2();
@@ -36235,7 +36393,7 @@ var require_cache2 = __commonJS({
         converter: webidl.converters.DOMString
       }
     ]);
-    webidl.converters.Response = webidl.interfaceConverter(Response);
+    webidl.converters.Response = webidl.interfaceConverter(Response2);
     webidl.converters["sequence<RequestInfo>"] = webidl.sequenceConverter(
       webidl.converters.RequestInfo
     );
@@ -37339,13 +37497,13 @@ var require_frame2 = __commonJS({
     "use strict";
     var { maxUnsigned16Bit } = require_constants11();
     var BUFFER_SIZE = 16386;
-    var crypto5;
+    var crypto4;
     var buffer3 = null;
     var bufIdx = BUFFER_SIZE;
     try {
-      crypto5 = require("crypto");
+      crypto4 = require("crypto");
     } catch {
-      crypto5 = {
+      crypto4 = {
         // not full compatibility, but minimum.
         randomFillSync: function randomFillSync(buffer4, _offset, _size2) {
           for (let i = 0; i < buffer4.length; ++i) {
@@ -37358,7 +37516,7 @@ var require_frame2 = __commonJS({
     function generateMask() {
       if (bufIdx === BUFFER_SIZE) {
         bufIdx = 0;
-        crypto5.randomFillSync(buffer3 ?? (buffer3 = Buffer.allocUnsafe(BUFFER_SIZE)), 0, BUFFER_SIZE);
+        crypto4.randomFillSync(buffer3 ?? (buffer3 = Buffer.allocUnsafe(BUFFER_SIZE)), 0, BUFFER_SIZE);
       }
       return [buffer3[bufIdx++], buffer3[bufIdx++], buffer3[bufIdx++], buffer3[bufIdx++]];
     }
@@ -37430,9 +37588,9 @@ var require_connection2 = __commonJS({
     var { Headers: Headers3, getHeadersList } = require_headers2();
     var { getDecodeSplit } = require_util10();
     var { WebsocketFrameSend } = require_frame2();
-    var crypto5;
+    var crypto4;
     try {
-      crypto5 = require("crypto");
+      crypto4 = require("crypto");
     } catch {
     }
     function establishWebSocketConnection(url2, protocols, client, ws, onEstablish, options) {
@@ -37452,7 +37610,7 @@ var require_connection2 = __commonJS({
         const headersList = getHeadersList(new Headers3(options.headers));
         request.headersList = headersList;
       }
-      const keyValue = crypto5.randomBytes(16).toString("base64");
+      const keyValue = crypto4.randomBytes(16).toString("base64");
       request.headersList.append("sec-websocket-key", keyValue);
       request.headersList.append("sec-websocket-version", "13");
       for (const protocol of protocols) {
@@ -37482,7 +37640,7 @@ var require_connection2 = __commonJS({
             return;
           }
           const secWSAccept = response.headersList.get("Sec-WebSocket-Accept");
-          const digest = crypto5.createHash("sha1").update(keyValue + uid).digest("base64");
+          const digest = crypto4.createHash("sha1").update(keyValue + uid).digest("base64");
           if (secWSAccept !== digest) {
             failWebsocketConnection(ws, "Incorrect hash received in Sec-WebSocket-Accept header.");
             return;
@@ -38082,7 +38240,7 @@ var require_websocket2 = __commonJS({
     var { ByteParser } = require_receiver2();
     var { kEnumerableProperty, isBlobLike } = require_util9();
     var { getGlobalDispatcher } = require_global4();
-    var { types: types2 } = require("util");
+    var { types } = require("util");
     var { ErrorEvent, CloseEvent } = require_events2();
     var { SendQueue } = require_sender2();
     var _events, _bufferedAmount, _protocol, _extensions, _sendQueue, _WebSocket_instances, onConnectionEstablished_fn;
@@ -38207,7 +38365,7 @@ var require_websocket2 = __commonJS({
           __privateGet(this, _sendQueue).add(data, () => {
             __privateSet(this, _bufferedAmount, __privateGet(this, _bufferedAmount) - length);
           }, sendHints.string);
-        } else if (types2.isArrayBuffer(data)) {
+        } else if (types.isArrayBuffer(data)) {
           __privateSet(this, _bufferedAmount, __privateGet(this, _bufferedAmount) + data.byteLength);
           __privateGet(this, _sendQueue).add(data, () => {
             __privateSet(this, _bufferedAmount, __privateGet(this, _bufferedAmount) - data.byteLength);
@@ -38420,7 +38578,7 @@ var require_websocket2 = __commonJS({
         if (isBlobLike(V)) {
           return webidl.converters.Blob(V, { strict: false });
         }
-        if (ArrayBuffer.isView(V) || types2.isArrayBuffer(V)) {
+        if (ArrayBuffer.isView(V) || types.isArrayBuffer(V)) {
           return webidl.converters.BufferSource(V);
         }
       }
@@ -39431,8 +39589,8 @@ var require_function = __commonJS({
         if (isDataFirst(arguments)) {
           return body2.apply(this, args);
         }
-        return function(self2) {
-          return body2.apply(void 0, __spreadArray2([self2], args, false));
+        return function(self) {
+          return body2.apply(void 0, __spreadArray2([self], args, false));
         };
       };
     };
@@ -39535,44 +39693,44 @@ var require_internal = __commonJS({
     };
     exports2.liftOption = liftOption2;
     var flatMapNullable2 = function(F, M) {
-      return /* @__PURE__ */ (0, function_1.dual)(3, function(self2, f, onNullable) {
-        return M.flatMap(self2, (0, exports2.liftNullable)(F)(f, onNullable));
+      return /* @__PURE__ */ (0, function_1.dual)(3, function(self, f, onNullable) {
+        return M.flatMap(self, (0, exports2.liftNullable)(F)(f, onNullable));
       });
     };
     exports2.flatMapNullable = flatMapNullable2;
     var flatMapOption2 = function(F, M) {
-      return /* @__PURE__ */ (0, function_1.dual)(3, function(self2, f, onNone) {
-        return M.flatMap(self2, (0, exports2.liftOption)(F)(f, onNone));
+      return /* @__PURE__ */ (0, function_1.dual)(3, function(self, f, onNone) {
+        return M.flatMap(self, (0, exports2.liftOption)(F)(f, onNone));
       });
     };
     exports2.flatMapOption = flatMapOption2;
     var flatMapEither = function(F, M) {
-      return /* @__PURE__ */ (0, function_1.dual)(2, function(self2, f) {
-        return M.flatMap(self2, function(a) {
+      return /* @__PURE__ */ (0, function_1.dual)(2, function(self, f) {
+        return M.flatMap(self, function(a) {
           return F.fromEither(f(a));
         });
       });
     };
     exports2.flatMapEither = flatMapEither;
     var flatMapIO = function(F, M) {
-      return /* @__PURE__ */ (0, function_1.dual)(2, function(self2, f) {
-        return M.flatMap(self2, function(a) {
+      return /* @__PURE__ */ (0, function_1.dual)(2, function(self, f) {
+        return M.flatMap(self, function(a) {
           return F.fromIO(f(a));
         });
       });
     };
     exports2.flatMapIO = flatMapIO;
     var flatMapTask = function(F, M) {
-      return /* @__PURE__ */ (0, function_1.dual)(2, function(self2, f) {
-        return M.flatMap(self2, function(a) {
+      return /* @__PURE__ */ (0, function_1.dual)(2, function(self, f) {
+        return M.flatMap(self, function(a) {
           return F.fromTask(f(a));
         });
       });
     };
     exports2.flatMapTask = flatMapTask;
     var flatMapReader = function(F, M) {
-      return /* @__PURE__ */ (0, function_1.dual)(2, function(self2, f) {
-        return M.flatMap(self2, function(a) {
+      return /* @__PURE__ */ (0, function_1.dual)(2, function(self, f) {
+        return M.flatMap(self, function(a) {
           return F.fromReader(f(a));
         });
       });
@@ -39885,16 +40043,16 @@ var require_Functor = __commonJS({
       };
     }
     function as3(F) {
-      return function(self2, b) {
-        return F.map(self2, function() {
+      return function(self, b) {
+        return F.map(self, function() {
           return b;
         });
       };
     }
     function asUnit3(F) {
       var asM = as3(F);
-      return function(self2) {
-        return asM(self2, void 0);
+      return function(self) {
+        return asM(self, void 0);
       };
     }
   }
@@ -40103,8 +40261,8 @@ var require_FromEither = __commonJS({
     function tapEither(F, M) {
       var fromEither = fromEitherK(F);
       var tapM = (0, Chain_1.tap)(M);
-      return function(self2, f) {
-        return tapM(self2, fromEither(f));
+      return function(self, f) {
+        return tapM(self, fromEither(f));
       };
     }
   }
@@ -40979,9 +41137,9 @@ var require_lib = __commonJS({
   "node_modules/.pnpm/which@7.0.0/node_modules/which/lib/index.js"(exports2, module2) {
     "use strict";
     var { isexe, sync: isexeSync } = require_index_min();
-    var { join: join9, delimiter: delimiter4, sep: sep8, posix } = require("path");
+    var { join: join9, delimiter: delimiter4, sep: sep9, posix } = require("path");
     var isWindows2 = process.platform === "win32";
-    var rSlash = new RegExp(`[${posix.sep}${sep8 === posix.sep ? "" : sep8}]`.replace(/(\\)/g, "\\$1"));
+    var rSlash = new RegExp(`[${posix.sep}${sep9 === posix.sep ? "" : sep9}]`.replace(/(\\)/g, "\\$1"));
     var rRel = new RegExp(`^\\.${rSlash.source}`);
     var getNotFoundError = (cmd) => Object.assign(new Error(`not found: ${cmd}`), { code: "ENOENT" });
     var getPathInfo = (cmd, {
@@ -41140,9 +41298,9 @@ var require_balanced_match = __commonJS({
   }
 });
 
-// node_modules/.pnpm/brace-expansion@1.1.15/node_modules/brace-expansion/index.js
+// node_modules/.pnpm/brace-expansion@1.1.18/node_modules/brace-expansion/index.js
 var require_brace_expansion = __commonJS({
-  "node_modules/.pnpm/brace-expansion@1.1.15/node_modules/brace-expansion/index.js"(exports2, module2) {
+  "node_modules/.pnpm/brace-expansion@1.1.18/node_modules/brace-expansion/index.js"(exports2, module2) {
     "use strict";
     var concatMap = require_concat_map();
     var balanced = require_balanced_match();
@@ -41152,6 +41310,8 @@ var require_brace_expansion = __commonJS({
     var escClose = "\0CLOSE" + Math.random() + "\0";
     var escComma = "\0COMMA" + Math.random() + "\0";
     var escPeriod = "\0PERIOD" + Math.random() + "\0";
+    var EXPANSION_MAX = 1e5;
+    var EXPANSION_MAX_LENGTH = 4e6;
     function numeric(str) {
       return parseInt(str, 10) == str ? parseInt(str, 10) : str.charCodeAt(0);
     }
@@ -41185,11 +41345,12 @@ var require_brace_expansion = __commonJS({
       if (!str)
         return [];
       options = options || {};
-      var max = options.max == null ? Infinity : options.max;
+      var max = options.max == null ? EXPANSION_MAX : options.max;
+      var maxLength = options.maxLength == null ? EXPANSION_MAX_LENGTH : options.maxLength;
       if (str.substr(0, 2) === "{}") {
         str = "\\{\\}" + str.substr(2);
       }
-      return expand(escapeBraces(str), max, true).map(unescapeBraces);
+      return expand(escapeBraces(str), max, maxLength, true).map(unescapeBraces);
     }
     function embrace(str) {
       return "{" + str + "}";
@@ -41203,86 +41364,175 @@ var require_brace_expansion = __commonJS({
     function gte(i, y) {
       return i >= y;
     }
-    function expand(str, max, isTop) {
-      var expansions = [];
-      var m = balanced("{", "}", str);
-      if (!m || /\$$/.test(m.pre)) return [str];
-      var isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
-      var isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
-      var isSequence = isNumericSequence || isAlphaSequence;
-      var isOptions = m.body.indexOf(",") >= 0;
-      if (!isSequence && !isOptions) {
-        if (m.post.match(/,(?!,).*\}/)) {
-          str = m.pre + "{" + m.body + escClose + m.post;
-          return expand(str, max, true);
+    function combine(acc, base, pre, values, max, maxLength, dropEmpties, outBase) {
+      var out = [];
+      var length = 0;
+      for (var a = 0; a < acc.length; a++) {
+        for (var v = 0; v < values.length; v++) {
+          if (out.length >= max) return out;
+          var expansion = acc[a] + pre + values[v];
+          if (dropEmpties && expansion.length === base[a]) continue;
+          if (length + expansion.length > maxLength) return out;
+          out.push(expansion);
+          outBase.push(base[a]);
+          length += expansion.length;
         }
-        return [str];
       }
-      var n;
-      if (isSequence) {
-        n = m.body.split(/\.\./);
-      } else {
-        n = parseCommaParts(m.body);
-        if (n.length === 1) {
-          n = expand(n[0], max, false).map(embrace);
-          if (n.length === 1) {
-            var post = m.post.length ? expand(m.post, max, false) : [""];
-            return post.map(function(p) {
-              return m.pre + n[0] + p;
-            });
+      return out;
+    }
+    function expandSequence(body2, isAlphaSequence, max, maxLength) {
+      var n = body2.split(/\.\./);
+      var N = [];
+      if (n[0] === void 0 || n[1] === void 0) {
+        return N;
+      }
+      var x = numeric(n[0]);
+      var y = numeric(n[1]);
+      var width = Math.max(n[0].length, n[1].length);
+      var incr = n.length === 3 && n[2] !== void 0 ? Math.max(Math.abs(numeric(n[2])), 1) : 1;
+      var test = lte;
+      var reverse = y < x;
+      if (reverse) {
+        incr *= -1;
+        test = gte;
+      }
+      var pad = n.some(isPadded);
+      var length = 0;
+      for (var i = x; test(i, y) && N.length < max; i += incr) {
+        var c;
+        if (isAlphaSequence) {
+          c = String.fromCharCode(i);
+          if (c === "\\") {
+            c = "";
           }
-        }
-      }
-      var pre = m.pre;
-      var post = m.post.length ? expand(m.post, max, false) : [""];
-      var N;
-      if (isSequence) {
-        var x = numeric(n[0]);
-        var y = numeric(n[1]);
-        var width = Math.max(n[0].length, n[1].length);
-        var incr = n.length == 3 ? Math.max(Math.abs(numeric(n[2])), 1) : 1;
-        var test = lte;
-        var reverse = y < x;
-        if (reverse) {
-          incr *= -1;
-          test = gte;
-        }
-        var pad = n.some(isPadded);
-        N = [];
-        for (var i = x; test(i, y) && N.length < max; i += incr) {
-          var c;
-          if (isAlphaSequence) {
-            c = String.fromCharCode(i);
-            if (c === "\\")
-              c = "";
-          } else {
-            c = String(i);
-            if (pad) {
-              var need = width - c.length;
-              if (need > 0) {
-                var z = new Array(need + 1).join("0");
-                if (i < 0)
-                  c = "-" + z + c.slice(1);
-                else
-                  c = z + c;
+        } else {
+          c = String(i);
+          if (pad) {
+            var need = width - c.length;
+            if (need > 0) {
+              var z = new Array(need + 1).join("0");
+              if (i < 0) {
+                c = "-" + z + c.slice(1);
+              } else {
+                c = z + c;
               }
             }
           }
-          N.push(c);
         }
-      } else {
-        N = concatMap(n, function(el) {
-          return expand(el, max, false);
-        });
+        if (length + c.length > maxLength) break;
+        N.push(c);
+        length += c.length;
       }
-      for (var j = 0; j < N.length; j++) {
-        for (var k = 0; k < post.length && expansions.length < max; k++) {
-          var expansion = pre + N[j] + post[k];
-          if (!isTop || isSequence || expansion)
-            expansions.push(expansion);
+      return N;
+    }
+    function expand(str, max, maxLength, isTop) {
+      var acc = [""];
+      var accBase = [0];
+      var dropEmpties = false;
+      var firstGroup = true;
+      var nextBase;
+      for (; ; ) {
+        var m = balanced("{", "}", str);
+        if (!m) {
+          return combine(acc, accBase, str, [""], max, maxLength, dropEmpties, []);
         }
+        var pre = m.pre;
+        if (/\$$/.test(pre)) {
+          return combine(acc, accBase, str, [""], max, maxLength, dropEmpties, []);
+        }
+        var isNumericSequence = /^-?\d+\.\.-?\d+(?:\.\.-?\d+)?$/.test(m.body);
+        var isAlphaSequence = /^[a-zA-Z]\.\.[a-zA-Z](?:\.\.-?\d+)?$/.test(m.body);
+        var isSequence = isNumericSequence || isAlphaSequence;
+        var isOptions = m.body.indexOf(",") >= 0;
+        if (!isSequence && !isOptions) {
+          if (m.post.match(/,(?!,).*\}/)) {
+            str = m.pre + "{" + m.body + escClose + m.post;
+            isTop = true;
+            firstGroup = true;
+            dropEmpties = false;
+            accBase = [];
+            for (var b = 0; b < acc.length; b++) {
+              accBase.push(acc[b].length);
+            }
+            continue;
+          }
+          return combine(
+            acc,
+            accBase,
+            pre + "{" + m.body + "}" + m.post,
+            [""],
+            max,
+            maxLength,
+            dropEmpties,
+            []
+          );
+        }
+        if (firstGroup) {
+          dropEmpties = isTop && !isSequence;
+          firstGroup = false;
+        }
+        var values;
+        if (isSequence) {
+          values = expandSequence(m.body, isAlphaSequence, max, maxLength);
+        } else {
+          var n = parseCommaParts(m.body);
+          if (n.length === 1 && n[0] !== void 0) {
+            n = expand(n[0], max, maxLength, false).map(embrace);
+            if (n.length === 1) {
+              nextBase = [];
+              acc = combine(
+                acc,
+                accBase,
+                pre + n[0],
+                [""],
+                max,
+                maxLength,
+                dropEmpties && !m.post.length,
+                nextBase
+              );
+              accBase = nextBase;
+              if (!m.post.length) break;
+              str = m.post;
+              continue;
+            }
+          }
+          var dropsEmpties = dropEmpties && !m.post.length && !pre;
+          for (var d = 0; dropsEmpties && d < acc.length; d++) {
+            if (acc[d].length !== accBase[d]) {
+              dropsEmpties = false;
+            }
+          }
+          values = [];
+          var valuesLength = 0;
+          outer: for (var j = 0; j < n.length; j++) {
+            var expanded = expand(n[j], max, maxLength, false);
+            for (var k = 0; k < expanded.length; k++) {
+              var v = expanded[k];
+              if (dropsEmpties && !v) continue;
+              if (values.length >= max || valuesLength + v.length > maxLength) {
+                break outer;
+              }
+              values.push(v);
+              valuesLength += v.length;
+            }
+          }
+        }
+        nextBase = [];
+        acc = combine(
+          acc,
+          accBase,
+          pre,
+          values,
+          max,
+          maxLength,
+          dropEmpties && !m.post.length,
+          nextBase
+        );
+        accBase = nextBase;
+        if (!m.post.length) break;
+        str = m.post;
       }
-      return expansions;
+      return acc;
     }
   }
 });
@@ -41502,7 +41752,7 @@ var require_minimatch = __commonJS({
       var reClassStart = -1;
       var classStart = -1;
       var patternStart = pattern.charAt(0) === "." ? "" : options.dot ? "(?!(?:^|\\/)\\.{1,2}(?:$|\\/))" : "(?!\\.)";
-      var self2 = this;
+      var self = this;
       function clearStateChar() {
         if (stateChar) {
           switch (stateChar) {
@@ -41518,7 +41768,7 @@ var require_minimatch = __commonJS({
               re += "\\" + stateChar;
               break;
           }
-          self2.debug("clearStateChar %j %j", stateChar, re);
+          self.debug("clearStateChar %j %j", stateChar, re);
           stateChar = false;
         }
       }
@@ -41553,7 +41803,7 @@ var require_minimatch = __commonJS({
               continue;
             }
             if (c === "*" && stateChar === "*") continue;
-            self2.debug("call clearStateChar %j", stateChar);
+            self.debug("call clearStateChar %j", stateChar);
             clearStateChar();
             stateChar = c;
             if (options.noext) clearStateChar();
@@ -41960,9 +42210,9 @@ var require_minimatch = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/internal/constants.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/internal/constants.js
 var require_constants12 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/internal/constants.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/internal/constants.js"(exports2, module2) {
     "use strict";
     var SEMVER_SPEC_VERSION = "2.0.0";
     var MAX_LENGTH = 256;
@@ -41992,9 +42242,9 @@ var require_constants12 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/internal/debug.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/internal/debug.js
 var require_debug2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/internal/debug.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/internal/debug.js"(exports2, module2) {
     "use strict";
     var debug2 = typeof process === "object" && process.env && process.env.NODE_DEBUG && /\bsemver\b/i.test(process.env.NODE_DEBUG) ? (...args) => console.error("SEMVER", ...args) : () => {
     };
@@ -42002,9 +42252,9 @@ var require_debug2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/internal/re.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/internal/re.js
 var require_re2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/internal/re.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/internal/re.js"(exports2, module2) {
     "use strict";
     var {
       MAX_SAFE_COMPONENT_LENGTH,
@@ -42090,9 +42340,9 @@ var require_re2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/internal/parse-options.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/internal/parse-options.js
 var require_parse_options2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/internal/parse-options.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/internal/parse-options.js"(exports2, module2) {
     "use strict";
     var looseOption = Object.freeze({ loose: true });
     var emptyOpts = Object.freeze({});
@@ -42109,9 +42359,9 @@ var require_parse_options2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/internal/identifiers.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/internal/identifiers.js
 var require_identifiers2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/internal/identifiers.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/internal/identifiers.js"(exports2, module2) {
     "use strict";
     var numeric = /^[0-9]+$/;
     var compareIdentifiers = (a, b) => {
@@ -42134,15 +42384,27 @@ var require_identifiers2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/classes/semver.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/classes/semver.js
 var require_semver3 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/classes/semver.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/classes/semver.js"(exports2, module2) {
     "use strict";
     var debug2 = require_debug2();
     var { MAX_LENGTH, MAX_SAFE_INTEGER } = require_constants12();
     var { safeRe: re, t } = require_re2();
     var parseOptions = require_parse_options2();
     var { compareIdentifiers } = require_identifiers2();
+    var isPrereleaseIdentifier = (prerelease, identifier) => {
+      const identifiers = identifier.split(".");
+      if (identifiers.length > prerelease.length) {
+        return false;
+      }
+      for (let i = 0; i < identifiers.length; i++) {
+        if (compareIdentifiers(prerelease[i], identifiers[i]) !== 0) {
+          return false;
+        }
+      }
+      return true;
+    };
     var SemVer = class _SemVer {
       constructor(version4, options) {
         options = parseOptions(options);
@@ -42389,8 +42651,9 @@ var require_semver3 = __commonJS({
               if (identifierBase === false) {
                 prerelease = [identifier];
               }
-              if (compareIdentifiers(this.prerelease[0], identifier) === 0) {
-                if (isNaN(this.prerelease[1])) {
+              if (isPrereleaseIdentifier(this.prerelease, identifier)) {
+                const prereleaseBase = this.prerelease[identifier.split(".").length];
+                if (isNaN(prereleaseBase)) {
                   this.prerelease = prerelease;
                 }
               } else {
@@ -42413,9 +42676,9 @@ var require_semver3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/parse.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/parse.js
 var require_parse4 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/parse.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/parse.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver3();
     var parse4 = (version4, options, throwErrors = false) => {
@@ -42435,9 +42698,9 @@ var require_parse4 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/valid.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/valid.js
 var require_valid3 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/valid.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/valid.js"(exports2, module2) {
     "use strict";
     var parse4 = require_parse4();
     var valid2 = (version4, options) => {
@@ -42448,9 +42711,9 @@ var require_valid3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/clean.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/clean.js
 var require_clean2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/clean.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/clean.js"(exports2, module2) {
     "use strict";
     var parse4 = require_parse4();
     var clean3 = (version4, options) => {
@@ -42461,9 +42724,9 @@ var require_clean2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/inc.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/inc.js
 var require_inc2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/inc.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/inc.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver3();
     var inc = (version4, release, options, identifier, identifierBase) => {
@@ -42485,9 +42748,9 @@ var require_inc2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/diff.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/diff.js
 var require_diff2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/diff.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/diff.js"(exports2, module2) {
     "use strict";
     var parse4 = require_parse4();
     var diff = (version1, version22) => {
@@ -42529,9 +42792,9 @@ var require_diff2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/major.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/major.js
 var require_major2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/major.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/major.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver3();
     var major = (a, loose) => new SemVer(a, loose).major;
@@ -42539,9 +42802,9 @@ var require_major2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/minor.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/minor.js
 var require_minor2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/minor.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/minor.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver3();
     var minor = (a, loose) => new SemVer(a, loose).minor;
@@ -42549,9 +42812,9 @@ var require_minor2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/patch.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/patch.js
 var require_patch2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/patch.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/patch.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver3();
     var patch = (a, loose) => new SemVer(a, loose).patch;
@@ -42559,9 +42822,9 @@ var require_patch2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/prerelease.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/prerelease.js
 var require_prerelease2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/prerelease.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/prerelease.js"(exports2, module2) {
     "use strict";
     var parse4 = require_parse4();
     var prerelease = (version4, options) => {
@@ -42572,9 +42835,9 @@ var require_prerelease2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/compare.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/compare.js
 var require_compare2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/compare.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/compare.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver3();
     var compare = (a, b, loose) => new SemVer(a, loose).compare(new SemVer(b, loose));
@@ -42582,9 +42845,9 @@ var require_compare2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/rcompare.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/rcompare.js
 var require_rcompare2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/rcompare.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/rcompare.js"(exports2, module2) {
     "use strict";
     var compare = require_compare2();
     var rcompare = (a, b, loose) => compare(b, a, loose);
@@ -42592,9 +42855,9 @@ var require_rcompare2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/compare-loose.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/compare-loose.js
 var require_compare_loose2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/compare-loose.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/compare-loose.js"(exports2, module2) {
     "use strict";
     var compare = require_compare2();
     var compareLoose = (a, b) => compare(a, b, true);
@@ -42602,9 +42865,9 @@ var require_compare_loose2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/compare-build.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/compare-build.js
 var require_compare_build2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/compare-build.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/compare-build.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver3();
     var compareBuild = (a, b, loose) => {
@@ -42616,9 +42879,9 @@ var require_compare_build2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/sort.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/sort.js
 var require_sort2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/sort.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/sort.js"(exports2, module2) {
     "use strict";
     var compareBuild = require_compare_build2();
     var sort = (list, loose) => list.sort((a, b) => compareBuild(a, b, loose));
@@ -42626,9 +42889,9 @@ var require_sort2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/rsort.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/rsort.js
 var require_rsort2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/rsort.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/rsort.js"(exports2, module2) {
     "use strict";
     var compareBuild = require_compare_build2();
     var rsort = (list, loose) => list.sort((a, b) => compareBuild(b, a, loose));
@@ -42636,9 +42899,9 @@ var require_rsort2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/gt.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/gt.js
 var require_gt2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/gt.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/gt.js"(exports2, module2) {
     "use strict";
     var compare = require_compare2();
     var gt2 = (a, b, loose) => compare(a, b, loose) > 0;
@@ -42646,9 +42909,9 @@ var require_gt2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/lt.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/lt.js
 var require_lt2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/lt.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/lt.js"(exports2, module2) {
     "use strict";
     var compare = require_compare2();
     var lt = (a, b, loose) => compare(a, b, loose) < 0;
@@ -42656,9 +42919,9 @@ var require_lt2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/eq.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/eq.js
 var require_eq2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/eq.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/eq.js"(exports2, module2) {
     "use strict";
     var compare = require_compare2();
     var eq = (a, b, loose) => compare(a, b, loose) === 0;
@@ -42666,9 +42929,9 @@ var require_eq2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/neq.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/neq.js
 var require_neq2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/neq.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/neq.js"(exports2, module2) {
     "use strict";
     var compare = require_compare2();
     var neq = (a, b, loose) => compare(a, b, loose) !== 0;
@@ -42676,9 +42939,9 @@ var require_neq2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/gte.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/gte.js
 var require_gte2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/gte.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/gte.js"(exports2, module2) {
     "use strict";
     var compare = require_compare2();
     var gte = (a, b, loose) => compare(a, b, loose) >= 0;
@@ -42686,9 +42949,9 @@ var require_gte2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/lte.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/lte.js
 var require_lte2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/lte.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/lte.js"(exports2, module2) {
     "use strict";
     var compare = require_compare2();
     var lte = (a, b, loose) => compare(a, b, loose) <= 0;
@@ -42696,9 +42959,9 @@ var require_lte2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/cmp.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/cmp.js
 var require_cmp2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/cmp.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/cmp.js"(exports2, module2) {
     "use strict";
     var eq = require_eq2();
     var neq = require_neq2();
@@ -42746,9 +43009,9 @@ var require_cmp2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/coerce.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/coerce.js
 var require_coerce2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/coerce.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/coerce.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver3();
     var parse4 = require_parse4();
@@ -42792,9 +43055,9 @@ var require_coerce2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/truncate.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/truncate.js
 var require_truncate = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/truncate.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/truncate.js"(exports2, module2) {
     "use strict";
     var parse4 = require_parse4();
     var constants4 = require_constants12();
@@ -42833,9 +43096,9 @@ var require_truncate = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/internal/lrucache.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/internal/lrucache.js
 var require_lrucache2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/internal/lrucache.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/internal/lrucache.js"(exports2, module2) {
     "use strict";
     var LRUCache = class {
       constructor() {
@@ -42871,9 +43134,9 @@ var require_lrucache2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/classes/range.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/classes/range.js
 var require_range2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/classes/range.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/classes/range.js"(exports2, module2) {
     "use strict";
     var SPACE_CHARACTERS = /\s+/g;
     var Range = class _Range {
@@ -43060,20 +43323,22 @@ var require_range2 = __commonJS({
       return comp26;
     };
     var isX = (id) => !id || id.toLowerCase() === "x" || id === "*";
+    var invalidXRangeOrder = (M, m, p) => isX(M) && !isX(m) || isX(m) && p && !isX(p);
     var replaceTildes = (comp26, options) => {
       return comp26.trim().split(/\s+/).map((c) => replaceTilde(c, options)).join(" ");
     };
     var replaceTilde = (comp26, options) => {
       const r = options.loose ? re[t.TILDELOOSE] : re[t.TILDE];
+      const z = options.includePrerelease ? "-0" : "";
       return comp26.replace(r, (_, M, m, p, pr) => {
         debug2("tilde", comp26, _, M, m, p, pr);
         let ret;
         if (isX(M)) {
           ret = "";
         } else if (isX(m)) {
-          ret = `>=${M}.0.0 <${+M + 1}.0.0-0`;
+          ret = `>=${M}.0.0${z} <${+M + 1}.0.0-0`;
         } else if (isX(p)) {
-          ret = `>=${M}.${m}.0 <${M}.${+m + 1}.0-0`;
+          ret = `>=${M}.${m}.0${z} <${M}.${+m + 1}.0-0`;
         } else if (pr) {
           debug2("replaceTilde pr", pr);
           ret = `>=${M}.${m}.${p}-${pr} <${M}.${+m + 1}.0-0`;
@@ -43119,9 +43384,9 @@ var require_range2 = __commonJS({
           debug2("no pr");
           if (M === "0") {
             if (m === "0") {
-              ret = `>=${M}.${m}.${p}${z} <${M}.${m}.${+p + 1}-0`;
+              ret = `>=${M}.${m}.${p} <${M}.${m}.${+p + 1}-0`;
             } else {
-              ret = `>=${M}.${m}.${p}${z} <${M}.${+m + 1}.0-0`;
+              ret = `>=${M}.${m}.${p} <${M}.${+m + 1}.0-0`;
             }
           } else {
             ret = `>=${M}.${m}.${p} <${+M + 1}.0.0-0`;
@@ -43140,6 +43405,9 @@ var require_range2 = __commonJS({
       const r = options.loose ? re[t.XRANGELOOSE] : re[t.XRANGE];
       return comp26.replace(r, (ret, gtlt, M, m, p, pr) => {
         debug2("xRange", comp26, ret, gtlt, M, m, p, pr);
+        if (invalidXRangeOrder(M, m, p)) {
+          return comp26;
+        }
         const xM = isX(M);
         const xm = xM || isX(m);
         const xp = xm || isX(p);
@@ -43251,9 +43519,9 @@ var require_range2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/classes/comparator.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/classes/comparator.js
 var require_comparator2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/classes/comparator.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/classes/comparator.js"(exports2, module2) {
     "use strict";
     var ANY = /* @__PURE__ */ Symbol("SemVer ANY");
     var Comparator = class _Comparator {
@@ -43364,9 +43632,9 @@ var require_comparator2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/satisfies.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/satisfies.js
 var require_satisfies2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/functions/satisfies.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/functions/satisfies.js"(exports2, module2) {
     "use strict";
     var Range = require_range2();
     var satisfies3 = (version4, range2, options) => {
@@ -43381,9 +43649,9 @@ var require_satisfies2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/to-comparators.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/to-comparators.js
 var require_to_comparators2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/to-comparators.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/to-comparators.js"(exports2, module2) {
     "use strict";
     var Range = require_range2();
     var toComparators = (range2, options) => new Range(range2, options).set.map((comp26) => comp26.map((c) => c.value).join(" ").trim().split(" "));
@@ -43391,9 +43659,9 @@ var require_to_comparators2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/max-satisfying.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/max-satisfying.js
 var require_max_satisfying2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/max-satisfying.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/max-satisfying.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver3();
     var Range = require_range2();
@@ -43420,9 +43688,9 @@ var require_max_satisfying2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/min-satisfying.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/min-satisfying.js
 var require_min_satisfying2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/min-satisfying.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/min-satisfying.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver3();
     var Range = require_range2();
@@ -43449,9 +43717,9 @@ var require_min_satisfying2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/min-version.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/min-version.js
 var require_min_version2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/min-version.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/min-version.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver3();
     var Range = require_range2();
@@ -43508,9 +43776,9 @@ var require_min_version2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/valid.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/valid.js
 var require_valid4 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/valid.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/valid.js"(exports2, module2) {
     "use strict";
     var Range = require_range2();
     var validRange = (range2, options) => {
@@ -43524,9 +43792,9 @@ var require_valid4 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/outside.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/outside.js
 var require_outside2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/outside.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/outside.js"(exports2, module2) {
     "use strict";
     var SemVer = require_semver3();
     var Comparator = require_comparator2();
@@ -43593,9 +43861,9 @@ var require_outside2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/gtr.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/gtr.js
 var require_gtr2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/gtr.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/gtr.js"(exports2, module2) {
     "use strict";
     var outside = require_outside2();
     var gtr = (version4, range2, options) => outside(version4, range2, ">", options);
@@ -43603,9 +43871,9 @@ var require_gtr2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/ltr.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/ltr.js
 var require_ltr2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/ltr.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/ltr.js"(exports2, module2) {
     "use strict";
     var outside = require_outside2();
     var ltr = (version4, range2, options) => outside(version4, range2, "<", options);
@@ -43613,9 +43881,9 @@ var require_ltr2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/intersects.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/intersects.js
 var require_intersects2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/intersects.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/intersects.js"(exports2, module2) {
     "use strict";
     var Range = require_range2();
     var intersects = (r1, r2, options) => {
@@ -43627,9 +43895,9 @@ var require_intersects2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/simplify.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/simplify.js
 var require_simplify2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/simplify.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/simplify.js"(exports2, module2) {
     "use strict";
     var satisfies3 = require_satisfies2();
     var compare = require_compare2();
@@ -43677,9 +43945,9 @@ var require_simplify2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/subset.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/subset.js
 var require_subset2 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/ranges/subset.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/ranges/subset.js"(exports2, module2) {
     "use strict";
     var Range = require_range2();
     var Comparator = require_comparator2();
@@ -43839,9 +44107,9 @@ var require_subset2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/semver@7.8.1/node_modules/semver/index.js
+// node_modules/.pnpm/semver@7.8.5/node_modules/semver/index.js
 var require_semver4 = __commonJS({
-  "node_modules/.pnpm/semver@7.8.1/node_modules/semver/index.js"(exports2, module2) {
+  "node_modules/.pnpm/semver@7.8.5/node_modules/semver/index.js"(exports2, module2) {
     "use strict";
     var internalRe = require_re2();
     var constants4 = require_constants12();
@@ -44054,7 +44322,7 @@ var require_ms = __commonJS({
 });
 
 // node_modules/.pnpm/debug@4.4.3/node_modules/debug/src/common.js
-var require_common2 = __commonJS({
+var require_common = __commonJS({
   "node_modules/.pnpm/debug@4.4.3/node_modules/debug/src/common.js"(exports2, module2) {
     "use strict";
     function setup(env) {
@@ -44090,12 +44358,12 @@ var require_common2 = __commonJS({
           if (!debug2.enabled) {
             return;
           }
-          const self2 = debug2;
+          const self = debug2;
           const curr = Number(/* @__PURE__ */ new Date());
           const ms = curr - (prevTime || curr);
-          self2.diff = ms;
-          self2.prev = prevTime;
-          self2.curr = curr;
+          self.diff = ms;
+          self.prev = prevTime;
+          self.curr = curr;
           prevTime = curr;
           args[0] = createDebug.coerce(args[0]);
           if (typeof args[0] !== "string") {
@@ -44110,15 +44378,15 @@ var require_common2 = __commonJS({
             const formatter = createDebug.formatters[format];
             if (typeof formatter === "function") {
               const val = args[index];
-              match3 = formatter.call(self2, val);
+              match3 = formatter.call(self, val);
               args.splice(index, 1);
               index--;
             }
             return match3;
           });
-          createDebug.formatArgs.call(self2, args);
-          const logFn = self2.log || createDebug.log;
-          logFn.apply(self2, args);
+          createDebug.formatArgs.call(self, args);
+          const logFn = self.log || createDebug.log;
+          logFn.apply(self, args);
         }
         debug2.namespace = namespace;
         debug2.useColors = createDebug.useColors();
@@ -44390,7 +44658,7 @@ var require_browser = __commonJS({
       } catch (error2) {
       }
     }
-    module2.exports = require_common2()(exports2);
+    module2.exports = require_common()(exports2);
     var { formatters } = module2.exports;
     formatters.j = function(v) {
       try {
@@ -44564,7 +44832,7 @@ var require_node = __commonJS({
         debug2.inspectOpts[keys[i]] = exports2.inspectOpts[keys[i]];
       }
     }
-    module2.exports = require_common2()(exports2);
+    module2.exports = require_common()(exports2);
     var { formatters } = module2.exports;
     formatters.o = function(v) {
       this.inspectOpts.colors = this.useColors;
@@ -45191,9 +45459,9 @@ var require_dist3 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@azure+core-tracing@1.3.1/node_modules/@azure/core-tracing/dist/commonjs/state.js
-var require_state = __commonJS({
-  "node_modules/.pnpm/@azure+core-tracing@1.3.1/node_modules/@azure/core-tracing/dist/commonjs/state.js"(exports2) {
+// node_modules/.pnpm/@azure+core-tracing@1.4.0/node_modules/@azure/core-tracing/dist/commonjs/state-cjs.js
+var require_state_cjs = __commonJS({
+  "node_modules/.pnpm/@azure+core-tracing@1.4.0/node_modules/@azure/core-tracing/dist/commonjs/state-cjs.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.state = void 0;
@@ -45203,9 +45471,9 @@ var require_state = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/commonjs/state.js
-var require_state2 = __commonJS({
-  "node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/commonjs/state.js"(exports2) {
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/commonjs/state-cjs.js
+var require_state_cjs2 = __commonJS({
+  "node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/commonjs/state-cjs.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.state = void 0;
@@ -45215,12 +45483,12 @@ var require_state2 = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/package.json
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/package.json
 var require_package = __commonJS({
-  "node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/package.json"(exports2, module2) {
+  "node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/package.json"(exports2, module2) {
     module2.exports = {
       name: "@actions/cache",
-      version: "6.0.1",
+      version: "6.2.0",
       description: "Actions cache lib",
       keywords: [
         "github",
@@ -45287,9 +45555,9 @@ var require_package = __commonJS({
   }
 });
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/shared/package-version.cjs
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/shared/package-version.cjs
 var require_package_version = __commonJS({
-  "node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/shared/package-version.cjs"(exports2, module2) {
+  "node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/shared/package-version.cjs"(exports2, module2) {
     "use strict";
     var packageJson = require_package();
     module2.exports = { version: packageJson.version };
@@ -45410,7 +45678,7 @@ function escapeProperty(s) {
 }
 
 // node_modules/.pnpm/@actions+core@3.0.1/node_modules/@actions/core/lib/file-command.js
-var crypto2 = __toESM(require("crypto"), 1);
+var crypto = __toESM(require("crypto"), 1);
 var fs = __toESM(require("fs"), 1);
 var os2 = __toESM(require("os"), 1);
 function issueFileCommand(command, message) {
@@ -45426,7 +45694,7 @@ function issueFileCommand(command, message) {
   });
 }
 function prepareKeyValueMessage(key, value) {
-  const delimiter4 = `ghadelimiter_${crypto2.randomUUID()}`;
+  const delimiter4 = `ghadelimiter_${crypto.randomUUID()}`;
   const convertedValue = toCommandValue(value);
   if (key.includes(delimiter4)) {
     throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter4}"`);
@@ -47602,7 +47870,7 @@ function getIDToken(aud) {
 }
 
 // node_modules/.pnpm/@actions+tool-cache@4.0.0/node_modules/@actions/tool-cache/lib/tool-cache.js
-var crypto3 = __toESM(require("crypto"), 1);
+var crypto2 = __toESM(require("crypto"), 1);
 var fs3 = __toESM(require("fs"), 1);
 
 // node_modules/.pnpm/@actions+tool-cache@4.0.0/node_modules/@actions/tool-cache/lib/manifest.js
@@ -48435,7 +48703,7 @@ var IS_MAC = process.platform === "darwin";
 var userAgent = "actions/tool-cache";
 function downloadTool(url2, dest, auth, headers) {
   return __awaiter13(this, void 0, void 0, function* () {
-    dest = dest || path6.join(_getTempDirectory(), crypto3.randomUUID());
+    dest = dest || path6.join(_getTempDirectory(), crypto2.randomUUID());
     yield mkdirP(path6.dirname(dest));
     debug(`Downloading ${url2}`);
     debug(`Destination ${dest}`);
@@ -48512,2367 +48780,2246 @@ var fs4 = __toESM(require("fs/promises"));
 var os7 = __toESM(require("os"));
 var import_crypto = require("crypto");
 
-// node_modules/.pnpm/js-yaml@4.2.0/node_modules/js-yaml/dist/js-yaml.mjs
-var __create2 = Object.create;
-var __defProp2 = Object.defineProperty;
-var __getOwnPropDesc2 = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames2 = Object.getOwnPropertyNames;
-var __getProtoOf2 = Object.getPrototypeOf;
-var __hasOwnProp2 = Object.prototype.hasOwnProperty;
-var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod), cb = null), mod.exports);
-var __copyProps2 = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames2(from), i = 0, n = keys.length, key; i < n; i++) {
-    key = keys[i];
-    if (!__hasOwnProp2.call(to, key) && key !== except) __defProp2(to, key, {
-      get: ((k) => from[k]).bind(null, key),
-      enumerable: !(desc = __getOwnPropDesc2(from, key)) || desc.enumerable
+// node_modules/.pnpm/js-yaml@5.2.3/node_modules/js-yaml/dist/js-yaml.mjs
+var NOT_RESOLVED = /* @__PURE__ */ Symbol("NOT_RESOLVED");
+var MERGE_KEY = /* @__PURE__ */ Symbol("MERGE_KEY");
+function defineScalarTag(tagName, options) {
+  return {
+    tagName,
+    nodeKind: "scalar",
+    implicit: options.implicit ?? false,
+    matchByTagPrefix: options.matchByTagPrefix ?? false,
+    implicitFirstChars: options.implicitFirstChars ?? null,
+    resolve: options.resolve,
+    identify: options.identify ?? null,
+    represent: options.represent ?? ((data) => String(data)),
+    representTagName: options.representTagName ?? null
+  };
+}
+function defineSequenceTag(tagName, options) {
+  const carrierIsResult = options.finalize === void 0;
+  return {
+    tagName,
+    nodeKind: "sequence",
+    implicit: false,
+    matchByTagPrefix: options.matchByTagPrefix ?? false,
+    create: options.create,
+    addItem: options.addItem,
+    finalize: options.finalize ?? ((carrier) => carrier),
+    carrierIsResult,
+    identify: options.identify ?? null,
+    represent: options.represent ?? ((data) => data),
+    representTagName: options.representTagName ?? null
+  };
+}
+function defineMappingTag(tagName, options) {
+  const carrierIsResult = options.finalize === void 0;
+  return {
+    tagName,
+    nodeKind: "mapping",
+    implicit: false,
+    matchByTagPrefix: options.matchByTagPrefix ?? false,
+    create: options.create,
+    addPair: options.addPair,
+    has: options.has,
+    keys: options.keys,
+    get: options.get,
+    finalize: options.finalize ?? ((carrier) => carrier),
+    carrierIsResult,
+    identify: options.identify ?? null,
+    represent: options.represent ?? ((data) => data),
+    representTagName: options.representTagName ?? null
+  };
+}
+var strTag = defineScalarTag("tag:yaml.org,2002:str", {
+  resolve: (source) => source,
+  identify: (data) => typeof data === "string"
+});
+var NULL_VALUES$1 = [
+  "",
+  "~",
+  "null",
+  "Null",
+  "NULL"
+];
+var nullCoreTag = defineScalarTag("tag:yaml.org,2002:null", {
+  implicit: true,
+  implicitFirstChars: [
+    "",
+    "~",
+    "n",
+    "N"
+  ],
+  resolve: (source) => {
+    if (NULL_VALUES$1.indexOf(source) !== -1) return null;
+    return NOT_RESOLVED;
+  },
+  identify: (object2) => object2 === null,
+  represent: () => "null"
+});
+var nullJsonTag = defineScalarTag("tag:yaml.org,2002:null", {
+  implicit: true,
+  implicitFirstChars: ["n"],
+  resolve: (source, isExplicit) => {
+    if (source === "null" || isExplicit && source === "") return null;
+    return NOT_RESOLVED;
+  },
+  identify: (object2) => object2 === null,
+  represent: () => "null"
+});
+var NULL_VALUES = [
+  "",
+  "~",
+  "null",
+  "Null",
+  "NULL"
+];
+var nullYaml11Tag = defineScalarTag("tag:yaml.org,2002:null", {
+  implicit: true,
+  implicitFirstChars: [
+    "",
+    "~",
+    "n",
+    "N"
+  ],
+  resolve: (source) => {
+    if (NULL_VALUES.indexOf(source) !== -1) return null;
+    return NOT_RESOLVED;
+  },
+  identify: (object2) => object2 === null,
+  represent: () => "null"
+});
+var TRUE_VALUES$2 = [
+  "true",
+  "True",
+  "TRUE"
+];
+var FALSE_VALUES$2 = [
+  "false",
+  "False",
+  "FALSE"
+];
+var boolCoreTag = defineScalarTag("tag:yaml.org,2002:bool", {
+  implicit: true,
+  implicitFirstChars: [
+    "t",
+    "T",
+    "f",
+    "F"
+  ],
+  resolve: (source) => {
+    if (TRUE_VALUES$2.indexOf(source) !== -1) return true;
+    if (FALSE_VALUES$2.indexOf(source) !== -1) return false;
+    return NOT_RESOLVED;
+  },
+  identify: (object2) => Object.prototype.toString.call(object2) === "[object Boolean]",
+  represent: (object2) => object2 ? "true" : "false"
+});
+var TRUE_VALUES$1 = ["true"];
+var FALSE_VALUES$1 = ["false"];
+var boolJsonTag = defineScalarTag("tag:yaml.org,2002:bool", {
+  implicit: true,
+  implicitFirstChars: ["t", "f"],
+  resolve: (source) => {
+    if (TRUE_VALUES$1.indexOf(source) !== -1) return true;
+    if (FALSE_VALUES$1.indexOf(source) !== -1) return false;
+    return NOT_RESOLVED;
+  },
+  identify: (object2) => Object.prototype.toString.call(object2) === "[object Boolean]",
+  represent: (object2) => object2 ? "true" : "false"
+});
+var TRUE_VALUES = [
+  "true",
+  "True",
+  "TRUE",
+  "y",
+  "Y",
+  "yes",
+  "Yes",
+  "YES",
+  "on",
+  "On",
+  "ON"
+];
+var FALSE_VALUES = [
+  "false",
+  "False",
+  "FALSE",
+  "n",
+  "N",
+  "no",
+  "No",
+  "NO",
+  "off",
+  "Off",
+  "OFF"
+];
+var boolYaml11Tag = defineScalarTag("tag:yaml.org,2002:bool", {
+  implicit: true,
+  implicitFirstChars: [
+    "y",
+    "Y",
+    "n",
+    "N",
+    "t",
+    "T",
+    "f",
+    "F",
+    "o",
+    "O"
+  ],
+  resolve: (source) => {
+    if (TRUE_VALUES.indexOf(source) !== -1) return true;
+    if (FALSE_VALUES.indexOf(source) !== -1) return false;
+    return NOT_RESOLVED;
+  },
+  identify: (object2) => Object.prototype.toString.call(object2) === "[object Boolean]",
+  represent: (object2) => object2 ? "true" : "false"
+});
+var YAML_INTEGER_IMPLICIT_PATTERN$1 = /* @__PURE__ */ new RegExp("^(?:0o[0-7]+|0x[0-9a-fA-F]+|[-+]?[0-9]+)$");
+var YAML_INTEGER_EXPLICIT_PATTERN$1 = /* @__PURE__ */ new RegExp("^(?:[-+]?0b[0-1]+|[-+]?0o[0-7]+|[-+]?0x[0-9a-fA-F]+|[-+]?[0-9]+)$");
+function parseYamlInteger$2(source) {
+  let value = source;
+  let sign = 1;
+  if (value[0] === "-" || value[0] === "+") {
+    if (value[0] === "-") sign = -1;
+    value = value.slice(1);
+  }
+  if (value.startsWith("0b")) return sign * parseInt(value.slice(2), 2);
+  if (value.startsWith("0o")) return sign * parseInt(value.slice(2), 8);
+  if (value.startsWith("0x")) return sign * parseInt(value.slice(2), 16);
+  return sign * parseInt(value, 10);
+}
+function resolveYamlInteger$2(source, isExplicit) {
+  if (isExplicit) {
+    if (!YAML_INTEGER_EXPLICIT_PATTERN$1.test(source)) return NOT_RESOLVED;
+  } else if (!YAML_INTEGER_IMPLICIT_PATTERN$1.test(source)) return NOT_RESOLVED;
+  const result = parseYamlInteger$2(source);
+  return Number.isFinite(result) ? result : NOT_RESOLVED;
+}
+var intCoreTag = defineScalarTag("tag:yaml.org,2002:int", {
+  implicit: true,
+  implicitFirstChars: [
+    "-",
+    "+",
+    ..."0123456789"
+  ],
+  resolve: resolveYamlInteger$2,
+  identify: (object2) => Number.isInteger(object2) && !Object.is(object2, -0) && object2.toString(10).indexOf("e") < 0,
+  represent: (object2) => object2.toString(10)
+});
+var YAML_INTEGER_IMPLICIT_PATTERN = /* @__PURE__ */ new RegExp("^-?(?:0|[1-9][0-9]*)$");
+var YAML_INTEGER_EXPLICIT_PATTERN = /* @__PURE__ */ new RegExp("^(?:[-+]?0b[0-1]+|[-+]?0o[0-7]+|[-+]?0x[0-9a-fA-F]+|[-+]?[0-9]+)$");
+function parseYamlInteger$1(source) {
+  let value = source;
+  let sign = 1;
+  if (value[0] === "-" || value[0] === "+") {
+    if (value[0] === "-") sign = -1;
+    value = value.slice(1);
+  }
+  if (value.startsWith("0b")) return sign * parseInt(value.slice(2), 2);
+  if (value.startsWith("0o")) return sign * parseInt(value.slice(2), 8);
+  if (value.startsWith("0x")) return sign * parseInt(value.slice(2), 16);
+  return sign * parseInt(value, 10);
+}
+function resolveYamlInteger$1(source, isExplicit) {
+  if (isExplicit) {
+    if (!YAML_INTEGER_EXPLICIT_PATTERN.test(source)) return NOT_RESOLVED;
+  } else if (!YAML_INTEGER_IMPLICIT_PATTERN.test(source)) return NOT_RESOLVED;
+  const result = parseYamlInteger$1(source);
+  return Number.isFinite(result) ? result : NOT_RESOLVED;
+}
+var intJsonTag = defineScalarTag("tag:yaml.org,2002:int", {
+  implicit: true,
+  implicitFirstChars: ["-", ..."0123456789"],
+  resolve: resolveYamlInteger$1,
+  identify: (object2) => Number.isInteger(object2) && !Object.is(object2, -0) && object2.toString(10).indexOf("e") < 0,
+  represent: (object2) => object2.toString(10)
+});
+var YAML_INTEGER_PATTERN = /* @__PURE__ */ new RegExp("^(?:[-+]?0b[0-1_]+|[-+]?0[0-7_]+|[-+]?0x[0-9a-fA-F_]+|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+|[-+]?(?:0|[1-9][0-9_]*))$");
+function parseYamlInteger(source) {
+  let value = source.replace(/_/g, "");
+  let sign = 1;
+  if (value[0] === "-" || value[0] === "+") {
+    if (value[0] === "-") sign = -1;
+    value = value.slice(1);
+  }
+  if (value.startsWith("0b")) return sign * parseInt(value.slice(2), 2);
+  if (value.startsWith("0x")) return sign * parseInt(value.slice(2), 16);
+  if (value.includes(":")) {
+    let result = 0;
+    for (const part of value.split(":")) result = result * 60 + Number(part);
+    return sign * result;
+  }
+  if (value !== "0" && value[0] === "0") return sign * parseInt(value, 8);
+  return sign * parseInt(value, 10);
+}
+function resolveYamlInteger(source) {
+  if (!YAML_INTEGER_PATTERN.test(source)) return NOT_RESOLVED;
+  const result = parseYamlInteger(source);
+  return Number.isFinite(result) ? result : NOT_RESOLVED;
+}
+var intYaml11Tag = defineScalarTag("tag:yaml.org,2002:int", {
+  implicit: true,
+  implicitFirstChars: [
+    "-",
+    "+",
+    ..."0123456789"
+  ],
+  resolve: resolveYamlInteger,
+  identify: (object2) => Number.isInteger(object2) && !Object.is(object2, -0) && object2.toString(10).indexOf("e") < 0,
+  represent: (object2) => object2.toString(10)
+});
+var YAML_FLOAT_PATTERN$1 = /* @__PURE__ */ new RegExp("^(?:[-+]?[0-9]+(?:\\.[0-9]*)?(?:[eE][-+]?[0-9]+)?|[-+]?\\.[0-9]+(?:[eE][-+]?[0-9]+)?|[-+]?\\.(?:inf|Inf|INF)|\\.(?:nan|NaN|NAN))$");
+var YAML_FLOAT_SPECIAL_PATTERN$1 = /* @__PURE__ */ new RegExp("^(?:[-+]?\\.(?:inf|Inf|INF)|\\.(?:nan|NaN|NAN))$");
+function resolveYamlFloat$2(source) {
+  if (!YAML_FLOAT_PATTERN$1.test(source)) return NOT_RESOLVED;
+  let value = source.toLowerCase();
+  const sign = value[0] === "-" ? -1 : 1;
+  if ("+-".includes(value[0])) value = value.slice(1);
+  if (value === ".inf") return sign === 1 ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
+  if (value === ".nan") return NaN;
+  const result = sign * parseFloat(value);
+  if (Number.isFinite(result) || YAML_FLOAT_SPECIAL_PATTERN$1.test(source)) return result;
+  return NOT_RESOLVED;
+}
+function representYamlFloat$2(object2) {
+  if (isNaN(object2)) return ".nan";
+  if (object2 === Number.POSITIVE_INFINITY) return ".inf";
+  if (object2 === Number.NEGATIVE_INFINITY) return "-.inf";
+  if (Object.is(object2, -0)) return "-0.0";
+  const result = object2.toString(10);
+  return /^[-+]?[0-9]+e/.test(result) ? result.replace("e", ".e") : result;
+}
+var floatCoreTag = defineScalarTag("tag:yaml.org,2002:float", {
+  implicit: true,
+  implicitFirstChars: [
+    "-",
+    "+",
+    ".",
+    ..."0123456789"
+  ],
+  resolve: resolveYamlFloat$2,
+  identify: (object2) => typeof object2 === "number" && (!Number.isInteger(object2) || Object.is(object2, -0) || object2.toString(10).indexOf("e") >= 0),
+  represent: representYamlFloat$2
+});
+var YAML_FLOAT_IMPLICIT_PATTERN = /* @__PURE__ */ new RegExp("^-?(?:0|[1-9][0-9]*)(?:\\.[0-9]*)?(?:[eE][-+]?[0-9]+)?$");
+var YAML_FLOAT_EXPLICIT_PATTERN = /* @__PURE__ */ new RegExp("^(?:[-+]?[0-9]+(?:\\.[0-9]*)?(?:[eE][-+]?[0-9]+)?|[-+]?\\.[0-9]+(?:[eE][-+]?[0-9]+)?|[-+]?\\.(?:inf|Inf|INF)|\\.(?:nan|NaN|NAN))$");
+function resolveYamlFloat$1(source, isExplicit) {
+  if (isExplicit) {
+    if (!YAML_FLOAT_EXPLICIT_PATTERN.test(source)) return NOT_RESOLVED;
+    let value = source.toLowerCase();
+    const sign = value[0] === "-" ? -1 : 1;
+    if ("+-".includes(value[0])) value = value.slice(1);
+    if (value === ".inf") return sign === 1 ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
+    if (value === ".nan") return NaN;
+    const result2 = sign * parseFloat(value);
+    return Number.isFinite(result2) ? result2 : NOT_RESOLVED;
+  }
+  if (!YAML_FLOAT_IMPLICIT_PATTERN.test(source)) return NOT_RESOLVED;
+  const result = Number(source);
+  if (Number.isFinite(result)) return result;
+  return NOT_RESOLVED;
+}
+function representYamlFloat$1(object2) {
+  if (isNaN(object2)) return ".nan";
+  if (object2 === Number.POSITIVE_INFINITY) return ".inf";
+  if (object2 === Number.NEGATIVE_INFINITY) return "-.inf";
+  if (Object.is(object2, -0)) return "-0.0";
+  const result = object2.toString(10);
+  return /^[-+]?[0-9]+e/.test(result) ? result.replace("e", ".e") : result;
+}
+var floatJsonTag = defineScalarTag("tag:yaml.org,2002:float", {
+  implicit: true,
+  implicitFirstChars: ["-", ..."0123456789"],
+  resolve: resolveYamlFloat$1,
+  identify: (object2) => typeof object2 === "number" && (!Number.isInteger(object2) || Object.is(object2, -0) || object2.toString(10).indexOf("e") >= 0),
+  represent: representYamlFloat$1
+});
+var YAML_FLOAT_PATTERN = /* @__PURE__ */ new RegExp("^(?:[-+]?(?:(?:[0-9][0-9_]*)?\\.[0-9_]*)(?:[eE][-+][0-9]+)?|[-+]?[0-9][0-9_]*(?::[0-5]?[0-9])+\\.[0-9_]*|[-+]?\\.(?:inf|Inf|INF)|\\.(?:nan|NaN|NAN))$");
+var YAML_FLOAT_SPECIAL_PATTERN = /* @__PURE__ */ new RegExp("^(?:[-+]?\\.(?:inf|Inf|INF)|\\.(?:nan|NaN|NAN))$");
+function resolveYamlFloat(source) {
+  if (!YAML_FLOAT_PATTERN.test(source)) return NOT_RESOLVED;
+  let value = source.toLowerCase().replace(/_/g, "");
+  const sign = value[0] === "-" ? -1 : 1;
+  if ("+-".includes(value[0])) value = value.slice(1);
+  if (value === ".inf") return sign === 1 ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
+  if (value === ".nan") return NaN;
+  let result = 0;
+  if (value.includes(":")) {
+    for (const part of value.split(":")) result = result * 60 + Number(part);
+    result *= sign;
+  } else result = sign * parseFloat(value);
+  if (Number.isFinite(result) || YAML_FLOAT_SPECIAL_PATTERN.test(source)) return result;
+  return NOT_RESOLVED;
+}
+function representYamlFloat(object2) {
+  if (isNaN(object2)) return ".nan";
+  if (object2 === Number.POSITIVE_INFINITY) return ".inf";
+  if (object2 === Number.NEGATIVE_INFINITY) return "-.inf";
+  if (Object.is(object2, -0)) return "-0.0";
+  const result = object2.toString(10);
+  return /^[-+]?[0-9]+e/.test(result) ? result.replace("e", ".e") : result;
+}
+var floatYaml11Tag = defineScalarTag("tag:yaml.org,2002:float", {
+  implicit: true,
+  implicitFirstChars: [
+    "-",
+    "+",
+    ".",
+    ..."0123456789"
+  ],
+  resolve: resolveYamlFloat,
+  identify: (object2) => typeof object2 === "number" && (!Number.isInteger(object2) || Object.is(object2, -0) || object2.toString(10).indexOf("e") >= 0),
+  represent: representYamlFloat
+});
+var mergeTag = defineScalarTag("tag:yaml.org,2002:merge", {
+  implicit: true,
+  implicitFirstChars: ["<"],
+  resolve: (source, isExplicit) => {
+    if (source === "<<" || isExplicit && source === "") return MERGE_KEY;
+    return NOT_RESOLVED;
+  }
+});
+var BASE64_PATTERN = /^[A-Za-z0-9+/]*={0,2}$/;
+function resolveYamlBinary(source) {
+  const input = source.replace(/\s/g, "");
+  if (input.length % 4 !== 0 || !BASE64_PATTERN.test(input)) return NOT_RESOLVED;
+  const binary = atob(input);
+  const result = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index++) result[index] = binary.charCodeAt(index);
+  return result;
+}
+function representYamlBinary(object2) {
+  let binary = "";
+  for (let index = 0; index < object2.length; index++) binary += String.fromCharCode(object2[index]);
+  return btoa(binary);
+}
+var binaryTag = defineScalarTag("tag:yaml.org,2002:binary", {
+  resolve: resolveYamlBinary,
+  identify: (object2) => Object.prototype.toString.call(object2) === "[object Uint8Array]",
+  represent: representYamlBinary
+});
+var YAML_DATE_REGEXP = /* @__PURE__ */ new RegExp("^([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])$");
+var YAML_TIMESTAMP_REGEXP = /* @__PURE__ */ new RegExp("^([0-9][0-9][0-9][0-9])-([0-9][0-9]?)-([0-9][0-9]?)(?:[Tt]|[ \\t]+)([0-9][0-9]?):([0-9][0-9]):([0-9][0-9])(?:\\.([0-9]*))?(?:[ \\t]*(Z|([-+])([0-9][0-9]?)(?::([0-9][0-9]))?))?$");
+function makeUtcDate(year, month, day, hour = 0, minute = 0, second = 0, fraction = 0) {
+  const date3 = new Date(Date.UTC(year, month, day, hour, minute, second, fraction));
+  date3.setUTCFullYear(year, month, day);
+  return date3;
+}
+function resolveYamlTimestamp(source) {
+  let match3 = YAML_DATE_REGEXP.exec(source);
+  if (match3 === null) match3 = YAML_TIMESTAMP_REGEXP.exec(source);
+  if (match3 === null) return NOT_RESOLVED;
+  const year = +match3[1];
+  const month = +match3[2] - 1;
+  const day = +match3[3];
+  if (!match3[4]) {
+    const date4 = makeUtcDate(year, month, day);
+    if (date4.getUTCFullYear() !== year || date4.getUTCMonth() !== month || date4.getUTCDate() !== day) return NOT_RESOLVED;
+    return date4;
+  }
+  const hour = +match3[4];
+  const minute = +match3[5];
+  const second = +match3[6];
+  let fraction = 0;
+  if (hour > 23 || minute > 59 || second > 59) return NOT_RESOLVED;
+  if (match3[7]) {
+    let value = match3[7].slice(0, 3);
+    while (value.length < 3) value += "0";
+    fraction = +value;
+  }
+  const date3 = makeUtcDate(year, month, day, hour, minute, second, fraction);
+  if (date3.getUTCFullYear() !== year || date3.getUTCMonth() !== month || date3.getUTCDate() !== day) return NOT_RESOLVED;
+  if (match3[9]) {
+    const offsetHour = +match3[10];
+    const offsetMinute = +(match3[11] || 0);
+    if (offsetHour > 23 || offsetMinute > 59) return NOT_RESOLVED;
+    const offset = (offsetHour * 60 + offsetMinute) * 6e4;
+    date3.setTime(date3.getTime() - (match3[9] === "-" ? -offset : offset));
+  }
+  return date3;
+}
+var timestampTag = defineScalarTag("tag:yaml.org,2002:timestamp", {
+  implicit: true,
+  implicitFirstChars: [..."0123456789"],
+  resolve: resolveYamlTimestamp,
+  identify: (object2) => object2 instanceof Date,
+  represent: (object2) => object2.toISOString()
+});
+var seqTag = defineSequenceTag("tag:yaml.org,2002:seq", {
+  create: () => [],
+  addItem: (container, item) => {
+    container.push(item);
+  },
+  identify: Array.isArray
+});
+function isPlainObject(data) {
+  if (data === null || typeof data !== "object" || Array.isArray(data)) return false;
+  const prototype = Object.getPrototypeOf(data);
+  return prototype === null || prototype === Object.prototype;
+}
+function pick(object2, keys) {
+  const result = {};
+  for (const key of keys) if (object2[key] !== void 0) result[key] = object2[key];
+  return result;
+}
+var omapTag = defineSequenceTag("tag:yaml.org,2002:omap", {
+  create: () => ({
+    list: [],
+    seen: /* @__PURE__ */ new Set()
+  }),
+  addItem: (carrier, item) => {
+    let key;
+    if (item instanceof Map) {
+      if (item.size !== 1) return "cannot resolve an ordered map item";
+      key = item.keys().next().value;
+    } else if (isPlainObject(item)) {
+      const itemKeys = Object.keys(item);
+      if (itemKeys.length !== 1) return "cannot resolve an ordered map item";
+      key = itemKeys[0];
+    } else return "cannot resolve an ordered map item";
+    if (carrier.seen.has(key)) return "duplicate key in ordered map";
+    carrier.seen.add(key);
+    carrier.list.push(item);
+    return "";
+  },
+  finalize: (carrier) => carrier.list
+});
+var pairsTag = defineSequenceTag("tag:yaml.org,2002:pairs", {
+  create: () => [],
+  addItem: (container, item) => {
+    if (item instanceof Map) {
+      if (item.size !== 1) return "cannot resolve a pairs item";
+      container.push(item.entries().next().value);
+      return "";
+    }
+    if (Object.prototype.toString.call(item) !== "[object Object]") return "cannot resolve a pairs item";
+    const object2 = item;
+    const keys = Object.keys(object2);
+    if (keys.length !== 1) return "cannot resolve a pairs item";
+    container.push([keys[0], object2[keys[0]]]);
+    return "";
+  }
+});
+var mapTag = defineMappingTag("tag:yaml.org,2002:map", {
+  create: () => ({}),
+  identify: isPlainObject,
+  represent: (o) => {
+    const map2 = /* @__PURE__ */ new Map();
+    for (const key of Object.keys(o)) map2.set(key, o[key]);
+    return map2;
+  },
+  addPair: (container, key, value) => {
+    if (key !== null && typeof key === "object") return "object-based map does not support complex keys";
+    const normalizedKey = String(key);
+    if (normalizedKey === "__proto__") Object.defineProperty(container, normalizedKey, {
+      value,
+      enumerable: true,
+      configurable: true,
+      writable: true
     });
+    else container[normalizedKey] = value;
+    return "";
+  },
+  has: (container, key) => {
+    if (key !== null && typeof key === "object") return false;
+    return Object.prototype.hasOwnProperty.call(container, String(key));
+  },
+  keys: (container) => Object.keys(container),
+  get: (container, key) => {
+    const normalizedKey = String(key);
+    if (!Object.prototype.hasOwnProperty.call(container, normalizedKey)) return null;
+    return container[normalizedKey];
   }
-  return to;
-};
-var __toESM2 = (mod, isNodeMode, target) => (target = mod != null ? __create2(__getProtoOf2(mod)) : {}, __copyProps2(isNodeMode || !mod || !mod.__esModule ? __defProp2(target, "default", {
-  value: mod,
-  enumerable: true
-}) : target, mod));
-var require_common = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  function isNothing(subject) {
-    return typeof subject === "undefined" || subject === null;
-  }
-  function isObject3(subject) {
-    return typeof subject === "object" && subject !== null;
-  }
-  function toArray(sequence) {
-    if (Array.isArray(sequence)) return sequence;
-    else if (isNothing(sequence)) return [];
-    return [sequence];
-  }
-  function extend3(target, source) {
-    if (source) {
-      const sourceKeys = Object.keys(source);
-      for (let index = 0, length = sourceKeys.length; index < length; index += 1) {
-        const key = sourceKeys[index];
-        target[key] = source[key];
+});
+var setTag = defineMappingTag("tag:yaml.org,2002:set", {
+  create: () => /* @__PURE__ */ new Set(),
+  identify: (data) => data instanceof Set,
+  represent: (data) => {
+    const map2 = /* @__PURE__ */ new Map();
+    for (const key of data) map2.set(key, null);
+    return map2;
+  },
+  addPair: (container, key, value) => {
+    if (value !== null) return "cannot resolve a set item";
+    container.add(key);
+    return "";
+  },
+  has: (container, key) => container.has(key),
+  keys: (container) => container.keys(),
+  get: () => null
+});
+function createTagDefinitionMap() {
+  return {
+    scalar: /* @__PURE__ */ Object.create(null),
+    sequence: /* @__PURE__ */ Object.create(null),
+    mapping: /* @__PURE__ */ Object.create(null)
+  };
+}
+function createTagDefinitionListMap() {
+  return {
+    scalar: [],
+    sequence: [],
+    mapping: []
+  };
+}
+function compileTags(tags2) {
+  const result = [];
+  for (const tag of tags2) {
+    let index = result.length;
+    for (let previousIndex = 0; previousIndex < result.length; previousIndex++) {
+      const previous = result[previousIndex];
+      if (previous.nodeKind === tag.nodeKind && previous.tagName === tag.tagName && previous.matchByTagPrefix === tag.matchByTagPrefix) {
+        index = previousIndex;
+        break;
       }
     }
-    return target;
+    result[index] = tag;
   }
-  function repeat(string3, count) {
-    let result = "";
-    for (let cycle = 0; cycle < count; cycle += 1) result += string3;
-    return result;
+  return result;
+}
+var Schema = class Schema2 {
+  constructor(tags2) {
+    __publicField(this, "tags");
+    __publicField(this, "implicitScalarTags");
+    __publicField(this, "implicitScalarByFirstChar");
+    __publicField(this, "implicitScalarAnyFirstChar");
+    __publicField(this, "defaultScalarTag");
+    __publicField(this, "defaultSequenceTag");
+    __publicField(this, "defaultMappingTag");
+    __publicField(this, "exact");
+    __publicField(this, "prefix");
+    const compiledTags = compileTags(tags2);
+    const implicitScalarTags = [];
+    const exact = createTagDefinitionMap();
+    const prefix2 = createTagDefinitionListMap();
+    for (const tag of compiledTags) {
+      if (tag.nodeKind === "scalar" && tag.implicit) {
+        if (tag.matchByTagPrefix) throw new Error("Implicit scalar tags cannot match by tag prefix");
+        implicitScalarTags.push(tag);
+      }
+      switch (tag.nodeKind) {
+        case "scalar":
+          if (tag.matchByTagPrefix) prefix2.scalar.push(tag);
+          else exact.scalar[tag.tagName] = tag;
+          break;
+        case "sequence":
+          if (tag.matchByTagPrefix) prefix2.sequence.push(tag);
+          else exact.sequence[tag.tagName] = tag;
+          break;
+        case "mapping":
+          if (tag.matchByTagPrefix) prefix2.mapping.push(tag);
+          else exact.mapping[tag.tagName] = tag;
+          break;
+      }
+    }
+    const implicitScalarAnyFirstChar = implicitScalarTags.filter((tag) => tag.implicitFirstChars === null);
+    const keys = /* @__PURE__ */ new Set();
+    for (const tag of implicitScalarTags) if (tag.implicitFirstChars !== null) for (const key of tag.implicitFirstChars) keys.add(key);
+    const implicitScalarByFirstChar = /* @__PURE__ */ new Map();
+    for (const key of keys) implicitScalarByFirstChar.set(key, implicitScalarTags.filter((tag) => tag.implicitFirstChars === null || tag.implicitFirstChars.indexOf(key) !== -1));
+    const defaultScalarTag = exact.scalar["tag:yaml.org,2002:str"];
+    if (!defaultScalarTag) throw new Error("schema does not define the default scalar tag (tag:yaml.org,2002:str)");
+    this.tags = compiledTags;
+    this.implicitScalarTags = implicitScalarTags;
+    this.implicitScalarByFirstChar = implicitScalarByFirstChar;
+    this.implicitScalarAnyFirstChar = implicitScalarAnyFirstChar;
+    this.defaultScalarTag = defaultScalarTag;
+    this.defaultSequenceTag = exact.sequence["tag:yaml.org,2002:seq"];
+    this.defaultMappingTag = exact.mapping["tag:yaml.org,2002:map"];
+    this.exact = exact;
+    this.prefix = prefix2;
   }
-  function isNegativeZero(number2) {
-    return number2 === 0 && Number.NEGATIVE_INFINITY === 1 / number2;
+  withTags(...tags2) {
+    let flatTags = [];
+    for (const tag of tags2) flatTags = flatTags.concat(tag);
+    return new Schema2([...this.tags, ...flatTags]);
   }
-  module2.exports.isNothing = isNothing;
-  module2.exports.isObject = isObject3;
-  module2.exports.toArray = toArray;
-  module2.exports.repeat = repeat;
-  module2.exports.isNegativeZero = isNegativeZero;
-  module2.exports.extend = extend3;
-}));
-var require_exception = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  function formatError2(exception, compact) {
-    let where2 = "";
-    const message = exception.reason || "(unknown reason)";
-    if (!exception.mark) return message;
-    if (exception.mark.name) where2 += 'in "' + exception.mark.name + '" ';
-    where2 += "(" + (exception.mark.line + 1) + ":" + (exception.mark.column + 1) + ")";
-    if (!compact && exception.mark.snippet) where2 += "\n\n" + exception.mark.snippet;
-    return message + " " + where2;
+};
+var FAILSAFE_SCHEMA = new Schema([
+  strTag,
+  seqTag,
+  mapTag
+]);
+var JSON_SCHEMA = new Schema([
+  ...FAILSAFE_SCHEMA.tags,
+  nullJsonTag,
+  boolJsonTag,
+  intJsonTag,
+  floatJsonTag
+]);
+var CORE_SCHEMA = new Schema([
+  ...FAILSAFE_SCHEMA.tags,
+  nullCoreTag,
+  boolCoreTag,
+  intCoreTag,
+  floatCoreTag
+]);
+var YAML11_SCHEMA = new Schema([
+  ...FAILSAFE_SCHEMA.tags,
+  nullYaml11Tag,
+  boolYaml11Tag,
+  intYaml11Tag,
+  floatYaml11Tag,
+  timestampTag,
+  mergeTag,
+  binaryTag,
+  omapTag,
+  pairsTag,
+  setTag
+]);
+var realMapTag = defineMappingTag("tag:yaml.org,2002:map", {
+  create: () => /* @__PURE__ */ new Map(),
+  addPair: (container, key, value) => {
+    container.set(key, value);
+    return "";
+  },
+  has: (container, key) => container.has(key),
+  keys: (container) => container.keys(),
+  get: (container, key) => container.get(key),
+  identify: (data) => data instanceof Map || isPlainObject(data),
+  represent: (data) => {
+    if (data instanceof Map) return data;
+    const map2 = /* @__PURE__ */ new Map();
+    const obj = data;
+    for (const key of Object.keys(obj)) map2.set(key, obj[key]);
+    return map2;
   }
-  function YAMLException2(reason, mark) {
-    Error.call(this);
+});
+function normalizeKey(key) {
+  if (Array.isArray(key)) {
+    const array2 = Array.prototype.slice.call(key);
+    for (let index = 0; index < array2.length; index++) {
+      if (Array.isArray(array2[index])) return null;
+      if (typeof array2[index] === "object" && Object.prototype.toString.call(array2[index]) === "[object Object]") array2[index] = "[object Object]";
+    }
+    return String(array2);
+  }
+  if (typeof key === "object" && Object.prototype.toString.call(key) === "[object Object]") return "[object Object]";
+  return String(key);
+}
+var legacyMapTag = defineMappingTag("tag:yaml.org,2002:map", {
+  create: () => ({}),
+  identify: isPlainObject,
+  represent: (o) => {
+    const map2 = /* @__PURE__ */ new Map();
+    for (const key of Object.keys(o)) map2.set(key, o[key]);
+    return map2;
+  },
+  addPair: (container, key, value) => {
+    const normalizedKey = normalizeKey(key);
+    if (normalizedKey === null) return "nested arrays are not supported inside keys";
+    if (normalizedKey === "__proto__") Object.defineProperty(container, normalizedKey, {
+      value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+    else container[normalizedKey] = value;
+    return "";
+  },
+  has: (container, key) => {
+    const normalizedKey = normalizeKey(key);
+    return normalizedKey !== null && Object.prototype.hasOwnProperty.call(container, normalizedKey);
+  },
+  keys: (container) => Object.keys(container),
+  get: (container, key) => {
+    const normalizedKey = String(key);
+    if (!Object.prototype.hasOwnProperty.call(container, normalizedKey)) return null;
+    return container[normalizedKey];
+  }
+});
+var DEFAULT_SNIPPET_OPTIONS = {
+  maxLength: 79,
+  indent: 1,
+  linesBefore: 3,
+  linesAfter: 2
+};
+function getLine(buffer3, lineStart, lineEnd, position, maxLineLength) {
+  let head2 = "";
+  let tail = "";
+  const maxHalfLength = Math.floor(maxLineLength / 2) - 1;
+  if (position - lineStart > maxHalfLength) {
+    head2 = " ... ";
+    lineStart = position - maxHalfLength + head2.length;
+  }
+  if (lineEnd - position > maxHalfLength) {
+    tail = " ...";
+    lineEnd = position + maxHalfLength - tail.length;
+  }
+  return {
+    str: head2 + buffer3.slice(lineStart, lineEnd).replace(/\t/g, "\u2192") + tail,
+    pos: position - lineStart + head2.length
+  };
+}
+function padStart(string3, max) {
+  return " ".repeat(Math.max(max - string3.length, 0)) + string3;
+}
+function makeSnippet(mark, options) {
+  if (!mark.buffer) return null;
+  const opts = {
+    ...DEFAULT_SNIPPET_OPTIONS,
+    ...options
+  };
+  const re = /\r?\n|\r|\0/g;
+  const lineStarts = [0];
+  const lineEnds = [];
+  let match3;
+  let foundLineNo = -1;
+  while (match3 = re.exec(mark.buffer)) {
+    lineEnds.push(match3.index);
+    lineStarts.push(match3.index + match3[0].length);
+    if (mark.position <= match3.index && foundLineNo < 0) foundLineNo = lineStarts.length - 2;
+  }
+  if (foundLineNo < 0) foundLineNo = lineStarts.length - 1;
+  let result = "";
+  const lineNoLength = Math.min(mark.line + opts.linesAfter, lineEnds.length).toString().length;
+  const maxLineLength = opts.maxLength - (opts.indent + lineNoLength + 3);
+  for (let i = 1; i <= opts.linesBefore; i++) {
+    if (foundLineNo - i < 0) break;
+    const line2 = getLine(mark.buffer, lineStarts[foundLineNo - i], lineEnds[foundLineNo - i], mark.position - (lineStarts[foundLineNo] - lineStarts[foundLineNo - i]), maxLineLength);
+    result = `${" ".repeat(opts.indent)}${padStart((mark.line - i + 1).toString(), lineNoLength)} | ${line2.str}
+${result}`;
+  }
+  const line = getLine(mark.buffer, lineStarts[foundLineNo], lineEnds[foundLineNo], mark.position, maxLineLength);
+  result += `${" ".repeat(opts.indent)}${padStart((mark.line + 1).toString(), lineNoLength)} | ${line.str}
+`;
+  result += `${"-".repeat(opts.indent + lineNoLength + 3 + line.pos)}^
+`;
+  for (let i = 1; i <= opts.linesAfter; i++) {
+    if (foundLineNo + i >= lineEnds.length) break;
+    const line2 = getLine(mark.buffer, lineStarts[foundLineNo + i], lineEnds[foundLineNo + i], mark.position - (lineStarts[foundLineNo] - lineStarts[foundLineNo + i]), maxLineLength);
+    result += `${" ".repeat(opts.indent)}${padStart((mark.line + i + 1).toString(), lineNoLength)} | ${line2.str}
+`;
+  }
+  return result.replace(/\n$/, "");
+}
+function formatError(exception, compact) {
+  let where2 = "";
+  if (!exception.mark) return exception.reason;
+  if (exception.mark.name) where2 += `in "${exception.mark.name}" `;
+  where2 += `(${exception.mark.line + 1}:${exception.mark.column + 1})`;
+  if (!compact && exception.mark.snippet) where2 += `
+
+${exception.mark.snippet}`;
+  return `${exception.reason} ${where2}`;
+}
+var YAMLException = class extends Error {
+  constructor(reason, mark) {
+    super();
+    __publicField(this, "reason");
+    __publicField(this, "mark");
     this.name = "YAMLException";
     this.reason = reason;
     this.mark = mark;
-    this.message = formatError2(this, false);
+    this.message = formatError(this, false);
     if (Error.captureStackTrace) Error.captureStackTrace(this, this.constructor);
-    else this.stack = (/* @__PURE__ */ new Error()).stack || "";
   }
-  YAMLException2.prototype = Object.create(Error.prototype);
-  YAMLException2.prototype.constructor = YAMLException2;
-  YAMLException2.prototype.toString = function toString3(compact) {
-    return this.name + ": " + formatError2(this, compact);
+  toString(compact) {
+    return `${this.name}: ${formatError(this, compact)}`;
+  }
+};
+function throwErrorAt(source, position, message, filename = "") {
+  let line = 0;
+  let lineStart = 0;
+  for (let index = 0; index < position; index++) {
+    const ch = source.charCodeAt(index);
+    if (ch === 10) {
+      line++;
+      lineStart = index + 1;
+    } else if (ch === 13) {
+      line++;
+      if (source.charCodeAt(index + 1) === 10) index++;
+      lineStart = index + 1;
+    }
+  }
+  const mark = {
+    name: filename,
+    buffer: source,
+    position,
+    line,
+    column: position - lineStart
   };
-  module2.exports = YAMLException2;
-}));
-var require_snippet = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var common = require_common();
-  function getLine(buffer3, lineStart, lineEnd, position, maxLineLength) {
-    let head2 = "";
-    let tail = "";
-    const maxHalfLength = Math.floor(maxLineLength / 2) - 1;
-    if (position - lineStart > maxHalfLength) {
-      head2 = " ... ";
-      lineStart = position - maxHalfLength + head2.length;
-    }
-    if (lineEnd - position > maxHalfLength) {
-      tail = " ...";
-      lineEnd = position + maxHalfLength - tail.length;
-    }
-    return {
-      str: head2 + buffer3.slice(lineStart, lineEnd).replace(/\t/g, "\u2192") + tail,
-      pos: position - lineStart + head2.length
-    };
+  mark.snippet = makeSnippet(mark);
+  throw new YAMLException(message, mark);
+}
+var NO_RANGE$3 = -1;
+function simpleEscapeSequence(c) {
+  switch (c) {
+    case 48:
+      return "\0";
+    case 97:
+      return "\x07";
+    case 98:
+      return "\b";
+    case 116:
+      return "	";
+    case 9:
+      return "	";
+    case 110:
+      return "\n";
+    case 118:
+      return "\v";
+    case 102:
+      return "\f";
+    case 114:
+      return "\r";
+    case 101:
+      return "\x1B";
+    case 32:
+      return " ";
+    case 34:
+      return '"';
+    case 47:
+      return "/";
+    case 92:
+      return "\\";
+    case 78:
+      return "\x85";
+    case 95:
+      return "\xA0";
+    case 76:
+      return "\u2028";
+    case 80:
+      return "\u2029";
+    default:
+      return "";
   }
-  function padStart2(string3, max) {
-    return common.repeat(" ", max - string3.length) + string3;
+}
+var simpleEscapeCheck = new Array(256);
+var simpleEscapeMap = new Array(256);
+for (let i = 0; i < 256; i++) {
+  simpleEscapeCheck[i] = simpleEscapeSequence(i) ? 1 : 0;
+  simpleEscapeMap[i] = simpleEscapeSequence(i);
+}
+function charFromCodepoint(c) {
+  if (c <= 65535) return String.fromCharCode(c);
+  return String.fromCharCode((c - 65536 >> 10) + 55296, (c - 65536 & 1023) + 56320);
+}
+function fromHexCode$1(c) {
+  if (c >= 48 && c <= 57) return c - 48;
+  return (c | 32) - 97 + 10;
+}
+function escapedHexLen$1(c) {
+  if (c === 120) return 2;
+  if (c === 117) return 4;
+  return 8;
+}
+function skipFoldedBreaks(input, position, end) {
+  let breaks = 0;
+  while (position < end) {
+    const ch = input.charCodeAt(position);
+    if (ch === 10) {
+      breaks++;
+      position++;
+    } else if (ch === 13) {
+      breaks++;
+      position++;
+      if (input.charCodeAt(position) === 10) position++;
+    } else if (ch === 32 || ch === 9) position++;
+    else break;
   }
-  function makeSnippet(mark, options) {
-    options = Object.create(options || null);
-    if (!mark.buffer) return null;
-    if (!options.maxLength) options.maxLength = 79;
-    if (typeof options.indent !== "number") options.indent = 1;
-    if (typeof options.linesBefore !== "number") options.linesBefore = 3;
-    if (typeof options.linesAfter !== "number") options.linesAfter = 2;
-    const re = /\r?\n|\r|\0/g;
-    const lineStarts = [0];
-    const lineEnds = [];
-    let match3;
-    let foundLineNo = -1;
-    while (match3 = re.exec(mark.buffer)) {
-      lineEnds.push(match3.index);
-      lineStarts.push(match3.index + match3[0].length);
-      if (mark.position <= match3.index && foundLineNo < 0) foundLineNo = lineStarts.length - 2;
-    }
-    if (foundLineNo < 0) foundLineNo = lineStarts.length - 1;
-    let result = "";
-    const lineNoLength = Math.min(mark.line + options.linesAfter, lineEnds.length).toString().length;
-    const maxLineLength = options.maxLength - (options.indent + lineNoLength + 3);
-    for (let i = 1; i <= options.linesBefore; i++) {
-      if (foundLineNo - i < 0) break;
-      const line2 = getLine(mark.buffer, lineStarts[foundLineNo - i], lineEnds[foundLineNo - i], mark.position - (lineStarts[foundLineNo] - lineStarts[foundLineNo - i]), maxLineLength);
-      result = common.repeat(" ", options.indent) + padStart2((mark.line - i + 1).toString(), lineNoLength) + " | " + line2.str + "\n" + result;
-    }
-    const line = getLine(mark.buffer, lineStarts[foundLineNo], lineEnds[foundLineNo], mark.position, maxLineLength);
-    result += common.repeat(" ", options.indent) + padStart2((mark.line + 1).toString(), lineNoLength) + " | " + line.str + "\n";
-    result += common.repeat("-", options.indent + lineNoLength + 3 + line.pos) + "^\n";
-    for (let i = 1; i <= options.linesAfter; i++) {
-      if (foundLineNo + i >= lineEnds.length) break;
-      const line2 = getLine(mark.buffer, lineStarts[foundLineNo + i], lineEnds[foundLineNo + i], mark.position - (lineStarts[foundLineNo] - lineStarts[foundLineNo + i]), maxLineLength);
-      result += common.repeat(" ", options.indent) + padStart2((mark.line + i + 1).toString(), lineNoLength) + " | " + line2.str + "\n";
-    }
-    return result.replace(/\n$/, "");
-  }
-  module2.exports = makeSnippet;
-}));
-var require_type = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var YAMLException2 = require_exception();
-  var TYPE_CONSTRUCTOR_OPTIONS = [
-    "kind",
-    "multi",
-    "resolve",
-    "construct",
-    "instanceOf",
-    "predicate",
-    "represent",
-    "representName",
-    "defaultStyle",
-    "styleAliases"
-  ];
-  var YAML_NODE_KINDS = [
-    "scalar",
-    "sequence",
-    "mapping"
-  ];
-  function compileStyleAliases(map2) {
-    const result = {};
-    if (map2 !== null) Object.keys(map2).forEach(function(style) {
-      map2[style].forEach(function(alias) {
-        result[String(alias)] = style;
-      });
-    });
-    return result;
-  }
-  function Type2(tag, options) {
-    options = options || {};
-    Object.keys(options).forEach(function(name) {
-      if (TYPE_CONSTRUCTOR_OPTIONS.indexOf(name) === -1) throw new YAMLException2('Unknown option "' + name + '" is met in definition of "' + tag + '" YAML type.');
-    });
-    this.options = options;
-    this.tag = tag;
-    this.kind = options["kind"] || null;
-    this.resolve = options["resolve"] || function() {
-      return true;
-    };
-    this.construct = options["construct"] || function(data) {
-      return data;
-    };
-    this.instanceOf = options["instanceOf"] || null;
-    this.predicate = options["predicate"] || null;
-    this.represent = options["represent"] || null;
-    this.representName = options["representName"] || null;
-    this.defaultStyle = options["defaultStyle"] || null;
-    this.multi = options["multi"] || false;
-    this.styleAliases = compileStyleAliases(options["styleAliases"] || null);
-    if (YAML_NODE_KINDS.indexOf(this.kind) === -1) throw new YAMLException2('Unknown kind "' + this.kind + '" is specified for "' + tag + '" YAML type.');
-  }
-  module2.exports = Type2;
-}));
-var require_schema = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var YAMLException2 = require_exception();
-  var Type2 = require_type();
-  function compileList(schema, name) {
-    const result = [];
-    schema[name].forEach(function(currentType) {
-      let newIndex = result.length;
-      result.forEach(function(previousType, previousIndex) {
-        if (previousType.tag === currentType.tag && previousType.kind === currentType.kind && previousType.multi === currentType.multi) newIndex = previousIndex;
-      });
-      result[newIndex] = currentType;
-    });
-    return result;
-  }
-  function compileMap() {
-    const result = {
-      scalar: {},
-      sequence: {},
-      mapping: {},
-      fallback: {},
-      multi: {
-        scalar: [],
-        sequence: [],
-        mapping: [],
-        fallback: []
-      }
-    };
-    function collectType(type) {
-      if (type.multi) {
-        result.multi[type.kind].push(type);
-        result.multi["fallback"].push(type);
-      } else result[type.kind][type.tag] = result["fallback"][type.tag] = type;
-    }
-    for (let index = 0, length = arguments.length; index < length; index += 1) arguments[index].forEach(collectType);
-    return result;
-  }
-  function Schema2(definition) {
-    return this.extend(definition);
-  }
-  Schema2.prototype.extend = function extend3(definition) {
-    let implicit = [];
-    let explicit = [];
-    if (definition instanceof Type2) explicit.push(definition);
-    else if (Array.isArray(definition)) explicit = explicit.concat(definition);
-    else if (definition && (Array.isArray(definition.implicit) || Array.isArray(definition.explicit))) {
-      if (definition.implicit) implicit = implicit.concat(definition.implicit);
-      if (definition.explicit) explicit = explicit.concat(definition.explicit);
-    } else throw new YAMLException2("Schema.extend argument should be a Type, [ Type ], or a schema definition ({ implicit: [...], explicit: [...] })");
-    implicit.forEach(function(type) {
-      if (!(type instanceof Type2)) throw new YAMLException2("Specified list of YAML types (or a single Type object) contains a non-Type object.");
-      if (type.loadKind && type.loadKind !== "scalar") throw new YAMLException2("There is a non-scalar type in the implicit list of a schema. Implicit resolving of such types is not supported.");
-      if (type.multi) throw new YAMLException2("There is a multi type in the implicit list of a schema. Multi tags can only be listed as explicit.");
-    });
-    explicit.forEach(function(type) {
-      if (!(type instanceof Type2)) throw new YAMLException2("Specified list of YAML types (or a single Type object) contains a non-Type object.");
-    });
-    const result = Object.create(Schema2.prototype);
-    result.implicit = (this.implicit || []).concat(implicit);
-    result.explicit = (this.explicit || []).concat(explicit);
-    result.compiledImplicit = compileList(result, "implicit");
-    result.compiledExplicit = compileList(result, "explicit");
-    result.compiledTypeMap = compileMap(result.compiledImplicit, result.compiledExplicit);
-    return result;
+  return {
+    position,
+    breaks
   };
-  module2.exports = Schema2;
-}));
-var require_str = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  module2.exports = new (require_type())("tag:yaml.org,2002:str", {
-    kind: "scalar",
-    construct: function(data) {
-      return data !== null ? data : "";
-    }
-  });
-}));
-var require_seq = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  module2.exports = new (require_type())("tag:yaml.org,2002:seq", {
-    kind: "sequence",
-    construct: function(data) {
-      return data !== null ? data : [];
-    }
-  });
-}));
-var require_map = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  module2.exports = new (require_type())("tag:yaml.org,2002:map", {
-    kind: "mapping",
-    construct: function(data) {
-      return data !== null ? data : {};
-    }
-  });
-}));
-var require_failsafe = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  module2.exports = new (require_schema())({ explicit: [
-    require_str(),
-    require_seq(),
-    require_map()
-  ] });
-}));
-var require_null = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var Type2 = require_type();
-  function resolveYamlNull(data) {
-    if (data === null) return true;
-    const max = data.length;
-    return max === 1 && data === "~" || max === 4 && (data === "null" || data === "Null" || data === "NULL");
-  }
-  function constructYamlNull() {
-    return null;
-  }
-  function isNull(object2) {
-    return object2 === null;
-  }
-  module2.exports = new Type2("tag:yaml.org,2002:null", {
-    kind: "scalar",
-    resolve: resolveYamlNull,
-    construct: constructYamlNull,
-    predicate: isNull,
-    represent: {
-      canonical: function() {
-        return "~";
-      },
-      lowercase: function() {
-        return "null";
-      },
-      uppercase: function() {
-        return "NULL";
-      },
-      camelcase: function() {
-        return "Null";
-      },
-      empty: function() {
-        return "";
-      }
-    },
-    defaultStyle: "lowercase"
-  });
-}));
-var require_bool = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var Type2 = require_type();
-  function resolveYamlBoolean(data) {
-    if (data === null) return false;
-    const max = data.length;
-    return max === 4 && (data === "true" || data === "True" || data === "TRUE") || max === 5 && (data === "false" || data === "False" || data === "FALSE");
-  }
-  function constructYamlBoolean(data) {
-    return data === "true" || data === "True" || data === "TRUE";
-  }
-  function isBoolean(object2) {
-    return Object.prototype.toString.call(object2) === "[object Boolean]";
-  }
-  module2.exports = new Type2("tag:yaml.org,2002:bool", {
-    kind: "scalar",
-    resolve: resolveYamlBoolean,
-    construct: constructYamlBoolean,
-    predicate: isBoolean,
-    represent: {
-      lowercase: function(object2) {
-        return object2 ? "true" : "false";
-      },
-      uppercase: function(object2) {
-        return object2 ? "TRUE" : "FALSE";
-      },
-      camelcase: function(object2) {
-        return object2 ? "True" : "False";
-      }
-    },
-    defaultStyle: "lowercase"
-  });
-}));
-var require_int = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var common = require_common();
-  var Type2 = require_type();
-  function isHexCode(c) {
-    return c >= 48 && c <= 57 || c >= 65 && c <= 70 || c >= 97 && c <= 102;
-  }
-  function isOctCode(c) {
-    return c >= 48 && c <= 55;
-  }
-  function isDecCode(c) {
-    return c >= 48 && c <= 57;
-  }
-  function resolveYamlInteger(data) {
-    if (data === null) return false;
-    const max = data.length;
-    let index = 0;
-    let hasDigits = false;
-    if (!max) return false;
-    let ch = data[index];
-    if (ch === "-" || ch === "+") ch = data[++index];
-    if (ch === "0") {
-      if (index + 1 === max) return true;
-      ch = data[++index];
-      if (ch === "b") {
-        index++;
-        for (; index < max; index++) {
-          ch = data[index];
-          if (ch !== "0" && ch !== "1") return false;
-          hasDigits = true;
-        }
-        return hasDigits && Number.isFinite(parseYamlInteger(data));
-      }
-      if (ch === "x") {
-        index++;
-        for (; index < max; index++) {
-          if (!isHexCode(data.charCodeAt(index))) return false;
-          hasDigits = true;
-        }
-        return hasDigits && Number.isFinite(parseYamlInteger(data));
-      }
-      if (ch === "o") {
-        index++;
-        for (; index < max; index++) {
-          if (!isOctCode(data.charCodeAt(index))) return false;
-          hasDigits = true;
-        }
-        return hasDigits && Number.isFinite(parseYamlInteger(data));
-      }
-    }
-    for (; index < max; index++) {
-      if (!isDecCode(data.charCodeAt(index))) return false;
-      hasDigits = true;
-    }
-    if (!hasDigits) return false;
-    return Number.isFinite(parseYamlInteger(data));
-  }
-  function parseYamlInteger(data) {
-    let value = data;
-    let sign = 1;
-    let ch = value[0];
-    if (ch === "-" || ch === "+") {
-      if (ch === "-") sign = -1;
-      value = value.slice(1);
-      ch = value[0];
-    }
-    if (value === "0") return 0;
-    if (ch === "0") {
-      if (value[1] === "b") return sign * parseInt(value.slice(2), 2);
-      if (value[1] === "x") return sign * parseInt(value.slice(2), 16);
-      if (value[1] === "o") return sign * parseInt(value.slice(2), 8);
-    }
-    return sign * parseInt(value, 10);
-  }
-  function constructYamlInteger(data) {
-    return parseYamlInteger(data);
-  }
-  function isInteger(object2) {
-    return Object.prototype.toString.call(object2) === "[object Number]" && object2 % 1 === 0 && !common.isNegativeZero(object2);
-  }
-  module2.exports = new Type2("tag:yaml.org,2002:int", {
-    kind: "scalar",
-    resolve: resolveYamlInteger,
-    construct: constructYamlInteger,
-    predicate: isInteger,
-    represent: {
-      binary: function(obj) {
-        return obj >= 0 ? "0b" + obj.toString(2) : "-0b" + obj.toString(2).slice(1);
-      },
-      octal: function(obj) {
-        return obj >= 0 ? "0o" + obj.toString(8) : "-0o" + obj.toString(8).slice(1);
-      },
-      decimal: function(obj) {
-        return obj.toString(10);
-      },
-      hexadecimal: function(obj) {
-        return obj >= 0 ? "0x" + obj.toString(16).toUpperCase() : "-0x" + obj.toString(16).toUpperCase().slice(1);
-      }
-    },
-    defaultStyle: "decimal",
-    styleAliases: {
-      binary: [2, "bin"],
-      octal: [8, "oct"],
-      decimal: [10, "dec"],
-      hexadecimal: [16, "hex"]
-    }
-  });
-}));
-var require_float = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var common = require_common();
-  var Type2 = require_type();
-  var YAML_FLOAT_PATTERN = /* @__PURE__ */ new RegExp("^(?:[-+]?(?:[0-9]+)(?:\\.[0-9]*)?(?:[eE][-+]?[0-9]+)?|\\.[0-9]+(?:[eE][-+]?[0-9]+)?|[-+]?\\.(?:inf|Inf|INF)|\\.(?:nan|NaN|NAN))$");
-  var YAML_FLOAT_SPECIAL_PATTERN = /* @__PURE__ */ new RegExp("^(?:[-+]?\\.(?:inf|Inf|INF)|\\.(?:nan|NaN|NAN))$");
-  function resolveYamlFloat(data) {
-    if (data === null) return false;
-    if (!YAML_FLOAT_PATTERN.test(data)) return false;
-    if (Number.isFinite(parseFloat(data, 10))) return true;
-    return YAML_FLOAT_SPECIAL_PATTERN.test(data);
-  }
-  function constructYamlFloat(data) {
-    let value = data.toLowerCase();
-    const sign = value[0] === "-" ? -1 : 1;
-    if ("+-".indexOf(value[0]) >= 0) value = value.slice(1);
-    if (value === ".inf") return sign === 1 ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
-    else if (value === ".nan") return NaN;
-    return sign * parseFloat(value, 10);
-  }
-  var SCIENTIFIC_WITHOUT_DOT = /^[-+]?[0-9]+e/;
-  function representYamlFloat(object2, style) {
-    if (isNaN(object2)) switch (style) {
-      case "lowercase":
-        return ".nan";
-      case "uppercase":
-        return ".NAN";
-      case "camelcase":
-        return ".NaN";
-    }
-    else if (Number.POSITIVE_INFINITY === object2) switch (style) {
-      case "lowercase":
-        return ".inf";
-      case "uppercase":
-        return ".INF";
-      case "camelcase":
-        return ".Inf";
-    }
-    else if (Number.NEGATIVE_INFINITY === object2) switch (style) {
-      case "lowercase":
-        return "-.inf";
-      case "uppercase":
-        return "-.INF";
-      case "camelcase":
-        return "-.Inf";
-    }
-    else if (common.isNegativeZero(object2)) return "-0.0";
-    const res = object2.toString(10);
-    return SCIENTIFIC_WITHOUT_DOT.test(res) ? res.replace("e", ".e") : res;
-  }
-  function isFloat(object2) {
-    return Object.prototype.toString.call(object2) === "[object Number]" && (object2 % 1 !== 0 || common.isNegativeZero(object2));
-  }
-  module2.exports = new Type2("tag:yaml.org,2002:float", {
-    kind: "scalar",
-    resolve: resolveYamlFloat,
-    construct: constructYamlFloat,
-    predicate: isFloat,
-    represent: representYamlFloat,
-    defaultStyle: "lowercase"
-  });
-}));
-var require_json = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  module2.exports = require_failsafe().extend({ implicit: [
-    require_null(),
-    require_bool(),
-    require_int(),
-    require_float()
-  ] });
-}));
-var require_core = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  module2.exports = require_json();
-}));
-var require_timestamp = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var Type2 = require_type();
-  var YAML_DATE_REGEXP = /* @__PURE__ */ new RegExp("^([0-9][0-9][0-9][0-9])-([0-9][0-9])-([0-9][0-9])$");
-  var YAML_TIMESTAMP_REGEXP = /* @__PURE__ */ new RegExp("^([0-9][0-9][0-9][0-9])-([0-9][0-9]?)-([0-9][0-9]?)(?:[Tt]|[ \\t]+)([0-9][0-9]?):([0-9][0-9]):([0-9][0-9])(?:\\.([0-9]*))?(?:[ \\t]*(Z|([-+])([0-9][0-9]?)(?::([0-9][0-9]))?))?$");
-  function resolveYamlTimestamp(data) {
-    if (data === null) return false;
-    if (YAML_DATE_REGEXP.exec(data) !== null) return true;
-    if (YAML_TIMESTAMP_REGEXP.exec(data) !== null) return true;
-    return false;
-  }
-  function constructYamlTimestamp(data) {
-    let fraction = 0;
-    let delta = null;
-    let match3 = YAML_DATE_REGEXP.exec(data);
-    if (match3 === null) match3 = YAML_TIMESTAMP_REGEXP.exec(data);
-    if (match3 === null) throw new Error("Date resolve error");
-    const year = +match3[1];
-    const month = +match3[2] - 1;
-    const day = +match3[3];
-    if (!match3[4]) return new Date(Date.UTC(year, month, day));
-    const hour = +match3[4];
-    const minute = +match3[5];
-    const second = +match3[6];
-    if (match3[7]) {
-      fraction = match3[7].slice(0, 3);
-      while (fraction.length < 3) fraction += "0";
-      fraction = +fraction;
-    }
-    if (match3[9]) {
-      const tzHour = +match3[10];
-      const tzMinute = +(match3[11] || 0);
-      delta = (tzHour * 60 + tzMinute) * 6e4;
-      if (match3[9] === "-") delta = -delta;
-    }
-    const date3 = new Date(Date.UTC(year, month, day, hour, minute, second, fraction));
-    if (delta) date3.setTime(date3.getTime() - delta);
-    return date3;
-  }
-  function representYamlTimestamp(object2) {
-    return object2.toISOString();
-  }
-  module2.exports = new Type2("tag:yaml.org,2002:timestamp", {
-    kind: "scalar",
-    resolve: resolveYamlTimestamp,
-    construct: constructYamlTimestamp,
-    instanceOf: Date,
-    represent: representYamlTimestamp
-  });
-}));
-var require_merge = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var Type2 = require_type();
-  function resolveYamlMerge(data) {
-    return data === "<<" || data === null;
-  }
-  module2.exports = new Type2("tag:yaml.org,2002:merge", {
-    kind: "scalar",
-    resolve: resolveYamlMerge
-  });
-}));
-var require_binary = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var Type2 = require_type();
-  var BASE64_MAP = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=\n\r";
-  function resolveYamlBinary(data) {
-    if (data === null) return false;
-    let bitlen = 0;
-    const max = data.length;
-    const map2 = BASE64_MAP;
-    for (let idx = 0; idx < max; idx++) {
-      const code = map2.indexOf(data.charAt(idx));
-      if (code > 64) continue;
-      if (code < 0) return false;
-      bitlen += 6;
-    }
-    return bitlen % 8 === 0;
-  }
-  function constructYamlBinary(data) {
-    const input = data.replace(/[\r\n=]/g, "");
-    const max = input.length;
-    const map2 = BASE64_MAP;
-    let bits = 0;
-    const result = [];
-    for (let idx = 0; idx < max; idx++) {
-      if (idx % 4 === 0 && idx) {
-        result.push(bits >> 16 & 255);
-        result.push(bits >> 8 & 255);
-        result.push(bits & 255);
-      }
-      bits = bits << 6 | map2.indexOf(input.charAt(idx));
-    }
-    const tailbits = max % 4 * 6;
-    if (tailbits === 0) {
-      result.push(bits >> 16 & 255);
-      result.push(bits >> 8 & 255);
-      result.push(bits & 255);
-    } else if (tailbits === 18) {
-      result.push(bits >> 10 & 255);
-      result.push(bits >> 2 & 255);
-    } else if (tailbits === 12) result.push(bits >> 4 & 255);
-    return new Uint8Array(result);
-  }
-  function representYamlBinary(object2) {
-    let result = "";
-    let bits = 0;
-    const max = object2.length;
-    const map2 = BASE64_MAP;
-    for (let idx = 0; idx < max; idx++) {
-      if (idx % 3 === 0 && idx) {
-        result += map2[bits >> 18 & 63];
-        result += map2[bits >> 12 & 63];
-        result += map2[bits >> 6 & 63];
-        result += map2[bits & 63];
-      }
-      bits = (bits << 8) + object2[idx];
-    }
-    const tail = max % 3;
-    if (tail === 0) {
-      result += map2[bits >> 18 & 63];
-      result += map2[bits >> 12 & 63];
-      result += map2[bits >> 6 & 63];
-      result += map2[bits & 63];
-    } else if (tail === 2) {
-      result += map2[bits >> 10 & 63];
-      result += map2[bits >> 4 & 63];
-      result += map2[bits << 2 & 63];
-      result += map2[64];
-    } else if (tail === 1) {
-      result += map2[bits >> 2 & 63];
-      result += map2[bits << 4 & 63];
-      result += map2[64];
-      result += map2[64];
-    }
-    return result;
-  }
-  function isBinary(obj) {
-    return Object.prototype.toString.call(obj) === "[object Uint8Array]";
-  }
-  module2.exports = new Type2("tag:yaml.org,2002:binary", {
-    kind: "scalar",
-    resolve: resolveYamlBinary,
-    construct: constructYamlBinary,
-    predicate: isBinary,
-    represent: representYamlBinary
-  });
-}));
-var require_omap = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var Type2 = require_type();
-  var _hasOwnProperty = Object.prototype.hasOwnProperty;
-  var _toString = Object.prototype.toString;
-  function resolveYamlOmap(data) {
-    if (data === null) return true;
-    const objectKeys = [];
-    const object2 = data;
-    for (let index = 0, length = object2.length; index < length; index += 1) {
-      const pair = object2[index];
-      let pairHasKey = false;
-      if (_toString.call(pair) !== "[object Object]") return false;
-      let pairKey;
-      for (pairKey in pair) if (_hasOwnProperty.call(pair, pairKey)) if (!pairHasKey) pairHasKey = true;
-      else return false;
-      if (!pairHasKey) return false;
-      if (objectKeys.indexOf(pairKey) === -1) objectKeys.push(pairKey);
-      else return false;
-    }
-    return true;
-  }
-  function constructYamlOmap(data) {
-    return data !== null ? data : [];
-  }
-  module2.exports = new Type2("tag:yaml.org,2002:omap", {
-    kind: "sequence",
-    resolve: resolveYamlOmap,
-    construct: constructYamlOmap
-  });
-}));
-var require_pairs = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var Type2 = require_type();
-  var _toString = Object.prototype.toString;
-  function resolveYamlPairs(data) {
-    if (data === null) return true;
-    const object2 = data;
-    const result = new Array(object2.length);
-    for (let index = 0, length = object2.length; index < length; index += 1) {
-      const pair = object2[index];
-      if (_toString.call(pair) !== "[object Object]") return false;
-      const keys = Object.keys(pair);
-      if (keys.length !== 1) return false;
-      result[index] = [keys[0], pair[keys[0]]];
-    }
-    return true;
-  }
-  function constructYamlPairs(data) {
-    if (data === null) return [];
-    const object2 = data;
-    const result = new Array(object2.length);
-    for (let index = 0, length = object2.length; index < length; index += 1) {
-      const pair = object2[index];
-      const keys = Object.keys(pair);
-      result[index] = [keys[0], pair[keys[0]]];
-    }
-    return result;
-  }
-  module2.exports = new Type2("tag:yaml.org,2002:pairs", {
-    kind: "sequence",
-    resolve: resolveYamlPairs,
-    construct: constructYamlPairs
-  });
-}));
-var require_set = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var Type2 = require_type();
-  var _hasOwnProperty = Object.prototype.hasOwnProperty;
-  function resolveYamlSet(data) {
-    if (data === null) return true;
-    const object2 = data;
-    for (const key in object2) if (_hasOwnProperty.call(object2, key)) {
-      if (object2[key] !== null) return false;
-    }
-    return true;
-  }
-  function constructYamlSet(data) {
-    return data !== null ? data : {};
-  }
-  module2.exports = new Type2("tag:yaml.org,2002:set", {
-    kind: "mapping",
-    resolve: resolveYamlSet,
-    construct: constructYamlSet
-  });
-}));
-var require_default = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  module2.exports = require_core().extend({
-    implicit: [require_timestamp(), require_merge()],
-    explicit: [
-      require_binary(),
-      require_omap(),
-      require_pairs(),
-      require_set()
-    ]
-  });
-}));
-var require_loader = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var common = require_common();
-  var YAMLException2 = require_exception();
-  var makeSnippet = require_snippet();
-  var DEFAULT_SCHEMA2 = require_default();
-  var _hasOwnProperty = Object.prototype.hasOwnProperty;
-  var CONTEXT_FLOW_IN = 1;
-  var CONTEXT_FLOW_OUT = 2;
-  var CONTEXT_BLOCK_IN = 3;
-  var CONTEXT_BLOCK_OUT = 4;
-  var CHOMPING_CLIP = 1;
-  var CHOMPING_STRIP = 2;
-  var CHOMPING_KEEP = 3;
-  var PATTERN_NON_PRINTABLE = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x84\x86-\x9F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/;
-  var PATTERN_NON_ASCII_LINE_BREAKS = /[\x85\u2028\u2029]/;
-  var PATTERN_FLOW_INDICATORS = /[,\[\]{}]/;
-  var PATTERN_TAG_HANDLE = /^(?:!|!!|![0-9A-Za-z-]+!)$/;
-  var PATTERN_TAG_URI = /^(?:!|[^,\[\]{}])(?:%[0-9a-f]{2}|[0-9a-z\-#;/?:@&=+$,_.!~*'()\[\]])*$/i;
-  function _class(obj) {
-    return Object.prototype.toString.call(obj);
-  }
-  function isEol(c) {
-    return c === 10 || c === 13;
-  }
-  function isWhiteSpace2(c) {
-    return c === 9 || c === 32;
-  }
-  function isWsOrEol(c) {
-    return c === 9 || c === 32 || c === 10 || c === 13;
-  }
-  function isFlowIndicator(c) {
-    return c === 44 || c === 91 || c === 93 || c === 123 || c === 125;
-  }
-  function fromHexCode(c) {
-    if (c >= 48 && c <= 57) return c - 48;
-    const lc = c | 32;
-    if (lc >= 97 && lc <= 102) return lc - 97 + 10;
-    return -1;
-  }
-  function escapedHexLen(c) {
-    if (c === 120) return 2;
-    if (c === 117) return 4;
-    if (c === 85) return 8;
-    return 0;
-  }
-  function fromDecimalCode(c) {
-    if (c >= 48 && c <= 57) return c - 48;
-    return -1;
-  }
-  function simpleEscapeSequence(c) {
-    switch (c) {
-      case 48:
-        return "\0";
-      case 97:
-        return "\x07";
-      case 98:
-        return "\b";
-      case 116:
-        return "	";
-      case 9:
-        return "	";
-      case 110:
-        return "\n";
-      case 118:
-        return "\v";
-      case 102:
-        return "\f";
-      case 114:
-        return "\r";
-      case 101:
-        return "\x1B";
-      case 32:
-        return " ";
-      case 34:
-        return '"';
-      case 47:
-        return "/";
-      case 92:
-        return "\\";
-      case 78:
-        return "\x85";
-      case 95:
-        return "\xA0";
-      case 76:
-        return "\u2028";
-      case 80:
-        return "\u2029";
-      default:
-        return "";
+}
+function foldedBreaks(count) {
+  if (count === 1) return " ";
+  return "\n".repeat(count - 1);
+}
+function getPlainValue(input, start, end) {
+  let result = "";
+  let position = start;
+  let captureStart = start;
+  let captureEnd = start;
+  while (position < end) {
+    const ch = input.charCodeAt(position);
+    if (ch === 10 || ch === 13) {
+      result += input.slice(captureStart, captureEnd);
+      const fold = skipFoldedBreaks(input, position, end);
+      result += foldedBreaks(fold.breaks);
+      position = captureStart = captureEnd = fold.position;
+    } else {
+      position++;
+      if (ch !== 32 && ch !== 9) captureEnd = position;
     }
   }
-  function charFromCodepoint(c) {
-    if (c <= 65535) return String.fromCharCode(c);
-    return String.fromCharCode((c - 65536 >> 10) + 55296, (c - 65536 & 1023) + 56320);
-  }
-  function setProperty(object2, key, value) {
-    if (key === "__proto__") Object.defineProperty(object2, key, {
-      configurable: true,
-      enumerable: true,
-      writable: true,
-      value
-    });
-    else object2[key] = value;
-  }
-  var simpleEscapeCheck = new Array(256);
-  var simpleEscapeMap = new Array(256);
-  for (let i = 0; i < 256; i++) {
-    simpleEscapeCheck[i] = simpleEscapeSequence(i) ? 1 : 0;
-    simpleEscapeMap[i] = simpleEscapeSequence(i);
-  }
-  function State(input, options) {
-    this.input = input;
-    this.filename = options["filename"] || null;
-    this.schema = options["schema"] || DEFAULT_SCHEMA2;
-    this.onWarning = options["onWarning"] || null;
-    this.legacy = options["legacy"] || false;
-    this.json = options["json"] || false;
-    this.listener = options["listener"] || null;
-    this.maxDepth = typeof options["maxDepth"] === "number" ? options["maxDepth"] : 100;
-    this.maxMergeSeqLength = typeof options["maxMergeSeqLength"] === "number" ? options["maxMergeSeqLength"] : 20;
-    this.implicitTypes = this.schema.compiledImplicit;
-    this.typeMap = this.schema.compiledTypeMap;
-    this.length = input.length;
-    this.position = 0;
-    this.line = 0;
-    this.lineStart = 0;
-    this.lineIndent = 0;
-    this.depth = 0;
-    this.firstTabInLine = -1;
-    this.documents = [];
-    this.anchorMapTransactions = [];
-  }
-  function generateError(state3, message) {
-    const mark = {
-      name: state3.filename,
-      buffer: state3.input.slice(0, -1),
-      position: state3.position,
-      line: state3.line,
-      column: state3.position - state3.lineStart
-    };
-    mark.snippet = makeSnippet(mark);
-    return new YAMLException2(message, mark);
-  }
-  function throwError(state3, message) {
-    throw generateError(state3, message);
-  }
-  function throwWarning(state3, message) {
-    if (state3.onWarning) state3.onWarning.call(null, generateError(state3, message));
-  }
-  function storeAnchor(state3, name, value) {
-    const transactions = state3.anchorMapTransactions;
-    if (transactions.length !== 0) {
-      const transaction = transactions[transactions.length - 1];
-      if (!_hasOwnProperty.call(transaction, name)) transaction[name] = {
-        existed: _hasOwnProperty.call(state3.anchorMap, name),
-        value: state3.anchorMap[name]
-      };
-    }
-    state3.anchorMap[name] = value;
-  }
-  function beginAnchorTransaction(state3) {
-    state3.anchorMapTransactions.push(/* @__PURE__ */ Object.create(null));
-  }
-  function commitAnchorTransaction(state3) {
-    const transaction = state3.anchorMapTransactions.pop();
-    const transactions = state3.anchorMapTransactions;
-    if (transactions.length === 0) return;
-    const parent = transactions[transactions.length - 1];
-    const names = Object.keys(transaction);
-    for (let index = 0, length = names.length; index < length; index += 1) {
-      const name = names[index];
-      if (!_hasOwnProperty.call(parent, name)) parent[name] = transaction[name];
+  return result + input.slice(captureStart, captureEnd);
+}
+function getSingleQuotedValue(input, start, end) {
+  let result = "";
+  let position = start;
+  let captureStart = start;
+  let captureEnd = start;
+  while (position < end) {
+    const ch = input.charCodeAt(position);
+    if (ch === 39) {
+      result += input.slice(captureStart, position) + "'";
+      position += 2;
+      captureStart = captureEnd = position;
+    } else if (ch === 10 || ch === 13) {
+      result += input.slice(captureStart, captureEnd);
+      const fold = skipFoldedBreaks(input, position, end);
+      result += foldedBreaks(fold.breaks);
+      position = captureStart = captureEnd = fold.position;
+    } else {
+      position++;
+      if (ch !== 32 && ch !== 9) captureEnd = position;
     }
   }
-  function rollbackAnchorTransaction(state3) {
-    const transaction = state3.anchorMapTransactions.pop();
-    const names = Object.keys(transaction);
-    for (let index = names.length - 1; index >= 0; index -= 1) {
-      const entry = transaction[names[index]];
-      if (entry.existed) state3.anchorMap[names[index]] = entry.value;
-      else delete state3.anchorMap[names[index]];
-    }
-  }
-  function snapshotState(state3) {
-    return {
-      position: state3.position,
-      line: state3.line,
-      lineStart: state3.lineStart,
-      lineIndent: state3.lineIndent,
-      firstTabInLine: state3.firstTabInLine,
-      tag: state3.tag,
-      anchor: state3.anchor,
-      kind: state3.kind,
-      result: state3.result
-    };
-  }
-  function restoreState(state3, snapshot2) {
-    state3.position = snapshot2.position;
-    state3.line = snapshot2.line;
-    state3.lineStart = snapshot2.lineStart;
-    state3.lineIndent = snapshot2.lineIndent;
-    state3.firstTabInLine = snapshot2.firstTabInLine;
-    state3.tag = snapshot2.tag;
-    state3.anchor = snapshot2.anchor;
-    state3.kind = snapshot2.kind;
-    state3.result = snapshot2.result;
-  }
-  var directiveHandlers = {
-    YAML: function handleYamlDirective(state3, name, args) {
-      if (state3.version !== null) throwError(state3, "duplication of %YAML directive");
-      if (args.length !== 1) throwError(state3, "YAML directive accepts exactly one argument");
-      const match3 = /^([0-9]+)\.([0-9]+)$/.exec(args[0]);
-      if (match3 === null) throwError(state3, "ill-formed argument of the YAML directive");
-      const major = parseInt(match3[1], 10);
-      const minor = parseInt(match3[2], 10);
-      if (major !== 1) throwError(state3, "unacceptable YAML version of the document");
-      state3.version = args[0];
-      state3.checkLineBreaks = minor < 2;
-      if (minor !== 1 && minor !== 2) throwWarning(state3, "unsupported YAML version of the document");
-    },
-    TAG: function handleTagDirective(state3, name, args) {
-      let prefix2;
-      if (args.length !== 2) throwError(state3, "TAG directive accepts exactly two arguments");
-      const handle = args[0];
-      prefix2 = args[1];
-      if (!PATTERN_TAG_HANDLE.test(handle)) throwError(state3, "ill-formed tag handle (first argument) of the TAG directive");
-      if (_hasOwnProperty.call(state3.tagMap, handle)) throwError(state3, 'there is a previously declared suffix for "' + handle + '" tag handle');
-      if (!PATTERN_TAG_URI.test(prefix2)) throwError(state3, "ill-formed tag prefix (second argument) of the TAG directive");
-      try {
-        prefix2 = decodeURIComponent(prefix2);
-      } catch (err) {
-        throwError(state3, "tag prefix is malformed: " + prefix2);
-      }
-      state3.tagMap[handle] = prefix2;
-    }
-  };
-  function captureSegment(state3, start, end, checkJson) {
-    if (start < end) {
-      const _result = state3.input.slice(start, end);
-      if (checkJson) for (let _position = 0, _length2 = _result.length; _position < _length2; _position += 1) {
-        const _character = _result.charCodeAt(_position);
-        if (!(_character === 9 || _character >= 32 && _character <= 1114111)) throwError(state3, "expected valid JSON character");
-      }
-      else if (PATTERN_NON_PRINTABLE.test(_result)) throwError(state3, "the stream contains non-printable characters");
-      state3.result += _result;
-    }
-  }
-  function mergeMappings(state3, destination, source, overridableKeys) {
-    if (!common.isObject(source)) throwError(state3, "cannot merge mappings; the provided source object is unacceptable");
-    const sourceKeys = Object.keys(source);
-    for (let index = 0, quantity = sourceKeys.length; index < quantity; index += 1) {
-      const key = sourceKeys[index];
-      if (!_hasOwnProperty.call(destination, key)) {
-        setProperty(destination, key, source[key]);
-        overridableKeys[key] = true;
-      }
-    }
-  }
-  function storeMappingPair(state3, _result, overridableKeys, keyTag, keyNode, valueNode, startLine, startLineStart, startPos) {
-    if (Array.isArray(keyNode)) {
-      keyNode = Array.prototype.slice.call(keyNode);
-      for (let index = 0, quantity = keyNode.length; index < quantity; index += 1) {
-        if (Array.isArray(keyNode[index])) throwError(state3, "nested arrays are not supported inside keys");
-        if (typeof keyNode === "object" && _class(keyNode[index]) === "[object Object]") keyNode[index] = "[object Object]";
-      }
-    }
-    if (typeof keyNode === "object" && _class(keyNode) === "[object Object]") keyNode = "[object Object]";
-    keyNode = String(keyNode);
-    if (_result === null) _result = {};
-    if (keyTag === "tag:yaml.org,2002:merge") if (Array.isArray(valueNode)) {
-      if (valueNode.length > state3.maxMergeSeqLength) throwError(state3, "merge sequence length exceeded maxMergeSeqLength (" + state3.maxMergeSeqLength + ")");
-      const seen = /* @__PURE__ */ new Set();
-      for (let index = 0, quantity = valueNode.length; index < quantity; index += 1) {
-        const src = valueNode[index];
-        if (seen.has(src)) continue;
-        seen.add(src);
-        mergeMappings(state3, _result, src, overridableKeys);
-      }
-    } else mergeMappings(state3, _result, valueNode, overridableKeys);
-    else {
-      if (!state3.json && !_hasOwnProperty.call(overridableKeys, keyNode) && _hasOwnProperty.call(_result, keyNode)) {
-        state3.line = startLine || state3.line;
-        state3.lineStart = startLineStart || state3.lineStart;
-        state3.position = startPos || state3.position;
-        throwError(state3, "duplicated mapping key");
-      }
-      setProperty(_result, keyNode, valueNode);
-      delete overridableKeys[keyNode];
-    }
-    return _result;
-  }
-  function readLineBreak(state3) {
-    const ch = state3.input.charCodeAt(state3.position);
-    if (ch === 10) state3.position++;
-    else if (ch === 13) {
-      state3.position++;
-      if (state3.input.charCodeAt(state3.position) === 10) state3.position++;
-    } else throwError(state3, "a line break is expected");
-    state3.line += 1;
-    state3.lineStart = state3.position;
-    state3.firstTabInLine = -1;
-  }
-  function skipSeparationSpace(state3, allowComments, checkIndent) {
-    let lineBreaks = 0;
-    let ch = state3.input.charCodeAt(state3.position);
-    while (ch !== 0) {
-      while (isWhiteSpace2(ch)) {
-        if (ch === 9 && state3.firstTabInLine === -1) state3.firstTabInLine = state3.position;
-        ch = state3.input.charCodeAt(++state3.position);
-      }
-      if (allowComments && ch === 35) do
-        ch = state3.input.charCodeAt(++state3.position);
-      while (ch !== 10 && ch !== 13 && ch !== 0);
-      if (isEol(ch)) {
-        readLineBreak(state3);
-        ch = state3.input.charCodeAt(state3.position);
-        lineBreaks++;
-        state3.lineIndent = 0;
-        while (ch === 32) {
-          state3.lineIndent++;
-          ch = state3.input.charCodeAt(++state3.position);
-        }
-      } else break;
-    }
-    if (checkIndent !== -1 && lineBreaks !== 0 && state3.lineIndent < checkIndent) throwWarning(state3, "deficient indentation");
-    return lineBreaks;
-  }
-  function testDocumentSeparator(state3) {
-    let _position = state3.position;
-    let ch = state3.input.charCodeAt(_position);
-    if ((ch === 45 || ch === 46) && ch === state3.input.charCodeAt(_position + 1) && ch === state3.input.charCodeAt(_position + 2)) {
-      _position += 3;
-      ch = state3.input.charCodeAt(_position);
-      if (ch === 0 || isWsOrEol(ch)) return true;
-    }
-    return false;
-  }
-  function writeFoldedLines(state3, count) {
-    if (count === 1) state3.result += " ";
-    else if (count > 1) state3.result += common.repeat("\n", count - 1);
-  }
-  function readPlainScalar(state3, nodeIndent, withinFlowCollection) {
-    let captureStart;
-    let captureEnd;
-    let hasPendingContent;
-    let _line;
-    let _lineStart;
-    let _lineIndent;
-    const _kind = state3.kind;
-    const _result = state3.result;
-    let ch = state3.input.charCodeAt(state3.position);
-    if (isWsOrEol(ch) || isFlowIndicator(ch) || ch === 35 || ch === 38 || ch === 42 || ch === 33 || ch === 124 || ch === 62 || ch === 39 || ch === 34 || ch === 37 || ch === 64 || ch === 96) return false;
-    if (ch === 63 || ch === 45) {
-      const following = state3.input.charCodeAt(state3.position + 1);
-      if (isWsOrEol(following) || withinFlowCollection && isFlowIndicator(following)) return false;
-    }
-    state3.kind = "scalar";
-    state3.result = "";
-    captureStart = captureEnd = state3.position;
-    hasPendingContent = false;
-    while (ch !== 0) {
-      if (ch === 58) {
-        const following = state3.input.charCodeAt(state3.position + 1);
-        if (isWsOrEol(following) || withinFlowCollection && isFlowIndicator(following)) break;
-      } else if (ch === 35) {
-        if (isWsOrEol(state3.input.charCodeAt(state3.position - 1))) break;
-      } else if (state3.position === state3.lineStart && testDocumentSeparator(state3) || withinFlowCollection && isFlowIndicator(ch)) break;
-      else if (isEol(ch)) {
-        _line = state3.line;
-        _lineStart = state3.lineStart;
-        _lineIndent = state3.lineIndent;
-        skipSeparationSpace(state3, false, -1);
-        if (state3.lineIndent >= nodeIndent) {
-          hasPendingContent = true;
-          ch = state3.input.charCodeAt(state3.position);
-          continue;
-        } else {
-          state3.position = captureEnd;
-          state3.line = _line;
-          state3.lineStart = _lineStart;
-          state3.lineIndent = _lineIndent;
-          break;
-        }
-      }
-      if (hasPendingContent) {
-        captureSegment(state3, captureStart, captureEnd, false);
-        writeFoldedLines(state3, state3.line - _line);
-        captureStart = captureEnd = state3.position;
-        hasPendingContent = false;
-      }
-      if (!isWhiteSpace2(ch)) captureEnd = state3.position + 1;
-      ch = state3.input.charCodeAt(++state3.position);
-    }
-    captureSegment(state3, captureStart, captureEnd, false);
-    if (state3.result) return true;
-    state3.kind = _kind;
-    state3.result = _result;
-    return false;
-  }
-  function readSingleQuotedScalar(state3, nodeIndent) {
-    let captureStart;
-    let captureEnd;
-    let ch = state3.input.charCodeAt(state3.position);
-    if (ch !== 39) return false;
-    state3.kind = "scalar";
-    state3.result = "";
-    state3.position++;
-    captureStart = captureEnd = state3.position;
-    while ((ch = state3.input.charCodeAt(state3.position)) !== 0) if (ch === 39) {
-      captureSegment(state3, captureStart, state3.position, true);
-      ch = state3.input.charCodeAt(++state3.position);
-      if (ch === 39) {
-        captureStart = state3.position;
-        state3.position++;
-        captureEnd = state3.position;
-      } else return true;
-    } else if (isEol(ch)) {
-      captureSegment(state3, captureStart, captureEnd, true);
-      writeFoldedLines(state3, skipSeparationSpace(state3, false, nodeIndent));
-      captureStart = captureEnd = state3.position;
-    } else if (state3.position === state3.lineStart && testDocumentSeparator(state3)) throwError(state3, "unexpected end of the document within a single quoted scalar");
-    else {
-      state3.position++;
-      if (!isWhiteSpace2(ch)) captureEnd = state3.position;
-    }
-    throwError(state3, "unexpected end of the stream within a single quoted scalar");
-  }
-  function readDoubleQuotedScalar(state3, nodeIndent) {
-    let captureStart;
-    let captureEnd;
-    let tmp;
-    let ch = state3.input.charCodeAt(state3.position);
-    if (ch !== 34) return false;
-    state3.kind = "scalar";
-    state3.result = "";
-    state3.position++;
-    captureStart = captureEnd = state3.position;
-    while ((ch = state3.input.charCodeAt(state3.position)) !== 0) if (ch === 34) {
-      captureSegment(state3, captureStart, state3.position, true);
-      state3.position++;
-      return true;
-    } else if (ch === 92) {
-      captureSegment(state3, captureStart, state3.position, true);
-      ch = state3.input.charCodeAt(++state3.position);
-      if (isEol(ch)) skipSeparationSpace(state3, false, nodeIndent);
-      else if (ch < 256 && simpleEscapeCheck[ch]) {
-        state3.result += simpleEscapeMap[ch];
-        state3.position++;
-      } else if ((tmp = escapedHexLen(ch)) > 0) {
-        let hexLength = tmp;
+  return result + input.slice(captureStart, end);
+}
+function getDoubleQuotedValue(input, start, end) {
+  let result = "";
+  let position = start;
+  let captureStart = start;
+  let captureEnd = start;
+  while (position < end) {
+    const ch = input.charCodeAt(position);
+    if (ch === 92) {
+      result += input.slice(captureStart, position);
+      position++;
+      const escaped = input.charCodeAt(position);
+      if (escaped === 10 || escaped === 13) position = skipFoldedBreaks(input, position, end).position;
+      else if (escaped < 256 && simpleEscapeCheck[escaped]) {
+        result += simpleEscapeMap[escaped];
+        position++;
+      } else {
+        let hexLength = escapedHexLen$1(escaped);
         let hexResult = 0;
         for (; hexLength > 0; hexLength--) {
-          ch = state3.input.charCodeAt(++state3.position);
-          if ((tmp = fromHexCode(ch)) >= 0) hexResult = (hexResult << 4) + tmp;
-          else throwError(state3, "expected hexadecimal character");
+          position++;
+          const digit = fromHexCode$1(input.charCodeAt(position));
+          hexResult = (hexResult << 4) + digit;
         }
-        state3.result += charFromCodepoint(hexResult);
-        state3.position++;
-      } else throwError(state3, "unknown escape sequence");
-      captureStart = captureEnd = state3.position;
-    } else if (isEol(ch)) {
-      captureSegment(state3, captureStart, captureEnd, true);
-      writeFoldedLines(state3, skipSeparationSpace(state3, false, nodeIndent));
-      captureStart = captureEnd = state3.position;
-    } else if (state3.position === state3.lineStart && testDocumentSeparator(state3)) throwError(state3, "unexpected end of the document within a double quoted scalar");
-    else {
-      state3.position++;
-      if (!isWhiteSpace2(ch)) captureEnd = state3.position;
+        result += charFromCodepoint(hexResult);
+        position++;
+      }
+      captureStart = captureEnd = position;
+    } else if (ch === 10 || ch === 13) {
+      result += input.slice(captureStart, captureEnd);
+      const fold = skipFoldedBreaks(input, position, end);
+      result += foldedBreaks(fold.breaks);
+      position = captureStart = captureEnd = fold.position;
+    } else {
+      position++;
+      if (ch !== 32 && ch !== 9) captureEnd = position;
     }
-    throwError(state3, "unexpected end of the stream within a double quoted scalar");
   }
-  function readFlowCollection(state3, nodeIndent) {
-    let readNext = true;
-    let _line;
-    let _lineStart;
-    let _pos;
-    const _tag = state3.tag;
-    let _result;
-    const _anchor = state3.anchor;
-    let terminator;
-    let isPair;
-    let isExplicitPair;
-    let isMapping;
-    const overridableKeys = /* @__PURE__ */ Object.create(null);
-    let keyNode;
-    let keyTag;
-    let valueNode;
-    let ch = state3.input.charCodeAt(state3.position);
-    if (ch === 91) {
-      terminator = 93;
-      isMapping = false;
-      _result = [];
-    } else if (ch === 123) {
-      terminator = 125;
-      isMapping = true;
-      _result = {};
-    } else return false;
-    if (state3.anchor !== null) storeAnchor(state3, state3.anchor, _result);
-    ch = state3.input.charCodeAt(++state3.position);
-    while (ch !== 0) {
-      skipSeparationSpace(state3, true, nodeIndent);
-      ch = state3.input.charCodeAt(state3.position);
-      if (ch === terminator) {
-        state3.position++;
-        state3.tag = _tag;
-        state3.anchor = _anchor;
-        state3.kind = isMapping ? "mapping" : "sequence";
-        state3.result = _result;
-        return true;
-      } else if (!readNext) throwError(state3, "missed comma between flow collection entries");
-      else if (ch === 44) throwError(state3, "expected the node content, but found ','");
-      keyTag = keyNode = valueNode = null;
-      isPair = isExplicitPair = false;
-      if (ch === 63) {
-        if (isWsOrEol(state3.input.charCodeAt(state3.position + 1))) {
-          isPair = isExplicitPair = true;
-          state3.position++;
-          skipSeparationSpace(state3, true, nodeIndent);
+  return result + input.slice(captureStart, end);
+}
+function getBlockValue(input, start, end, indent, chomping, folded) {
+  const textIndent = indent < 0 ? 0 : indent;
+  const region = input.slice(start, end).replace(/\r\n?/g, "\n");
+  const lines = region === "" ? [] : (region.endsWith("\n") ? region.slice(0, -1) : region).split("\n");
+  let result = "";
+  let didReadContent = false;
+  let emptyLines = 0;
+  let atMoreIndented = false;
+  for (const line of lines) {
+    let column = 0;
+    while (column < textIndent && line.charCodeAt(column) === 32) column++;
+    if (indent < 0 || column >= line.length) {
+      emptyLines++;
+      continue;
+    }
+    const content = line.slice(textIndent);
+    const first = content.charCodeAt(0);
+    if (folded) if (first === 32 || first === 9) {
+      atMoreIndented = true;
+      result += "\n".repeat(didReadContent ? 1 + emptyLines : emptyLines);
+    } else if (atMoreIndented) {
+      atMoreIndented = false;
+      result += "\n".repeat(emptyLines + 1);
+    } else if (emptyLines === 0) {
+      if (didReadContent) result += " ";
+    } else result += "\n".repeat(emptyLines);
+    else result += "\n".repeat(didReadContent ? 1 + emptyLines : emptyLines);
+    result += content;
+    didReadContent = true;
+    emptyLines = 0;
+  }
+  if (chomping === 3) result += "\n".repeat(didReadContent ? 1 + emptyLines : emptyLines);
+  else if (chomping !== 2) {
+    if (didReadContent) result += "\n";
+  }
+  return result;
+}
+function getScalarValue(input, scalar) {
+  if (scalar.valueStart === NO_RANGE$3) return "";
+  const { valueStart, valueEnd } = scalar;
+  if (scalar.fast) return input.slice(valueStart, valueEnd);
+  switch (scalar.style) {
+    case 2:
+      return getSingleQuotedValue(input, valueStart, valueEnd);
+    case 3:
+      return getDoubleQuotedValue(input, valueStart, valueEnd);
+    case 4:
+      return getBlockValue(input, valueStart, valueEnd, scalar.indent, scalar.chomping, false);
+    case 5:
+      return getBlockValue(input, valueStart, valueEnd, scalar.indent, scalar.chomping, true);
+    default:
+      return getPlainValue(input, valueStart, valueEnd);
+  }
+}
+var DEFAULT_TAG_HANDLERS = Object.assign(/* @__PURE__ */ Object.create(null), {
+  "!": "!",
+  "!!": "tag:yaml.org,2002:"
+});
+function tagNameFull(rawTag, tagHandlers) {
+  if (rawTag.startsWith("!<") && rawTag.endsWith(">")) return decodeURIComponent(rawTag.slice(2, -1));
+  const handleEnd = rawTag.indexOf("!", 1);
+  const handle = handleEnd === -1 ? "!" : rawTag.slice(0, handleEnd + 1);
+  const prefix2 = tagHandlers?.[handle] ?? DEFAULT_TAG_HANDLERS[handle] ?? handle;
+  return decodeURIComponent(prefix2) + decodeURIComponent(rawTag.slice(handle.length));
+}
+var NO_RANGE$2 = -1;
+var DEFAULT_CONSTRUCTOR_OPTIONS = {
+  filename: "",
+  schema: CORE_SCHEMA,
+  json: false,
+  maxTotalMergeKeys: 1e4,
+  maxAliases: -1
+};
+function eventPosition$1(event) {
+  if ("tagStart" in event && event.tagStart !== NO_RANGE$2) return event.tagStart;
+  if ("anchorStart" in event && event.anchorStart !== NO_RANGE$2) return event.anchorStart;
+  if ("valueStart" in event && event.valueStart !== NO_RANGE$2) return event.valueStart;
+  if ("start" in event) return event.start;
+  return 0;
+}
+function throwError$1(state3, message) {
+  throwErrorAt(state3.source, state3.position, message, state3.filename);
+}
+function finalizeCollection(state3, position, tag, carrier) {
+  try {
+    return tag.finalize(carrier);
+  } catch (error2) {
+    if (error2 instanceof YAMLException) throw error2;
+    throwErrorAt(state3.source, position, error2 instanceof Error ? error2.message : String(error2), state3.filename);
+  }
+}
+function lookupTag(exact, prefix2, tagName) {
+  const exactTag = exact[tagName];
+  if (exactTag) return exactTag;
+  for (const tag of prefix2) if (tagName.startsWith(tag.tagName)) return tag;
+}
+function findExplicitTag(state3, exact, prefix2, tagName, nodeKind) {
+  const tag = lookupTag(exact, prefix2, tagName);
+  if (tag) return tag;
+  throwError$1(state3, `unknown ${nodeKind} tag !<${tagName}>`);
+}
+function constructScalar(state3, event) {
+  const source = getScalarValue(state3.source, event);
+  const rawTag = event.tagStart === NO_RANGE$2 ? "" : state3.source.slice(event.tagStart, event.tagEnd);
+  const strTag2 = state3.schema.defaultScalarTag;
+  if (rawTag !== "") {
+    if (rawTag === "!") return {
+      value: source,
+      tag: strTag2
+    };
+    const tagName = tagNameFull(rawTag, state3.tagHandlers);
+    const scalarTag = lookupTag(state3.schema.exact.scalar, state3.schema.prefix.scalar, tagName);
+    if (scalarTag) {
+      const result = scalarTag.resolve(source, true, tagName);
+      if (result === NOT_RESOLVED) throwError$1(state3, `cannot resolve a node with !<${tagName}> explicit tag`);
+      return {
+        value: result,
+        tag: scalarTag
+      };
+    }
+    const collectionTagDef = lookupTag(state3.schema.exact.mapping, state3.schema.prefix.mapping, tagName) ?? lookupTag(state3.schema.exact.sequence, state3.schema.prefix.sequence, tagName);
+    if (collectionTagDef) {
+      if (source !== "") throwError$1(state3, `cannot resolve a node with !<${tagName}> explicit tag`);
+      const carrier = collectionTagDef.create(tagName);
+      return {
+        value: collectionTagDef.carrierIsResult ? carrier : finalizeCollection(state3, state3.position, collectionTagDef, carrier),
+        tag: collectionTagDef
+      };
+    }
+    throwError$1(state3, `unknown scalar tag !<${tagName}>`);
+  }
+  if (event.style === 1) {
+    const candidates = state3.schema.implicitScalarByFirstChar.get(source.charAt(0)) ?? state3.schema.implicitScalarAnyFirstChar;
+    for (const tag of candidates) {
+      const result = tag.resolve(source, false, tag.tagName);
+      if (result !== NOT_RESOLVED) return {
+        value: result,
+        tag
+      };
+    }
+  }
+  return {
+    value: strTag2.resolve(source, false, strTag2.tagName),
+    tag: strTag2
+  };
+}
+function collectionTag(state3, event, exact, prefix2, defaultTagName, nodeKind) {
+  const rawTag = event.tagStart === NO_RANGE$2 ? "" : state3.source.slice(event.tagStart, event.tagEnd);
+  const tagName = rawTag === "" || rawTag === "!" ? defaultTagName : tagNameFull(rawTag, state3.tagHandlers);
+  return {
+    tagName,
+    tag: findExplicitTag(state3, exact, prefix2, tagName, nodeKind)
+  };
+}
+function isMappingTag(tag) {
+  return tag.nodeKind === "mapping";
+}
+function mergeKeys(state3, frame, source, sourceTag) {
+  for (const sourceKey of sourceTag.keys(source)) {
+    if (state3.maxTotalMergeKeys !== -1 && ++state3.totalMergeKeys > state3.maxTotalMergeKeys) throwError$1(state3, `merge keys exceeded maxTotalMergeKeys (${state3.maxTotalMergeKeys})`);
+    if (frame.tag.has(frame.value, sourceKey)) continue;
+    const err = frame.tag.addPair(frame.value, sourceKey, sourceTag.get(source, sourceKey));
+    if (err) throwError$1(state3, err);
+    (frame.overridable ?? (frame.overridable = /* @__PURE__ */ new Set())).add(sourceKey);
+  }
+}
+function mergeSource(state3, frame, source, sourceTag) {
+  state3.position = frame.keyPosition;
+  if (isMappingTag(sourceTag)) mergeKeys(state3, frame, source, sourceTag);
+  else if (sourceTag.nodeKind === "sequence" && Array.isArray(source)) for (const element of source) mergeKeys(state3, frame, element, frame.tag);
+  else throwError$1(state3, "cannot merge mappings; the provided source object is unacceptable");
+}
+function addMappingValue(state3, frame, key, value, tag) {
+  state3.position = frame.keyPosition;
+  if (key === MERGE_KEY) {
+    mergeSource(state3, frame, value, tag);
+    return;
+  }
+  if (!state3.json && frame.tag.has(frame.value, key) && !frame.overridable?.has(key)) throwError$1(state3, "duplicated mapping key");
+  const err = frame.tag.addPair(frame.value, key, value);
+  if (err) throwError$1(state3, err);
+  frame.overridable?.delete(key);
+}
+function addValue(state3, value, tag) {
+  const frame = state3.frames[state3.frames.length - 1];
+  if (frame.kind === "document") {
+    frame.value = value;
+    frame.hasValue = true;
+  } else if (frame.kind === "sequence") {
+    if (frame.merge) {
+      if (!isMappingTag(tag)) throwError$1(state3, "cannot merge mappings; the provided source object is unacceptable");
+    }
+    const err = frame.tag.addItem(frame.value, value, frame.index++);
+    if (err) throwError$1(state3, err);
+  } else if (frame.hasKey) {
+    const key = frame.key;
+    frame.key = void 0;
+    frame.hasKey = false;
+    addMappingValue(state3, frame, key, value, tag);
+  } else {
+    frame.key = value;
+    frame.keyPosition = state3.position;
+    frame.hasKey = true;
+  }
+}
+function storeAnchor(state3, event, value, tag, isValueFinal) {
+  if (event.anchorStart !== NO_RANGE$2) {
+    const anchor = {
+      value,
+      tag,
+      isValueFinal
+    };
+    state3.anchors.set(state3.source.slice(event.anchorStart, event.anchorEnd), anchor);
+    return anchor;
+  }
+  return null;
+}
+function constructFromEvents(events2, options) {
+  const state3 = {
+    ...DEFAULT_CONSTRUCTOR_OPTIONS,
+    ...options,
+    events: events2,
+    documents: [],
+    eventIndex: 0,
+    position: 0,
+    frames: [],
+    anchors: /* @__PURE__ */ new Map(),
+    tagHandlers: /* @__PURE__ */ Object.create(null),
+    totalMergeKeys: 0,
+    aliasCount: 0
+  };
+  while (state3.eventIndex < state3.events.length) {
+    const event = state3.events[state3.eventIndex++];
+    state3.position = eventPosition$1(event);
+    switch (event.type) {
+      case 1:
+        state3.anchors = /* @__PURE__ */ new Map();
+        state3.aliasCount = 0;
+        state3.tagHandlers = /* @__PURE__ */ Object.create(null);
+        for (const directive of event.directives) if (directive.kind === "tag") state3.tagHandlers[directive.handle] = directive.prefix;
+        state3.frames.push({
+          kind: "document",
+          position: state3.position,
+          value: void 0,
+          hasValue: false
+        });
+        break;
+      case 4: {
+        const { value, tag } = constructScalar(state3, event);
+        storeAnchor(state3, event, value, tag, true);
+        addValue(state3, value, tag);
+        break;
+      }
+      case 2: {
+        const definition = collectionTag(state3, event, state3.schema.exact.sequence, state3.schema.prefix.sequence, "tag:yaml.org,2002:seq", "sequence");
+        const value = definition.tag.create(definition.tagName);
+        const anchor = storeAnchor(state3, event, value, definition.tag, definition.tag.carrierIsResult);
+        const parent = state3.frames[state3.frames.length - 1];
+        const merge2 = parent !== void 0 && parent.kind === "mapping" && parent.hasKey && parent.key === MERGE_KEY;
+        state3.frames.push({
+          kind: "sequence",
+          position: state3.position,
+          value,
+          tag: definition.tag,
+          anchor,
+          index: 0,
+          merge: merge2
+        });
+        break;
+      }
+      case 3: {
+        const definition = collectionTag(state3, event, state3.schema.exact.mapping, state3.schema.prefix.mapping, "tag:yaml.org,2002:map", "mapping");
+        const value = definition.tag.create(definition.tagName);
+        const anchor = storeAnchor(state3, event, value, definition.tag, definition.tag.carrierIsResult);
+        state3.frames.push({
+          kind: "mapping",
+          position: state3.position,
+          value,
+          tag: definition.tag,
+          anchor,
+          key: void 0,
+          keyPosition: state3.position,
+          hasKey: false,
+          overridable: null
+        });
+        break;
+      }
+      case 5: {
+        if (state3.maxAliases !== -1 && ++state3.aliasCount > state3.maxAliases) throwError$1(state3, `aliases exceeded maxAliases (${state3.maxAliases})`);
+        const name = state3.source.slice(event.anchorStart, event.anchorEnd);
+        const anchor = state3.anchors.get(name);
+        if (!anchor) throwError$1(state3, `unidentified alias "${name}"`);
+        if (!anchor.isValueFinal) throwError$1(state3, `recursive alias "${name}" is not supported for tag ${anchor.tag.tagName} because it uses finalize()`);
+        addValue(state3, anchor.value, anchor.tag);
+        break;
+      }
+      case 6: {
+        const frame = state3.frames.pop();
+        if (frame.kind === "mapping" && frame.hasKey) {
+          state3.position = frame.keyPosition;
+          throwError$1(state3, "incomplete mapping pair in event stream");
         }
-      }
-      _line = state3.line;
-      _lineStart = state3.lineStart;
-      _pos = state3.position;
-      composeNode(state3, nodeIndent, CONTEXT_FLOW_IN, false, true);
-      keyTag = state3.tag;
-      keyNode = state3.result;
-      skipSeparationSpace(state3, true, nodeIndent);
-      ch = state3.input.charCodeAt(state3.position);
-      if ((isExplicitPair || state3.line === _line) && ch === 58) {
-        isPair = true;
-        ch = state3.input.charCodeAt(++state3.position);
-        skipSeparationSpace(state3, true, nodeIndent);
-        composeNode(state3, nodeIndent, CONTEXT_FLOW_IN, false, true);
-        valueNode = state3.result;
-      }
-      if (isMapping) storeMappingPair(state3, _result, overridableKeys, keyTag, keyNode, valueNode, _line, _lineStart, _pos);
-      else if (isPair) _result.push(storeMappingPair(state3, null, overridableKeys, keyTag, keyNode, valueNode, _line, _lineStart, _pos));
-      else _result.push(keyNode);
-      skipSeparationSpace(state3, true, nodeIndent);
-      ch = state3.input.charCodeAt(state3.position);
-      if (ch === 44) {
-        readNext = true;
-        ch = state3.input.charCodeAt(++state3.position);
-      } else readNext = false;
-    }
-    throwError(state3, "unexpected end of the stream within a flow collection");
-  }
-  function readBlockScalar(state3, nodeIndent) {
-    let folding;
-    let chomping = CHOMPING_CLIP;
-    let didReadContent = false;
-    let detectedIndent = false;
-    let textIndent = nodeIndent;
-    let emptyLines = 0;
-    let atMoreIndented = false;
-    let tmp;
-    let ch = state3.input.charCodeAt(state3.position);
-    if (ch === 124) folding = false;
-    else if (ch === 62) folding = true;
-    else return false;
-    state3.kind = "scalar";
-    state3.result = "";
-    while (ch !== 0) {
-      ch = state3.input.charCodeAt(++state3.position);
-      if (ch === 43 || ch === 45) if (CHOMPING_CLIP === chomping) chomping = ch === 43 ? CHOMPING_KEEP : CHOMPING_STRIP;
-      else throwError(state3, "repeat of a chomping mode identifier");
-      else if ((tmp = fromDecimalCode(ch)) >= 0) if (tmp === 0) throwError(state3, "bad explicit indentation width of a block scalar; it cannot be less than one");
-      else if (!detectedIndent) {
-        textIndent = nodeIndent + tmp - 1;
-        detectedIndent = true;
-      } else throwError(state3, "repeat of an indentation width identifier");
-      else break;
-    }
-    if (isWhiteSpace2(ch)) {
-      do
-        ch = state3.input.charCodeAt(++state3.position);
-      while (isWhiteSpace2(ch));
-      if (ch === 35) do
-        ch = state3.input.charCodeAt(++state3.position);
-      while (!isEol(ch) && ch !== 0);
-    }
-    while (ch !== 0) {
-      readLineBreak(state3);
-      state3.lineIndent = 0;
-      ch = state3.input.charCodeAt(state3.position);
-      while ((!detectedIndent || state3.lineIndent < textIndent) && ch === 32) {
-        state3.lineIndent++;
-        ch = state3.input.charCodeAt(++state3.position);
-      }
-      if (!detectedIndent && state3.lineIndent > textIndent) textIndent = state3.lineIndent;
-      if (isEol(ch)) {
-        emptyLines++;
-        continue;
-      }
-      if (!detectedIndent && textIndent === 0) throwError(state3, "missing indentation for block scalar");
-      if (state3.lineIndent < textIndent) {
-        if (chomping === CHOMPING_KEEP) state3.result += common.repeat("\n", didReadContent ? 1 + emptyLines : emptyLines);
-        else if (chomping === CHOMPING_CLIP) {
-          if (didReadContent) state3.result += "\n";
+        if (frame.kind === "document") state3.documents.push(frame.value);
+        else {
+          const value = frame.tag.carrierIsResult ? frame.value : finalizeCollection(state3, frame.position, frame.tag, frame.value);
+          if (frame.anchor) {
+            frame.anchor.value = value;
+            frame.anchor.isValueFinal = true;
+          }
+          addValue(state3, value, frame.tag);
         }
         break;
       }
-      if (folding) if (isWhiteSpace2(ch)) {
-        atMoreIndented = true;
-        state3.result += common.repeat("\n", didReadContent ? 1 + emptyLines : emptyLines);
-      } else if (atMoreIndented) {
-        atMoreIndented = false;
-        state3.result += common.repeat("\n", emptyLines + 1);
-      } else if (emptyLines === 0) {
-        if (didReadContent) state3.result += " ";
-      } else state3.result += common.repeat("\n", emptyLines);
-      else state3.result += common.repeat("\n", didReadContent ? 1 + emptyLines : emptyLines);
-      didReadContent = true;
-      detectedIndent = true;
-      emptyLines = 0;
-      const captureStart = state3.position;
-      while (!isEol(ch) && ch !== 0) ch = state3.input.charCodeAt(++state3.position);
-      captureSegment(state3, captureStart, state3.position, false);
     }
-    return true;
   }
-  function readBlockSequence(state3, nodeIndent) {
-    const _tag = state3.tag;
-    const _anchor = state3.anchor;
-    const _result = [];
-    let detected = false;
-    if (state3.firstTabInLine !== -1) return false;
-    if (state3.anchor !== null) storeAnchor(state3, state3.anchor, _result);
-    let ch = state3.input.charCodeAt(state3.position);
-    while (ch !== 0) {
-      if (state3.firstTabInLine !== -1) {
-        state3.position = state3.firstTabInLine;
-        throwError(state3, "tab characters must not be used in indentation");
-      }
-      if (ch !== 45) break;
-      if (!isWsOrEol(state3.input.charCodeAt(state3.position + 1))) break;
-      detected = true;
-      state3.position++;
-      if (skipSeparationSpace(state3, true, -1)) {
-        if (state3.lineIndent <= nodeIndent) {
-          _result.push(null);
-          ch = state3.input.charCodeAt(state3.position);
-          continue;
-        }
-      }
-      const _line = state3.line;
-      composeNode(state3, nodeIndent, CONTEXT_BLOCK_IN, false, true);
-      _result.push(state3.result);
-      skipSeparationSpace(state3, true, -1);
-      ch = state3.input.charCodeAt(state3.position);
-      if ((state3.line === _line || state3.lineIndent > nodeIndent) && ch !== 0) throwError(state3, "bad indentation of a sequence entry");
-      else if (state3.lineIndent < nodeIndent) break;
+  return state3.documents;
+}
+var NO_RANGE$1 = -1;
+var HAS_OWN = Object.prototype.hasOwnProperty;
+var CONTEXT_FLOW_IN = 1;
+var CONTEXT_FLOW_OUT = 2;
+var CONTEXT_BLOCK_IN = 3;
+var CONTEXT_BLOCK_OUT = 4;
+var PATTERN_NON_PRINTABLE = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x84\x86-\x9F\uFFFE\uFFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF]/;
+var PATTERN_FLOW_INDICATORS = /[,\[\]{}]/;
+var PATTERN_TAG_HANDLE = /^(?:!|!!|![0-9A-Za-z-]+!)$/;
+var NS_URI_CHAR = String.raw`(?:%[0-9A-Fa-f]{2}|[0-9A-Za-z\-#;/?:@&=+$,_.!~*'()\[\]])`;
+var NS_TAG_CHAR = String.raw`(?:%[0-9A-Fa-f]{2}|[0-9A-Za-z\-#;/?:@&=+$.~*'()_])`;
+var PATTERN_TAG_URI = new RegExp(`^(?:${NS_URI_CHAR})*$`);
+var PATTERN_TAG_SUFFIX = new RegExp(`^(?:${NS_TAG_CHAR})+$`);
+var PATTERN_TAG_PREFIX = new RegExp(`^(?:!(?:${NS_URI_CHAR})*|${NS_TAG_CHAR}(?:${NS_URI_CHAR})*)$`);
+var DEFAULT_PARSER_OPTIONS = {
+  filename: "",
+  maxDepth: 100
+};
+function addDocumentEvent(state3, explicitStart, explicitEnd) {
+  state3.events.push({
+    type: 1,
+    explicitStart,
+    explicitEnd,
+    directives: state3.directives
+  });
+}
+function addSequenceEvent(state3, start, anchorStart, anchorEnd, tagStart, tagEnd, style) {
+  state3.events.push({
+    type: 2,
+    start,
+    anchorStart,
+    anchorEnd,
+    tagStart,
+    tagEnd,
+    style
+  });
+}
+function addMappingEvent(state3, start, anchorStart, anchorEnd, tagStart, tagEnd, style) {
+  state3.events.push({
+    type: 3,
+    start,
+    anchorStart,
+    anchorEnd,
+    tagStart,
+    tagEnd,
+    style
+  });
+}
+function insertFlowPairMappingEvent(state3, snapshot2) {
+  state3.events.splice(snapshot2.eventsLength, 0, {
+    type: 3,
+    start: snapshot2.position,
+    anchorStart: NO_RANGE$1,
+    anchorEnd: NO_RANGE$1,
+    tagStart: NO_RANGE$1,
+    tagEnd: NO_RANGE$1,
+    style: 2
+  });
+}
+function addScalarEvent(state3, valueStart, valueEnd, anchorStart, anchorEnd, tagStart, tagEnd, style, chomping = 1, indent = -1, fast = false) {
+  state3.events.push({
+    type: 4,
+    valueStart,
+    valueEnd,
+    anchorStart,
+    anchorEnd,
+    tagStart,
+    tagEnd,
+    style,
+    chomping,
+    indent,
+    fast
+  });
+}
+function addAliasEvent(state3, anchorStart, anchorEnd) {
+  state3.events.push({
+    type: 5,
+    anchorStart,
+    anchorEnd
+  });
+}
+function addPopEvent(state3) {
+  state3.events.push({ type: 6 });
+}
+function addEmptyScalarEvent(state3) {
+  addScalarEvent(state3, NO_RANGE$1, NO_RANGE$1, NO_RANGE$1, NO_RANGE$1, NO_RANGE$1, NO_RANGE$1, 1);
+}
+function emptyProperties() {
+  return {
+    anchorStart: NO_RANGE$1,
+    anchorEnd: NO_RANGE$1,
+    tagStart: NO_RANGE$1,
+    tagEnd: NO_RANGE$1
+  };
+}
+function snapshotState(state3) {
+  return {
+    position: state3.position,
+    line: state3.line,
+    lineStart: state3.lineStart,
+    lineIndent: state3.lineIndent,
+    firstTabInLine: state3.firstTabInLine,
+    eventsLength: state3.events.length
+  };
+}
+function restoreState(state3, snapshot2) {
+  state3.position = snapshot2.position;
+  state3.line = snapshot2.line;
+  state3.lineStart = snapshot2.lineStart;
+  state3.lineIndent = snapshot2.lineIndent;
+  state3.firstTabInLine = snapshot2.firstTabInLine;
+  state3.events.length = snapshot2.eventsLength;
+}
+function throwError(state3, message) {
+  throwErrorAt(state3.input.slice(0, state3.length), state3.position, message, state3.filename);
+}
+function isEol(c) {
+  return c === 10 || c === 13;
+}
+function isWhiteSpace(c) {
+  return c === 9 || c === 32;
+}
+function isWsOrEol(c) {
+  return isWhiteSpace(c) || isEol(c);
+}
+function isWsOrEolOrEnd(c) {
+  return c === 0 || isWsOrEol(c);
+}
+function isFlowIndicator(c) {
+  return c === 44 || c === 91 || c === 93 || c === 123 || c === 125;
+}
+function fromDecimalCode(c) {
+  return c >= 48 && c <= 57 ? c - 48 : -1;
+}
+function fromHexCode(c) {
+  if (c >= 48 && c <= 57) return c - 48;
+  const lc = c | 32;
+  if (lc >= 97 && lc <= 102) return lc - 97 + 10;
+  return -1;
+}
+function escapedHexLen(c) {
+  if (c === 120) return 2;
+  if (c === 117) return 4;
+  if (c === 85) return 8;
+  return 0;
+}
+function isSimpleEscape(c) {
+  return c === 48 || c === 97 || c === 98 || c === 116 || c === 9 || c === 110 || c === 118 || c === 102 || c === 114 || c === 101 || c === 32 || c === 34 || c === 47 || c === 92 || c === 78 || c === 95 || c === 76 || c === 80;
+}
+function consumeLineBreak(state3) {
+  if (state3.input.charCodeAt(state3.position) === 10) state3.position++;
+  else {
+    state3.position++;
+    if (state3.input.charCodeAt(state3.position) === 10) state3.position++;
+  }
+  state3.line++;
+  state3.lineStart = state3.position;
+  state3.lineIndent = 0;
+  state3.firstTabInLine = -1;
+}
+function skipSeparationSpace(state3, allowComments) {
+  let lineBreaks = 0;
+  let ch = state3.input.charCodeAt(state3.position);
+  let hasSeparation = state3.position === state3.lineStart || isWsOrEol(state3.input.charCodeAt(state3.position - 1));
+  while (ch !== 0) {
+    while (isWhiteSpace(ch)) {
+      hasSeparation = true;
+      if (ch === 9 && state3.firstTabInLine === -1) state3.firstTabInLine = state3.position;
+      ch = state3.input.charCodeAt(++state3.position);
     }
-    if (detected) {
-      state3.tag = _tag;
-      state3.anchor = _anchor;
-      state3.kind = "sequence";
-      state3.result = _result;
+    if (allowComments && hasSeparation && ch === 35) do
+      ch = state3.input.charCodeAt(++state3.position);
+    while (!isEol(ch) && ch !== 0);
+    if (!isEol(ch)) break;
+    consumeLineBreak(state3);
+    lineBreaks++;
+    hasSeparation = true;
+    ch = state3.input.charCodeAt(state3.position);
+    while (ch === 32) {
+      state3.lineIndent++;
+      ch = state3.input.charCodeAt(++state3.position);
+    }
+  }
+  return lineBreaks;
+}
+function testDocumentSeparator(state3, position = state3.position) {
+  const ch = state3.input.charCodeAt(position);
+  if ((ch === 45 || ch === 46) && ch === state3.input.charCodeAt(position + 1) && ch === state3.input.charCodeAt(position + 2)) {
+    const following = state3.input.charCodeAt(position + 3);
+    return following === 0 || isWsOrEol(following);
+  }
+  return false;
+}
+function skipUntilLineEnd(state3) {
+  let ch = state3.input.charCodeAt(state3.position);
+  while (ch !== 0 && !isEol(ch)) ch = state3.input.charCodeAt(++state3.position);
+}
+function checkPrintable(state3, start, end) {
+  if (PATTERN_NON_PRINTABLE.test(state3.input.slice(start, end))) throwError(state3, "the stream contains non-printable characters");
+}
+function readTagProperty(state3, props, inFlow) {
+  if (state3.input.charCodeAt(state3.position) !== 33) return false;
+  if (props.tagStart !== NO_RANGE$1) throwError(state3, "duplication of a tag property");
+  const start = state3.position;
+  let isVerbatim = false;
+  let isNamed = false;
+  let tagHandle = "!";
+  let ch = state3.input.charCodeAt(++state3.position);
+  if (ch === 60) {
+    isVerbatim = true;
+    ch = state3.input.charCodeAt(++state3.position);
+  } else if (ch === 33) {
+    isNamed = true;
+    tagHandle = "!!";
+    ch = state3.input.charCodeAt(++state3.position);
+  }
+  let suffixStart = state3.position;
+  let tagName;
+  if (isVerbatim) {
+    while (ch !== 0 && ch !== 62) ch = state3.input.charCodeAt(++state3.position);
+    if (ch !== 62) throwError(state3, "unexpected end of the stream within a verbatim tag");
+    tagName = state3.input.slice(suffixStart, state3.position);
+    state3.position++;
+  } else {
+    while (ch !== 0 && !isWsOrEol(ch) && !(inFlow && isFlowIndicator(ch))) {
+      if (ch === 33) if (!isNamed) {
+        tagHandle = state3.input.slice(suffixStart - 1, state3.position + 1);
+        if (!PATTERN_TAG_HANDLE.test(tagHandle)) throwError(state3, "named tag handle cannot contain such characters");
+        isNamed = true;
+        suffixStart = state3.position + 1;
+      } else throwError(state3, "tag suffix cannot contain exclamation marks");
+      ch = state3.input.charCodeAt(++state3.position);
+    }
+    tagName = state3.input.slice(suffixStart, state3.position);
+    if (PATTERN_FLOW_INDICATORS.test(tagName)) throwError(state3, "tag suffix cannot contain flow indicator characters");
+  }
+  if (tagName && !(isVerbatim ? PATTERN_TAG_URI.test(tagName) : PATTERN_TAG_SUFFIX.test(tagName))) throwError(state3, `tag name cannot contain such characters: ${tagName}`);
+  if (!isVerbatim && tagHandle !== "!" && tagHandle !== "!!" && !HAS_OWN.call(state3.tagHandlers, tagHandle)) throwError(state3, `undeclared tag handle "${tagHandle}"`);
+  props.tagStart = start;
+  props.tagEnd = state3.position;
+  return true;
+}
+function readAnchorProperty(state3, props) {
+  if (state3.input.charCodeAt(state3.position) !== 38) return false;
+  if (props.anchorStart !== NO_RANGE$1) throwError(state3, "duplication of an anchor property");
+  state3.position++;
+  const start = state3.position;
+  while (state3.input.charCodeAt(state3.position) !== 0 && !isWsOrEol(state3.input.charCodeAt(state3.position)) && !isFlowIndicator(state3.input.charCodeAt(state3.position))) state3.position++;
+  if (state3.position === start) throwError(state3, "name of an anchor node must contain at least one character");
+  props.anchorStart = start;
+  props.anchorEnd = state3.position;
+  return true;
+}
+function readAlias(state3, props) {
+  if (state3.input.charCodeAt(state3.position) !== 42) return false;
+  if (props.anchorStart !== NO_RANGE$1 || props.tagStart !== NO_RANGE$1) throwError(state3, "alias node should not have any properties");
+  state3.position++;
+  const start = state3.position;
+  while (state3.input.charCodeAt(state3.position) !== 0 && !isWsOrEol(state3.input.charCodeAt(state3.position)) && !isFlowIndicator(state3.input.charCodeAt(state3.position))) state3.position++;
+  if (state3.position === start) throwError(state3, "name of an alias node must contain at least one character");
+  addAliasEvent(state3, start, state3.position);
+  return true;
+}
+function readFlowScalarBreak(state3, nodeIndent) {
+  skipSeparationSpace(state3, false);
+  if (state3.lineIndent < nodeIndent) throwError(state3, "deficient indentation");
+}
+function readSingleQuotedScalar(state3, nodeIndent, props) {
+  if (state3.input.charCodeAt(state3.position) !== 39) return false;
+  state3.position++;
+  const start = state3.position;
+  let simple = true;
+  while (state3.input.charCodeAt(state3.position) !== 0) {
+    const ch = state3.input.charCodeAt(state3.position);
+    if (ch === 39) {
+      if (state3.input.charCodeAt(state3.position + 1) === 39) {
+        simple = false;
+        state3.position += 2;
+        continue;
+      }
+      const end = state3.position;
+      state3.position++;
+      addScalarEvent(state3, start, end, props.anchorStart, props.anchorEnd, props.tagStart, props.tagEnd, 2, 1, -1, simple);
       return true;
     }
-    return false;
+    if (isEol(ch)) {
+      simple = false;
+      readFlowScalarBreak(state3, nodeIndent);
+    } else if (state3.position === state3.lineStart && testDocumentSeparator(state3)) throwError(state3, "unexpected end of the document within a single quoted scalar");
+    else if (ch !== 9 && ch < 32) throwError(state3, "expected valid JSON character");
+    else state3.position++;
   }
-  function readBlockMapping(state3, nodeIndent, flowIndent) {
-    let allowCompact;
-    let _keyLine;
-    let _keyLineStart;
-    let _keyPos;
-    const _tag = state3.tag;
-    const _anchor = state3.anchor;
-    const _result = {};
-    const overridableKeys = /* @__PURE__ */ Object.create(null);
-    let keyTag = null;
-    let keyNode = null;
-    let valueNode = null;
-    let atExplicitKey = false;
-    let detected = false;
-    if (state3.firstTabInLine !== -1) return false;
-    if (state3.anchor !== null) storeAnchor(state3, state3.anchor, _result);
-    let ch = state3.input.charCodeAt(state3.position);
-    while (ch !== 0) {
-      if (!atExplicitKey && state3.firstTabInLine !== -1) {
-        state3.position = state3.firstTabInLine;
+  throwError(state3, "unexpected end of the stream within a single quoted scalar");
+}
+function readDoubleQuotedScalar(state3, nodeIndent, props) {
+  if (state3.input.charCodeAt(state3.position) !== 34) return false;
+  state3.position++;
+  const start = state3.position;
+  let simple = true;
+  while (state3.input.charCodeAt(state3.position) !== 0) {
+    const ch = state3.input.charCodeAt(state3.position);
+    if (ch === 34) {
+      const end = state3.position;
+      state3.position++;
+      addScalarEvent(state3, start, end, props.anchorStart, props.anchorEnd, props.tagStart, props.tagEnd, 3, 1, -1, simple);
+      return true;
+    }
+    if (ch === 92) {
+      simple = false;
+      const escaped = state3.input.charCodeAt(++state3.position);
+      if (isEol(escaped)) readFlowScalarBreak(state3, nodeIndent);
+      else if (isSimpleEscape(escaped)) state3.position++;
+      else {
+        let hexLength = escapedHexLen(escaped);
+        if (hexLength === 0) throwError(state3, "unknown escape sequence");
+        while (hexLength-- > 0) {
+          state3.position++;
+          if (fromHexCode(state3.input.charCodeAt(state3.position)) < 0) throwError(state3, "expected hexadecimal character");
+        }
+        state3.position++;
+      }
+    } else if (isEol(ch)) {
+      simple = false;
+      readFlowScalarBreak(state3, nodeIndent);
+    } else if (state3.position === state3.lineStart && testDocumentSeparator(state3)) throwError(state3, "unexpected end of the document within a double quoted scalar");
+    else if (ch !== 9 && ch < 32) throwError(state3, "expected valid JSON character");
+    else state3.position++;
+  }
+  throwError(state3, "unexpected end of the stream within a double quoted scalar");
+}
+function readBlockScalar(state3, parentIndent, props) {
+  const ch = state3.input.charCodeAt(state3.position);
+  let chomping = 1;
+  let indent = -1;
+  let detectedIndent = false;
+  if (ch !== 124 && ch !== 62) return false;
+  const style = ch === 124 ? 4 : 5;
+  state3.position++;
+  while (state3.input.charCodeAt(state3.position) !== 0) {
+    const current = state3.input.charCodeAt(state3.position);
+    const digit = fromDecimalCode(current);
+    if (current === 43 || current === 45) {
+      if (chomping !== 1) throwError(state3, "repeat of a chomping mode identifier");
+      chomping = current === 43 ? 3 : 2;
+      state3.position++;
+    } else if (digit >= 0) {
+      if (digit === 0) throwError(state3, "bad explicit indentation width of a block scalar; it cannot be less than one");
+      if (detectedIndent) throwError(state3, "repeat of an indentation width identifier");
+      indent = parentIndent + digit - 1;
+      detectedIndent = true;
+      state3.position++;
+    } else break;
+  }
+  let hadWhitespace = false;
+  while (isWhiteSpace(state3.input.charCodeAt(state3.position))) {
+    hadWhitespace = true;
+    state3.position++;
+  }
+  if (hadWhitespace && state3.input.charCodeAt(state3.position) === 35) skipUntilLineEnd(state3);
+  if (isEol(state3.input.charCodeAt(state3.position))) consumeLineBreak(state3);
+  else if (state3.input.charCodeAt(state3.position) !== 0) throwError(state3, "a line break is expected");
+  let contentIndent = detectedIndent ? indent : -1;
+  let maxLeadingIndent = 0;
+  const valueStart = state3.position;
+  let valueEnd = state3.position;
+  while (state3.input.charCodeAt(state3.position) !== 0) {
+    const linePosition = state3.position;
+    let column = 0;
+    while (state3.input.charCodeAt(linePosition + column) === 32) column++;
+    const first = state3.input.charCodeAt(linePosition + column);
+    if (first === 0) {
+      if (contentIndent >= 0) {
+        if (column > contentIndent) valueEnd = linePosition + column;
+      } else if (column > 0) valueEnd = linePosition + column;
+      break;
+    }
+    if (linePosition === state3.lineStart && testDocumentSeparator(state3, linePosition)) break;
+    if (!detectedIndent && contentIndent === -1 && isEol(first)) maxLeadingIndent = Math.max(maxLeadingIndent, column);
+    if (!detectedIndent && contentIndent === -1 && !isEol(first)) {
+      if (first === 9 && column < parentIndent) {
+        state3.position = linePosition + column;
         throwError(state3, "tab characters must not be used in indentation");
       }
+      if (column < maxLeadingIndent) {
+        state3.position = linePosition + column;
+        throwError(state3, "bad indentation of a mapping entry");
+      }
+    }
+    if (contentIndent === -1 && first !== 0 && !isEol(first) && column < parentIndent) {
+      state3.lineIndent = column;
+      state3.position = linePosition + column;
+      break;
+    }
+    if (!detectedIndent && first !== 0 && !isEol(first) && contentIndent === -1) contentIndent = column;
+    const requiredIndent = contentIndent === -1 ? parentIndent + 1 : contentIndent;
+    if (first !== 0 && !isEol(first) && column < requiredIndent) {
+      state3.lineIndent = column;
+      state3.position = linePosition + column;
+      break;
+    }
+    skipUntilLineEnd(state3);
+    valueEnd = state3.position;
+    if (isEol(state3.input.charCodeAt(state3.position))) {
+      consumeLineBreak(state3);
+      valueEnd = state3.position;
+    }
+  }
+  checkPrintable(state3, valueStart, valueEnd);
+  addScalarEvent(state3, valueStart, valueEnd, props.anchorStart, props.anchorEnd, props.tagStart, props.tagEnd, style, chomping, contentIndent);
+  return true;
+}
+function canStartPlainScalar(state3, nodeContext) {
+  const ch = state3.input.charCodeAt(state3.position);
+  const inFlow = nodeContext === CONTEXT_FLOW_IN;
+  if (ch === 0 || isWsOrEol(ch) || ch === 35 || ch === 38 || ch === 42 || ch === 33 || ch === 124 || ch === 62 || ch === 39 || ch === 34 || ch === 37 || ch === 64 || ch === 96 || inFlow && isFlowIndicator(ch)) return false;
+  if (ch === 63 || ch === 45) {
+    const following = state3.input.charCodeAt(state3.position + 1);
+    if (isWsOrEolOrEnd(following) || inFlow && isFlowIndicator(following)) return false;
+  }
+  return true;
+}
+function readPlainScalar(state3, nodeIndent, nodeContext, props) {
+  if (!canStartPlainScalar(state3, nodeContext)) return false;
+  const start = state3.position;
+  let end = state3.position;
+  let ch = state3.input.charCodeAt(state3.position);
+  const inFlow = nodeContext === CONTEXT_FLOW_IN;
+  let multiline = false;
+  while (ch !== 0) {
+    if (state3.position === state3.lineStart && testDocumentSeparator(state3)) break;
+    if (ch === 58) {
       const following = state3.input.charCodeAt(state3.position + 1);
-      const _line = state3.line;
-      if ((ch === 63 || ch === 58) && isWsOrEol(following)) {
-        if (ch === 63) {
-          if (atExplicitKey) {
-            storeMappingPair(state3, _result, overridableKeys, keyTag, keyNode, null, _keyLine, _keyLineStart, _keyPos);
-            keyTag = keyNode = valueNode = null;
+      if (isWsOrEolOrEnd(following) || inFlow && isFlowIndicator(following)) break;
+    } else if (ch === 35) {
+      if (isWsOrEol(state3.input.charCodeAt(state3.position - 1))) break;
+    } else if (inFlow && isFlowIndicator(ch)) break;
+    else if (isEol(ch)) {
+      const savedPosition = state3.position;
+      const savedLine = state3.line;
+      const savedLineStart = state3.lineStart;
+      const savedLineIndent = state3.lineIndent;
+      skipSeparationSpace(state3, false);
+      if (state3.lineIndent >= nodeIndent) {
+        multiline = true;
+        ch = state3.input.charCodeAt(state3.position);
+        continue;
+      }
+      state3.position = savedPosition;
+      state3.line = savedLine;
+      state3.lineStart = savedLineStart;
+      state3.lineIndent = savedLineIndent;
+      break;
+    }
+    if (!isWhiteSpace(ch)) end = state3.position + 1;
+    ch = state3.input.charCodeAt(++state3.position);
+  }
+  if (end === start) return false;
+  checkPrintable(state3, start, end);
+  addScalarEvent(state3, start, end, props.anchorStart, props.anchorEnd, props.tagStart, props.tagEnd, 1, 1, -1, !multiline);
+  return true;
+}
+function skipFlowSeparationSpace(state3, nodeIndent) {
+  const startLine = state3.line;
+  skipSeparationSpace(state3, true);
+  if (state3.line > startLine && state3.lineIndent < nodeIndent || state3.firstTabInLine !== -1 && state3.lineIndent < nodeIndent) throwError(state3, "deficient indentation");
+}
+function readFlowCollection(state3, nodeIndent, props) {
+  const ch = state3.input.charCodeAt(state3.position);
+  const isMapping = ch === 123;
+  const start = state3.position;
+  let readNext = true;
+  if (ch !== 91 && ch !== 123) return false;
+  const terminator = isMapping ? 125 : 93;
+  if (isMapping) addMappingEvent(state3, start, props.anchorStart, props.anchorEnd, props.tagStart, props.tagEnd, 2);
+  else addSequenceEvent(state3, start, props.anchorStart, props.anchorEnd, props.tagStart, props.tagEnd, 2);
+  state3.position++;
+  while (state3.input.charCodeAt(state3.position) !== 0) {
+    skipFlowSeparationSpace(state3, nodeIndent);
+    let ch2 = state3.input.charCodeAt(state3.position);
+    if (ch2 === terminator) {
+      state3.position++;
+      addPopEvent(state3);
+      return true;
+    } else if (!readNext) throwError(state3, "missed comma between flow collection entries");
+    else if (ch2 === 44) throwError(state3, "expected the node content, but found ','");
+    let isPair = false;
+    let isExplicitPair = false;
+    if (ch2 === 63 && isWsOrEol(state3.input.charCodeAt(state3.position + 1))) {
+      isPair = isExplicitPair = true;
+      state3.position += 1;
+      skipFlowSeparationSpace(state3, nodeIndent);
+    }
+    const entryLine = state3.line;
+    const entryStart = snapshotState(state3);
+    const keyWasRead = parseNode(state3, nodeIndent, CONTEXT_FLOW_IN, false, true);
+    skipFlowSeparationSpace(state3, nodeIndent);
+    ch2 = state3.input.charCodeAt(state3.position);
+    if ((isMapping || isExplicitPair || state3.line === entryLine) && ch2 === 58) {
+      isPair = true;
+      state3.position++;
+      skipFlowSeparationSpace(state3, nodeIndent);
+      if (!isMapping) {
+        insertFlowPairMappingEvent(state3, entryStart);
+        if (!keyWasRead) addEmptyScalarEvent(state3);
+      } else if (!keyWasRead) addEmptyScalarEvent(state3);
+      if (!parseNode(state3, nodeIndent, CONTEXT_FLOW_IN, false, true)) addEmptyScalarEvent(state3);
+      skipFlowSeparationSpace(state3, nodeIndent);
+      if (!isMapping) addPopEvent(state3);
+    } else if (isMapping && isPair) {
+      if (!keyWasRead) addEmptyScalarEvent(state3);
+      addEmptyScalarEvent(state3);
+    } else if (isMapping) addEmptyScalarEvent(state3);
+    else if (isPair) {
+      insertFlowPairMappingEvent(state3, entryStart);
+      if (!keyWasRead) addEmptyScalarEvent(state3);
+      addEmptyScalarEvent(state3);
+      addPopEvent(state3);
+    }
+    ch2 = state3.input.charCodeAt(state3.position);
+    if (ch2 === 44) {
+      readNext = true;
+      state3.position++;
+    } else readNext = false;
+  }
+  throwError(state3, "unexpected end of the stream within a flow collection");
+}
+function readBlockSequence(state3, nodeIndent, props) {
+  if (state3.firstTabInLine !== -1 || state3.input.charCodeAt(state3.position) !== 45 || !isWsOrEolOrEnd(state3.input.charCodeAt(state3.position + 1))) return false;
+  addSequenceEvent(state3, state3.position, props.anchorStart, props.anchorEnd, props.tagStart, props.tagEnd, 1);
+  while (state3.input.charCodeAt(state3.position) === 45 && isWsOrEolOrEnd(state3.input.charCodeAt(state3.position + 1))) {
+    if (state3.firstTabInLine !== -1) {
+      state3.position = state3.firstTabInLine;
+      throwError(state3, "tab characters must not be used in indentation");
+    }
+    const entryLine = state3.line;
+    state3.position++;
+    const hadBreak = skipSeparationSpace(state3, true) > 0;
+    if (state3.firstTabInLine !== -1 && state3.input.charCodeAt(state3.position) === 45 && isWsOrEolOrEnd(state3.input.charCodeAt(state3.position + 1))) throwError(state3, "bad indentation of a sequence entry");
+    if (hadBreak && state3.lineIndent <= nodeIndent) addEmptyScalarEvent(state3);
+    else parseNode(state3, nodeIndent, CONTEXT_BLOCK_IN, false, true);
+    skipSeparationSpace(state3, true);
+    if (state3.lineIndent < nodeIndent || state3.position >= state3.length) break;
+    if (state3.lineIndent > nodeIndent) throwError(state3, "bad indentation of a sequence entry");
+    if (state3.line === entryLine && state3.input.charCodeAt(state3.position) === 45 && isWsOrEolOrEnd(state3.input.charCodeAt(state3.position + 1))) throwError(state3, "bad indentation of a sequence entry");
+  }
+  addPopEvent(state3);
+  return true;
+}
+function readBlockMapping(state3, nodeIndent, flowIndent, props) {
+  let atExplicitKey = false;
+  let detected = false;
+  let mappingOpened = false;
+  let pendingExplicitKey = false;
+  if (state3.firstTabInLine !== -1) return false;
+  let ch = state3.input.charCodeAt(state3.position);
+  while (ch !== 0) {
+    if (!atExplicitKey && state3.firstTabInLine !== -1) {
+      state3.position = state3.firstTabInLine;
+      throwError(state3, "tab characters must not be used in indentation");
+    }
+    const following = state3.input.charCodeAt(state3.position + 1);
+    const entryLine = state3.line;
+    if ((ch === 63 || ch === 58) && isWsOrEolOrEnd(following)) {
+      if (!mappingOpened) {
+        addMappingEvent(state3, state3.position, props.anchorStart, props.anchorEnd, props.tagStart, props.tagEnd, 1);
+        mappingOpened = true;
+      }
+      if (ch === 63) {
+        if (atExplicitKey) addEmptyScalarEvent(state3);
+        detected = true;
+        atExplicitKey = true;
+      } else if (atExplicitKey) atExplicitKey = false;
+      else {
+        addEmptyScalarEvent(state3);
+        detected = true;
+        atExplicitKey = false;
+      }
+      state3.position += 1;
+      pendingExplicitKey = true;
+    } else {
+      if (atExplicitKey) {
+        addEmptyScalarEvent(state3);
+        atExplicitKey = false;
+      }
+      const beforeKey = snapshotState(state3);
+      if (!parseNode(state3, flowIndent, CONTEXT_FLOW_OUT, false, true)) break;
+      if (state3.line === entryLine) {
+        ch = state3.input.charCodeAt(state3.position);
+        while (isWhiteSpace(ch)) ch = state3.input.charCodeAt(++state3.position);
+        if (ch === 58) {
+          ch = state3.input.charCodeAt(++state3.position);
+          if (!isWsOrEolOrEnd(ch)) throwError(state3, "a whitespace character is expected after the key-value separator within a block mapping");
+          if (!mappingOpened) {
+            restoreState(state3, beforeKey);
+            addMappingEvent(state3, beforeKey.position, props.anchorStart, props.anchorEnd, props.tagStart, props.tagEnd, 1);
+            mappingOpened = true;
+            parseNode(state3, flowIndent, CONTEXT_FLOW_OUT, false, true);
+            ch = state3.input.charCodeAt(state3.position);
+            while (isWhiteSpace(ch)) ch = state3.input.charCodeAt(++state3.position);
+            state3.position++;
           }
           detected = true;
-          atExplicitKey = true;
-          allowCompact = true;
-        } else if (atExplicitKey) {
           atExplicitKey = false;
-          allowCompact = true;
-        } else throwError(state3, "incomplete explicit mapping pair; a key node is missed; or followed by a non-tabulated empty line");
-        state3.position += 1;
-        ch = following;
-      } else {
-        _keyLine = state3.line;
-        _keyLineStart = state3.lineStart;
-        _keyPos = state3.position;
-        if (!composeNode(state3, flowIndent, CONTEXT_FLOW_OUT, false, true)) break;
-        if (state3.line === _line) {
-          ch = state3.input.charCodeAt(state3.position);
-          while (isWhiteSpace2(ch)) ch = state3.input.charCodeAt(++state3.position);
-          if (ch === 58) {
-            ch = state3.input.charCodeAt(++state3.position);
-            if (!isWsOrEol(ch)) throwError(state3, "a whitespace character is expected after the key-value separator within a block mapping");
-            if (atExplicitKey) {
-              storeMappingPair(state3, _result, overridableKeys, keyTag, keyNode, null, _keyLine, _keyLineStart, _keyPos);
-              keyTag = keyNode = valueNode = null;
-            }
-            detected = true;
-            atExplicitKey = false;
-            allowCompact = false;
-            keyTag = state3.tag;
-            keyNode = state3.result;
-          } else if (detected) throwError(state3, "can not read an implicit mapping pair; a colon is missed");
-          else {
-            state3.tag = _tag;
-            state3.anchor = _anchor;
-            return true;
-          }
-        } else if (detected) throwError(state3, "can not read a block mapping entry; a multiline key may not be an implicit key");
+          pendingExplicitKey = false;
+        } else if (detected) throwError(state3, "expected ':' after a mapping key");
         else {
-          state3.tag = _tag;
-          state3.anchor = _anchor;
+          if (props.anchorStart !== NO_RANGE$1 || props.tagStart !== NO_RANGE$1) {
+            restoreState(state3, beforeKey);
+            return false;
+          }
           return true;
         }
-      }
-      if (state3.line === _line || state3.lineIndent > nodeIndent) {
-        if (atExplicitKey) {
-          _keyLine = state3.line;
-          _keyLineStart = state3.lineStart;
-          _keyPos = state3.position;
-        }
-        if (composeNode(state3, nodeIndent, CONTEXT_BLOCK_OUT, true, allowCompact)) if (atExplicitKey) keyNode = state3.result;
-        else valueNode = state3.result;
-        if (!atExplicitKey) {
-          storeMappingPair(state3, _result, overridableKeys, keyTag, keyNode, valueNode, _keyLine, _keyLineStart, _keyPos);
-          keyTag = keyNode = valueNode = null;
-        }
-        skipSeparationSpace(state3, true, -1);
-        ch = state3.input.charCodeAt(state3.position);
-      }
-      if ((state3.line === _line || state3.lineIndent > nodeIndent) && ch !== 0) throwError(state3, "bad indentation of a mapping entry");
-      else if (state3.lineIndent < nodeIndent) break;
-    }
-    if (atExplicitKey) storeMappingPair(state3, _result, overridableKeys, keyTag, keyNode, null, _keyLine, _keyLineStart, _keyPos);
-    if (detected) {
-      state3.tag = _tag;
-      state3.anchor = _anchor;
-      state3.kind = "mapping";
-      state3.result = _result;
-    }
-    return detected;
-  }
-  function readTagProperty(state3) {
-    let isVerbatim = false;
-    let isNamed = false;
-    let tagHandle;
-    let tagName;
-    let ch = state3.input.charCodeAt(state3.position);
-    if (ch !== 33) return false;
-    if (state3.tag !== null) throwError(state3, "duplication of a tag property");
-    ch = state3.input.charCodeAt(++state3.position);
-    if (ch === 60) {
-      isVerbatim = true;
-      ch = state3.input.charCodeAt(++state3.position);
-    } else if (ch === 33) {
-      isNamed = true;
-      tagHandle = "!!";
-      ch = state3.input.charCodeAt(++state3.position);
-    } else tagHandle = "!";
-    let _position = state3.position;
-    if (isVerbatim) {
-      do
-        ch = state3.input.charCodeAt(++state3.position);
-      while (ch !== 0 && ch !== 62);
-      if (state3.position < state3.length) {
-        tagName = state3.input.slice(_position, state3.position);
-        ch = state3.input.charCodeAt(++state3.position);
-      } else throwError(state3, "unexpected end of the stream within a verbatim tag");
-    } else {
-      while (ch !== 0 && !isWsOrEol(ch)) {
-        if (ch === 33) if (!isNamed) {
-          tagHandle = state3.input.slice(_position - 1, state3.position + 1);
-          if (!PATTERN_TAG_HANDLE.test(tagHandle)) throwError(state3, "named tag handle cannot contain such characters");
-          isNamed = true;
-          _position = state3.position + 1;
-        } else throwError(state3, "tag suffix cannot contain exclamation marks");
-        ch = state3.input.charCodeAt(++state3.position);
-      }
-      tagName = state3.input.slice(_position, state3.position);
-      if (PATTERN_FLOW_INDICATORS.test(tagName)) throwError(state3, "tag suffix cannot contain flow indicator characters");
-    }
-    if (tagName && !PATTERN_TAG_URI.test(tagName)) throwError(state3, "tag name cannot contain such characters: " + tagName);
-    try {
-      tagName = decodeURIComponent(tagName);
-    } catch (err) {
-      throwError(state3, "tag name is malformed: " + tagName);
-    }
-    if (isVerbatim) state3.tag = tagName;
-    else if (_hasOwnProperty.call(state3.tagMap, tagHandle)) state3.tag = state3.tagMap[tagHandle] + tagName;
-    else if (tagHandle === "!") state3.tag = "!" + tagName;
-    else if (tagHandle === "!!") state3.tag = "tag:yaml.org,2002:" + tagName;
-    else throwError(state3, 'undeclared tag handle "' + tagHandle + '"');
-    return true;
-  }
-  function readAnchorProperty(state3) {
-    let ch = state3.input.charCodeAt(state3.position);
-    if (ch !== 38) return false;
-    if (state3.anchor !== null) throwError(state3, "duplication of an anchor property");
-    ch = state3.input.charCodeAt(++state3.position);
-    const _position = state3.position;
-    while (ch !== 0 && !isWsOrEol(ch) && !isFlowIndicator(ch)) ch = state3.input.charCodeAt(++state3.position);
-    if (state3.position === _position) throwError(state3, "name of an anchor node must contain at least one character");
-    state3.anchor = state3.input.slice(_position, state3.position);
-    return true;
-  }
-  function readAlias(state3) {
-    let ch = state3.input.charCodeAt(state3.position);
-    if (ch !== 42) return false;
-    ch = state3.input.charCodeAt(++state3.position);
-    const _position = state3.position;
-    while (ch !== 0 && !isWsOrEol(ch) && !isFlowIndicator(ch)) ch = state3.input.charCodeAt(++state3.position);
-    if (state3.position === _position) throwError(state3, "name of an alias node must contain at least one character");
-    const alias = state3.input.slice(_position, state3.position);
-    if (!_hasOwnProperty.call(state3.anchorMap, alias)) throwError(state3, 'unidentified alias "' + alias + '"');
-    state3.result = state3.anchorMap[alias];
-    skipSeparationSpace(state3, true, -1);
-    return true;
-  }
-  function tryReadBlockMappingFromProperty(state3, propertyStart, nodeIndent, flowIndent) {
-    const fallbackState = snapshotState(state3);
-    beginAnchorTransaction(state3);
-    restoreState(state3, propertyStart);
-    state3.tag = null;
-    state3.anchor = null;
-    state3.kind = null;
-    state3.result = null;
-    if (readBlockMapping(state3, nodeIndent, flowIndent) && state3.kind === "mapping") {
-      commitAnchorTransaction(state3);
-      return true;
-    }
-    rollbackAnchorTransaction(state3);
-    restoreState(state3, fallbackState);
-    return false;
-  }
-  function composeNode(state3, parentIndent, nodeContext, allowToSeek, allowCompact) {
-    let allowBlockScalars;
-    let allowBlockCollections;
-    let indentStatus = 1;
-    let atNewLine = false;
-    let hasContent = false;
-    let propertyStart = null;
-    let type;
-    let flowIndent;
-    let blockIndent;
-    if (state3.depth >= state3.maxDepth) throwError(state3, "nesting exceeded maxDepth (" + state3.maxDepth + ")");
-    state3.depth += 1;
-    if (state3.listener !== null) state3.listener("open", state3);
-    state3.tag = null;
-    state3.anchor = null;
-    state3.kind = null;
-    state3.result = null;
-    const allowBlockStyles = allowBlockScalars = allowBlockCollections = CONTEXT_BLOCK_OUT === nodeContext || CONTEXT_BLOCK_IN === nodeContext;
-    if (allowToSeek) {
-      if (skipSeparationSpace(state3, true, -1)) {
-        atNewLine = true;
-        if (state3.lineIndent > parentIndent) indentStatus = 1;
-        else if (state3.lineIndent === parentIndent) indentStatus = 0;
-        else if (state3.lineIndent < parentIndent) indentStatus = -1;
-      }
-    }
-    if (indentStatus === 1) while (true) {
-      const ch = state3.input.charCodeAt(state3.position);
-      const propertyState = snapshotState(state3);
-      if (atNewLine && (ch === 33 && state3.tag !== null || ch === 38 && state3.anchor !== null)) break;
-      if (!readTagProperty(state3) && !readAnchorProperty(state3)) break;
-      if (propertyStart === null) propertyStart = propertyState;
-      if (skipSeparationSpace(state3, true, -1)) {
-        atNewLine = true;
-        allowBlockCollections = allowBlockStyles;
-        if (state3.lineIndent > parentIndent) indentStatus = 1;
-        else if (state3.lineIndent === parentIndent) indentStatus = 0;
-        else if (state3.lineIndent < parentIndent) indentStatus = -1;
-      } else allowBlockCollections = false;
-    }
-    if (allowBlockCollections) allowBlockCollections = atNewLine || allowCompact;
-    if (indentStatus === 1 || CONTEXT_BLOCK_OUT === nodeContext) {
-      if (CONTEXT_FLOW_IN === nodeContext || CONTEXT_FLOW_OUT === nodeContext) flowIndent = parentIndent;
-      else flowIndent = parentIndent + 1;
-      blockIndent = state3.position - state3.lineStart;
-      if (indentStatus === 1) if (allowBlockCollections && (readBlockSequence(state3, blockIndent) || readBlockMapping(state3, blockIndent, flowIndent)) || readFlowCollection(state3, flowIndent)) hasContent = true;
+      } else if (detected) throwError(state3, "can not read a block mapping entry; a multiline key may not be an implicit key");
       else {
-        const ch = state3.input.charCodeAt(state3.position);
-        if (propertyStart !== null && allowBlockStyles && !allowBlockCollections && ch !== 124 && ch !== 62 && tryReadBlockMappingFromProperty(state3, propertyStart, propertyStart.position - propertyStart.lineStart, flowIndent)) hasContent = true;
-        else if (allowBlockScalars && readBlockScalar(state3, flowIndent) || readSingleQuotedScalar(state3, flowIndent) || readDoubleQuotedScalar(state3, flowIndent)) hasContent = true;
-        else if (readAlias(state3)) {
-          hasContent = true;
-          if (state3.tag !== null || state3.anchor !== null) throwError(state3, "alias node should not have any properties");
-        } else if (readPlainScalar(state3, flowIndent, CONTEXT_FLOW_IN === nodeContext)) {
-          hasContent = true;
-          if (state3.tag === null) state3.tag = "?";
-        }
-        if (state3.anchor !== null) storeAnchor(state3, state3.anchor, state3.result);
-      }
-      else if (indentStatus === 0) hasContent = allowBlockCollections && readBlockSequence(state3, blockIndent);
-    }
-    if (state3.tag === null) {
-      if (state3.anchor !== null) storeAnchor(state3, state3.anchor, state3.result);
-    } else if (state3.tag === "?") {
-      if (state3.result !== null && state3.kind !== "scalar") throwError(state3, 'unacceptable node kind for !<?> tag; it should be "scalar", not "' + state3.kind + '"');
-      for (let typeIndex = 0, typeQuantity = state3.implicitTypes.length; typeIndex < typeQuantity; typeIndex += 1) {
-        type = state3.implicitTypes[typeIndex];
-        if (type.resolve(state3.result)) {
-          state3.result = type.construct(state3.result);
-          state3.tag = type.tag;
-          if (state3.anchor !== null) storeAnchor(state3, state3.anchor, state3.result);
-          break;
-        }
-      }
-    } else if (state3.tag !== "!") {
-      if (_hasOwnProperty.call(state3.typeMap[state3.kind || "fallback"], state3.tag)) type = state3.typeMap[state3.kind || "fallback"][state3.tag];
-      else {
-        type = null;
-        const typeList = state3.typeMap.multi[state3.kind || "fallback"];
-        for (let typeIndex = 0, typeQuantity = typeList.length; typeIndex < typeQuantity; typeIndex += 1) if (state3.tag.slice(0, typeList[typeIndex].tag.length) === typeList[typeIndex].tag) {
-          type = typeList[typeIndex];
-          break;
-        }
-      }
-      if (!type) throwError(state3, "unknown tag !<" + state3.tag + ">");
-      if (state3.result !== null && type.kind !== state3.kind) throwError(state3, "unacceptable node kind for !<" + state3.tag + '> tag; it should be "' + type.kind + '", not "' + state3.kind + '"');
-      if (!type.resolve(state3.result, state3.tag)) throwError(state3, "cannot resolve a node with !<" + state3.tag + "> explicit tag");
-      else {
-        state3.result = type.construct(state3.result, state3.tag);
-        if (state3.anchor !== null) storeAnchor(state3, state3.anchor, state3.result);
-      }
-    }
-    if (state3.listener !== null) state3.listener("close", state3);
-    state3.depth -= 1;
-    return state3.tag !== null || state3.anchor !== null || hasContent;
-  }
-  function readDocument(state3) {
-    const documentStart = state3.position;
-    let hasDirectives = false;
-    let ch;
-    state3.version = null;
-    state3.checkLineBreaks = state3.legacy;
-    state3.tagMap = /* @__PURE__ */ Object.create(null);
-    state3.anchorMap = /* @__PURE__ */ Object.create(null);
-    while ((ch = state3.input.charCodeAt(state3.position)) !== 0) {
-      skipSeparationSpace(state3, true, -1);
-      ch = state3.input.charCodeAt(state3.position);
-      if (state3.lineIndent > 0 || ch !== 37) break;
-      hasDirectives = true;
-      ch = state3.input.charCodeAt(++state3.position);
-      let _position = state3.position;
-      while (ch !== 0 && !isWsOrEol(ch)) ch = state3.input.charCodeAt(++state3.position);
-      const directiveName = state3.input.slice(_position, state3.position);
-      const directiveArgs = [];
-      if (directiveName.length < 1) throwError(state3, "directive name must not be less than one character in length");
-      while (ch !== 0) {
-        while (isWhiteSpace2(ch)) ch = state3.input.charCodeAt(++state3.position);
-        if (ch === 35) {
-          do
-            ch = state3.input.charCodeAt(++state3.position);
-          while (ch !== 0 && !isEol(ch));
-          break;
-        }
-        if (isEol(ch)) break;
-        _position = state3.position;
-        while (ch !== 0 && !isWsOrEol(ch)) ch = state3.input.charCodeAt(++state3.position);
-        directiveArgs.push(state3.input.slice(_position, state3.position));
-      }
-      if (ch !== 0) readLineBreak(state3);
-      if (_hasOwnProperty.call(directiveHandlers, directiveName)) directiveHandlers[directiveName](state3, directiveName, directiveArgs);
-      else throwWarning(state3, 'unknown document directive "' + directiveName + '"');
-    }
-    skipSeparationSpace(state3, true, -1);
-    if (state3.lineIndent === 0 && state3.input.charCodeAt(state3.position) === 45 && state3.input.charCodeAt(state3.position + 1) === 45 && state3.input.charCodeAt(state3.position + 2) === 45) {
-      state3.position += 3;
-      skipSeparationSpace(state3, true, -1);
-    } else if (hasDirectives) throwError(state3, "directives end mark is expected");
-    composeNode(state3, state3.lineIndent - 1, CONTEXT_BLOCK_OUT, false, true);
-    skipSeparationSpace(state3, true, -1);
-    if (state3.checkLineBreaks && PATTERN_NON_ASCII_LINE_BREAKS.test(state3.input.slice(documentStart, state3.position))) throwWarning(state3, "non-ASCII line breaks are interpreted as content");
-    state3.documents.push(state3.result);
-    if (state3.position === state3.lineStart && testDocumentSeparator(state3)) {
-      if (state3.input.charCodeAt(state3.position) === 46) {
-        state3.position += 3;
-        skipSeparationSpace(state3, true, -1);
-      }
-      return;
-    }
-    if (state3.position < state3.length - 1) throwError(state3, "end of the stream or a document separator is expected");
-  }
-  function loadDocuments(input, options) {
-    input = String(input);
-    options = options || {};
-    if (input.length !== 0) {
-      if (input.charCodeAt(input.length - 1) !== 10 && input.charCodeAt(input.length - 1) !== 13) input += "\n";
-      if (input.charCodeAt(0) === 65279) input = input.slice(1);
-    }
-    const state3 = new State(input, options);
-    const nullpos = input.indexOf("\0");
-    if (nullpos !== -1) {
-      state3.position = nullpos;
-      throwError(state3, "null byte is not allowed in input");
-    }
-    state3.input += "\0";
-    while (state3.input.charCodeAt(state3.position) === 32) {
-      state3.lineIndent += 1;
-      state3.position += 1;
-    }
-    while (state3.position < state3.length - 1) readDocument(state3);
-    return state3.documents;
-  }
-  function loadAll2(input, iterator, options) {
-    if (iterator !== null && typeof iterator === "object" && typeof options === "undefined") {
-      options = iterator;
-      iterator = null;
-    }
-    const documents = loadDocuments(input, options);
-    if (typeof iterator !== "function") return documents;
-    for (let index = 0, length = documents.length; index < length; index += 1) iterator(documents[index]);
-  }
-  function load2(input, options) {
-    const documents = loadDocuments(input, options);
-    if (documents.length === 0) return;
-    else if (documents.length === 1) return documents[0];
-    throw new YAMLException2("expected a single document in the stream, but found more");
-  }
-  module2.exports.loadAll = loadAll2;
-  module2.exports.load = load2;
-}));
-var require_dumper = /* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var common = require_common();
-  var YAMLException2 = require_exception();
-  var DEFAULT_SCHEMA2 = require_default();
-  var _toString = Object.prototype.toString;
-  var _hasOwnProperty = Object.prototype.hasOwnProperty;
-  var CHAR_BOM = 65279;
-  var CHAR_TAB = 9;
-  var CHAR_LINE_FEED = 10;
-  var CHAR_CARRIAGE_RETURN = 13;
-  var CHAR_SPACE = 32;
-  var CHAR_EXCLAMATION = 33;
-  var CHAR_DOUBLE_QUOTE = 34;
-  var CHAR_SHARP = 35;
-  var CHAR_PERCENT = 37;
-  var CHAR_AMPERSAND = 38;
-  var CHAR_SINGLE_QUOTE = 39;
-  var CHAR_ASTERISK = 42;
-  var CHAR_COMMA = 44;
-  var CHAR_MINUS = 45;
-  var CHAR_COLON = 58;
-  var CHAR_EQUALS = 61;
-  var CHAR_GREATER_THAN = 62;
-  var CHAR_QUESTION = 63;
-  var CHAR_COMMERCIAL_AT = 64;
-  var CHAR_LEFT_SQUARE_BRACKET = 91;
-  var CHAR_RIGHT_SQUARE_BRACKET = 93;
-  var CHAR_GRAVE_ACCENT = 96;
-  var CHAR_LEFT_CURLY_BRACKET = 123;
-  var CHAR_VERTICAL_LINE = 124;
-  var CHAR_RIGHT_CURLY_BRACKET = 125;
-  var ESCAPE_SEQUENCES = {};
-  ESCAPE_SEQUENCES[0] = "\\0";
-  ESCAPE_SEQUENCES[7] = "\\a";
-  ESCAPE_SEQUENCES[8] = "\\b";
-  ESCAPE_SEQUENCES[9] = "\\t";
-  ESCAPE_SEQUENCES[10] = "\\n";
-  ESCAPE_SEQUENCES[11] = "\\v";
-  ESCAPE_SEQUENCES[12] = "\\f";
-  ESCAPE_SEQUENCES[13] = "\\r";
-  ESCAPE_SEQUENCES[27] = "\\e";
-  ESCAPE_SEQUENCES[34] = '\\"';
-  ESCAPE_SEQUENCES[92] = "\\\\";
-  ESCAPE_SEQUENCES[133] = "\\N";
-  ESCAPE_SEQUENCES[160] = "\\_";
-  ESCAPE_SEQUENCES[8232] = "\\L";
-  ESCAPE_SEQUENCES[8233] = "\\P";
-  var DEPRECATED_BOOLEANS_SYNTAX = [
-    "y",
-    "Y",
-    "yes",
-    "Yes",
-    "YES",
-    "on",
-    "On",
-    "ON",
-    "n",
-    "N",
-    "no",
-    "No",
-    "NO",
-    "off",
-    "Off",
-    "OFF"
-  ];
-  var DEPRECATED_BASE60_SYNTAX = /^[-+]?[0-9_]+(?::[0-9_]+)+(?:\.[0-9_]*)?$/;
-  function compileStyleMap(schema, map2) {
-    if (map2 === null) return {};
-    const result = {};
-    const keys = Object.keys(map2);
-    for (let index = 0, length = keys.length; index < length; index += 1) {
-      let tag = keys[index];
-      let style = String(map2[tag]);
-      if (tag.slice(0, 2) === "!!") tag = "tag:yaml.org,2002:" + tag.slice(2);
-      const type = schema.compiledTypeMap["fallback"][tag];
-      if (type && _hasOwnProperty.call(type.styleAliases, style)) style = type.styleAliases[style];
-      result[tag] = style;
-    }
-    return result;
-  }
-  function encodeHex(character) {
-    let handle;
-    let length;
-    const string3 = character.toString(16).toUpperCase();
-    if (character <= 255) {
-      handle = "x";
-      length = 2;
-    } else if (character <= 65535) {
-      handle = "u";
-      length = 4;
-    } else if (character <= 4294967295) {
-      handle = "U";
-      length = 8;
-    } else throw new YAMLException2("code point within a string may not be greater than 0xFFFFFFFF");
-    return "\\" + handle + common.repeat("0", length - string3.length) + string3;
-  }
-  var QUOTING_TYPE_SINGLE = 1;
-  var QUOTING_TYPE_DOUBLE = 2;
-  function State(options) {
-    this.schema = options["schema"] || DEFAULT_SCHEMA2;
-    this.indent = Math.max(1, options["indent"] || 2);
-    this.noArrayIndent = options["noArrayIndent"] || false;
-    this.skipInvalid = options["skipInvalid"] || false;
-    this.flowLevel = common.isNothing(options["flowLevel"]) ? -1 : options["flowLevel"];
-    this.styleMap = compileStyleMap(this.schema, options["styles"] || null);
-    this.sortKeys = options["sortKeys"] || false;
-    this.lineWidth = options["lineWidth"] || 80;
-    this.noRefs = options["noRefs"] || false;
-    this.noCompatMode = options["noCompatMode"] || false;
-    this.condenseFlow = options["condenseFlow"] || false;
-    this.quotingType = options["quotingType"] === '"' ? QUOTING_TYPE_DOUBLE : QUOTING_TYPE_SINGLE;
-    this.forceQuotes = options["forceQuotes"] || false;
-    this.replacer = typeof options["replacer"] === "function" ? options["replacer"] : null;
-    this.implicitTypes = this.schema.compiledImplicit;
-    this.explicitTypes = this.schema.compiledExplicit;
-    this.tag = null;
-    this.result = "";
-    this.duplicates = [];
-    this.usedDuplicates = null;
-  }
-  function indentString(string3, spaces) {
-    const ind = common.repeat(" ", spaces);
-    let position = 0;
-    let result = "";
-    const length = string3.length;
-    while (position < length) {
-      let line;
-      const next = string3.indexOf("\n", position);
-      if (next === -1) {
-        line = string3.slice(position);
-        position = length;
-      } else {
-        line = string3.slice(position, next + 1);
-        position = next + 1;
-      }
-      if (line.length && line !== "\n") result += ind;
-      result += line;
-    }
-    return result;
-  }
-  function generateNextLine(state3, level) {
-    return "\n" + common.repeat(" ", state3.indent * level);
-  }
-  function testImplicitResolving(state3, str) {
-    for (let index = 0, length = state3.implicitTypes.length; index < length; index += 1) if (state3.implicitTypes[index].resolve(str)) return true;
-    return false;
-  }
-  function isWhitespace(c) {
-    return c === CHAR_SPACE || c === CHAR_TAB;
-  }
-  function isPrintable(c) {
-    return c >= 32 && c <= 126 || c >= 161 && c <= 55295 && c !== 8232 && c !== 8233 || c >= 57344 && c <= 65533 && c !== CHAR_BOM || c >= 65536 && c <= 1114111;
-  }
-  function isNsCharOrWhitespace(c) {
-    return isPrintable(c) && c !== CHAR_BOM && c !== CHAR_CARRIAGE_RETURN && c !== CHAR_LINE_FEED;
-  }
-  function isPlainSafe(c, prev, inblock) {
-    const cIsNsCharOrWhitespace = isNsCharOrWhitespace(c);
-    const cIsNsChar = cIsNsCharOrWhitespace && !isWhitespace(c);
-    return (inblock ? cIsNsCharOrWhitespace : cIsNsCharOrWhitespace && c !== CHAR_COMMA && c !== CHAR_LEFT_SQUARE_BRACKET && c !== CHAR_RIGHT_SQUARE_BRACKET && c !== CHAR_LEFT_CURLY_BRACKET && c !== CHAR_RIGHT_CURLY_BRACKET) && c !== CHAR_SHARP && !(prev === CHAR_COLON && !cIsNsChar) || isNsCharOrWhitespace(prev) && !isWhitespace(prev) && c === CHAR_SHARP || prev === CHAR_COLON && cIsNsChar;
-  }
-  function isPlainSafeFirst(c) {
-    return isPrintable(c) && c !== CHAR_BOM && !isWhitespace(c) && c !== CHAR_MINUS && c !== CHAR_QUESTION && c !== CHAR_COLON && c !== CHAR_COMMA && c !== CHAR_LEFT_SQUARE_BRACKET && c !== CHAR_RIGHT_SQUARE_BRACKET && c !== CHAR_LEFT_CURLY_BRACKET && c !== CHAR_RIGHT_CURLY_BRACKET && c !== CHAR_SHARP && c !== CHAR_AMPERSAND && c !== CHAR_ASTERISK && c !== CHAR_EXCLAMATION && c !== CHAR_VERTICAL_LINE && c !== CHAR_EQUALS && c !== CHAR_GREATER_THAN && c !== CHAR_SINGLE_QUOTE && c !== CHAR_DOUBLE_QUOTE && c !== CHAR_PERCENT && c !== CHAR_COMMERCIAL_AT && c !== CHAR_GRAVE_ACCENT;
-  }
-  function isPlainSafeLast(c) {
-    return !isWhitespace(c) && c !== CHAR_COLON;
-  }
-  function codePointAt(string3, pos) {
-    const first = string3.charCodeAt(pos);
-    let second;
-    if (first >= 55296 && first <= 56319 && pos + 1 < string3.length) {
-      second = string3.charCodeAt(pos + 1);
-      if (second >= 56320 && second <= 57343) return (first - 55296) * 1024 + second - 56320 + 65536;
-    }
-    return first;
-  }
-  function needIndentIndicator(string3) {
-    return /^\n* /.test(string3);
-  }
-  var STYLE_PLAIN = 1;
-  var STYLE_SINGLE = 2;
-  var STYLE_LITERAL = 3;
-  var STYLE_FOLDED = 4;
-  var STYLE_DOUBLE = 5;
-  function chooseScalarStyle(string3, singleLineOnly, indentPerLevel, lineWidth, testAmbiguousType, quotingType, forceQuotes, inblock) {
-    let i;
-    let char = 0;
-    let prevChar = null;
-    let hasLineBreak = false;
-    let hasFoldableLine = false;
-    const shouldTrackWidth = lineWidth !== -1;
-    let previousLineBreak = -1;
-    let plain = isPlainSafeFirst(codePointAt(string3, 0)) && isPlainSafeLast(codePointAt(string3, string3.length - 1));
-    if (singleLineOnly || forceQuotes) for (i = 0; i < string3.length; char >= 65536 ? i += 2 : i++) {
-      char = codePointAt(string3, i);
-      if (!isPrintable(char)) return STYLE_DOUBLE;
-      plain = plain && isPlainSafe(char, prevChar, inblock);
-      prevChar = char;
-    }
-    else {
-      for (i = 0; i < string3.length; char >= 65536 ? i += 2 : i++) {
-        char = codePointAt(string3, i);
-        if (char === CHAR_LINE_FEED) {
-          hasLineBreak = true;
-          if (shouldTrackWidth) {
-            hasFoldableLine = hasFoldableLine || i - previousLineBreak - 1 > lineWidth && string3[previousLineBreak + 1] !== " ";
-            previousLineBreak = i;
-          }
-        } else if (!isPrintable(char)) return STYLE_DOUBLE;
-        plain = plain && isPlainSafe(char, prevChar, inblock);
-        prevChar = char;
-      }
-      hasFoldableLine = hasFoldableLine || shouldTrackWidth && i - previousLineBreak - 1 > lineWidth && string3[previousLineBreak + 1] !== " ";
-    }
-    if (!hasLineBreak && !hasFoldableLine) {
-      if (plain && !forceQuotes && !testAmbiguousType(string3)) return STYLE_PLAIN;
-      return quotingType === QUOTING_TYPE_DOUBLE ? STYLE_DOUBLE : STYLE_SINGLE;
-    }
-    if (indentPerLevel > 9 && needIndentIndicator(string3)) return STYLE_DOUBLE;
-    if (!forceQuotes) return hasFoldableLine ? STYLE_FOLDED : STYLE_LITERAL;
-    return quotingType === QUOTING_TYPE_DOUBLE ? STYLE_DOUBLE : STYLE_SINGLE;
-  }
-  function writeScalar(state3, string3, level, iskey, inblock) {
-    state3.dump = (function() {
-      if (string3.length === 0) return state3.quotingType === QUOTING_TYPE_DOUBLE ? '""' : "''";
-      if (!state3.noCompatMode) {
-        if (DEPRECATED_BOOLEANS_SYNTAX.indexOf(string3) !== -1 || DEPRECATED_BASE60_SYNTAX.test(string3)) return state3.quotingType === QUOTING_TYPE_DOUBLE ? '"' + string3 + '"' : "'" + string3 + "'";
-      }
-      const indent = state3.indent * Math.max(1, level);
-      const lineWidth = state3.lineWidth === -1 ? -1 : Math.max(Math.min(state3.lineWidth, 40), state3.lineWidth - indent);
-      const singleLineOnly = iskey || state3.flowLevel > -1 && level >= state3.flowLevel;
-      function testAmbiguity(string4) {
-        return testImplicitResolving(state3, string4);
-      }
-      switch (chooseScalarStyle(string3, singleLineOnly, state3.indent, lineWidth, testAmbiguity, state3.quotingType, state3.forceQuotes && !iskey, inblock)) {
-        case STYLE_PLAIN:
-          return string3;
-        case STYLE_SINGLE:
-          return "'" + string3.replace(/'/g, "''") + "'";
-        case STYLE_LITERAL:
-          return "|" + blockHeader(string3, state3.indent) + dropEndingNewline(indentString(string3, indent));
-        case STYLE_FOLDED:
-          return ">" + blockHeader(string3, state3.indent) + dropEndingNewline(indentString(foldString(string3, lineWidth), indent));
-        case STYLE_DOUBLE:
-          return '"' + escapeString(string3, lineWidth) + '"';
-        default:
-          throw new YAMLException2("impossible error: invalid scalar style");
-      }
-    })();
-  }
-  function blockHeader(string3, indentPerLevel) {
-    const indentIndicator = needIndentIndicator(string3) ? String(indentPerLevel) : "";
-    const clip = string3[string3.length - 1] === "\n";
-    return indentIndicator + (clip && (string3[string3.length - 2] === "\n" || string3 === "\n") ? "+" : clip ? "" : "-") + "\n";
-  }
-  function dropEndingNewline(string3) {
-    return string3[string3.length - 1] === "\n" ? string3.slice(0, -1) : string3;
-  }
-  function foldString(string3, width) {
-    const lineRe = /(\n+)([^\n]*)/g;
-    let result = (function() {
-      let nextLF = string3.indexOf("\n");
-      nextLF = nextLF !== -1 ? nextLF : string3.length;
-      lineRe.lastIndex = nextLF;
-      return foldLine(string3.slice(0, nextLF), width);
-    })();
-    let prevMoreIndented = string3[0] === "\n" || string3[0] === " ";
-    let moreIndented;
-    let match3;
-    while (match3 = lineRe.exec(string3)) {
-      const prefix2 = match3[1];
-      const line = match3[2];
-      moreIndented = line[0] === " ";
-      result += prefix2 + (!prevMoreIndented && !moreIndented && line !== "" ? "\n" : "") + foldLine(line, width);
-      prevMoreIndented = moreIndented;
-    }
-    return result;
-  }
-  function foldLine(line, width) {
-    if (line === "" || line[0] === " ") return line;
-    const breakRe = / [^ ]/g;
-    let match3;
-    let start = 0;
-    let end;
-    let curr = 0;
-    let next = 0;
-    let result = "";
-    while (match3 = breakRe.exec(line)) {
-      next = match3.index;
-      if (next - start > width) {
-        end = curr > start ? curr : next;
-        result += "\n" + line.slice(start, end);
-        start = end + 1;
-      }
-      curr = next;
-    }
-    result += "\n";
-    if (line.length - start > width && curr > start) result += line.slice(start, curr) + "\n" + line.slice(curr + 1);
-    else result += line.slice(start);
-    return result.slice(1);
-  }
-  function escapeString(string3) {
-    let result = "";
-    let char = 0;
-    for (let i = 0; i < string3.length; char >= 65536 ? i += 2 : i++) {
-      char = codePointAt(string3, i);
-      const escapeSeq = ESCAPE_SEQUENCES[char];
-      if (!escapeSeq && isPrintable(char)) {
-        result += string3[i];
-        if (char >= 65536) result += string3[i + 1];
-      } else result += escapeSeq || encodeHex(char);
-    }
-    return result;
-  }
-  function writeFlowSequence(state3, level, object2) {
-    let _result = "";
-    const _tag = state3.tag;
-    for (let index = 0, length = object2.length; index < length; index += 1) {
-      let value = object2[index];
-      if (state3.replacer) value = state3.replacer.call(object2, String(index), value);
-      if (writeNode(state3, level, value, false, false) || typeof value === "undefined" && writeNode(state3, level, null, false, false)) {
-        if (_result !== "") _result += "," + (!state3.condenseFlow ? " " : "");
-        _result += state3.dump;
-      }
-    }
-    state3.tag = _tag;
-    state3.dump = "[" + _result + "]";
-  }
-  function writeBlockSequence(state3, level, object2, compact) {
-    let _result = "";
-    const _tag = state3.tag;
-    for (let index = 0, length = object2.length; index < length; index += 1) {
-      let value = object2[index];
-      if (state3.replacer) value = state3.replacer.call(object2, String(index), value);
-      if (writeNode(state3, level + 1, value, true, true, false, true) || typeof value === "undefined" && writeNode(state3, level + 1, null, true, true, false, true)) {
-        if (!compact || _result !== "") _result += generateNextLine(state3, level);
-        if (state3.dump && CHAR_LINE_FEED === state3.dump.charCodeAt(0)) _result += "-";
-        else _result += "- ";
-        _result += state3.dump;
-      }
-    }
-    state3.tag = _tag;
-    state3.dump = _result || "[]";
-  }
-  function writeFlowMapping(state3, level, object2) {
-    let _result = "";
-    const _tag = state3.tag;
-    const objectKeyList = Object.keys(object2);
-    for (let index = 0, length = objectKeyList.length; index < length; index += 1) {
-      let pairBuffer = "";
-      if (_result !== "") pairBuffer += ", ";
-      if (state3.condenseFlow) pairBuffer += '"';
-      const objectKey = objectKeyList[index];
-      let objectValue = object2[objectKey];
-      if (state3.replacer) objectValue = state3.replacer.call(object2, objectKey, objectValue);
-      if (!writeNode(state3, level, objectKey, false, false)) continue;
-      if (state3.dump.length > 1024) pairBuffer += "? ";
-      pairBuffer += state3.dump + (state3.condenseFlow ? '"' : "") + ":" + (state3.condenseFlow ? "" : " ");
-      if (!writeNode(state3, level, objectValue, false, false)) continue;
-      pairBuffer += state3.dump;
-      _result += pairBuffer;
-    }
-    state3.tag = _tag;
-    state3.dump = "{" + _result + "}";
-  }
-  function writeBlockMapping(state3, level, object2, compact) {
-    let _result = "";
-    const _tag = state3.tag;
-    const objectKeyList = Object.keys(object2);
-    if (state3.sortKeys === true) objectKeyList.sort();
-    else if (typeof state3.sortKeys === "function") objectKeyList.sort(state3.sortKeys);
-    else if (state3.sortKeys) throw new YAMLException2("sortKeys must be a boolean or a function");
-    for (let index = 0, length = objectKeyList.length; index < length; index += 1) {
-      let pairBuffer = "";
-      if (!compact || _result !== "") pairBuffer += generateNextLine(state3, level);
-      const objectKey = objectKeyList[index];
-      let objectValue = object2[objectKey];
-      if (state3.replacer) objectValue = state3.replacer.call(object2, objectKey, objectValue);
-      if (!writeNode(state3, level + 1, objectKey, true, true, true)) continue;
-      const explicitPair = state3.tag !== null && state3.tag !== "?" || state3.dump && state3.dump.length > 1024;
-      if (explicitPair) if (state3.dump && CHAR_LINE_FEED === state3.dump.charCodeAt(0)) pairBuffer += "?";
-      else pairBuffer += "? ";
-      pairBuffer += state3.dump;
-      if (explicitPair) pairBuffer += generateNextLine(state3, level);
-      if (!writeNode(state3, level + 1, objectValue, true, explicitPair)) continue;
-      if (state3.dump && CHAR_LINE_FEED === state3.dump.charCodeAt(0)) pairBuffer += ":";
-      else pairBuffer += ": ";
-      pairBuffer += state3.dump;
-      _result += pairBuffer;
-    }
-    state3.tag = _tag;
-    state3.dump = _result || "{}";
-  }
-  function detectType(state3, object2, explicit) {
-    const typeList = explicit ? state3.explicitTypes : state3.implicitTypes;
-    for (let index = 0, length = typeList.length; index < length; index += 1) {
-      const type = typeList[index];
-      if ((type.instanceOf || type.predicate) && (!type.instanceOf || typeof object2 === "object" && object2 instanceof type.instanceOf) && (!type.predicate || type.predicate(object2))) {
-        if (explicit) if (type.multi && type.representName) state3.tag = type.representName(object2);
-        else state3.tag = type.tag;
-        else state3.tag = "?";
-        if (type.represent) {
-          const style = state3.styleMap[type.tag] || type.defaultStyle;
-          let _result;
-          if (_toString.call(type.represent) === "[object Function]") _result = type.represent(object2, style);
-          else if (_hasOwnProperty.call(type.represent, style)) _result = type.represent[style](object2, style);
-          else throw new YAMLException2("!<" + type.tag + '> tag resolver accepts not "' + style + '" style');
-          state3.dump = _result;
+        if (props.anchorStart !== NO_RANGE$1 || props.tagStart !== NO_RANGE$1) {
+          restoreState(state3, beforeKey);
+          return false;
         }
         return true;
       }
     }
-    return false;
-  }
-  function writeNode(state3, level, object2, block, compact, iskey, isblockseq) {
-    state3.tag = null;
-    state3.dump = object2;
-    if (!detectType(state3, object2, false)) detectType(state3, object2, true);
-    const type = _toString.call(state3.dump);
-    const inblock = block;
-    if (block) block = state3.flowLevel < 0 || state3.flowLevel > level;
-    const objectOrArray = type === "[object Object]" || type === "[object Array]";
-    let duplicateIndex;
-    let duplicate;
-    if (objectOrArray) {
-      duplicateIndex = state3.duplicates.indexOf(object2);
-      duplicate = duplicateIndex !== -1;
+    if (parseNode(state3, nodeIndent, CONTEXT_BLOCK_OUT, true, pendingExplicitKey)) pendingExplicitKey = false;
+    if (!atExplicitKey) {
+      if (pendingExplicitKey) {
+        addEmptyScalarEvent(state3);
+        pendingExplicitKey = false;
+      }
     }
-    if (state3.tag !== null && state3.tag !== "?" || duplicate || state3.indent !== 2 && level > 0) compact = false;
-    if (duplicate && state3.usedDuplicates[duplicateIndex]) state3.dump = "*ref_" + duplicateIndex;
+    skipSeparationSpace(state3, true);
+    ch = state3.input.charCodeAt(state3.position);
+    if ((state3.line === entryLine || state3.lineIndent > nodeIndent) && ch !== 0) throwError(state3, "bad indentation of a mapping entry");
+    else if (state3.lineIndent < nodeIndent) break;
+  }
+  if (!detected) return false;
+  if (atExplicitKey) addEmptyScalarEvent(state3);
+  if (mappingOpened) addPopEvent(state3);
+  return true;
+}
+function parseNode(state3, parentIndent, nodeContext, allowToSeek, allowCompact, allowPropertyMapping = true) {
+  if (state3.depth >= state3.maxDepth) throwError(state3, `nesting exceeded maxDepth (${state3.maxDepth})`);
+  state3.depth++;
+  let indentStatus = 1;
+  let atNewLine = false;
+  let hasContent = false;
+  let propertyStart = null;
+  const props = emptyProperties();
+  let allowBlockScalars = nodeContext === CONTEXT_BLOCK_OUT || nodeContext === CONTEXT_BLOCK_IN;
+  let allowBlockCollections = allowBlockScalars;
+  const allowBlockStyles = allowBlockScalars;
+  if (allowToSeek && skipSeparationSpace(state3, true)) {
+    atNewLine = true;
+    if (state3.lineIndent > parentIndent) indentStatus = 1;
+    else if (state3.lineIndent === parentIndent) indentStatus = 0;
+    else indentStatus = -1;
+  }
+  if (indentStatus === 1) while (true) {
+    const ch = state3.input.charCodeAt(state3.position);
+    const propertyState = snapshotState(state3);
+    if (atNewLine && indentStatus !== 1 && (ch === 33 || ch === 38)) break;
+    if (atNewLine && allowBlockStyles && (props.tagStart !== NO_RANGE$1 || props.anchorStart !== NO_RANGE$1) && (ch === 33 || ch === 38)) {
+      const fallbackState = snapshotState(state3);
+      const flowIndent = parentIndent + 1;
+      if (readBlockMapping(state3, state3.position - state3.lineStart, flowIndent, props) && state3.events[fallbackState.eventsLength]?.type === 3) {
+        state3.depth--;
+        return true;
+      }
+      restoreState(state3, fallbackState);
+    }
+    if (atNewLine && (ch === 33 && props.tagStart !== NO_RANGE$1 || ch === 38 && props.anchorStart !== NO_RANGE$1)) break;
+    if (!readTagProperty(state3, props, nodeContext === CONTEXT_FLOW_IN) && !readAnchorProperty(state3, props)) break;
+    if (propertyStart === null) propertyStart = propertyState;
+    if (skipSeparationSpace(state3, true)) {
+      atNewLine = true;
+      allowBlockCollections = allowBlockStyles;
+      if (state3.lineIndent > parentIndent) indentStatus = 1;
+      else if (state3.lineIndent === parentIndent) indentStatus = 0;
+      else indentStatus = -1;
+    } else allowBlockCollections = false;
+  }
+  if (allowBlockCollections) allowBlockCollections = atNewLine || allowCompact;
+  if (indentStatus === 1 || nodeContext === CONTEXT_BLOCK_OUT) {
+    const flowIndent = nodeContext === CONTEXT_FLOW_IN || nodeContext === CONTEXT_FLOW_OUT ? parentIndent : parentIndent + 1;
+    const blockIndent = state3.position - state3.lineStart;
+    if (indentStatus === 1) if (allowBlockCollections && (readBlockSequence(state3, blockIndent, props) || readBlockMapping(state3, blockIndent, flowIndent, props)) || readFlowCollection(state3, flowIndent, props)) hasContent = true;
     else {
-      if (objectOrArray && duplicate && !state3.usedDuplicates[duplicateIndex]) state3.usedDuplicates[duplicateIndex] = true;
-      if (type === "[object Object]") if (block && Object.keys(state3.dump).length !== 0) {
-        writeBlockMapping(state3, level, state3.dump, compact);
-        if (duplicate) state3.dump = "&ref_" + duplicateIndex + state3.dump;
-      } else {
-        writeFlowMapping(state3, level, state3.dump);
-        if (duplicate) state3.dump = "&ref_" + duplicateIndex + " " + state3.dump;
+      const ch = state3.input.charCodeAt(state3.position);
+      if (propertyStart !== null && allowPropertyMapping && allowBlockStyles && !allowBlockCollections && ch !== 124 && ch !== 62) {
+        const fallbackState = snapshotState(state3);
+        const propertyIndent = propertyStart.position - propertyStart.lineStart;
+        restoreState(state3, propertyStart);
+        if (readBlockMapping(state3, propertyIndent, flowIndent, emptyProperties()) && state3.events[fallbackState.eventsLength]?.type === 3) hasContent = true;
+        else restoreState(state3, fallbackState);
       }
-      else if (type === "[object Array]") if (block && state3.dump.length !== 0) {
-        if (state3.noArrayIndent && !isblockseq && level > 0) writeBlockSequence(state3, level - 1, state3.dump, compact);
-        else writeBlockSequence(state3, level, state3.dump, compact);
-        if (duplicate) state3.dump = "&ref_" + duplicateIndex + state3.dump;
-      } else {
-        writeFlowSequence(state3, level, state3.dump);
-        if (duplicate) state3.dump = "&ref_" + duplicateIndex + " " + state3.dump;
-      }
-      else if (type === "[object String]") {
-        if (state3.tag !== "?") writeScalar(state3, state3.dump, level, iskey, inblock);
-      } else if (type === "[object Undefined]") return false;
-      else {
-        if (state3.skipInvalid) return false;
-        throw new YAMLException2("unacceptable kind of an object to dump " + type);
-      }
-      if (state3.tag !== null && state3.tag !== "?") {
-        let tagStr = encodeURI(state3.tag[0] === "!" ? state3.tag.slice(1) : state3.tag).replace(/!/g, "%21");
-        if (state3.tag[0] === "!") tagStr = "!" + tagStr;
-        else if (tagStr.slice(0, 18) === "tag:yaml.org,2002:") tagStr = "!!" + tagStr.slice(18);
-        else tagStr = "!<" + tagStr + ">";
-        state3.dump = tagStr + " " + state3.dump;
-      }
+      if (!hasContent && (allowBlockScalars && readBlockScalar(state3, flowIndent, props) || readSingleQuotedScalar(state3, flowIndent, props) || readDoubleQuotedScalar(state3, flowIndent, props) || readAlias(state3, props) || readPlainScalar(state3, flowIndent, nodeContext, props))) hasContent = true;
     }
-    return true;
+    else if (indentStatus === 0) hasContent = allowBlockCollections && readBlockSequence(state3, blockIndent, props);
   }
-  function getDuplicateReferences(object2, state3) {
-    const objects = [];
-    const duplicatesIndexes = [];
-    inspectNode(object2, objects, duplicatesIndexes);
-    const length = duplicatesIndexes.length;
-    for (let index = 0; index < length; index += 1) state3.duplicates.push(objects[duplicatesIndexes[index]]);
-    state3.usedDuplicates = new Array(length);
+  allowBlockScalars = allowBlockScalars && !hasContent;
+  if (!hasContent && (props.anchorStart !== NO_RANGE$1 || props.tagStart !== NO_RANGE$1 || allowBlockScalars)) {
+    addScalarEvent(state3, NO_RANGE$1, NO_RANGE$1, props.anchorStart, props.anchorEnd, props.tagStart, props.tagEnd, 1);
+    hasContent = true;
   }
-  function inspectNode(object2, objects, duplicatesIndexes) {
-    if (object2 !== null && typeof object2 === "object") {
-      const index = objects.indexOf(object2);
-      if (index !== -1) {
-        if (duplicatesIndexes.indexOf(index) === -1) duplicatesIndexes.push(index);
-      } else {
-        objects.push(object2);
-        if (Array.isArray(object2)) for (let i = 0, length = object2.length; i < length; i += 1) inspectNode(object2[i], objects, duplicatesIndexes);
-        else {
-          const objectKeyList = Object.keys(object2);
-          for (let i = 0, length = objectKeyList.length; i < length; i += 1) inspectNode(object2[objectKeyList[i]], objects, duplicatesIndexes);
-        }
-      }
+  state3.depth--;
+  return hasContent || props.anchorStart !== NO_RANGE$1 || props.tagStart !== NO_RANGE$1;
+}
+function readDirective(state3) {
+  if (state3.lineIndent > 0 || state3.input.charCodeAt(state3.position) !== 37) return false;
+  state3.position++;
+  const nameStart = state3.position;
+  while (state3.input.charCodeAt(state3.position) !== 0 && !isWsOrEol(state3.input.charCodeAt(state3.position))) state3.position++;
+  const name = state3.input.slice(nameStart, state3.position);
+  const args = [];
+  if (name.length === 0) throwError(state3, "directive name must not be less than one character in length");
+  while (state3.input.charCodeAt(state3.position) !== 0 && !isEol(state3.input.charCodeAt(state3.position))) {
+    while (isWhiteSpace(state3.input.charCodeAt(state3.position))) state3.position++;
+    if (state3.input.charCodeAt(state3.position) === 35 || isEol(state3.input.charCodeAt(state3.position)) || state3.input.charCodeAt(state3.position) === 0) break;
+    const start = state3.position;
+    while (state3.input.charCodeAt(state3.position) !== 0 && !isWsOrEol(state3.input.charCodeAt(state3.position))) state3.position++;
+    args.push(state3.input.slice(start, state3.position));
+  }
+  if (isEol(state3.input.charCodeAt(state3.position))) consumeLineBreak(state3);
+  if (name === "YAML") {
+    if (state3.directives.some((directive) => directive.kind === "yaml")) throwError(state3, "duplication of %YAML directive");
+    if (args.length !== 1) throwError(state3, "YAML directive accepts exactly one argument");
+    const match3 = /^([0-9]+)\.([0-9]+)$/.exec(args[0]);
+    if (match3 === null) throwError(state3, "ill-formed argument of the YAML directive");
+    if (parseInt(match3[1], 10) !== 1) throwError(state3, "unacceptable YAML version of the document");
+    state3.directives.push({
+      kind: "yaml",
+      version: args[0]
+    });
+  } else if (name === "TAG") {
+    if (args.length !== 2) throwError(state3, "TAG directive accepts exactly two arguments");
+    const [handle, prefix2] = args;
+    if (!PATTERN_TAG_HANDLE.test(handle)) throwError(state3, "ill-formed tag handle (first argument) of the TAG directive");
+    if (HAS_OWN.call(state3.tagHandlers, handle)) throwError(state3, `there is a previously declared suffix for "${handle}" tag handle`);
+    if (!PATTERN_TAG_PREFIX.test(prefix2)) throwError(state3, "ill-formed tag prefix (second argument) of the TAG directive");
+    state3.tagHandlers[handle] = prefix2;
+    state3.directives.push({
+      kind: "tag",
+      handle,
+      prefix: prefix2
+    });
+  }
+  return true;
+}
+function readDocument(state3) {
+  state3.directives = [];
+  state3.tagHandlers = /* @__PURE__ */ Object.create(null);
+  let hasDirectives = false;
+  skipSeparationSpace(state3, true);
+  while (readDirective(state3)) {
+    hasDirectives = true;
+    skipSeparationSpace(state3, true);
+  }
+  let explicitStart = false;
+  let explicitEnd = false;
+  let allowCompact = true;
+  if (state3.lineIndent === 0 && state3.input.charCodeAt(state3.position) === 45 && state3.input.charCodeAt(state3.position + 1) === 45 && state3.input.charCodeAt(state3.position + 2) === 45 && isWsOrEolOrEnd(state3.input.charCodeAt(state3.position + 3))) {
+    explicitStart = true;
+    const markerLine = state3.line;
+    state3.position += 3;
+    skipSeparationSpace(state3, true);
+    allowCompact = state3.line > markerLine;
+  } else if (hasDirectives) throwError(state3, "directives end mark is expected");
+  const documentEventIndex = state3.events.length;
+  if (!explicitStart && state3.position === state3.lineStart && state3.input.charCodeAt(state3.position) === 46 && testDocumentSeparator(state3)) {
+    state3.position += 3;
+    skipSeparationSpace(state3, true);
+    return;
+  }
+  addDocumentEvent(state3, explicitStart, false);
+  if (!parseNode(state3, state3.lineIndent - 1, CONTEXT_BLOCK_OUT, false, allowCompact, allowCompact)) addEmptyScalarEvent(state3);
+  skipSeparationSpace(state3, true);
+  if (state3.position === state3.lineStart && testDocumentSeparator(state3)) {
+    explicitEnd = state3.input.charCodeAt(state3.position) === 46;
+    if (explicitEnd) {
+      const markerLine = state3.line;
+      state3.position += 3;
+      skipSeparationSpace(state3, true);
+      if (state3.line === markerLine && state3.position < state3.length) throwError(state3, "end of the stream or a document separator is expected");
     }
   }
-  function dump2(input, options) {
-    options = options || {};
-    const state3 = new State(options);
-    if (!state3.noRefs) getDuplicateReferences(input, state3);
-    let value = input;
-    if (state3.replacer) value = state3.replacer.call({ "": value }, "", value);
-    if (writeNode(state3, 0, value, true, true)) return state3.dump + "\n";
-    return "";
-  }
-  module2.exports.dump = dump2;
-}));
-var import_js_yaml = /* @__PURE__ */ __toESM2((/* @__PURE__ */ __commonJSMin(((exports2, module2) => {
-  var loader = require_loader();
-  var dumper = require_dumper();
-  function renamed(from, to) {
-    return function() {
-      throw new Error("Function yaml." + from + " is removed in js-yaml 4. Use yaml." + to + " instead, which is now safe by default.");
-    };
-  }
-  module2.exports.Type = require_type();
-  module2.exports.Schema = require_schema();
-  module2.exports.FAILSAFE_SCHEMA = require_failsafe();
-  module2.exports.JSON_SCHEMA = require_json();
-  module2.exports.CORE_SCHEMA = require_core();
-  module2.exports.DEFAULT_SCHEMA = require_default();
-  module2.exports.load = loader.load;
-  module2.exports.loadAll = loader.loadAll;
-  module2.exports.dump = dumper.dump;
-  module2.exports.YAMLException = require_exception();
-  module2.exports.types = {
-    binary: require_binary(),
-    float: require_float(),
-    map: require_map(),
-    null: require_null(),
-    pairs: require_pairs(),
-    set: require_set(),
-    timestamp: require_timestamp(),
-    bool: require_bool(),
-    int: require_int(),
-    merge: require_merge(),
-    omap: require_omap(),
-    seq: require_seq(),
-    str: require_str()
+  const documentEvent = state3.events[documentEventIndex];
+  if (documentEvent?.type === 1) documentEvent.explicitEnd = explicitEnd;
+  addPopEvent(state3);
+  if (!explicitEnd && state3.position < state3.length && !(state3.position === state3.lineStart && testDocumentSeparator(state3))) throwError(state3, "end of the stream or a document separator is expected");
+}
+function parseEvents(input, options) {
+  const length = input.length;
+  const state3 = {
+    ...DEFAULT_PARSER_OPTIONS,
+    ...options,
+    input: `${input}\0`,
+    length,
+    position: 0,
+    line: 0,
+    lineStart: 0,
+    lineIndent: 0,
+    firstTabInLine: -1,
+    depth: 0,
+    directives: [],
+    tagHandlers: /* @__PURE__ */ Object.create(null),
+    events: []
   };
-  module2.exports.safeLoad = renamed("safeLoad", "load");
-  module2.exports.safeLoadAll = renamed("safeLoadAll", "loadAll");
-  module2.exports.safeDump = renamed("safeDump", "dump");
-})))(), 1);
-var { Type, Schema, FAILSAFE_SCHEMA, JSON_SCHEMA, CORE_SCHEMA, DEFAULT_SCHEMA, load, loadAll, dump, YAMLException, types, safeLoad, safeLoadAll, safeDump } = import_js_yaml.default;
-var index_vite_proxy_tmp_default = import_js_yaml.default;
+  const nullpos = input.indexOf("\0");
+  if (nullpos !== -1) throwErrorAt(input, nullpos, "null byte is not allowed in input", state3.filename);
+  if (state3.input.charCodeAt(state3.position) === 65279) state3.position++;
+  while (state3.position < state3.length) {
+    skipSeparationSpace(state3, true);
+    if (state3.position >= state3.length) break;
+    const documentStart = state3.position;
+    readDocument(state3);
+    if (state3.position === documentStart)
+      throwError(state3, "can not read a document");
+  }
+  return state3.events;
+}
+var DEFAULT_LOAD_OPTIONS = {
+  ...DEFAULT_PARSER_OPTIONS,
+  ...DEFAULT_CONSTRUCTOR_OPTIONS
+};
+function loadDocuments(input, options = {}) {
+  const opts = {
+    ...DEFAULT_LOAD_OPTIONS,
+    ...options
+  };
+  const source = String(input);
+  const PARSER_OPT_KEYS = Object.keys(DEFAULT_PARSER_OPTIONS);
+  const CONSTRUCTOR_OPT_KEYS = Object.keys(DEFAULT_CONSTRUCTOR_OPTIONS);
+  return constructFromEvents(parseEvents(source, pick(opts, PARSER_OPT_KEYS)), {
+    ...pick(opts, CONSTRUCTOR_OPT_KEYS),
+    source
+  });
+}
+function load(input, options) {
+  const documents = loadDocuments(input, options);
+  if (documents.length === 0) throw new YAMLException("expected a document, but the input is empty");
+  if (documents.length === 1) return documents[0];
+  throw new YAMLException("expected a single document in the stream, but found more");
+}
+var ESCAPE_SEQUENCES = {};
+ESCAPE_SEQUENCES[0] = "\\0";
+ESCAPE_SEQUENCES[7] = "\\a";
+ESCAPE_SEQUENCES[8] = "\\b";
+ESCAPE_SEQUENCES[9] = "\\t";
+ESCAPE_SEQUENCES[10] = "\\n";
+ESCAPE_SEQUENCES[11] = "\\v";
+ESCAPE_SEQUENCES[12] = "\\f";
+ESCAPE_SEQUENCES[13] = "\\r";
+ESCAPE_SEQUENCES[27] = "\\e";
+ESCAPE_SEQUENCES[34] = '\\"';
+ESCAPE_SEQUENCES[92] = "\\\\";
+ESCAPE_SEQUENCES[133] = "\\N";
+ESCAPE_SEQUENCES[160] = "\\_";
+ESCAPE_SEQUENCES[8232] = "\\L";
+ESCAPE_SEQUENCES[8233] = "\\P";
+var DEFAULT_PRESENTER_OPTIONS = {
+  indent: 2,
+  seqNoIndent: false,
+  seqInlineFirst: true,
+  sortKeys: false,
+  lineWidth: 80,
+  flowBracketPadding: false,
+  flowSkipCommaSpace: false,
+  flowSkipColonSpace: false,
+  quoteFlowKeys: false,
+  quoteStyle: "single",
+  forceQuotes: false,
+  tagBeforeAnchor: false
+};
+var DEFAULT_DUMP_SCHEMA = YAML11_SCHEMA.withTags({
+  ...intYaml11Tag,
+  resolve: (source, isExplicit, tagName) => {
+    const result = intYaml11Tag.resolve(source, isExplicit, tagName);
+    return result === NOT_RESOLVED ? intCoreTag.resolve(source, isExplicit, tagName) : result;
+  }
+}, {
+  ...floatYaml11Tag,
+  resolve: (source, isExplicit, tagName) => {
+    const result = floatYaml11Tag.resolve(source, isExplicit, tagName);
+    return result === NOT_RESOLVED ? floatCoreTag.resolve(source, isExplicit, tagName) : result;
+  }
+});
+var DEFAULT_DUMP_OPTIONS = {
+  ...DEFAULT_PRESENTER_OPTIONS,
+  schema: DEFAULT_DUMP_SCHEMA,
+  skipInvalid: false,
+  noRefs: false,
+  flowLevel: -1,
+  transform: () => {
+  }
+};
 
 // node_modules/.pnpm/fp-ts@2.16.11/node_modules/fp-ts/es6/function.js
 var __spreadArray = function(to, from, pack) {
@@ -50925,8 +51072,8 @@ var dual = function(arity, body2) {
     if (isDataFirst(arguments)) {
       return body2.apply(this, args);
     }
-    return function(self2) {
-      return body2.apply(void 0, __spreadArray([self2], args, false));
+    return function(self) {
+      return body2.apply(void 0, __spreadArray([self], args, false));
     };
   };
 };
@@ -50941,16 +51088,16 @@ var right = function(a) {
 
 // node_modules/.pnpm/fp-ts@2.16.11/node_modules/fp-ts/es6/Functor.js
 function as(F) {
-  return function(self2, b) {
-    return F.map(self2, function() {
+  return function(self, b) {
+    return F.map(self, function() {
       return b;
     });
   };
 }
 function asUnit(F) {
   var asM = as(F);
-  return function(self2) {
-    return asM(self2, void 0);
+  return function(self) {
+    return asM(self, void 0);
   };
 }
 
@@ -51126,7 +51273,7 @@ __export(util_exports, {
   getSizableOrigin: () => getSizableOrigin,
   hexToUint8Array: () => hexToUint8Array,
   isObject: () => isObject,
-  isPlainObject: () => isPlainObject,
+  isPlainObject: () => isPlainObject2,
   issue: () => issue2,
   joinValues: () => joinValues,
   jsonStringifyReplacer: () => jsonStringifyReplacer,
@@ -51140,7 +51287,7 @@ __export(util_exports, {
   optionalKeys: () => optionalKeys,
   parsedType: () => parsedType,
   partial: () => partial,
-  pick: () => pick,
+  pick: () => pick2,
   prefixIssues: () => prefixIssues,
   primitiveTypes: () => primitiveTypes,
   promiseAllObject: () => promiseAllObject,
@@ -51306,7 +51453,7 @@ var allowsEval = /* @__PURE__ */ cached(() => {
     return false;
   }
 });
-function isPlainObject(o) {
+function isPlainObject2(o) {
   if (isObject(o) === false)
     return false;
   const ctor = o.constructor;
@@ -51323,7 +51470,7 @@ function isPlainObject(o) {
   return true;
 }
 function shallowClone(o) {
-  if (isPlainObject(o))
+  if (isPlainObject2(o))
     return { ...o };
   if (Array.isArray(o))
     return [...o];
@@ -51476,7 +51623,7 @@ var BIGINT_FORMAT_RANGES = {
   int64: [/* @__PURE__ */ BigInt("-9223372036854775808"), /* @__PURE__ */ BigInt("9223372036854775807")],
   uint64: [/* @__PURE__ */ BigInt(0), /* @__PURE__ */ BigInt("18446744073709551615")]
 };
-function pick(schema, mask) {
+function pick2(schema, mask) {
   const currDef = schema._zod.def;
   const checks = currDef.checks;
   const hasChecks = checks && checks.length > 0;
@@ -51527,7 +51674,7 @@ function omit(schema, mask) {
   return clone(schema, def);
 }
 function extend(schema, shape) {
-  if (!isPlainObject(shape)) {
+  if (!isPlainObject2(shape)) {
     throw new Error("Invalid input to extend: expected a plain object");
   }
   const checks = schema._zod.def.checks;
@@ -51550,7 +51697,7 @@ function extend(schema, shape) {
   return clone(schema, def);
 }
 function safeExtend(schema, shape) {
-  if (!isPlainObject(shape)) {
+  if (!isPlainObject2(shape)) {
     throw new Error("Invalid input to safeExtend: expected a plain object");
   }
   const def = mergeDefs(schema._zod.def, {
@@ -51817,7 +51964,7 @@ function flattenError(error2, mapper = (issue3) => issue3.message) {
   }
   return { formErrors, fieldErrors };
 }
-function formatError(error2, mapper = (issue3) => issue3.message) {
+function formatError2(error2, mapper = (issue3) => issue3.message) {
   const fieldErrors = { _errors: [] };
   const processError = (error3, path19 = []) => {
     for (const issue3 of error3.issues) {
@@ -53110,7 +53257,7 @@ function mergeValues(a, b) {
   if (a instanceof Date && b instanceof Date && +a === +b) {
     return { valid: true, data: a };
   }
-  if (isPlainObject(a) && isPlainObject(b)) {
+  if (isPlainObject2(a) && isPlainObject2(b)) {
     const bKeys = Object.keys(b);
     const sharedKeys = Object.keys(a).filter((key) => bKeys.indexOf(key) !== -1);
     const newObj = { ...a, ...b };
@@ -54642,7 +54789,7 @@ var initializer2 = (inst, issues) => {
   inst.name = "ZodError";
   Object.defineProperties(inst, {
     format: {
-      value: (mapper) => formatError(inst, mapper)
+      value: (mapper) => formatError2(inst, mapper)
       // enumerable: false,
     },
     flatten: {
@@ -55992,7 +56139,7 @@ var addEnvironmentToAutoActivate = (options, environmentName, shell) => {
 var import_path2 = __toESM(require("path"));
 var fs12 = __toESM(require("fs/promises"));
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/cache.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/cache.js
 var path15 = __toESM(require("path"), 1);
 
 // node_modules/.pnpm/@actions+glob@0.6.1/node_modules/@actions/glob/lib/internal-globber.js
@@ -56692,14 +56839,14 @@ function create(patterns, options) {
   });
 }
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/cacheUtils.js
-var crypto4 = __toESM(require("crypto"), 1);
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/cacheUtils.js
+var crypto3 = __toESM(require("crypto"), 1);
 var fs8 = __toESM(require("fs"), 1);
 var path13 = __toESM(require("path"), 1);
 var semver3 = __toESM(require_semver4(), 1);
 var util2 = __toESM(require("util"), 1);
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/constants.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/constants.js
 var CacheFilename;
 (function(CacheFilename2) {
   CacheFilename2["Gzip"] = "cache.tgz";
@@ -56724,8 +56871,9 @@ var SystemTarPathOnWindows = `${process.env["SYSTEMDRIVE"]}\\Windows\\System32\\
 var TarFilename = "cache.tar";
 var ManifestFilename = "manifest.txt";
 var CacheFileSizeLimit = 10 * Math.pow(1024, 3);
+var CacheReadDeniedMessagePrefix = "cache read denied:";
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/cacheUtils.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/cacheUtils.js
 var __awaiter16 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve3) {
@@ -56790,7 +56938,7 @@ function createTempDirectory() {
       }
       tempDirectory = path13.join(baseLocation, "actions", "temp");
     }
-    const dest = path13.join(tempDirectory, crypto4.randomUUID());
+    const dest = path13.join(tempDirectory, crypto3.randomUUID());
     yield mkdirP(dest);
     return dest;
   });
@@ -56898,7 +57046,7 @@ function getCacheVersion(paths, compressionMethod, enableCrossOsArchive = false)
     components.push("windows-only");
   }
   components.push(versionSalt);
-  return crypto4.createHash("sha256").update(components.join("|")).digest("hex");
+  return crypto3.createHash("sha256").update(components.join("|")).digest("hex");
 }
 function getRuntimeToken() {
   const token = process.env["ACTIONS_RUNTIME_TOKEN"];
@@ -56908,11 +57056,11 @@ function getRuntimeToken() {
   return token;
 }
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/cacheHttpClient.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/cacheHttpClient.js
 var fs11 = __toESM(require("fs"), 1);
 var import_url = require("url");
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/abort-controller/AbortError.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/abort-controller/AbortError.js
 var AbortError = class extends Error {
   constructor(message) {
     super(message);
@@ -56920,7 +57068,7 @@ var AbortError = class extends Error {
   }
 };
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/logger/log.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/logger/log.js
 var import_node_os2 = require("os");
 var import_node_util = __toESM(require("util"), 1);
 var import_node_process = __toESM(require("process"), 1);
@@ -56928,8 +57076,17 @@ function log(message, ...args) {
   import_node_process.default.stderr.write(`${import_node_util.default.format(message, ...args)}${import_node_os2.EOL}`);
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/logger/debug.js
-var debugEnvVariable = typeof process !== "undefined" && process.env && process.env.DEBUG || void 0;
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/env.js
+var import_node_process2 = __toESM(require("process"), 1);
+function getEnvironmentVariable(name) {
+  return import_node_process2.default.env[name];
+}
+var isDeno = typeof import_node_process2.default.versions.deno === "string" && import_node_process2.default.versions.deno.length > 0;
+var isBun = typeof import_node_process2.default.versions.bun === "string" && import_node_process2.default.versions.bun.length > 0;
+var isNodeLike = true;
+
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/logger/debug.js
+var debugEnvVariable = getEnvironmentVariable("DEBUG");
 var enabledString;
 var enabledNamespaces = [];
 var skippedNamespaces = [];
@@ -57086,7 +57243,7 @@ function extend2(namespace) {
 }
 var debug_default = debugObj;
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/logger/logger.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/logger/logger.js
 var TYPESPEC_RUNTIME_LOG_LEVELS = ["verbose", "info", "warning", "error"];
 var levelMap = {
   verbose: 400,
@@ -57104,7 +57261,7 @@ function isTypeSpecRuntimeLogLevel(level) {
 }
 function createLoggerContext(options) {
   const registeredLoggers = /* @__PURE__ */ new Set();
-  const logLevelFromEnv = typeof process !== "undefined" && process.env && process.env[options.logLevelEnvVarName] || void 0;
+  const logLevelFromEnv = getEnvironmentVariable(options.logLevelEnvVarName);
   let logLevel;
   const clientLogger = debug_default(options.namespace);
   clientLogger.log = (...args) => {
@@ -57174,9 +57331,12 @@ function createClientLogger(namespace) {
   return context.createClientLogger(namespace);
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/httpHeaders.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/httpHeaders.js
 function normalizeName(name) {
   return name.toLowerCase();
+}
+function normalizeValue(value) {
+  return String(value).trim().replace(/[\r\n]/g, "");
 }
 function* headerIterator(map2) {
   for (const entry of map2.values()) {
@@ -57200,7 +57360,7 @@ var HttpHeadersImpl = class {
    * @param value - The value of the header to set.
    */
   set(name, value) {
-    this._headersMap.set(normalizeName(name), { name, value: String(value).trim() });
+    this._headersMap.set(normalizeName(name), { name, value: normalizeValue(value) });
   }
   /**
    * Get the header value for the provided header name, or undefined if no header exists in this
@@ -57257,12 +57417,12 @@ function createHttpHeaders(rawHeaders) {
   return new HttpHeadersImpl(rawHeaders);
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/uuidUtils.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/uuidUtils.js
 function randomUUID4() {
-  return crypto.randomUUID();
+  return globalThis.crypto.randomUUID();
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/pipelineRequest.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/pipelineRequest.js
 var PipelineRequestImpl = class {
   constructor(options) {
     __publicField(this, "url");
@@ -57309,7 +57469,7 @@ function createPipelineRequest(options) {
   return new PipelineRequestImpl(options);
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/pipeline.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/pipeline.js
 var ValidPhaseNames = /* @__PURE__ */ new Set(["Deserialize", "Serialize", "Retry", "Sign"]);
 var HttpPipeline = class _HttpPipeline {
   constructor(policies) {
@@ -57490,12 +57650,12 @@ function createEmptyPipeline() {
   return HttpPipeline.create();
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/object.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/object.js
 function isObject2(input) {
   return typeof input === "object" && input !== null && !Array.isArray(input) && !(input instanceof RegExp) && !(input instanceof Date);
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/error.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/error.js
 function isError(e) {
   if (isObject2(e)) {
     const hasName = typeof e.name === "string";
@@ -57505,11 +57665,11 @@ function isError(e) {
   return false;
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/inspect.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/inspect.js
 var import_node_util2 = require("util");
 var custom = import_node_util2.inspect.custom;
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/sanitizer.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/sanitizer.js
 var RedactedString = "REDACTED";
 var defaultAllowedHeaderNames = [
   "x-ms-client-request-id",
@@ -57645,7 +57805,7 @@ var Sanitizer = class {
   }
 };
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/restError.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/restError.js
 var errorSanitizer = new Sanitizer();
 var _RestError = class _RestError extends Error {
   constructor(message, options = {}) {
@@ -57714,21 +57874,24 @@ function isRestError(e) {
   return isError(e) && e.name === "RestError";
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/bytesEncoding.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/bytesEncoding.js
+function uint8ArrayToString(bytes, format) {
+  return Buffer.from(bytes).toString(format);
+}
 function stringToUint8Array(value, format) {
   return Buffer.from(value, format);
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/nodeHttpClient.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/nodeHttpClient.js
 var import_node_http = __toESM(require("http"), 1);
 var import_node_https = __toESM(require("https"), 1);
 var import_node_zlib = __toESM(require("zlib"), 1);
 var import_node_stream = require("stream");
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/log.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/log.js
 var logger = createClientLogger("ts-http-runtime");
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/nodeHttpClient.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/nodeHttpClient.js
 var DEFAULT_TLS_SETTINGS = {};
 function isReadableStream(body2) {
   return body2 && typeof body2.pipe === "function";
@@ -57912,7 +58075,7 @@ var NodeHttpClient = class {
         if (typeof body2 === "string" || Buffer.isBuffer(body2)) {
           req.end(body2);
         } else if (isArrayBuffer(body2)) {
-          req.end(ArrayBuffer.isView(body2) ? Buffer.from(body2.buffer) : Buffer.from(body2));
+          req.end(ArrayBuffer.isView(body2) ? Buffer.from(body2.buffer, body2.byteOffset, body2.byteLength) : Buffer.from(body2));
         } else {
           logger.error("Unrecognized body type", body2);
           reject(new RestError("Unrecognized body type"));
@@ -58023,12 +58186,12 @@ function createNodeHttpClient() {
   return new NodeHttpClient();
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/defaultHttpClient.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/defaultHttpClient.js
 function createDefaultHttpClient() {
   return createNodeHttpClient();
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/policies/logPolicy.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/policies/logPolicy.js
 var logPolicyName = "logPolicy";
 function logPolicy(options = {}) {
   const logger7 = options.logger ?? logger.info;
@@ -58045,83 +58208,31 @@ function logPolicy(options = {}) {
       logger7(`Request: ${sanitizer.sanitize(request)}`);
       const response = await next(request);
       logger7(`Response status code: ${response.status}`);
-      logger7(`Headers: ${sanitizer.sanitize(response.headers)}`);
+      logger7(`Headers: ${sanitizer.sanitize({ headers: response.headers })}`);
       return response;
     }
   };
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/policies/redirectPolicy.js
-var redirectPolicyName = "redirectPolicy";
-var allowedRedirect = ["GET", "HEAD"];
-function redirectPolicy(options = {}) {
-  const { maxRetries = 20, allowCrossOriginRedirects = false } = options;
-  return {
-    name: redirectPolicyName,
-    async sendRequest(request, next) {
-      const response = await next(request);
-      return handleRedirect(next, response, maxRetries, allowCrossOriginRedirects);
-    }
-  };
-}
-async function handleRedirect(next, response, maxRetries, allowCrossOriginRedirects, currentRetries = 0) {
-  const { request, status, headers } = response;
-  const locationHeader = headers.get("location");
-  if (locationHeader && (status === 300 || status === 301 && allowedRedirect.includes(request.method) || status === 302 && allowedRedirect.includes(request.method) || status === 303 && request.method === "POST" || status === 307) && currentRetries < maxRetries) {
-    const url2 = new URL(locationHeader, request.url);
-    if (!allowCrossOriginRedirects) {
-      const originalUrl = new URL(request.url);
-      if (url2.origin !== originalUrl.origin) {
-        logger.verbose(`Skipping cross-origin redirect from ${originalUrl.origin} to ${url2.origin}.`);
-        return response;
-      }
-    }
-    request.url = url2.toString();
-    if (status === 303) {
-      request.method = "GET";
-      request.headers.delete("Content-Length");
-      delete request.body;
-    }
-    request.headers.delete("Authorization");
-    const res = await next(request);
-    return handleRedirect(next, res, maxRetries, allowCrossOriginRedirects, currentRetries + 1);
-  }
-  return response;
-}
-
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/userAgentPlatform.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/userAgentPlatform.js
 var import_node_os3 = __toESM(require("os"), 1);
-var import_node_process2 = __toESM(require("process"), 1);
+var import_node_process3 = __toESM(require("process"), 1);
 function getHeaderName() {
   return "User-Agent";
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/constants.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/constants.js
 var DEFAULT_RETRY_POLICY_COUNT = 3;
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/userAgent.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/userAgent.js
 function getUserAgentHeaderName() {
   return getHeaderName();
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/policies/userAgentPolicy.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/policies/userAgentPolicy.js
 var UserAgentHeaderName = getUserAgentHeaderName();
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/policies/decompressResponsePolicy.js
-var decompressResponsePolicyName = "decompressResponsePolicy";
-function decompressResponsePolicy() {
-  return {
-    name: decompressResponsePolicyName,
-    async sendRequest(request, next) {
-      if (request.method !== "HEAD") {
-        request.headers.set("Accept-Encoding", "gzip,deflate");
-      }
-      return next(request);
-    }
-  };
-}
-
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/random.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/random.js
 function getRandomIntegerInclusive(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -58129,7 +58240,7 @@ function getRandomIntegerInclusive(min, max) {
   return offset + min;
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/delay.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/delay.js
 function calculateRetryDelay(retryAttempt, config2) {
   const exponentialDelay = config2.retryDelayInMs * Math.pow(2, retryAttempt);
   const clampedDelay = Math.min(config2.maxRetryDelayInMs, exponentialDelay);
@@ -58137,7 +58248,7 @@ function calculateRetryDelay(retryAttempt, config2) {
   return { retryAfterInMs };
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/helpers.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/helpers.js
 var StandardAbortMessage = "The operation was aborted.";
 function delay(delayInMs, value, options) {
   return new Promise((resolve3, reject) => {
@@ -58180,7 +58291,7 @@ function parseHeaderValueAsNumber(response, headerName) {
   return valueAsNum;
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/retryStrategies/throttlingRetryStrategy.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/retryStrategies/throttlingRetryStrategy.js
 var RetryAfterHeader = "Retry-After";
 var AllRetryAfterHeaders = ["retry-after-ms", "x-ms-retry-after-ms", RetryAfterHeader];
 function getRetryAfterInMs(response) {
@@ -58222,7 +58333,7 @@ function throttlingRetryStrategy() {
   };
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/retryStrategies/exponentialRetryStrategy.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/retryStrategies/exponentialRetryStrategy.js
 var DEFAULT_CLIENT_RETRY_INTERVAL = 1e3;
 var DEFAULT_CLIENT_MAX_RETRY_INTERVAL = 1e3 * 64;
 function exponentialRetryStrategy(options = {}) {
@@ -58259,7 +58370,7 @@ function isSystemError(err) {
   return err.code === "ETIMEDOUT" || err.code === "ESOCKETTIMEDOUT" || err.code === "ECONNREFUSED" || err.code === "ECONNRESET" || err.code === "ENOENT" || err.code === "ENOTFOUND";
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/policies/retryPolicy.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/policies/retryPolicy.js
 var retryPolicyLogger = createClientLogger("ts-http-runtime retryPolicy");
 var retryPolicyName = "retryPolicy";
 function retryPolicy(strategies, options = { maxRetries: DEFAULT_RETRY_POLICY_COUNT }) {
@@ -58343,7 +58454,7 @@ function retryPolicy(strategies, options = { maxRetries: DEFAULT_RETRY_POLICY_CO
   };
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/policies/defaultRetryPolicy.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/policies/defaultRetryPolicy.js
 var defaultRetryPolicyName = "defaultRetryPolicy";
 function defaultRetryPolicy(options = {}) {
   return {
@@ -58354,30 +58465,32 @@ function defaultRetryPolicy(options = {}) {
   };
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/checkEnvironment.js
-var isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
-var isWebWorker = typeof self === "object" && typeof self?.importScripts === "function" && (self.constructor?.name === "DedicatedWorkerGlobalScope" || self.constructor?.name === "ServiceWorkerGlobalScope" || self.constructor?.name === "SharedWorkerGlobalScope");
-var isDeno = typeof Deno !== "undefined" && typeof Deno.version !== "undefined" && typeof Deno.version.deno !== "undefined";
-var isBun = typeof Bun !== "undefined" && typeof Bun.version !== "undefined";
-var isNodeLike = typeof globalThis.process !== "undefined" && Boolean(globalThis.process.version) && Boolean(globalThis.process.versions?.node);
-var isReactNative = typeof navigator !== "undefined" && navigator?.product === "ReactNative";
-
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/policies/formDataPolicy.js
-var formDataPolicyName = "formDataPolicy";
-function formDataToFormDataMap(formData) {
-  const formDataMap = {};
-  for (const [key, value] of formData.entries()) {
-    formDataMap[key] ?? (formDataMap[key] = []);
-    formDataMap[key].push(value);
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/formData.js
+function convertBodyToFormDataMap(body2) {
+  if (typeof FormData !== "undefined" && body2 instanceof FormData) {
+    const formDataMap = {};
+    for (const [key, value] of body2.entries()) {
+      const existing = formDataMap[key];
+      if (Array.isArray(existing)) {
+        existing.push(value);
+      } else {
+        formDataMap[key] = existing !== void 0 ? [existing, value] : [value];
+      }
+    }
+    return formDataMap;
   }
-  return formDataMap;
+  return void 0;
 }
+
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/policies/formDataPolicy.js
+var formDataPolicyName = "formDataPolicy";
 function formDataPolicy() {
   return {
     name: formDataPolicyName,
     async sendRequest(request, next) {
-      if (isNodeLike && typeof FormData !== "undefined" && request.body instanceof FormData) {
-        request.formData = formDataToFormDataMap(request.body);
+      const converted = convertBodyToFormDataMap(request.body);
+      if (converted) {
+        request.formData = converted;
         request.body = void 0;
       }
       if (request.formData) {
@@ -58439,7 +58552,35 @@ async function prepareFormData(formData, request) {
   request.multipartBody = { parts };
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/policies/proxyPolicy.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/policies/agentPolicy.js
+var agentPolicyName = "agentPolicy";
+function agentPolicy(agent) {
+  return {
+    name: agentPolicyName,
+    sendRequest: async (req, next) => {
+      if (!req.agent) {
+        req.agent = agent;
+      }
+      return next(req);
+    }
+  };
+}
+
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/policies/tlsPolicy.js
+var tlsPolicyName = "tlsPolicy";
+function tlsPolicy(tlsSettings) {
+  return {
+    name: tlsPolicyName,
+    sendRequest: async (req, next) => {
+      if (!req.tlsSettings) {
+        req.tlsSettings = tlsSettings;
+      }
+      return next(req);
+    }
+  };
+}
+
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/policies/proxyPolicy.js
 var import_https_proxy_agent = __toESM(require_dist2(), 1);
 var import_http_proxy_agent = __toESM(require_dist3(), 1);
 var HTTPS_PROXY = "HTTPS_PROXY";
@@ -58578,40 +58719,64 @@ function proxyPolicy(proxySettings, options) {
   };
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/policies/agentPolicy.js
-var agentPolicyName = "agentPolicy";
-function agentPolicy(agent) {
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/policies/decompressResponsePolicy.js
+var decompressResponsePolicyName = "decompressResponsePolicy";
+function decompressResponsePolicy() {
   return {
-    name: agentPolicyName,
-    sendRequest: async (req, next) => {
-      if (!req.agent) {
-        req.agent = agent;
+    name: decompressResponsePolicyName,
+    async sendRequest(request, next) {
+      if (request.method !== "HEAD") {
+        request.headers.set("Accept-Encoding", "gzip,deflate");
       }
-      return next(req);
+      return next(request);
     }
   };
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/policies/tlsPolicy.js
-var tlsPolicyName = "tlsPolicy";
-function tlsPolicy(tlsSettings) {
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/policies/redirectPolicy.js
+var redirectPolicyName = "redirectPolicy";
+var allowedRedirect = ["GET", "HEAD"];
+function redirectPolicy(options = {}) {
+  const { maxRetries = 20, allowCrossOriginRedirects = false } = options;
   return {
-    name: tlsPolicyName,
-    sendRequest: async (req, next) => {
-      if (!req.tlsSettings) {
-        req.tlsSettings = tlsSettings;
-      }
-      return next(req);
+    name: redirectPolicyName,
+    async sendRequest(request, next) {
+      const response = await next(request);
+      return handleRedirect(next, response, maxRetries, allowCrossOriginRedirects);
     }
   };
 }
+async function handleRedirect(next, response, maxRetries, allowCrossOriginRedirects, currentRetries = 0) {
+  const { request, status, headers } = response;
+  const locationHeader = headers.get("location");
+  if (locationHeader && (status === 300 || status === 301 && allowedRedirect.includes(request.method) || status === 302 && allowedRedirect.includes(request.method) || status === 303 && request.method === "POST" || status === 307) && currentRetries < maxRetries) {
+    const url2 = new URL(locationHeader, request.url);
+    if (!allowCrossOriginRedirects) {
+      const originalUrl = new URL(request.url);
+      if (url2.origin !== originalUrl.origin) {
+        logger.verbose(`Skipping cross-origin redirect from ${originalUrl.origin} to ${url2.origin}.`);
+        return response;
+      }
+    }
+    request.url = url2.toString();
+    if (status === 303) {
+      request.method = "GET";
+      request.headers.delete("Content-Length");
+      delete request.body;
+    }
+    request.headers.delete("Authorization");
+    const res = await next(request);
+    return handleRedirect(next, res, maxRetries, allowCrossOriginRedirects, currentRetries + 1);
+  }
+  return response;
+}
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/typeGuards.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/typeGuards.js
 function isBlob(x) {
-  return typeof Blob !== "undefined" && x instanceof Blob;
+  return x instanceof Blob;
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/concat.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/concat.js
 var import_stream = require("stream");
 async function* streamAsyncIterator() {
   const reader = this.getReader();
@@ -58665,7 +58830,7 @@ async function concat(sources) {
   };
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/policies/multipartPolicy.js
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/policies/multipartPolicy.js
 function generateBoundary() {
   return `----AzSDKFormBoundary${randomUUID4()}`;
 }
@@ -58762,12 +58927,12 @@ function multipartPolicy() {
   };
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/pipeline.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/pipeline.js
 function createEmptyPipeline2() {
   return createEmptyPipeline();
 }
 
-// node_modules/.pnpm/@azure+logger@1.3.0/node_modules/@azure/logger/dist/esm/index.js
+// node_modules/.pnpm/@azure+logger@1.4.0/node_modules/@azure/logger/dist/esm/index.js
 var context2 = createLoggerContext({
   logLevelEnvVarName: "AZURE_LOG_LEVEL",
   namespace: "azure"
@@ -58777,10 +58942,10 @@ function createClientLogger2(namespace) {
   return context2.createClientLogger(namespace);
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/log.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/log.js
 var logger2 = createClientLogger2("core-rest-pipeline");
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/logPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/logPolicy.js
 function logPolicy2(options = {}) {
   return logPolicy({
     logger: logger2.info,
@@ -58788,36 +58953,35 @@ function logPolicy2(options = {}) {
   });
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/redirectPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/redirectPolicy.js
 var redirectPolicyName2 = redirectPolicyName;
 function redirectPolicy2(options = {}) {
   return redirectPolicy(options);
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/userAgentPlatform.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/userAgentPlatform.js
 var import_node_os4 = __toESM(require("os"), 1);
-var import_node_process3 = __toESM(require("process"), 1);
+var import_node_process4 = __toESM(require("process"), 1);
 function getHeaderName2() {
   return "User-Agent";
 }
 async function setPlatformSpecificData2(map2) {
-  if (import_node_process3.default && import_node_process3.default.versions) {
+  if (import_node_process4.default && import_node_process4.default.versions) {
     const osInfo = `${import_node_os4.default.type()} ${import_node_os4.default.release()}; ${import_node_os4.default.arch()}`;
-    const versions = import_node_process3.default.versions;
-    if (versions.bun) {
-      map2.set("Bun", `${versions.bun} (${osInfo})`);
-    } else if (versions.deno) {
-      map2.set("Deno", `${versions.deno} (${osInfo})`);
-    } else if (versions.node) {
-      map2.set("Node", `${versions.node} (${osInfo})`);
+    if (import_node_process4.default.versions.bun) {
+      map2.set("Bun", `${import_node_process4.default.versions.bun} (${osInfo})`);
+    } else if (import_node_process4.default.versions.deno) {
+      map2.set("Deno", `${import_node_process4.default.versions.deno} (${osInfo})`);
+    } else if (import_node_process4.default.versions.node) {
+      map2.set("Node", `${import_node_process4.default.versions.node} (${osInfo})`);
     }
   }
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/constants.js
-var SDK_VERSION2 = "1.22.3";
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/constants.js
+var SDK_VERSION2 = "1.25.0";
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/userAgent.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/userAgent.js
 function getUserAgentString(telemetryInfo) {
   const parts = [];
   for (const [key, value] of telemetryInfo) {
@@ -58838,7 +59002,7 @@ async function getUserAgentValue2(prefix2) {
   return userAgentValue;
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/userAgentPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/userAgentPolicy.js
 var UserAgentHeaderName2 = getUserAgentHeaderName2();
 var userAgentPolicyName2 = "userAgentPolicy";
 function userAgentPolicy2(options = {}) {
@@ -58854,10 +59018,58 @@ function userAgentPolicy2(options = {}) {
   };
 }
 
-// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.5/node_modules/@typespec/ts-http-runtime/dist/esm/util/sha256.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/file.js
+var rawContent = /* @__PURE__ */ Symbol("rawContent");
+function hasRawContent(x) {
+  return typeof x[rawContent] === "function";
+}
+function getRawContent(blob) {
+  if (hasRawContent(blob)) {
+    return blob[rawContent]();
+  } else {
+    return blob;
+  }
+}
+
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/multipartPolicy.js
+var multipartPolicyName2 = multipartPolicyName;
+function multipartPolicy2() {
+  const tspPolicy = multipartPolicy();
+  return {
+    name: multipartPolicyName2,
+    sendRequest: async (request, next) => {
+      if (request.multipartBody) {
+        for (const part of request.multipartBody.parts) {
+          if (hasRawContent(part.body)) {
+            part.body = getRawContent(part.body);
+          }
+        }
+      }
+      return tspPolicy.sendRequest(request, next);
+    }
+  };
+}
+
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/decompressResponsePolicy.js
+var decompressResponsePolicyName2 = decompressResponsePolicyName;
+function decompressResponsePolicy2() {
+  return decompressResponsePolicy();
+}
+
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/defaultRetryPolicy.js
+function defaultRetryPolicy2(options = {}) {
+  return defaultRetryPolicy(options);
+}
+
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/formDataPolicy.js
+function formDataPolicy2() {
+  return formDataPolicy();
+}
+
+// node_modules/.pnpm/@typespec+ts-http-runtime@0.3.8/node_modules/@typespec/ts-http-runtime/dist/esm/util/sha256.js
 var import_node_crypto = require("crypto");
 
-// node_modules/.pnpm/@azure+abort-controller@2.1.2/node_modules/@azure/abort-controller/dist/esm/AbortError.js
+// node_modules/.pnpm/@azure+abort-controller@2.2.0/node_modules/@azure/abort-controller/dist/esm/AbortError.js
 var AbortError2 = class extends Error {
   constructor(message) {
     super(message);
@@ -58865,7 +59077,7 @@ var AbortError2 = class extends Error {
   }
 };
 
-// node_modules/.pnpm/@azure+core-util@1.13.1/node_modules/@azure/core-util/dist/esm/createAbortablePromise.js
+// node_modules/.pnpm/@azure+core-util@1.14.0/node_modules/@azure/core-util/dist/esm/createAbortablePromise.js
 function createAbortablePromise(buildPromise, options) {
   const { cleanupBeforeAbort, abortSignal, abortErrorMsg } = options ?? {};
   return new Promise((resolve3, reject) => {
@@ -58898,7 +59110,7 @@ function createAbortablePromise(buildPromise, options) {
   });
 }
 
-// node_modules/.pnpm/@azure+core-util@1.13.1/node_modules/@azure/core-util/dist/esm/delay.js
+// node_modules/.pnpm/@azure+core-util@1.14.0/node_modules/@azure/core-util/dist/esm/delay.js
 var StandardAbortMessage2 = "The delay was aborted.";
 function delay2(timeInMs, options) {
   let token;
@@ -58912,7 +59124,7 @@ function delay2(timeInMs, options) {
   });
 }
 
-// node_modules/.pnpm/@azure+core-util@1.13.1/node_modules/@azure/core-util/dist/esm/error.js
+// node_modules/.pnpm/@azure+core-util@1.14.0/node_modules/@azure/core-util/dist/esm/error.js
 function getErrorMessage(e) {
   if (isError(e)) {
     return e.message;
@@ -58931,7 +59143,7 @@ function getErrorMessage(e) {
   }
 }
 
-// node_modules/.pnpm/@azure+core-util@1.13.1/node_modules/@azure/core-util/dist/esm/index.js
+// node_modules/.pnpm/@azure+core-util@1.14.0/node_modules/@azure/core-util/dist/esm/index.js
 function isError2(e) {
   return isError(e);
 }
@@ -58939,56 +59151,14 @@ function randomUUID5() {
   return randomUUID4();
 }
 var isNodeLike2 = isNodeLike;
-
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/file.js
-var rawContent = /* @__PURE__ */ Symbol("rawContent");
-function hasRawContent(x) {
-  return typeof x[rawContent] === "function";
+function uint8ArrayToString2(bytes, format) {
+  return uint8ArrayToString(bytes, format);
 }
-function getRawContent(blob) {
-  if (hasRawContent(blob)) {
-    return blob[rawContent]();
-  } else {
-    return blob;
-  }
+function stringToUint8Array2(value, format) {
+  return stringToUint8Array(value, format);
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/multipartPolicy.js
-var multipartPolicyName2 = multipartPolicyName;
-function multipartPolicy2() {
-  const tspPolicy = multipartPolicy();
-  return {
-    name: multipartPolicyName2,
-    sendRequest: async (request, next) => {
-      if (request.multipartBody) {
-        for (const part of request.multipartBody.parts) {
-          if (hasRawContent(part.body)) {
-            part.body = getRawContent(part.body);
-          }
-        }
-      }
-      return tspPolicy.sendRequest(request, next);
-    }
-  };
-}
-
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/decompressResponsePolicy.js
-var decompressResponsePolicyName2 = decompressResponsePolicyName;
-function decompressResponsePolicy2() {
-  return decompressResponsePolicy();
-}
-
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/defaultRetryPolicy.js
-function defaultRetryPolicy2(options = {}) {
-  return defaultRetryPolicy(options);
-}
-
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/formDataPolicy.js
-function formDataPolicy2() {
-  return formDataPolicy();
-}
-
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/proxyPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/proxyPolicy.js
 function getDefaultProxySettings2(proxyUrl) {
   return getDefaultProxySettings(proxyUrl);
 }
@@ -58996,7 +59166,7 @@ function proxyPolicy2(proxySettings, options) {
   return proxyPolicy(proxySettings, options);
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/setClientRequestIdPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/setClientRequestIdPolicy.js
 var setClientRequestIdPolicyName = "setClientRequestIdPolicy";
 function setClientRequestIdPolicy(requestIdHeaderName = "x-ms-client-request-id") {
   return {
@@ -59010,17 +59180,17 @@ function setClientRequestIdPolicy(requestIdHeaderName = "x-ms-client-request-id"
   };
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/agentPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/agentPolicy.js
 function agentPolicy2(agent) {
   return agentPolicy(agent);
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/tlsPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/tlsPolicy.js
 function tlsPolicy2(tlsSettings) {
   return tlsPolicy(tlsSettings);
 }
 
-// node_modules/.pnpm/@azure+core-tracing@1.3.1/node_modules/@azure/core-tracing/dist/esm/tracingContext.js
+// node_modules/.pnpm/@azure+core-tracing@1.4.0/node_modules/@azure/core-tracing/dist/esm/tracingContext.js
 var knownContextKeys = {
   span: /* @__PURE__ */ Symbol.for("@azure/core-tracing span"),
   namespace: /* @__PURE__ */ Symbol.for("@azure/core-tracing namespace")
@@ -59055,11 +59225,11 @@ var TracingContextImpl = class _TracingContextImpl {
   }
 };
 
-// node_modules/.pnpm/@azure+core-tracing@1.3.1/node_modules/@azure/core-tracing/dist/esm/state.js
-var import_state = __toESM(require_state(), 1);
-var state = import_state.state;
+// node_modules/.pnpm/@azure+core-tracing@1.4.0/node_modules/@azure/core-tracing/dist/esm/state.js
+var import_state_cjs = __toESM(require_state_cjs(), 1);
+var state = import_state_cjs.state;
 
-// node_modules/.pnpm/@azure+core-tracing@1.3.1/node_modules/@azure/core-tracing/dist/esm/instrumenter.js
+// node_modules/.pnpm/@azure+core-tracing@1.4.0/node_modules/@azure/core-tracing/dist/esm/instrumenter.js
 function createDefaultTracingSpan() {
   return {
     end: () => {
@@ -59101,7 +59271,7 @@ function getInstrumenter() {
   return state.instrumenterImplementation;
 }
 
-// node_modules/.pnpm/@azure+core-tracing@1.3.1/node_modules/@azure/core-tracing/dist/esm/tracingClient.js
+// node_modules/.pnpm/@azure+core-tracing@1.4.0/node_modules/@azure/core-tracing/dist/esm/tracingClient.js
 function createTracingClient(options) {
   const { namespace, packageName, packageVersion } = options;
   function startSpan(name, operationOptions, spanOptions) {
@@ -59128,7 +59298,7 @@ function createTracingClient(options) {
   async function withSpan(name, operationOptions, callback, spanOptions) {
     const { span, updatedOptions } = startSpan(name, operationOptions, spanOptions);
     try {
-      const result = await withContext(updatedOptions.tracingOptions.tracingContext, () => Promise.resolve(callback(updatedOptions, span)));
+      const result = await withContext(updatedOptions.tracingOptions.tracingContext, () => callback(updatedOptions, span));
       span.setStatus({ status: "success" });
       return result;
     } catch (err) {
@@ -59156,13 +59326,13 @@ function createTracingClient(options) {
   };
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/restError.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/restError.js
 var RestError2 = RestError;
 function isRestError2(e) {
   return isRestError(e);
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/tracingPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/tracingPolicy.js
 var tracingPolicyName = "tracingPolicy";
 function tracingPolicy(options = {}) {
   const userAgentPromise = getUserAgentValue2(options.userAgentPrefix);
@@ -59265,13 +59435,15 @@ function tryProcessResponse(span, response) {
   }
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/wrapAbortSignal.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/wrapAbortSignal.js
 function wrapAbortSignalLike(abortSignalLike) {
   if (abortSignalLike instanceof AbortSignal) {
     return { abortSignal: abortSignalLike };
   }
   if (abortSignalLike.aborted) {
-    return { abortSignal: AbortSignal.abort(abortSignalLike.reason) };
+    return {
+      abortSignal: AbortSignal.abort("reason" in abortSignalLike ? abortSignalLike.reason : void 0)
+    };
   }
   const controller = new AbortController();
   let needsCleanup = true;
@@ -59282,14 +59454,14 @@ function wrapAbortSignalLike(abortSignalLike) {
     }
   }
   function listener() {
-    controller.abort(abortSignalLike.reason);
+    controller.abort("reason" in abortSignalLike ? abortSignalLike.reason : void 0);
     cleanup();
   }
   abortSignalLike.addEventListener("abort", listener);
   return { abortSignal: controller.signal, cleanup };
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/wrapAbortSignalLikePolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/wrapAbortSignalLikePolicy.js
 var wrapAbortSignalLikePolicyName = "wrapAbortSignalLikePolicy";
 function wrapAbortSignalLikePolicy() {
   return {
@@ -59309,7 +59481,7 @@ function wrapAbortSignalLikePolicy() {
   };
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/createPipelineFromOptions.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/createPipelineFromOptions.js
 function createPipelineFromOptions2(options) {
   const pipeline3 = createEmptyPipeline2();
   if (isNodeLike2) {
@@ -59338,7 +59510,7 @@ function createPipelineFromOptions2(options) {
   return pipeline3;
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/defaultHttpClient.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/defaultHttpClient.js
 function createDefaultHttpClient2() {
   const client = createDefaultHttpClient();
   return {
@@ -59354,20 +59526,20 @@ function createDefaultHttpClient2() {
   };
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/httpHeaders.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/httpHeaders.js
 function createHttpHeaders2(rawHeaders) {
   return createHttpHeaders(rawHeaders);
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/pipelineRequest.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/pipelineRequest.js
 function createPipelineRequest2(options) {
   return createPipelineRequest(options);
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/retryPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/retryPolicy.js
 var retryPolicyLogger2 = createClientLogger2("core-rest-pipeline retryPolicy");
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/tokenCycler.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/util/tokenCycler.js
 var DEFAULT_CYCLER_OPTIONS = {
   forcedRefreshWindowInMs: 1e3,
   // Force waiting for a refresh 1s before the token expires
@@ -59419,13 +59591,16 @@ function createTokenCycler(credential, tokenCyclerOptions) {
      * window and not already refreshing)
      */
     get shouldRefresh() {
+      if (token === null) {
+        return true;
+      }
       if (cycler.isRefreshing) {
         return false;
       }
-      if (token?.refreshAfterTimestamp && token.refreshAfterTimestamp < Date.now()) {
+      if (token.refreshAfterTimestamp && token.refreshAfterTimestamp < Date.now()) {
         return true;
       }
-      return (token?.expiresOnTimestamp ?? 0) - options.refreshWindowInMs < Date.now();
+      return token.expiresOnTimestamp - options.refreshWindowInMs < Date.now();
     },
     /**
      * Produces true if the cycler MUST refresh (null or nearly-expired
@@ -59474,7 +59649,7 @@ function createTokenCycler(credential, tokenCyclerOptions) {
   };
 }
 
-// node_modules/.pnpm/@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/bearerTokenAuthenticationPolicy.js
+// node_modules/.pnpm/@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-rest-pipeline/dist/esm/policies/bearerTokenAuthenticationPolicy.js
 var bearerTokenAuthenticationPolicyName = "bearerTokenAuthenticationPolicy";
 async function trySendRequest(request, next) {
   try {
@@ -59586,7 +59761,7 @@ function bearerTokenAuthenticationPolicy(options) {
             [response, error2] = await trySendRequest(request, next);
           }
           if (isChallengeResponse(response)) {
-            claims = getCaeChallengeClaims(response.headers.get("WWW-Authenticate"));
+            claims = getCaeChallengeClaims(response.headers.get("WWW-Authenticate") ?? "");
             if (claims) {
               let parsedClaim;
               try {
@@ -59642,18 +59817,18 @@ function getCaeChallengeClaims(challenges) {
   return parsedChallenges.find((x) => x.scheme === "Bearer" && x.params.claims && x.params.error === "insufficient_claims")?.params.claims;
 }
 
-// node_modules/.pnpm/@azure+core-auth@1.10.1/node_modules/@azure/core-auth/dist/esm/tokenCredential.js
+// node_modules/.pnpm/@azure+core-auth@1.11.0/node_modules/@azure/core-auth/dist/esm/tokenCredential.js
 function isTokenCredential(credential) {
   const castCredential = credential;
   return castCredential && typeof castCredential.getToken === "function" && (castCredential.signRequest === void 0 || castCredential.getToken.length > 0);
 }
 
-// node_modules/.pnpm/@azure+core-http-compat@2.4.0_@azure+core-client@1.10.1_@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-http-compat/dist/esm/policies/disableKeepAlivePolicy.js
+// node_modules/.pnpm/@azure+core-http-compat@2.5.0_@azure+core-client@1.11.0_@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-http-compat/dist/esm/policies/disableKeepAlivePolicy.js
 var disableKeepAlivePolicyName = "DisableKeepAlivePolicy";
 function createDisableKeepAlivePolicy() {
   return {
     name: disableKeepAlivePolicyName,
-    async sendRequest(request, next) {
+    sendRequest(request, next) {
       request.disableKeepAlive = true;
       return next(request);
     }
@@ -59663,20 +59838,19 @@ function pipelineContainsDisableKeepAlivePolicy(pipeline3) {
   return pipeline3.getOrderedPolicies().some((policy) => policy.name === disableKeepAlivePolicyName);
 }
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/base64.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/base64.js
 function encodeByteArray(value) {
-  const bufferValue = value instanceof Buffer ? value : Buffer.from(value.buffer);
-  return bufferValue.toString("base64");
+  return uint8ArrayToString2(value, "base64");
 }
 function decodeString(value) {
-  return Buffer.from(value, "base64");
+  return stringToUint8Array2(value, "base64");
 }
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/interfaces.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/interfaces.js
 var XML_ATTRKEY = "$";
 var XML_CHARKEY = "_";
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/utils.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/utils.js
 function isPrimitiveBody(value, mapperTypeName) {
   return mapperTypeName !== "Composite" && mapperTypeName !== "Dictionary" && (typeof value === "string" || typeof value === "number" || typeof value === "boolean" || mapperTypeName?.match(/^(Date|DateTime|DateTimeRfc1123|UnixTime|ByteArray|Base64Url)$/i) !== null || value === void 0 || value === null);
 }
@@ -59744,7 +59918,7 @@ function flattenResponse(fullResponse, responseSpec) {
   });
 }
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/serializer.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/serializer.js
 var SerializerImpl = class {
   constructor(modelMappers = {}, isXML = false) {
     __publicField(this, "modelMappers");
@@ -60108,7 +60282,7 @@ function serializeSequenceType(serializer, mapper, object2, objectName, isXml, o
   }
   let elementType = mapper.type.element;
   if (!elementType || typeof elementType !== "object") {
-    throw new Error(`element" metadata for an Array must be defined in the mapper and it must of type "object" in ${objectName}.`);
+    throw new Error(`"element" metadata for an Array must be defined in the mapper and it must be of type "object" in ${objectName}.`);
   }
   if (elementType.type.name === "Composite" && elementType.type.className) {
     elementType = serializer.modelMappers[elementType.type.className] ?? elementType;
@@ -60244,10 +60418,15 @@ function serializeCompositeType(serializer, mapper, object2, objectName, isXml, 
     const additionalPropertiesMapper = resolveAdditionalProperties(serializer, mapper, objectName);
     if (additionalPropertiesMapper) {
       const propNames = Object.keys(modelProps);
-      for (const clientPropName in object2) {
+      for (const clientPropName of Object.keys(object2)) {
         const isAdditionalProperty = propNames.every((pn) => pn !== clientPropName);
         if (isAdditionalProperty) {
-          payload[clientPropName] = serializer.serialize(additionalPropertiesMapper, object2[clientPropName], objectName + '["' + clientPropName + '"]', options);
+          Object.defineProperty(payload, clientPropName, {
+            value: serializer.serialize(additionalPropertiesMapper, object2[clientPropName], objectName + '["' + clientPropName + '"]', options),
+            enumerable: true,
+            configurable: true,
+            writable: true
+          });
         }
       }
     }
@@ -60319,7 +60498,12 @@ function deserializeCompositeType(serializer, mapper, responseBody, objectName, 
         if (propertyMapper.xmlIsWrapped) {
           const wrapped = responseBody[xmlName];
           const elementList = wrapped?.[xmlElementName] ?? [];
-          instance[key] = serializer.deserialize(propertyMapper, elementList, propertyObjectName, options);
+          Object.defineProperty(instance, key, {
+            value: serializer.deserialize(propertyMapper, elementList, propertyObjectName, options),
+            enumerable: true,
+            configurable: true,
+            writable: true
+          });
           handledPropertyNames.push(xmlName);
         } else {
           const property = responseBody[propertyName];
@@ -60364,7 +60548,7 @@ function deserializeCompositeType(serializer, mapper, responseBody, objectName, 
   const additionalPropertiesMapper = mapper.type.additionalProperties;
   if (additionalPropertiesMapper) {
     const isAdditionalProperty = (responsePropName) => {
-      for (const clientPropName in modelProps) {
+      for (const clientPropName of Object.keys(modelProps)) {
         const paths = splitSerializeName(modelProps[clientPropName].serializedName);
         if (paths[0] === responsePropName) {
           return false;
@@ -60372,15 +60556,26 @@ function deserializeCompositeType(serializer, mapper, responseBody, objectName, 
       }
       return true;
     };
-    for (const responsePropName in responseBody) {
+    for (const responsePropName of Object.keys(responseBody)) {
       if (isAdditionalProperty(responsePropName)) {
-        instance[responsePropName] = serializer.deserialize(additionalPropertiesMapper, responseBody[responsePropName], objectName + '["' + responsePropName + '"]', options);
+        const deserializedValue = serializer.deserialize(additionalPropertiesMapper, responseBody[responsePropName], objectName + '["' + responsePropName + '"]', options);
+        Object.defineProperty(instance, responsePropName, {
+          value: deserializedValue,
+          enumerable: true,
+          configurable: true,
+          writable: true
+        });
       }
     }
   } else if (responseBody && !options.ignoreUnknownProperties) {
     for (const key of Object.keys(responseBody)) {
       if (instance[key] === void 0 && !handledPropertyNames.includes(key) && !isSpecialXmlProperty(key, options)) {
-        instance[key] = responseBody[key];
+        Object.defineProperty(instance, key, {
+          value: responseBody[key],
+          enumerable: true,
+          configurable: true,
+          writable: true
+        });
       }
     }
   }
@@ -60403,7 +60598,7 @@ function deserializeDictionaryType(serializer, mapper, responseBody, objectName,
 function deserializeSequenceType(serializer, mapper, responseBody, objectName, options) {
   let element = mapper.type.element;
   if (!element || typeof element !== "object") {
-    throw new Error(`element" metadata for an Array must be defined in the mapper and it must of type "object" in ${objectName}`);
+    throw new Error(`"element" metadata for an Array must be defined in the mapper and it must be of type "object" in ${objectName}`);
   }
   if (responseBody) {
     if (!Array.isArray(responseBody)) {
@@ -60482,11 +60677,11 @@ var MapperTypeNames = {
   UnixTime: "UnixTime"
 };
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/state.js
-var import_state3 = __toESM(require_state2(), 1);
-var state2 = import_state3.state;
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/state.js
+var import_state_cjs2 = __toESM(require_state_cjs2(), 1);
+var state2 = import_state_cjs2.state;
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/operationHelpers.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/operationHelpers.js
 function getOperationArgumentValueFromParameter(operationArguments, parameter, fallbackObject) {
   let parameterPath = parameter.parameterPath;
   const parameterMapper = parameter.mapper;
@@ -60514,9 +60709,8 @@ function getOperationArgumentValueFromParameter(operationArguments, parameter, f
     if (parameterMapper.required) {
       value = {};
     }
-    for (const propertyName in parameterPath) {
+    for (const [propertyName, propertyPath] of Object.entries(parameterPath)) {
       const propertyMapper = parameterMapper.type.modelProperties[propertyName];
-      const propertyPath = parameterPath[propertyName];
       const propertyValue = getOperationArgumentValueFromParameter(operationArguments, {
         parameterPath: propertyPath,
         mapper: propertyMapper
@@ -60525,7 +60719,12 @@ function getOperationArgumentValueFromParameter(operationArguments, parameter, f
         if (!value) {
           value = {};
         }
-        value[propertyName] = propertyValue;
+        Object.defineProperty(value, propertyName, {
+          value: propertyValue,
+          enumerable: true,
+          configurable: true,
+          writable: true
+        });
       }
     }
   }
@@ -60564,7 +60763,7 @@ function getOperationRequestInfo(request) {
   return info2;
 }
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/deserializationPolicy.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/deserializationPolicy.js
 var defaultJsonContentTypes = ["application/json", "text/json"];
 var defaultXmlContentTypes = ["application/xml", "application/atom+xml"];
 var deserializationPolicyName = "deserializationPolicy";
@@ -60750,11 +60949,10 @@ async function parse3(jsonContentTypes, xmlContentTypes, operationResponse, opts
   return operationResponse;
 }
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/interfaceHelpers.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/interfaceHelpers.js
 function getStreamingResponseStatusCodes(operationSpec) {
   const result = /* @__PURE__ */ new Set();
-  for (const statusCode in operationSpec.responses) {
-    const operationResponse = operationSpec.responses[statusCode];
+  for (const [statusCode, operationResponse] of Object.entries(operationSpec.responses)) {
     if (operationResponse.bodyMapper && operationResponse.bodyMapper.type.name === MapperTypeNames.Stream) {
       result.add(Number(statusCode));
     }
@@ -60774,13 +60972,13 @@ function getPathStringFromParameter(parameter) {
   return result;
 }
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/serializationPolicy.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/serializationPolicy.js
 var serializationPolicyName = "serializationPolicy";
 function serializationPolicy(options = {}) {
   const stringifyXML2 = options.stringifyXML;
   return {
     name: serializationPolicyName,
-    async sendRequest(request, next) {
+    sendRequest(request, next) {
       const operationInfo = getOperationRequestInfo(request);
       const operationSpec = operationInfo?.operationSpec;
       const operationArguments = operationInfo?.operationArguments;
@@ -60890,7 +61088,7 @@ function prepareXMLRootList(obj, elementName, xmlNamespaceKey, xmlNamespace) {
   return result;
 }
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/pipeline.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/pipeline.js
 function createClientPipeline(options = {}) {
   const pipeline3 = createPipelineFromOptions2(options ?? {});
   if (options.credentialOptions) {
@@ -60906,7 +61104,7 @@ function createClientPipeline(options = {}) {
   return pipeline3;
 }
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/httpClientCache.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/httpClientCache.js
 var cachedHttpClient;
 function getCachedDefaultHttpClient() {
   if (!cachedHttpClient) {
@@ -60915,7 +61113,7 @@ function getCachedDefaultHttpClient() {
   return cachedHttpClient;
 }
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/urlHelpers.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/urlHelpers.js
 var CollectionFormatToDelimiterMap = {
   CSV: ",",
   SSV: " ",
@@ -60991,7 +61189,7 @@ function appendPath(url2, pathToAppend) {
   } else {
     newPath = newPath + pathToAppend;
   }
-  parsedUrl.pathname = newPath;
+  Object.assign(parsedUrl, { pathname: newPath });
   return parsedUrl.toString();
 }
 function calculateQueryParameters(operationSpec, operationArguments, fallbackObject) {
@@ -61107,10 +61305,10 @@ function appendQueryParams(url2, queryParams, sequenceParams, noOverwrite = fals
   return parsedUrl.toString();
 }
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/log.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/log.js
 var logger3 = createClientLogger2("core-client");
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/serviceClient.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/serviceClient.js
 var ServiceClient = class {
   /**
    * The ServiceClient constructor
@@ -61159,7 +61357,7 @@ var ServiceClient = class {
   /**
    * Send the provided httpRequest.
    */
-  async sendRequest(request) {
+  sendRequest(request) {
     return this.pipeline.sendRequest(this._httpClient, request);
   }
   /**
@@ -61256,13 +61454,13 @@ function getCredentialScopes(options) {
   if (options.baseUri) {
     return `${options.baseUri}/.default`;
   }
-  if (options.credential && !options.credentialScopes) {
+  if (options.credential) {
     throw new Error(`When using credentials, the ServiceClientOptions must contain either a endpoint or a credentialScopes. Unable to create a bearerTokenAuthenticationPolicy`);
   }
   return void 0;
 }
 
-// node_modules/.pnpm/@azure+core-client@1.10.1/node_modules/@azure/core-client/dist/esm/authorizeRequestOnTenantChallenge.js
+// node_modules/.pnpm/@azure+core-client@1.11.0/node_modules/@azure/core-client/dist/esm/authorizeRequestOnTenantChallenge.js
 var Constants = {
   DefaultScope: "/.default",
   /**
@@ -61314,8 +61512,7 @@ function buildScopes(challengeOptions, challengeInfo) {
     return challengeOptions.scopes;
   }
   const challengeScopes = new URL(challengeInfo.resource_id);
-  challengeScopes.pathname = Constants.DefaultScope;
-  let scope = challengeScopes.toString();
+  let scope = new URL(Constants.DefaultScope, challengeScopes.origin).toString();
   if (scope === "https://disk.azure.com/.default") {
     scope = "https://disk.azure.com//.default";
   }
@@ -61344,9 +61541,25 @@ function requestToOptions(request) {
   };
 }
 
-// node_modules/.pnpm/@azure+core-http-compat@2.4.0_@azure+core-client@1.10.1_@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-http-compat/dist/esm/util.js
+// node_modules/.pnpm/@azure+core-http-compat@2.5.0_@azure+core-client@1.11.0_@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-http-compat/dist/esm/util.js
 var originalRequestSymbol2 = /* @__PURE__ */ Symbol("Original PipelineRequest");
 var originalClientRequestSymbol = /* @__PURE__ */ Symbol.for("@azure/core-client original request");
+var passThroughProps = /* @__PURE__ */ new Set([
+  "url",
+  "method",
+  "withCredentials",
+  "timeout",
+  "requestId",
+  "abortSignal",
+  "body",
+  "formData",
+  "onDownloadProgress",
+  "onUploadProgress",
+  "proxySettings",
+  "streamResponseStatusCodes",
+  "agent",
+  "requestOverrides"
+]);
 function toPipelineRequest(webResource, options = {}) {
   const compatWebResource = webResource;
   const request = compatWebResource[originalRequestSymbol2];
@@ -61426,23 +61639,7 @@ function toWebResourceLike(request, options) {
         if (prop === "keepAlive") {
           request.disableKeepAlive = !value;
         }
-        const passThroughProps = [
-          "url",
-          "method",
-          "withCredentials",
-          "timeout",
-          "requestId",
-          "abortSignal",
-          "body",
-          "formData",
-          "onDownloadProgress",
-          "onUploadProgress",
-          "proxySettings",
-          "streamResponseStatusCodes",
-          "agent",
-          "requestOverrides"
-        ];
-        if (typeof prop === "string" && passThroughProps.includes(prop)) {
+        if (typeof prop === "string" && passThroughProps.has(prop)) {
           request[prop] = value;
         }
         return Reflect.set(target, prop, value, receiver);
@@ -61580,7 +61777,7 @@ var HttpHeaders = class _HttpHeaders {
   }
 };
 
-// node_modules/.pnpm/@azure+core-http-compat@2.4.0_@azure+core-client@1.10.1_@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-http-compat/dist/esm/response.js
+// node_modules/.pnpm/@azure+core-http-compat@2.5.0_@azure+core-client@1.11.0_@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-http-compat/dist/esm/response.js
 var originalResponse = /* @__PURE__ */ Symbol("Original FullOperationResponse");
 function toCompatResponse(response, options) {
   let request = toWebResourceLike(response.request);
@@ -61630,7 +61827,7 @@ function toPipelineResponse(compatResponse) {
   }
 }
 
-// node_modules/.pnpm/@azure+core-http-compat@2.4.0_@azure+core-client@1.10.1_@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-http-compat/dist/esm/extendedClient.js
+// node_modules/.pnpm/@azure+core-http-compat@2.5.0_@azure+core-client@1.11.0_@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-http-compat/dist/esm/extendedClient.js
 var ExtendedServiceClient = class extends ServiceClient {
   constructor(options) {
     super(options);
@@ -61673,7 +61870,7 @@ var ExtendedServiceClient = class extends ServiceClient {
   }
 };
 
-// node_modules/.pnpm/@azure+core-http-compat@2.4.0_@azure+core-client@1.10.1_@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-http-compat/dist/esm/policies/requestPolicyFactoryPolicy.js
+// node_modules/.pnpm/@azure+core-http-compat@2.5.0_@azure+core-client@1.11.0_@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-http-compat/dist/esm/policies/requestPolicyFactoryPolicy.js
 var HttpPipelineLogLevel;
 (function(HttpPipelineLogLevel2) {
   HttpPipelineLogLevel2[HttpPipelineLogLevel2["ERROR"] = 1] = "ERROR";
@@ -61710,7 +61907,7 @@ function createRequestPolicyFactoryPolicy(factories) {
   };
 }
 
-// node_modules/.pnpm/@azure+core-http-compat@2.4.0_@azure+core-client@1.10.1_@azure+core-rest-pipeline@1.23.0/node_modules/@azure/core-http-compat/dist/esm/httpClientAdapter.js
+// node_modules/.pnpm/@azure+core-http-compat@2.5.0_@azure+core-client@1.11.0_@azure+core-rest-pipeline@1.25.0/node_modules/@azure/core-http-compat/dist/esm/httpClientAdapter.js
 function convertHttpClient(requestPolicyClient) {
   return {
     sendRequest: async (request) => {
@@ -61720,7 +61917,7 @@ function convertHttpClient(requestPolicyClient) {
   };
 }
 
-// node_modules/.pnpm/fast-xml-parser@5.8.0/node_modules/fast-xml-parser/src/util.js
+// node_modules/.pnpm/fast-xml-parser@5.10.1/node_modules/fast-xml-parser/src/util.js
 var nameStartChar = ":A-Za-z_\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD";
 var nameChar = nameStartChar + "\\-.\\d\\u00B7\\u0300-\\u036F\\u203F-\\u2040";
 var nameRegexp = "[" + nameStartChar + "][" + nameChar + "]*";
@@ -61761,7 +61958,7 @@ var DANGEROUS_PROPERTY_NAMES = [
 ];
 var criticalProperties = ["__proto__", "constructor", "prototype"];
 
-// node_modules/.pnpm/fast-xml-parser@5.8.0/node_modules/fast-xml-parser/src/validator.js
+// node_modules/.pnpm/fast-xml-parser@5.10.1/node_modules/fast-xml-parser/src/validator.js
 var defaultOptions = {
   allowBooleanAttributes: false,
   //A tag can have attributes without any value
@@ -61877,7 +62074,7 @@ function validate(xmlData, options) {
               return getErrorObject("InvalidChar", "char '&' is not expected.", getLineNumberForPosition(xmlData, i));
             i = afterAmp;
           } else {
-            if (reachedRoot === true && !isWhiteSpace(xmlData[i])) {
+            if (reachedRoot === true && !isWhiteSpace2(xmlData[i])) {
               return getErrorObject("InvalidXml", "Extra text at the end", getLineNumberForPosition(xmlData, i));
             }
           }
@@ -61887,7 +62084,7 @@ function validate(xmlData, options) {
         }
       }
     } else {
-      if (isWhiteSpace(xmlData[i])) {
+      if (isWhiteSpace2(xmlData[i])) {
         continue;
       }
       return getErrorObject("InvalidChar", "char '" + xmlData[i] + "' is not expected.", getLineNumberForPosition(xmlData, i));
@@ -61902,7 +62099,7 @@ function validate(xmlData, options) {
   }
   return true;
 }
-function isWhiteSpace(char) {
+function isWhiteSpace2(char) {
   return char === " " || char === "	" || char === "\n" || char === "\r";
 }
 function readPI(xmlData, i) {
@@ -62067,941 +62264,7 @@ function getPositionFromMatch(match3) {
   return match3.startIndex + match3[1].length;
 }
 
-// node_modules/.pnpm/@nodable+entities@2.1.1/node_modules/@nodable/entities/src/entities.js
-var BASIC_LATIN = {
-  amp: "&",
-  AMP: "&",
-  lt: "<",
-  LT: "<",
-  gt: ">",
-  GT: ">",
-  quot: '"',
-  QUOT: '"',
-  apos: "'",
-  lsquo: "\u2018",
-  rsquo: "\u2019",
-  ldquo: "\u201C",
-  rdquo: "\u201D",
-  lsquor: "\u201A",
-  rsquor: "\u2019",
-  ldquor: "\u201E",
-  bdquo: "\u201E",
-  comma: ",",
-  period: ".",
-  colon: ":",
-  semi: ";",
-  excl: "!",
-  quest: "?",
-  num: "#",
-  dollar: "$",
-  percent: "%",
-  ast: "*",
-  commat: "@",
-  lowbar: "_",
-  verbar: "|",
-  vert: "|",
-  sol: "/",
-  bsol: "\\",
-  lbrace: "{",
-  rbrace: "}",
-  lbrack: "[",
-  rbrack: "]",
-  lpar: "(",
-  rpar: ")",
-  nbsp: "\xA0",
-  iexcl: "\xA1",
-  cent: "\xA2",
-  pound: "\xA3",
-  curren: "\xA4",
-  yen: "\xA5",
-  brvbar: "\xA6",
-  sect: "\xA7",
-  uml: "\xA8",
-  copy: "\xA9",
-  COPY: "\xA9",
-  ordf: "\xAA",
-  laquo: "\xAB",
-  not: "\xAC",
-  shy: "\xAD",
-  reg: "\xAE",
-  REG: "\xAE",
-  macr: "\xAF",
-  deg: "\xB0",
-  plusmn: "\xB1",
-  sup2: "\xB2",
-  sup3: "\xB3",
-  acute: "\xB4",
-  micro: "\xB5",
-  para: "\xB6",
-  middot: "\xB7",
-  cedil: "\xB8",
-  sup1: "\xB9",
-  ordm: "\xBA",
-  raquo: "\xBB",
-  frac14: "\xBC",
-  frac12: "\xBD",
-  half: "\xBD",
-  frac34: "\xBE",
-  iquest: "\xBF",
-  times: "\xD7",
-  div: "\xF7",
-  divide: "\xF7"
-};
-var LATIN_ACCENTS = {
-  Agrave: "\xC0",
-  agrave: "\xE0",
-  Aacute: "\xC1",
-  aacute: "\xE1",
-  Acirc: "\xC2",
-  acirc: "\xE2",
-  Atilde: "\xC3",
-  atilde: "\xE3",
-  Auml: "\xC4",
-  auml: "\xE4",
-  Aring: "\xC5",
-  aring: "\xE5",
-  AElig: "\xC6",
-  aelig: "\xE6",
-  Ccedil: "\xC7",
-  ccedil: "\xE7",
-  Egrave: "\xC8",
-  egrave: "\xE8",
-  Eacute: "\xC9",
-  eacute: "\xE9",
-  Ecirc: "\xCA",
-  ecirc: "\xEA",
-  Euml: "\xCB",
-  euml: "\xEB",
-  Igrave: "\xCC",
-  igrave: "\xEC",
-  Iacute: "\xCD",
-  iacute: "\xED",
-  Icirc: "\xCE",
-  icirc: "\xEE",
-  Iuml: "\xCF",
-  iuml: "\xEF",
-  ETH: "\xD0",
-  eth: "\xF0",
-  Ntilde: "\xD1",
-  ntilde: "\xF1",
-  Ograve: "\xD2",
-  ograve: "\xF2",
-  Oacute: "\xD3",
-  oacute: "\xF3",
-  Ocirc: "\xD4",
-  ocirc: "\xF4",
-  Otilde: "\xD5",
-  otilde: "\xF5",
-  Ouml: "\xD6",
-  ouml: "\xF6",
-  Oslash: "\xD8",
-  oslash: "\xF8",
-  Ugrave: "\xD9",
-  ugrave: "\xF9",
-  Uacute: "\xDA",
-  uacute: "\xFA",
-  Ucirc: "\xDB",
-  ucirc: "\xFB",
-  Uuml: "\xDC",
-  uuml: "\xFC",
-  Yacute: "\xDD",
-  yacute: "\xFD",
-  THORN: "\xDE",
-  thorn: "\xFE",
-  szlig: "\xDF",
-  yuml: "\xFF",
-  Yuml: "\u0178"
-};
-var LATIN_EXTENDED = {
-  Amacr: "\u0100",
-  amacr: "\u0101",
-  Abreve: "\u0102",
-  abreve: "\u0103",
-  Aogon: "\u0104",
-  aogon: "\u0105",
-  Cacute: "\u0106",
-  cacute: "\u0107",
-  Ccirc: "\u0108",
-  ccirc: "\u0109",
-  Cdot: "\u010A",
-  cdot: "\u010B",
-  Ccaron: "\u010C",
-  ccaron: "\u010D",
-  Dcaron: "\u010E",
-  dcaron: "\u010F",
-  Dstrok: "\u0110",
-  dstrok: "\u0111",
-  Emacr: "\u0112",
-  emacr: "\u0113",
-  Ecaron: "\u011A",
-  ecaron: "\u011B",
-  Edot: "\u0116",
-  edot: "\u0117",
-  Eogon: "\u0118",
-  eogon: "\u0119",
-  Gcirc: "\u011C",
-  gcirc: "\u011D",
-  Gbreve: "\u011E",
-  gbreve: "\u011F",
-  Gdot: "\u0120",
-  gdot: "\u0121",
-  Gcedil: "\u0122",
-  Hcirc: "\u0124",
-  hcirc: "\u0125",
-  Hstrok: "\u0126",
-  hstrok: "\u0127",
-  Itilde: "\u0128",
-  itilde: "\u0129",
-  Imacr: "\u012A",
-  imacr: "\u012B",
-  Iogon: "\u012E",
-  iogon: "\u012F",
-  Idot: "\u0130",
-  IJlig: "\u0132",
-  ijlig: "\u0133",
-  Jcirc: "\u0134",
-  jcirc: "\u0135",
-  Kcedil: "\u0136",
-  kcedil: "\u0137",
-  kgreen: "\u0138",
-  Lacute: "\u0139",
-  lacute: "\u013A",
-  Lcedil: "\u013B",
-  lcedil: "\u013C",
-  Lcaron: "\u013D",
-  lcaron: "\u013E",
-  Lmidot: "\u013F",
-  lmidot: "\u0140",
-  Lstrok: "\u0141",
-  lstrok: "\u0142",
-  Nacute: "\u0143",
-  nacute: "\u0144",
-  Ncaron: "\u0147",
-  ncaron: "\u0148",
-  Ncedil: "\u0145",
-  ncedil: "\u0146",
-  ENG: "\u014A",
-  eng: "\u014B",
-  Omacr: "\u014C",
-  omacr: "\u014D",
-  Odblac: "\u0150",
-  odblac: "\u0151",
-  OElig: "\u0152",
-  oelig: "\u0153",
-  Racute: "\u0154",
-  racute: "\u0155",
-  Rcaron: "\u0158",
-  rcaron: "\u0159",
-  Rcedil: "\u0156",
-  rcedil: "\u0157",
-  Sacute: "\u015A",
-  sacute: "\u015B",
-  Scirc: "\u015C",
-  scirc: "\u015D",
-  Scedil: "\u015E",
-  scedil: "\u015F",
-  Scaron: "\u0160",
-  scaron: "\u0161",
-  Tcedil: "\u0162",
-  tcedil: "\u0163",
-  Tcaron: "\u0164",
-  tcaron: "\u0165",
-  Tstrok: "\u0166",
-  tstrok: "\u0167",
-  Utilde: "\u0168",
-  utilde: "\u0169",
-  Umacr: "\u016A",
-  umacr: "\u016B",
-  Ubreve: "\u016C",
-  ubreve: "\u016D",
-  Uring: "\u016E",
-  uring: "\u016F",
-  Udblac: "\u0170",
-  udblac: "\u0171",
-  Uogon: "\u0172",
-  uogon: "\u0173",
-  Wcirc: "\u0174",
-  wcirc: "\u0175",
-  Ycirc: "\u0176",
-  ycirc: "\u0177",
-  Zacute: "\u0179",
-  zacute: "\u017A",
-  Zdot: "\u017B",
-  zdot: "\u017C",
-  Zcaron: "\u017D",
-  zcaron: "\u017E"
-};
-var GREEK = {
-  Alpha: "\u0391",
-  alpha: "\u03B1",
-  Beta: "\u0392",
-  beta: "\u03B2",
-  Gamma: "\u0393",
-  gamma: "\u03B3",
-  Delta: "\u0394",
-  delta: "\u03B4",
-  Epsilon: "\u0395",
-  epsilon: "\u03B5",
-  epsiv: "\u03F5",
-  varepsilon: "\u03F5",
-  Zeta: "\u0396",
-  zeta: "\u03B6",
-  Eta: "\u0397",
-  eta: "\u03B7",
-  Theta: "\u0398",
-  theta: "\u03B8",
-  thetasym: "\u03D1",
-  vartheta: "\u03D1",
-  Iota: "\u0399",
-  iota: "\u03B9",
-  Kappa: "\u039A",
-  kappa: "\u03BA",
-  kappav: "\u03F0",
-  varkappa: "\u03F0",
-  Lambda: "\u039B",
-  lambda: "\u03BB",
-  Mu: "\u039C",
-  mu: "\u03BC",
-  Nu: "\u039D",
-  nu: "\u03BD",
-  Xi: "\u039E",
-  xi: "\u03BE",
-  Omicron: "\u039F",
-  omicron: "\u03BF",
-  Pi: "\u03A0",
-  pi: "\u03C0",
-  piv: "\u03D6",
-  varpi: "\u03D6",
-  Rho: "\u03A1",
-  rho: "\u03C1",
-  rhov: "\u03F1",
-  varrho: "\u03F1",
-  Sigma: "\u03A3",
-  sigma: "\u03C3",
-  sigmaf: "\u03C2",
-  sigmav: "\u03C2",
-  varsigma: "\u03C2",
-  Tau: "\u03A4",
-  tau: "\u03C4",
-  Upsilon: "\u03A5",
-  upsilon: "\u03C5",
-  upsi: "\u03C5",
-  Upsi: "\u03D2",
-  upsih: "\u03D2",
-  Phi: "\u03A6",
-  phi: "\u03C6",
-  phiv: "\u03D5",
-  varphi: "\u03D5",
-  Chi: "\u03A7",
-  chi: "\u03C7",
-  Psi: "\u03A8",
-  psi: "\u03C8",
-  Omega: "\u03A9",
-  omega: "\u03C9",
-  ohm: "\u03A9",
-  Gammad: "\u03DC",
-  gammad: "\u03DD",
-  digamma: "\u03DD"
-};
-var CYRILLIC = {
-  Afr: "\u{1D504}",
-  afr: "\u{1D51E}",
-  Acy: "\u0410",
-  acy: "\u0430",
-  Bcy: "\u0411",
-  bcy: "\u0431",
-  Vcy: "\u0412",
-  vcy: "\u0432",
-  Gcy: "\u0413",
-  gcy: "\u0433",
-  Dcy: "\u0414",
-  dcy: "\u0434",
-  IEcy: "\u0415",
-  iecy: "\u0435",
-  IOcy: "\u0401",
-  iocy: "\u0451",
-  ZHcy: "\u0416",
-  zhcy: "\u0436",
-  Zcy: "\u0417",
-  zcy: "\u0437",
-  Icy: "\u0418",
-  icy: "\u0438",
-  Jcy: "\u0419",
-  jcy: "\u0439",
-  Kcy: "\u041A",
-  kcy: "\u043A",
-  Lcy: "\u041B",
-  lcy: "\u043B",
-  Mcy: "\u041C",
-  mcy: "\u043C",
-  Ncy: "\u041D",
-  ncy: "\u043D",
-  Ocy: "\u041E",
-  ocy: "\u043E",
-  Pcy: "\u041F",
-  pcy: "\u043F",
-  Rcy: "\u0420",
-  rcy: "\u0440",
-  Scy: "\u0421",
-  scy: "\u0441",
-  Tcy: "\u0422",
-  tcy: "\u0442",
-  Ucy: "\u0423",
-  ucy: "\u0443",
-  Fcy: "\u0424",
-  fcy: "\u0444",
-  KHcy: "\u0425",
-  khcy: "\u0445",
-  TScy: "\u0426",
-  tscy: "\u0446",
-  CHcy: "\u0427",
-  chcy: "\u0447",
-  SHcy: "\u0428",
-  shcy: "\u0448",
-  SHCHcy: "\u0429",
-  shchcy: "\u0449",
-  HARDcy: "\u042A",
-  hardcy: "\u044A",
-  Ycy: "\u042B",
-  ycy: "\u044B",
-  SOFTcy: "\u042C",
-  softcy: "\u044C",
-  Ecy: "\u042D",
-  ecy: "\u044D",
-  YUcy: "\u042E",
-  yucy: "\u044E",
-  YAcy: "\u042F",
-  yacy: "\u044F",
-  DJcy: "\u0402",
-  djcy: "\u0452",
-  GJcy: "\u0403",
-  gjcy: "\u0453",
-  Jukcy: "\u0404",
-  jukcy: "\u0454",
-  DScy: "\u0405",
-  dscy: "\u0455",
-  Iukcy: "\u0406",
-  iukcy: "\u0456",
-  YIcy: "\u0407",
-  yicy: "\u0457",
-  Jsercy: "\u0408",
-  jsercy: "\u0458",
-  LJcy: "\u0409",
-  ljcy: "\u0459",
-  NJcy: "\u040A",
-  njcy: "\u045A",
-  TSHcy: "\u040B",
-  tshcy: "\u045B",
-  KJcy: "\u040C",
-  kjcy: "\u045C",
-  Ubrcy: "\u040E",
-  ubrcy: "\u045E",
-  DZcy: "\u040F",
-  dzcy: "\u045F"
-};
-var MATH = {
-  plus: "+",
-  pm: "\xB1",
-  times: "\xD7",
-  div: "\xF7",
-  divide: "\xF7",
-  sdot: "\u22C5",
-  star: "\u2606",
-  starf: "\u2605",
-  bigstar: "\u2605",
-  lowast: "\u2217",
-  ast: "*",
-  midast: "*",
-  compfn: "\u2218",
-  smallcircle: "\u2218",
-  bullet: "\u2022",
-  bull: "\u2022",
-  nbsp: "\xA0",
-  hellip: "\u2026",
-  mldr: "\u2026",
-  prime: "\u2032",
-  Prime: "\u2033",
-  tprime: "\u2034",
-  bprime: "\u2035",
-  backprime: "\u2035",
-  minus: "\u2212",
-  minusd: "\u2238",
-  dotminus: "\u2238",
-  plusdo: "\u2214",
-  dotplus: "\u2214",
-  plusmn: "\xB1",
-  minusplus: "\u2213",
-  mnplus: "\u2213",
-  mp: "\u2213",
-  setminus: "\u2216",
-  smallsetminus: "\u2216",
-  Backslash: "\u2216",
-  setmn: "\u2216",
-  ssetmn: "\u2216",
-  lowbar: "_",
-  verbar: "|",
-  vert: "|",
-  VerticalLine: "|",
-  colon: ":",
-  Colon: "\u2237",
-  Proportion: "\u2237",
-  ratio: "\u2236",
-  equals: "=",
-  ne: "\u2260",
-  nequiv: "\u2262",
-  equiv: "\u2261",
-  Congruent: "\u2261",
-  sim: "\u223C",
-  thicksim: "\u223C",
-  thksim: "\u223C",
-  sime: "\u2243",
-  simeq: "\u2243",
-  TildeEqual: "\u2243",
-  asymp: "\u2248",
-  approx: "\u2248",
-  thickapprox: "\u2248",
-  thkap: "\u2248",
-  TildeTilde: "\u2248",
-  ncong: "\u2247",
-  cong: "\u2245",
-  TildeFullEqual: "\u2245",
-  asympeq: "\u224D",
-  CupCap: "\u224D",
-  bump: "\u224E",
-  Bumpeq: "\u224E",
-  HumpDownHump: "\u224E",
-  bumpe: "\u224F",
-  bumpeq: "\u224F",
-  HumpEqual: "\u224F",
-  le: "\u2264",
-  LessEqual: "\u2264",
-  ge: "\u2265",
-  GreaterEqual: "\u2265",
-  lesseqgtr: "\u22DA",
-  lesseqqgtr: "\u2A8B",
-  greater: ">",
-  less: "<"
-};
-var MATH_ADVANCED = {
-  alefsym: "\u2135",
-  aleph: "\u2135",
-  beth: "\u2136",
-  gimel: "\u2137",
-  daleth: "\u2138",
-  forall: "\u2200",
-  ForAll: "\u2200",
-  part: "\u2202",
-  PartialD: "\u2202",
-  exist: "\u2203",
-  Exists: "\u2203",
-  nexist: "\u2204",
-  nexists: "\u2204",
-  empty: "\u2205",
-  emptyset: "\u2205",
-  emptyv: "\u2205",
-  varnothing: "\u2205",
-  nabla: "\u2207",
-  Del: "\u2207",
-  isin: "\u2208",
-  isinv: "\u2208",
-  in: "\u2208",
-  Element: "\u2208",
-  notin: "\u2209",
-  notinva: "\u2209",
-  ni: "\u220B",
-  niv: "\u220B",
-  SuchThat: "\u220B",
-  ReverseElement: "\u220B",
-  notni: "\u220C",
-  notniva: "\u220C",
-  prod: "\u220F",
-  Product: "\u220F",
-  coprod: "\u2210",
-  Coproduct: "\u2210",
-  sum: "\u2211",
-  Sum: "\u2211",
-  minus: "\u2212",
-  mp: "\u2213",
-  plusdo: "\u2214",
-  dotplus: "\u2214",
-  setminus: "\u2216",
-  lowast: "\u2217",
-  radic: "\u221A",
-  Sqrt: "\u221A",
-  prop: "\u221D",
-  propto: "\u221D",
-  Proportional: "\u221D",
-  varpropto: "\u221D",
-  infin: "\u221E",
-  infintie: "\u29DD",
-  ang: "\u2220",
-  angle: "\u2220",
-  angmsd: "\u2221",
-  measuredangle: "\u2221",
-  angsph: "\u2222",
-  mid: "\u2223",
-  VerticalBar: "\u2223",
-  nmid: "\u2224",
-  nsmid: "\u2224",
-  npar: "\u2226",
-  parallel: "\u2225",
-  spar: "\u2225",
-  nparallel: "\u2226",
-  nspar: "\u2226",
-  and: "\u2227",
-  wedge: "\u2227",
-  or: "\u2228",
-  vee: "\u2228",
-  cap: "\u2229",
-  cup: "\u222A",
-  int: "\u222B",
-  Integral: "\u222B",
-  conint: "\u222E",
-  ContourIntegral: "\u222E",
-  Conint: "\u222F",
-  DoubleContourIntegral: "\u222F",
-  Cconint: "\u2230",
-  there4: "\u2234",
-  therefore: "\u2234",
-  Therefore: "\u2234",
-  becaus: "\u2235",
-  because: "\u2235",
-  Because: "\u2235",
-  ratio: "\u2236",
-  Proportion: "\u2237",
-  minusd: "\u2238",
-  dotminus: "\u2238",
-  mDDot: "\u223A",
-  homtht: "\u223B",
-  sim: "\u223C",
-  bsimg: "\u223D",
-  backsim: "\u223D",
-  ac: "\u223E",
-  mstpos: "\u223E",
-  acd: "\u223F",
-  VerticalTilde: "\u2240",
-  wr: "\u2240",
-  wreath: "\u2240",
-  nsime: "\u2244",
-  nsimeq: "\u2244",
-  ncong: "\u2247",
-  simne: "\u2246",
-  ncongdot: "\u2A6D\u0338",
-  ngsim: "\u2275",
-  nsim: "\u2241",
-  napprox: "\u2249",
-  nap: "\u2249",
-  ngeq: "\u2271",
-  nge: "\u2271",
-  nleq: "\u2270",
-  nle: "\u2270",
-  ngtr: "\u226F",
-  ngt: "\u226F",
-  nless: "\u226E",
-  nlt: "\u226E",
-  nprec: "\u2280",
-  npr: "\u2280",
-  nsucc: "\u2281",
-  nsc: "\u2281"
-};
-var ARROWS = {
-  larr: "\u2190",
-  leftarrow: "\u2190",
-  LeftArrow: "\u2190",
-  uarr: "\u2191",
-  uparrow: "\u2191",
-  UpArrow: "\u2191",
-  rarr: "\u2192",
-  rightarrow: "\u2192",
-  RightArrow: "\u2192",
-  darr: "\u2193",
-  downarrow: "\u2193",
-  DownArrow: "\u2193",
-  harr: "\u2194",
-  leftrightarrow: "\u2194",
-  LeftRightArrow: "\u2194",
-  varr: "\u2195",
-  updownarrow: "\u2195",
-  UpDownArrow: "\u2195",
-  nwarr: "\u2196",
-  nwarrow: "\u2196",
-  UpperLeftArrow: "\u2196",
-  nearr: "\u2197",
-  nearrow: "\u2197",
-  UpperRightArrow: "\u2197",
-  searr: "\u2198",
-  searrow: "\u2198",
-  LowerRightArrow: "\u2198",
-  swarr: "\u2199",
-  swarrow: "\u2199",
-  LowerLeftArrow: "\u2199",
-  lArr: "\u21D0",
-  Leftarrow: "\u21D0",
-  uArr: "\u21D1",
-  Uparrow: "\u21D1",
-  rArr: "\u21D2",
-  Rightarrow: "\u21D2",
-  dArr: "\u21D3",
-  Downarrow: "\u21D3",
-  hArr: "\u21D4",
-  Leftrightarrow: "\u21D4",
-  iff: "\u21D4",
-  vArr: "\u21D5",
-  Updownarrow: "\u21D5",
-  lAarr: "\u21DA",
-  Lleftarrow: "\u21DA",
-  rAarr: "\u21DB",
-  Rrightarrow: "\u21DB",
-  lrarr: "\u21C6",
-  leftrightarrows: "\u21C6",
-  rlarr: "\u21C4",
-  rightleftarrows: "\u21C4",
-  lrhar: "\u21CB",
-  leftrightharpoons: "\u21CB",
-  ReverseEquilibrium: "\u21CB",
-  rlhar: "\u21CC",
-  rightleftharpoons: "\u21CC",
-  Equilibrium: "\u21CC",
-  udarr: "\u21C5",
-  UpArrowDownArrow: "\u21C5",
-  duarr: "\u21F5",
-  DownArrowUpArrow: "\u21F5",
-  llarr: "\u21C7",
-  leftleftarrows: "\u21C7",
-  rrarr: "\u21C9",
-  rightrightarrows: "\u21C9",
-  ddarr: "\u21CA",
-  downdownarrows: "\u21CA",
-  har: "\u21BD",
-  lhard: "\u21BD",
-  leftharpoondown: "\u21BD",
-  lharu: "\u21BC",
-  leftharpoonup: "\u21BC",
-  rhard: "\u21C1",
-  rightharpoondown: "\u21C1",
-  rharu: "\u21C0",
-  rightharpoonup: "\u21C0",
-  lsh: "\u21B0",
-  Lsh: "\u21B0",
-  rsh: "\u21B1",
-  Rsh: "\u21B1",
-  ldsh: "\u21B2",
-  rdsh: "\u21B3",
-  hookleftarrow: "\u21A9",
-  hookrightarrow: "\u21AA",
-  mapstoleft: "\u21A4",
-  mapstoup: "\u21A5",
-  map: "\u21A6",
-  mapsto: "\u21A6",
-  mapstodown: "\u21A7",
-  crarr: "\u21B5",
-  nleftarrow: "\u219A",
-  nleftrightarrow: "\u21AE",
-  nrightarrow: "\u219B",
-  nrarr: "\u219B",
-  larrtl: "\u21A2",
-  rarrtl: "\u21A3",
-  leftarrowtail: "\u21A2",
-  rightarrowtail: "\u21A3",
-  twoheadleftarrow: "\u219E",
-  twoheadrightarrow: "\u21A0",
-  Larr: "\u219E",
-  Rarr: "\u21A0",
-  larrhk: "\u21A9",
-  rarrhk: "\u21AA",
-  larrlp: "\u21AB",
-  looparrowleft: "\u21AB",
-  rarrlp: "\u21AC",
-  looparrowright: "\u21AC",
-  harrw: "\u21AD",
-  leftrightsquigarrow: "\u21AD",
-  nrarrw: "\u219D\u0338",
-  rarrw: "\u219D",
-  rightsquigarrow: "\u219D",
-  larrbfs: "\u291F",
-  rarrbfs: "\u2920",
-  nvHarr: "\u2904",
-  nvlArr: "\u2902",
-  nvrArr: "\u2903",
-  larrfs: "\u291D",
-  rarrfs: "\u291E",
-  Map: "\u2905",
-  larrsim: "\u2973",
-  rarrsim: "\u2974",
-  harrcir: "\u2948",
-  Uarrocir: "\u2949",
-  lurdshar: "\u294A",
-  ldrdhar: "\u2967",
-  ldrushar: "\u294B",
-  rdldhar: "\u2969",
-  lrhard: "\u296D",
-  uharr: "\u21BE",
-  uharl: "\u21BF",
-  dharr: "\u21C2",
-  dharl: "\u21C3",
-  Uarr: "\u219F",
-  Darr: "\u21A1",
-  zigrarr: "\u21DD",
-  nwArr: "\u21D6",
-  neArr: "\u21D7",
-  seArr: "\u21D8",
-  swArr: "\u21D9",
-  nharr: "\u21AE",
-  nhArr: "\u21CE",
-  nlarr: "\u219A",
-  nlArr: "\u21CD",
-  nrArr: "\u21CF",
-  larrb: "\u21E4",
-  LeftArrowBar: "\u21E4",
-  rarrb: "\u21E5",
-  RightArrowBar: "\u21E5"
-};
-var SHAPES = {
-  square: "\u25A1",
-  Square: "\u25A1",
-  squ: "\u25A1",
-  squf: "\u25AA",
-  squarf: "\u25AA",
-  blacksquar: "\u25AA",
-  blacksquare: "\u25AA",
-  FilledVerySmallSquare: "\u25AA",
-  blk34: "\u2593",
-  blk12: "\u2592",
-  blk14: "\u2591",
-  block: "\u2588",
-  srect: "\u25AD",
-  rect: "\u25AD",
-  sdot: "\u22C5",
-  sdotb: "\u22A1",
-  dotsquare: "\u22A1",
-  triangle: "\u25B5",
-  tri: "\u25B5",
-  trine: "\u25B5",
-  utri: "\u25B5",
-  triangledown: "\u25BF",
-  dtri: "\u25BF",
-  tridown: "\u25BF",
-  triangleleft: "\u25C3",
-  ltri: "\u25C3",
-  triangleright: "\u25B9",
-  rtri: "\u25B9",
-  blacktriangle: "\u25B4",
-  utrif: "\u25B4",
-  blacktriangledown: "\u25BE",
-  dtrif: "\u25BE",
-  blacktriangleleft: "\u25C2",
-  ltrif: "\u25C2",
-  blacktriangleright: "\u25B8",
-  rtrif: "\u25B8",
-  loz: "\u25CA",
-  lozenge: "\u25CA",
-  blacklozenge: "\u29EB",
-  lozf: "\u29EB",
-  bigcirc: "\u25EF",
-  xcirc: "\u25EF",
-  circ: "\u02C6",
-  Circle: "\u25CB",
-  cir: "\u25CB",
-  o: "\u25CB",
-  bullet: "\u2022",
-  bull: "\u2022",
-  hellip: "\u2026",
-  mldr: "\u2026",
-  nldr: "\u2025",
-  boxh: "\u2500",
-  HorizontalLine: "\u2500",
-  boxv: "\u2502",
-  boxdr: "\u250C",
-  boxdl: "\u2510",
-  boxur: "\u2514",
-  boxul: "\u2518",
-  boxvr: "\u251C",
-  boxvl: "\u2524",
-  boxhd: "\u252C",
-  boxhu: "\u2534",
-  boxvh: "\u253C",
-  boxH: "\u2550",
-  boxV: "\u2551",
-  boxdR: "\u2552",
-  boxDr: "\u2553",
-  boxDR: "\u2554",
-  boxDl: "\u2555",
-  boxdL: "\u2556",
-  boxDL: "\u2557",
-  boxuR: "\u2558",
-  boxUr: "\u2559",
-  boxUR: "\u255A",
-  boxUl: "\u255C",
-  boxuL: "\u255B",
-  boxUL: "\u255D",
-  boxvR: "\u255E",
-  boxVr: "\u255F",
-  boxVR: "\u2560",
-  boxVl: "\u2562",
-  boxvL: "\u2561",
-  boxVL: "\u2563",
-  boxHd: "\u2564",
-  boxhD: "\u2565",
-  boxHD: "\u2566",
-  boxHu: "\u2567",
-  boxhU: "\u2568",
-  boxHU: "\u2569",
-  boxvH: "\u256A",
-  boxVh: "\u256B",
-  boxVH: "\u256C"
-};
-var PUNCTUATION = {
-  excl: "!",
-  iexcl: "\xA1",
-  brvbar: "\xA6",
-  sect: "\xA7",
-  uml: "\xA8",
-  copy: "\xA9",
-  ordf: "\xAA",
-  laquo: "\xAB",
-  not: "\xAC",
-  shy: "\xAD",
-  reg: "\xAE",
-  macr: "\xAF",
-  deg: "\xB0",
-  plusmn: "\xB1",
-  sup2: "\xB2",
-  sup3: "\xB3",
-  acute: "\xB4",
-  micro: "\xB5",
-  para: "\xB6",
-  middot: "\xB7",
-  cedil: "\xB8",
-  sup1: "\xB9",
-  ordm: "\xBA",
-  raquo: "\xBB",
-  frac14: "\xBC",
-  frac12: "\xBD",
-  frac34: "\xBE",
-  iquest: "\xBF",
-  nbsp: "\xA0",
-  comma: ",",
-  period: ".",
-  colon: ":",
-  semi: ";",
-  vert: "|",
-  Verbar: "\u2016",
-  verbar: "|",
-  dblac: "\u02DD",
-  circ: "\u02C6",
-  caron: "\u02C7",
-  breve: "\u02D8",
-  dot: "\u02D9",
-  ring: "\u02DA",
-  ogon: "\u02DB",
-  tilde: "\u02DC",
-  DiacriticalGrave: "`",
-  DiacriticalAcute: "\xB4",
-  DiacriticalTilde: "\u02DC",
-  DiacriticalDot: "\u02D9",
-  DiacriticalDoubleAcute: "\u02DD",
-  grave: "`"
-};
+// node_modules/.pnpm/@nodable+entities@3.0.0/node_modules/@nodable/entities/src/entities.js
 var CURRENCY = {
   cent: "\xA2",
   pound: "\xA3",
@@ -63018,106 +62281,6 @@ var CURRENCY = {
   won: "\u20A9",
   yuan: "\xA5",
   cedil: "\xB8"
-};
-var FRACTIONS = {
-  frac12: "\xBD",
-  half: "\xBD",
-  frac13: "\u2153",
-  frac14: "\xBC",
-  frac15: "\u2155",
-  frac16: "\u2159",
-  frac18: "\u215B",
-  frac23: "\u2154",
-  frac25: "\u2156",
-  frac34: "\xBE",
-  frac35: "\u2157",
-  frac38: "\u215C",
-  frac45: "\u2158",
-  frac56: "\u215A",
-  frac58: "\u215D",
-  frac78: "\u215E",
-  frasl: "\u2044"
-};
-var MISC_SYMBOLS = {
-  trade: "\u2122",
-  TRADE: "\u2122",
-  telrec: "\u2315",
-  target: "\u2316",
-  ulcorn: "\u231C",
-  ulcorner: "\u231C",
-  urcorn: "\u231D",
-  urcorner: "\u231D",
-  dlcorn: "\u231E",
-  llcorner: "\u231E",
-  drcorn: "\u231F",
-  lrcorner: "\u231F",
-  intercal: "\u22BA",
-  intcal: "\u22BA",
-  oplus: "\u2295",
-  CirclePlus: "\u2295",
-  ominus: "\u2296",
-  CircleMinus: "\u2296",
-  otimes: "\u2297",
-  CircleTimes: "\u2297",
-  osol: "\u2298",
-  odot: "\u2299",
-  CircleDot: "\u2299",
-  oast: "\u229B",
-  circledast: "\u229B",
-  odash: "\u229D",
-  circleddash: "\u229D",
-  ocirc: "\u229A",
-  circledcirc: "\u229A",
-  boxplus: "\u229E",
-  plusb: "\u229E",
-  boxminus: "\u229F",
-  minusb: "\u229F",
-  boxtimes: "\u22A0",
-  timesb: "\u22A0",
-  boxdot: "\u22A1",
-  sdotb: "\u22A1",
-  veebar: "\u22BB",
-  vee: "\u2228",
-  barvee: "\u22BD",
-  and: "\u2227",
-  wedge: "\u2227",
-  Cap: "\u22D2",
-  Cup: "\u22D3",
-  Fork: "\u22D4",
-  pitchfork: "\u22D4",
-  epar: "\u22D5",
-  ltlarr: "\u2976",
-  nvap: "\u224D\u20D2",
-  nvsim: "\u223C\u20D2",
-  nvge: "\u2265\u20D2",
-  nvle: "\u2264\u20D2",
-  nvlt: "<\u20D2",
-  nvgt: ">\u20D2",
-  nvltrie: "\u22B4\u20D2",
-  nvrtrie: "\u22B5\u20D2",
-  Vdash: "\u22A9",
-  dashv: "\u22A3",
-  vDash: "\u22A8",
-  Vvdash: "\u22AA",
-  nvdash: "\u22AC",
-  nvDash: "\u22AD",
-  nVdash: "\u22AE",
-  nVDash: "\u22AF"
-};
-var ALL_ENTITIES = {
-  ...BASIC_LATIN,
-  ...LATIN_ACCENTS,
-  ...LATIN_EXTENDED,
-  ...GREEK,
-  ...CYRILLIC,
-  ...MATH,
-  ...MATH_ADVANCED,
-  ...ARROWS,
-  ...SHAPES,
-  ...PUNCTUATION,
-  ...CURRENCY,
-  ...FRACTIONS,
-  ...MISC_SYMBOLS
 };
 var XML = {
   amp: "&",
@@ -63149,7 +62312,15 @@ var COMMON_HTML = {
   frac34: "\xBE"
 };
 
-// node_modules/.pnpm/@nodable+entities@2.1.1/node_modules/@nodable/entities/src/EntityDecoder.js
+// node_modules/.pnpm/@nodable+entities@3.0.0/node_modules/@nodable/entities/src/EntityDecoder.js
+var ENTITY_ACTION = Object.freeze({
+  /** Resolve and expand the entity normally. */
+  ALLOW: "allow",
+  /** Silently skip this entity — it will not be registered. */
+  BLOCK: "block",
+  /** Throw an error, aborting entity registration entirely. */
+  THROW: "throw"
+});
 var SPECIAL_CHARS = new Set("!?\\\\/[]$%{}^&*()<>|+");
 function validateEntityName(name) {
   if (name[0] === "#") {
@@ -63229,6 +62400,14 @@ var EntityDecoder = class {
    *   the effective action is max(onNCR, rangeMinimum).
    * @param {'remove'|'throw'} [options.ncr.nullNCR='remove']
    *   Action for U+0000 (null). 'allow' and 'leave' are clamped to 'remove' since null is never safe.
+   * @param {((name: string, value: string) => 'allow'|'block'|'throw')|null} [options.onExternalEntity=null]
+   *   Hook called when an external entity is registered via `setExternalEntities()` or
+   *   `addExternalEntity()`. Return `ENTITY_ACTION.ALLOW` to accept the entity,
+   *   `ENTITY_ACTION.BLOCK` to silently skip it, or `ENTITY_ACTION.THROW` to abort with an error.
+   * @param {((name: string, value: string) => 'allow'|'block'|'throw')|null} [options.onInputEntity=null]
+   *   Hook called when an input entity is registered via `addInputEntities()`. Return
+   *   `ENTITY_ACTION.ALLOW` to accept, `ENTITY_ACTION.BLOCK` to silently skip, or
+   *   `ENTITY_ACTION.THROW` to abort with an error.
    */
   constructor(options = {}) {
     this._limit = options.limit || {};
@@ -63248,6 +62427,33 @@ var EntityDecoder = class {
     this._ncrXmlVersion = ncrCfg.xmlVersion;
     this._ncrOnLevel = ncrCfg.onLevel;
     this._ncrNullLevel = ncrCfg.nullLevel;
+    this._onExternalEntity = typeof options.onExternalEntity === "function" ? options.onExternalEntity : null;
+    this._onInputEntity = typeof options.onInputEntity === "function" ? options.onInputEntity : null;
+  }
+  // -------------------------------------------------------------------------
+  // Private: registration hook dispatch
+  // -------------------------------------------------------------------------
+  /**
+   * Invoke a registration hook for a single entity name/value pair.
+   * Returns true when the entity should be accepted, false when it should be
+   * silently skipped (BLOCK), and throws when the hook returns THROW.
+   *
+   * @param {((name: string, value: string) => 'allow'|'block'|'throw')|null} hook
+   * @param {string} name
+   * @param {string} value
+   * @param {string} context  — used in error messages ('external' | 'input')
+   * @returns {boolean}  true = accept, false = skip
+   */
+  _applyRegistrationHook(hook, name, value, context3) {
+    if (!hook) return true;
+    const action5 = hook(name, value);
+    if (action5 === ENTITY_ACTION.BLOCK) return false;
+    if (action5 === ENTITY_ACTION.THROW) {
+      throw new Error(
+        `[EntityDecoder] Registration of ${context3} entity "&${name};" was rejected by hook`
+      );
+    }
+    return true;
   }
   // -------------------------------------------------------------------------
   // Persistent external entity registration
@@ -63255,6 +62461,9 @@ var EntityDecoder = class {
   /**
    * Replace the full set of persistent external entities.
    * All keys are validated — throws on invalid characters.
+   * If `onExternalEntity` is set, it is called once per entry; entries that
+   * return `ENTITY_ACTION.BLOCK` are silently omitted, `ENTITY_ACTION.THROW`
+   * aborts the whole call.
    * @param {Record<string, string | { regex?: RegExp, val: string }>} map
    */
   setExternalEntities(map2) {
@@ -63263,17 +62472,32 @@ var EntityDecoder = class {
         validateEntityName(key);
       }
     }
-    this._externalMap = mergeEntityMaps(map2);
+    if (!this._onExternalEntity) {
+      this._externalMap = mergeEntityMaps(map2);
+      return;
+    }
+    const flat = mergeEntityMaps(map2);
+    const filtered = /* @__PURE__ */ Object.create(null);
+    for (const [name, value] of Object.entries(flat)) {
+      if (this._applyRegistrationHook(this._onExternalEntity, name, value, "external")) {
+        filtered[name] = value;
+      }
+    }
+    this._externalMap = filtered;
   }
   /**
    * Add a single persistent external entity.
+   * If `onExternalEntity` is set it is called before the entity is stored;
+   * `ENTITY_ACTION.BLOCK` silently skips storage, `ENTITY_ACTION.THROW` raises.
    * @param {string} key
    * @param {string} value
    */
   addExternalEntity(key, value) {
     validateEntityName(key);
     if (typeof value === "string" && value.indexOf("&") === -1) {
-      this._externalMap[key] = value;
+      if (this._applyRegistrationHook(this._onExternalEntity, key, value, "external")) {
+        this._externalMap[key] = value;
+      }
     }
   }
   // -------------------------------------------------------------------------
@@ -63282,12 +62506,25 @@ var EntityDecoder = class {
   /**
    * Inject DOCTYPE entities for the current document.
    * Also resets per-document expansion counters.
+   * If `onInputEntity` is set it is called once per entry; entries returning
+   * `ENTITY_ACTION.BLOCK` are silently omitted, `ENTITY_ACTION.THROW` aborts.
    * @param {Record<string, string | { regx?: RegExp, regex?: RegExp, val: string }>} map
    */
   addInputEntities(map2) {
     this._totalExpansions = 0;
     this._expandedLength = 0;
-    this._inputMap = mergeEntityMaps(map2);
+    if (!this._onInputEntity) {
+      this._inputMap = mergeEntityMaps(map2);
+      return;
+    }
+    const flat = mergeEntityMaps(map2);
+    const filtered = /* @__PURE__ */ Object.create(null);
+    for (const [name, value] of Object.entries(flat)) {
+      if (this._applyRegistrationHook(this._onInputEntity, name, value, "input")) {
+        filtered[name] = value;
+      }
+    }
+    this._inputMap = filtered;
   }
   // -------------------------------------------------------------------------
   // Per-document reset
@@ -63519,7 +62756,7 @@ var EntityDecoder = class {
   }
 };
 
-// node_modules/.pnpm/fast-xml-parser@5.8.0/node_modules/fast-xml-parser/src/xmlparser/OptionsBuilder.js
+// node_modules/.pnpm/fast-xml-parser@5.10.1/node_modules/fast-xml-parser/src/xmlparser/OptionsBuilder.js
 var defaultOnDangerousProperty = (name) => {
   if (DANGEROUS_PROPERTY_NAMES.includes(name)) {
     return "__" + name;
@@ -63545,7 +62782,8 @@ var defaultOptions2 = {
   numberParseOptions: {
     hex: true,
     leadingZeros: true,
-    eNotation: true
+    eNotation: true,
+    unicode: false
   },
   tagValueProcessor: function(tagName, val) {
     return val;
@@ -63653,7 +62891,7 @@ var buildOptions = function(options) {
   return built;
 };
 
-// node_modules/.pnpm/fast-xml-parser@5.8.0/node_modules/fast-xml-parser/src/xmlparser/xmlNode.js
+// node_modules/.pnpm/fast-xml-parser@5.10.1/node_modules/fast-xml-parser/src/xmlparser/xmlNode.js
 var METADATA_SYMBOL;
 if (typeof Symbol !== "function") {
   METADATA_SYMBOL = "@@xmlMetadata";
@@ -63687,7 +62925,7 @@ var XmlNode = class {
   }
 };
 
-// node_modules/.pnpm/xml-naming@0.1.0/node_modules/xml-naming/src/index.js
+// node_modules/.pnpm/xml-naming@0.3.0/node_modules/xml-naming/src/index.js
 var nameStartChar10 = ":A-Za-z_\xC0-\xD6\xD8-\xF6\xF8-\u02FF\u0370-\u037D\u037F-\u0486\u0488-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD";
 var nameChar10 = nameStartChar10 + "\\-\\.\\d\xB7\u0300-\u036F\u203F-\u2040";
 var nameStartChar11 = ":A-Za-z_\xC0-\u02FF\u0370-\u037D\u037F-\u0486\u0488-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD\u{10000}-\u{EFFFF}";
@@ -63706,10 +62944,37 @@ var buildRegexes = (startChar, char, flags = "") => {
 };
 var regexes10 = buildRegexes(nameStartChar10, nameChar10);
 var regexes11 = buildRegexes(nameStartChar11, nameChar11, "u");
-var getRegexes = (xmlVersion = "1.0") => xmlVersion === "1.1" ? regexes11 : regexes10;
-var qName = (str, { xmlVersion = "1.0" } = {}) => getRegexes(xmlVersion).qName.test(str);
+var nameStartCharAscii = ":A-Za-z_";
+var nameCharAscii = nameStartCharAscii + "\\-\\.\\d";
+var regexesAscii = buildRegexes(nameStartCharAscii, nameCharAscii);
+var getRegexes = (xmlVersion = "1.0", asciiOnly = false) => {
+  if (asciiOnly) return regexesAscii;
+  return xmlVersion === "1.1" ? regexes11 : regexes10;
+};
+var qName = (str, { xmlVersion = "1.0", asciiOnly = false } = {}) => getRegexes(xmlVersion, asciiOnly).qName.test(str);
+var PRODUCTIONS = ["name", "ncName", "qName", "nmToken", "nmTokens"];
+var createValidator = (production, { xmlVersion = "1.0", asciiOnly = false, maxCacheSize = 2048 } = {}) => {
+  if (!PRODUCTIONS.includes(production)) {
+    throw new TypeError(
+      `Unknown production "${production}". Must be one of: ${PRODUCTIONS.join(", ")}`
+    );
+  }
+  const regex = getRegexes(xmlVersion, asciiOnly)[production];
+  let cache = /* @__PURE__ */ new Map();
+  const validator = (str) => {
+    const cached2 = cache.get(str);
+    if (cached2 !== void 0) return cached2;
+    const result = regex.test(str);
+    if (cache.size < maxCacheSize) cache.set(str, result);
+    return result;
+  };
+  validator.reset = () => {
+    cache = /* @__PURE__ */ new Map();
+  };
+  return validator;
+};
 
-// node_modules/.pnpm/fast-xml-parser@5.8.0/node_modules/fast-xml-parser/src/xmlparser/DocTypeReader.js
+// node_modules/.pnpm/fast-xml-parser@5.10.1/node_modules/fast-xml-parser/src/xmlparser/DocTypeReader.js
 var DocTypeReader = class {
   constructor(options, xmlVersion) {
     this.suppressValidationErr = !options;
@@ -63989,7 +63254,235 @@ function validateEntityName2(name, xmlVersion) {
     throw new Error(`Invalid entity name ${name}`);
 }
 
-// node_modules/.pnpm/strnum@2.3.0/node_modules/strnum/strnum.js
+// node_modules/.pnpm/anynum@1.0.1/node_modules/anynum/digitTable.js
+var SCRIPT_ZEROS = [
+  // Basic Latin (ASCII) — included for completeness / pass-through
+  48,
+  // 0-9
+  // Arabic scripts
+  1632,
+  // Arabic-Indic ٠١٢٣٤٥٦٧٨٩
+  1776,
+  // Extended Arabic-Indic (Urdu/Persian/Sindhi) ۰۱۲۳
+  // Indic scripts
+  2406,
+  // Devanagari ०१२३४५६७८९
+  2534,
+  // Bengali ০১২৩৪৫৬৭৮৯
+  2662,
+  // Gurmukhi ੦੧੨੩੪੫੬੭੮੯
+  2790,
+  // Gujarati ૦૧૨૩૪૫૬૭૮૯
+  2918,
+  // Odia ୦୧୨୩୪୫୬୭୮୯
+  3046,
+  // Tamil ௦௧௨௩௪௫௬௭௮௯
+  3174,
+  // Telugu ౦౧౨౩౪౫౬౭౮౯
+  3302,
+  // Kannada ೦೧೨೩೪೫೬೭೮೯
+  3430,
+  // Malayalam ൦൧൨൩൪൫൬൭൮൯
+  3558,
+  // Sinhala Archaic ෦෧෨෩෪෫෬෭෮෯
+  // Southeast Asian scripts
+  3664,
+  // Thai ๐๑๒๓๔๕๖๗๘๙
+  3792,
+  // Lao ໐໑໒໓໔໕໖໗໘໙
+  3872,
+  // Tibetan ༠༡༢༣༤༥༦༧༨༩
+  4160,
+  // Myanmar ၀၁၂၃၄၅၆၇၈၉
+  4240,
+  // Myanmar Shan ႐႑႒႓႔႕႖႗႘႙
+  6112,
+  // Khmer ០១២៣៤៥៦៧៨៩
+  6160,
+  // Mongolian ᠐᠑᠒᠓᠔᠕᠖᠗᠘᠙
+  6470,
+  // Limbu ᥆᥇᥈᥉᥊᥋᥌᥍᥎᥏
+  6608,
+  // New Tai Lue ᧐᧑᧒᧓᧔᧕᧖᧗᧘᧙
+  6784,
+  // Tai Tham Hora ᪀᪁᪂᪃᪄᪅᪆᪇᪈᪉
+  6800,
+  // Tai Tham Tham ᪐᪑᪒᪓᪔᪕᪖᪗᪘᪙
+  6992,
+  // Balinese ᭐᭑᭒᭓᭔᭕᭖᭗᭘᭙
+  7088,
+  // Sundanese ᮰᮱᮲᮳᮴᮵᮶᮷᮸᮹
+  7232,
+  // Lepcha ᱀᱁᱂᱃᱄᱅᱆᱇᱈᱉
+  7248,
+  // Ol Chiki ᱐᱑᱒᱓᱔᱕᱖᱗᱘᱙
+  // Fullwidth (CJK context)
+  65296,
+  // Fullwidth ０１２３４５６７８９
+  // Mathematical digit variants (Unicode math block)
+  120782,
+  // Mathematical Bold
+  120792,
+  // Mathematical Double-Struck
+  120802,
+  // Mathematical Sans-Serif
+  120812,
+  // Mathematical Sans-Serif Bold
+  120822,
+  // Mathematical Monospace
+  // Other scripts
+  66720,
+  // Osmanya 𐒠𐒡𐒢𐒣𐒤𐒥𐒦𐒧𐒨𐒩
+  68912,
+  // Hanifi Rohingya 𐴰𐴱𐴲𐴳𐴴𐴵𐴶𐴷𐴸𐴹
+  69734,
+  // Brahmi 𑁦𑁧𑁨𑁩𑁪𑁫𑁬𑁭𑁮𑁯
+  69872,
+  // Sora Sompeng 𑃰𑃱𑃲𑃳𑃴𑃵𑃶𑃷𑃸𑃹
+  69942,
+  // Chakma 𑄶𑄷𑄸𑄹𑄺𑄻𑄼𑄽𑄾𑄿
+  70096,
+  // Sharada 𑇐𑇑𑇒𑇓𑇔𑇕𑇖𑇗𑇘𑇙
+  70384,
+  // Khudawadi 𑋰𑋱𑋲𑋳𑋴𑋵𑋶𑋷𑋸𑋹
+  70736,
+  // Newa 𑑐𑑑𑑒𑑓𑑔𑑕𑑖𑑗𑑘𑑙
+  70864,
+  // Tirhuta 𑓐𑓑𑓒𑓓𑓔𑓕𑓖𑓗𑓘𑓙
+  71248,
+  // Modi 𑙐𑙑𑙒𑙓𑙔𑙕𑙖𑙗𑙘𑙙
+  71360,
+  // Takri 𑛀𑛁𑛂𑛃𑛄𑛅𑛆𑛇𑛈𑛉
+  71472,
+  // Ahom 𑜰𑜱𑜲𑜳𑜴𑜵𑜶𑜷𑜸𑜹
+  71904,
+  // Warang Citi 𑣠𑣡𑣢𑣣𑣤𑣥𑣦𑣧𑣨𑣩
+  72016,
+  // Dives Akuru 𑥐𑥑𑥒𑥓𑥔𑥕𑥖𑥗𑥘𑥙
+  72688,
+  // Khitan Small Script 𑯰𑯱𑯲𑯳𑯴𑯵𑯶𑯷𑯸𑯹
+  72784,
+  // Bhaiksuki 𑱐𑱑𑱒𑱓𑱔𑱕𑱖𑱗𑱘𑱙
+  73040,
+  // Masaram Gondi 𑵐𑵑𑵒𑵓𑵔𑵕𑵖𑵗𑵘𑵙
+  73120,
+  // Gunjala Gondi 𑶠𑶡𑶢𑶣𑶤𑶥𑶦𑶧𑶨𑶩
+  73552,
+  // Kawi 𑽐𑽑𑽒𑽓𑽔𑽕𑽖𑽗𑽘𑽙
+  92768,
+  // Mro 𖩠𖩡𖩢𖩣𖩤𖩥𖩦𖩧𖩨𖩩
+  92864,
+  // Tangsa 𖫀𖫁𖫂𖫃𖫄𖫅𖫆𖫇𖫈𖫉
+  93008,
+  // Pahawh Hmong 𖭐𖭑𖭒𖭓𖭔𖭕𖭖𖭗𖭘𖭙
+  123200,
+  // Nyiakeng Puachue Hmong 𞅀𞅁𞅂𞅃𞅄𞅅𞅆𞅇𞅈𞅉
+  123632,
+  // Wancho 𞋰𞋱𞋲𞋳𞋴𞋵𞋶𞋷𞋸𞋹
+  124144,
+  // Nag Mundari 𞓰𞓱𞓲𞓳𞓴𞓵𞓶𞓷𞓸𞓹
+  125264,
+  // Adlam 𞥐𞥑𞥒𞥓𞥔𞥕𞥖𞥗𞥘𞥙
+  130032
+  // Segmented digit symbols 🯰🯱🯲🯳🯴🯵🯶🯷🯸🯹
+];
+var NOT_DIGIT = 255;
+var HIGH_MAP = /* @__PURE__ */ new Map();
+var LOW_MAX = 65535;
+var LOW_MIN = 1632;
+var TABLE_OFFSET = LOW_MIN;
+var TABLE_SIZE = LOW_MAX - LOW_MIN + 1;
+var TABLE = new Uint8Array(TABLE_SIZE).fill(NOT_DIGIT);
+for (const zero of SCRIPT_ZEROS) {
+  for (let d = 0; d < 10; d++) {
+    const cp2 = zero + d;
+    if (cp2 <= LOW_MAX) {
+      TABLE[cp2 - TABLE_OFFSET] = d;
+    } else {
+      HIGH_MAP.set(cp2, d);
+    }
+  }
+}
+
+// node_modules/.pnpm/anynum@1.0.1/node_modules/anynum/anynum.js
+var CHAR_0 = 48;
+var CHAR_9 = 57;
+var CHAR_MINUS = 45;
+var MINUS_SET = /* @__PURE__ */ new Set([8722, 65293, 65123]);
+function anynum(str) {
+  if (typeof str !== "string") return str;
+  const len = str.length;
+  if (len === 0) return str;
+  let firstHit = -1;
+  for (let i = 0; i < len; i++) {
+    const cc = str.charCodeAt(i);
+    if (cc >= CHAR_0 && cc <= CHAR_9 || cc === CHAR_MINUS) continue;
+    if (cc < TABLE_OFFSET) {
+      if (MINUS_SET.has(cc)) {
+        firstHit = i;
+        break;
+      }
+      continue;
+    }
+    if (cc >= 55296 && cc <= 56319) {
+      if (i + 1 < len) {
+        const low = str.charCodeAt(i + 1);
+        if (low >= 56320 && low <= 57343) {
+          const cp2 = 65536 + (cc - 55296 << 10) + (low - 56320);
+          if (HIGH_MAP.has(cp2)) {
+            firstHit = i;
+            break;
+          }
+        }
+      }
+      continue;
+    }
+    if (TABLE[cc - TABLE_OFFSET] !== NOT_DIGIT || MINUS_SET.has(cc)) {
+      firstHit = i;
+      break;
+    }
+  }
+  if (firstHit === -1) return str;
+  const chars = [];
+  if (firstHit > 0) chars.push(str.slice(0, firstHit));
+  for (let i = firstHit; i < len; i++) {
+    const cc = str.charCodeAt(i);
+    if (cc >= CHAR_0 && cc <= CHAR_9 || cc === CHAR_MINUS) {
+      chars.push(str[i]);
+      continue;
+    }
+    if (cc < TABLE_OFFSET) {
+      chars.push(MINUS_SET.has(cc) ? "-" : str[i]);
+      continue;
+    }
+    if (cc >= 55296 && cc <= 56319) {
+      if (i + 1 < len) {
+        const low = str.charCodeAt(i + 1);
+        if (low >= 56320 && low <= 57343) {
+          const cp2 = 65536 + (cc - 55296 << 10) + (low - 56320);
+          const d2 = HIGH_MAP.get(cp2);
+          if (d2 !== void 0) {
+            chars.push(String.fromCharCode(d2 + 48));
+            i++;
+            continue;
+          }
+        }
+      }
+      chars.push(str[i]);
+      continue;
+    }
+    if (MINUS_SET.has(cc)) {
+      chars.push("-");
+      continue;
+    }
+    const d = TABLE[cc - TABLE_OFFSET];
+    chars.push(d !== NOT_DIGIT ? String.fromCharCode(d + 48) : str[i]);
+  }
+  return chars.join("");
+}
+var anynum_default = anynum;
+
+// node_modules/.pnpm/strnum@2.4.1/node_modules/strnum/strnum.js
 var hexRegex = /^[-+]?0x[a-fA-F0-9]+$/;
 var binRegex = /^0b[01]+$/;
 var octRegex = /^0o[0-7]+$/;
@@ -64002,8 +63495,9 @@ var consider = {
   decimalPoint: ".",
   eNotation: true,
   //skipLike: /regex/,
-  infinity: "original"
+  infinity: "original",
   // "null", "infinity" (Infinity type), "string" ("Infinity" (the string literal))
+  unicode: false
 };
 function toNumber(str, options = {}) {
   options = Object.assign({}, consider, options);
@@ -64012,7 +63506,11 @@ function toNumber(str, options = {}) {
   if (trimmedStr.length === 0) return str;
   else if (options.skipLike !== void 0 && options.skipLike.test(trimmedStr)) return str;
   else if (trimmedStr === "0") return 0;
-  else if (options.hex && hexRegex.test(trimmedStr)) {
+  if (options.unicode) {
+    trimmedStr = anynum_default(trimmedStr);
+    if (trimmedStr === "0") return 0;
+  }
+  if (options.hex && hexRegex.test(trimmedStr)) {
     return parse_int(trimmedStr, 16);
   } else if (options.binary && binRegex.test(trimmedStr)) {
     return parse_int(trimmedStr, 2);
@@ -64120,7 +63618,7 @@ function handleInfinity(str, num, options) {
   }
 }
 
-// node_modules/.pnpm/fast-xml-parser@5.8.0/node_modules/fast-xml-parser/src/ignoreAttributes.js
+// node_modules/.pnpm/fast-xml-parser@5.10.1/node_modules/fast-xml-parser/src/ignoreAttributes.js
 function getIgnoreAttributesFn(ignoreAttributes) {
   if (typeof ignoreAttributes === "function") {
     return ignoreAttributes;
@@ -64140,7 +63638,7 @@ function getIgnoreAttributesFn(ignoreAttributes) {
   return () => false;
 }
 
-// node_modules/.pnpm/path-expression-matcher@1.5.0/node_modules/path-expression-matcher/src/Expression.js
+// node_modules/.pnpm/path-expression-matcher@1.6.2/node_modules/path-expression-matcher/src/Expression.js
 var Expression = class {
   /**
    * Create a new Expression
@@ -64303,12 +63801,13 @@ var Expression = class {
   }
 };
 
-// node_modules/.pnpm/path-expression-matcher@1.5.0/node_modules/path-expression-matcher/src/ExpressionSet.js
+// node_modules/.pnpm/path-expression-matcher@1.6.2/node_modules/path-expression-matcher/src/ExpressionSet.js
 var ExpressionSet = class {
   constructor() {
     this._byDepthAndTag = /* @__PURE__ */ new Map();
     this._wildcardByDepth = /* @__PURE__ */ new Map();
     this._deepWildcards = [];
+    this._deepByTerminalTag = /* @__PURE__ */ new Map();
     this._patterns = /* @__PURE__ */ new Set();
     this._sealed = false;
   }
@@ -64333,7 +63832,14 @@ var ExpressionSet = class {
     if (this._patterns.has(expression.pattern)) return this;
     this._patterns.add(expression.pattern);
     if (expression.hasDeepWildcard()) {
-      this._deepWildcards.push(expression);
+      const lastSeg2 = expression.segments[expression.segments.length - 1];
+      if (lastSeg2 && lastSeg2.type !== "deep-wildcard" && lastSeg2.tag !== "*") {
+        const tag2 = lastSeg2.tag;
+        if (!this._deepByTerminalTag.has(tag2)) this._deepByTerminalTag.set(tag2, []);
+        this._deepByTerminalTag.get(tag2).push(expression);
+      } else {
+        this._deepWildcards.push(expression);
+      }
       return this;
     }
     const depth = expression.length;
@@ -64451,6 +63957,12 @@ var ExpressionSet = class {
         if (matcher.matches(wildcardBucket[i])) return wildcardBucket[i];
       }
     }
+    const deepBucket = this._deepByTerminalTag.get(tag);
+    if (deepBucket) {
+      for (let i = 0; i < deepBucket.length; i++) {
+        if (matcher.matches(deepBucket[i])) return deepBucket[i];
+      }
+    }
     for (let i = 0; i < this._deepWildcards.length; i++) {
       if (matcher.matches(this._deepWildcards[i])) return this._deepWildcards[i];
     }
@@ -64458,7 +63970,7 @@ var ExpressionSet = class {
   }
 };
 
-// node_modules/.pnpm/path-expression-matcher@1.5.0/node_modules/path-expression-matcher/src/Matcher.js
+// node_modules/.pnpm/path-expression-matcher@1.6.2/node_modules/path-expression-matcher/src/Matcher.js
 var MatcherView = class {
   /**
    * @param {Matcher} matcher - The parent Matcher instance to read from.
@@ -64509,6 +64021,24 @@ var MatcherView = class {
     if (path19.length === 0) return false;
     const current = path19[path19.length - 1];
     return current.values !== void 0 && attrName in current.values;
+  }
+  /**
+   * Get the value of a "kept" attribute from the nearest ancestor (or
+   * current node) that declared it via `push(tag, attrs, ns, { keep: [...] })`.
+   * @param {string} attrName
+   * @returns {*}
+   */
+  getAnyParentAttr(attrName) {
+    return this._matcher.getAnyParentAttr(attrName);
+  }
+  /**
+   * Check whether any ancestor (or the current node) kept the given
+   * attribute via `push(tag, attrs, ns, { keep: [...] })`.
+   * @param {string} attrName
+   * @returns {boolean}
+   */
+  hasAnyParentAttr(attrName) {
+    return this._matcher.hasAnyParentAttr(attrName);
   }
   /**
    * Get current node's sibling position (child index in parent).
@@ -64588,30 +64118,32 @@ var Matcher = class {
     this.siblingStacks = [];
     this._pathStringCache = null;
     this._view = new MatcherView(this);
+    this._keptAttrs = [];
   }
   /**
    * Push a new tag onto the path.
    * @param {string} tagName
    * @param {Object|null} [attrValues=null]
    * @param {string|null} [namespace=null]
+   * @param {Object|null} [options=null]
+   * @param {string[]} [options.keep] - Names of attributes (from attrValues)
    */
-  push(tagName, attrValues = null, namespace = null) {
+  push(tagName, attrValues = null, namespace = null, options = null) {
     this._pathStringCache = null;
     if (this.path.length > 0) {
       this.path[this.path.length - 1].values = void 0;
     }
     const currentLevel = this.path.length;
-    if (!this.siblingStacks[currentLevel]) {
-      this.siblingStacks[currentLevel] = /* @__PURE__ */ new Map();
+    let level = this.siblingStacks[currentLevel];
+    if (!level) {
+      level = { counts: /* @__PURE__ */ new Map(), total: 0 };
+      this.siblingStacks[currentLevel] = level;
     }
-    const siblings = this.siblingStacks[currentLevel];
     const siblingKey = namespace ? `${namespace}:${tagName}` : tagName;
-    const counter = siblings.get(siblingKey) || 0;
-    let position = 0;
-    for (const count of siblings.values()) {
-      position += count;
-    }
-    siblings.set(siblingKey, counter + 1);
+    const counter = level.counts.get(siblingKey) || 0;
+    const position = level.total;
+    level.counts.set(siblingKey, counter + 1);
+    level.total++;
     const node = {
       tag: tagName,
       position,
@@ -64624,6 +64156,16 @@ var Matcher = class {
       node.values = attrValues;
     }
     this.path.push(node);
+    const depth = this.path.length;
+    const keep = options !== null ? options.keep : null;
+    if (keep !== null && keep !== void 0 && keep.length > 0 && attrValues) {
+      for (let i = 0; i < keep.length; i++) {
+        const name = keep[i];
+        if (attrValues[name] !== void 0) {
+          this._keptAttrs.push({ depth, name, value: attrValues[name] });
+        }
+      }
+    }
   }
   /**
    * Pop the last tag from the path.
@@ -64635,6 +64177,10 @@ var Matcher = class {
     const node = this.path.pop();
     if (this.siblingStacks.length > this.path.length + 1) {
       this.siblingStacks.length = this.path.length + 1;
+    }
+    const poppedDepth = this.path.length + 1;
+    while (this._keptAttrs.length > 0 && this._keptAttrs[this._keptAttrs.length - 1].depth >= poppedDepth) {
+      this._keptAttrs.pop();
     }
     return node;
   }
@@ -64685,6 +64231,36 @@ var Matcher = class {
     return current.values !== void 0 && attrName in current.values;
   }
   /**
+   * Get the value of a "kept" attribute from the nearest ancestor (or
+   * current node) that declared it via `push(tag, attrs, ns, { keep: [...] })`.
+   * Unlike getAttrValue(), this works regardless of how deep the path has
+   * gone since the attribute was pushed — but only for attribute names that
+   * were explicitly marked with `keep` at push time. Cost is proportional to
+   * the number of currently-kept attributes (typically 0-3), not path depth.
+   * @param {string} attrName
+   * @returns {*} the value, or undefined if no ancestor kept this attribute
+   */
+  getAnyParentAttr(attrName) {
+    const kept = this._keptAttrs;
+    for (let i = kept.length - 1; i >= 0; i--) {
+      if (kept[i].name === attrName) return kept[i].value;
+    }
+    return void 0;
+  }
+  /**
+   * Check whether any ancestor (or the current node) kept the given
+   * attribute via `push(tag, attrs, ns, { keep: [...] })`.
+   * @param {string} attrName
+   * @returns {boolean}
+   */
+  hasAnyParentAttr(attrName) {
+    const kept = this._keptAttrs;
+    for (let i = kept.length - 1; i >= 0; i--) {
+      if (kept[i].name === attrName) return true;
+    }
+    return false;
+  }
+  /**
    * Get current node's sibling position (child index in parent).
    * @returns {number}
    */
@@ -64722,21 +64298,21 @@ var Matcher = class {
    * @returns {string}
    */
   toString(separator, includeNamespace = true) {
-    const sep8 = separator || this.separator;
-    const isDefault = sep8 === this.separator && includeNamespace === true;
+    const sep9 = separator || this.separator;
+    const isDefault = sep9 === this.separator && includeNamespace === true;
     if (isDefault) {
       if (this._pathStringCache !== null) {
         return this._pathStringCache;
       }
       const result = this.path.map(
         (n) => n.namespace ? `${n.namespace}:${n.tag}` : n.tag
-      ).join(sep8);
+      ).join(sep9);
       this._pathStringCache = result;
       return result;
     }
     return this.path.map(
       (n) => includeNamespace && n.namespace ? `${n.namespace}:${n.tag}` : n.tag
-    ).join(sep8);
+    ).join(sep9);
   }
   /**
    * Get path as array of tag names.
@@ -64752,6 +64328,7 @@ var Matcher = class {
     this._pathStringCache = null;
     this.path = [];
     this.siblingStacks = [];
+    this._keptAttrs = [];
   }
   /**
    * Match current path against an Expression.
@@ -64875,7 +64452,8 @@ var Matcher = class {
   snapshot() {
     return {
       path: this.path.map((node) => ({ ...node })),
-      siblingStacks: this.siblingStacks.map((map2) => new Map(map2))
+      siblingStacks: this.siblingStacks.map((level) => level ? { counts: new Map(level.counts), total: level.total } : level),
+      keptAttrs: this._keptAttrs.map((entry) => ({ ...entry }))
     };
   }
   /**
@@ -64885,7 +64463,8 @@ var Matcher = class {
   restore(snapshot2) {
     this._pathStringCache = null;
     this.path = snapshot2.path.map((node) => ({ ...node }));
-    this.siblingStacks = snapshot2.siblingStacks.map((map2) => new Map(map2));
+    this.siblingStacks = snapshot2.siblingStacks.map((level) => level ? { counts: new Map(level.counts), total: level.total } : level);
+    this._keptAttrs = (snapshot2.keptAttrs || []).map((entry) => ({ ...entry }));
   }
   /**
    * Return the read-only {@link MatcherView} for this matcher.
@@ -64908,7 +64487,727 @@ var Matcher = class {
   }
 };
 
-// node_modules/.pnpm/fast-xml-parser@5.8.0/node_modules/fast-xml-parser/src/xmlparser/OrderedObjParser.js
+// node_modules/.pnpm/is-unsafe@2.0.0/node_modules/is-unsafe/src/contexts/html.js
+var HTML_PATTERNS = [
+  {
+    id: "html-script-open",
+    description: "<script opening tag",
+    pattern: /<script[\s>/]/i
+  },
+  {
+    id: "html-script-close",
+    description: "</script closing tag",
+    pattern: /<\/script[\s>]/i
+  },
+  {
+    id: "html-javascript-protocol",
+    description: "javascript: URI scheme (with optional whitespace/encoding)",
+    // Handles j&#x61;vascript:, j\u0061vascript:, and whitespace variants
+    pattern: /j[\t\n\r ]*a[\t\n\r ]*v[\t\n\r ]*a[\t\n\r ]*s[\t\n\r ]*c[\t\n\r ]*r[\t\n\r ]*i[\t\n\r ]*p[\t\n\r ]*t[\t\n\r ]*:/i
+  },
+  {
+    id: "html-vbscript-protocol",
+    description: "vbscript: URI scheme",
+    pattern: /vbscript[\t\n\r ]*:/i
+  },
+  {
+    id: "html-data-html",
+    description: "data:text/html URI \u2014 can execute scripts in browsers",
+    pattern: /data[\t\n\r ]*:[\t\n\r ]*text\/html/i
+  },
+  {
+    id: "html-data-xhtml",
+    description: "data:application/xhtml+xml URI",
+    pattern: /data[\t\n\r ]*:[\t\n\r ]*application\/xhtml/i
+  },
+  {
+    id: "html-data-svg",
+    description: "data:image/svg+xml URI \u2014 can execute scripts",
+    pattern: /data[\t\n\r ]*:[\t\n\r ]*image\/svg\+xml/i
+  },
+  {
+    id: "html-inline-event-handler",
+    description: "Inline event handler attributes: onclick=, onerror=, onload=, etc.",
+    // \bon ensures we match a word boundary so "phonetic=" is not caught
+    pattern: /\bon\w{1,30}\s*=/i
+  },
+  {
+    id: "html-entity-obfuscated-script",
+    description: "HTML-entity-encoded <script (e.g. &#x3C;script or &lt;script)",
+    // Entities include optional trailing semicolon: &#x3C; or &#x3C (both valid in HTML5)
+    pattern: /(?:&#x0*3[Cc];?|&#0*60;?|&lt;)\s*script/i
+  },
+  {
+    id: "html-entity-obfuscated-javascript",
+    description: 'HTML-entity-encoded javascript: (partial \u2014 catches common &#106; or &#x6a; for "j")',
+    pattern: /(?:&#x0*6[Aa];?|&#0*106;?)\s*(?:&#x0*61;?|a)[\s\S]{0,80}script\s*:/i
+  },
+  {
+    id: "html-style-expression",
+    description: "CSS expression() \u2014 IE-era code execution in style attributes",
+    pattern: /style[\s\S]{0,20}expression\s*\(/i
+  },
+  {
+    id: "html-object-embed",
+    description: "<object or <embed tags that can load active content",
+    pattern: /<(?:object|embed)[\s>/]/i
+  },
+  {
+    id: "html-base-tag",
+    description: "<base href= \u2014 can hijack all relative URLs on a page",
+    pattern: /<base[\s>]/i
+  },
+  {
+    id: "html-meta-refresh",
+    description: '<meta http-equiv="refresh" \u2014 can redirect users',
+    pattern: /<meta[\s\S]{0,40}http-equiv[\s\S]{0,20}refresh/i
+  },
+  {
+    id: "html-srcdoc",
+    description: "srcdoc= attribute on iframes \u2014 embeds HTML that can run scripts",
+    pattern: /srcdoc\s*=/i
+  },
+  {
+    id: "html-iframe",
+    description: "<iframe tag",
+    pattern: /<iframe[\s>/]/i
+  },
+  {
+    id: "html-form",
+    description: "<form tag \u2014 can be used for phishing / credential harvesting injection",
+    pattern: /<form[\s>/]/i
+  }
+];
+var html_default = HTML_PATTERNS;
+
+// node_modules/.pnpm/is-unsafe@2.0.0/node_modules/is-unsafe/src/contexts/xml.js
+var XML_PATTERNS = [
+  {
+    id: "xml-cdata-injection",
+    description: "CDATA section injection: <![CDATA[ breaks out of text node context",
+    pattern: /<!\[CDATA\[/i
+  },
+  {
+    id: "xml-cdata-close",
+    description: "CDATA close sequence: ]]> can terminate an enclosing CDATA section",
+    pattern: /\]\]>/
+  },
+  {
+    id: "xml-processing-instruction",
+    description: "XML processing instruction: <?xml-stylesheet or <?php etc.",
+    pattern: /<\?(?:xml[\- ]|php|asp)/i
+  },
+  {
+    id: "xml-doctype-injection",
+    description: "DOCTYPE declaration embedded in content \u2014 can define entities",
+    // Match <!DOCTYPE followed by end-of-string, whitespace, or [ (internal subset)
+    pattern: /<!DOCTYPE(?:[\s[]|$)/i
+  },
+  {
+    id: "xml-entity-system",
+    description: "SYSTEM keyword \u2014 used in external entity declarations (XXE)",
+    pattern: /\bSYSTEM\s+["']/i
+  },
+  {
+    id: "xml-entity-public",
+    description: "PUBLIC keyword \u2014 used in external entity declarations (XXE)",
+    pattern: /\bPUBLIC\s+["']/i
+  },
+  {
+    id: "xml-entity-declaration",
+    description: "<!ENTITY declaration \u2014 defines entities, potential XXE or entity expansion",
+    pattern: /<!ENTITY[\s%]/i
+  },
+  {
+    id: "xml-billion-laughs",
+    description: "Entity reference chaining / billion laughs: repeated &eX; style references",
+    // Heuristic: 3+ consecutive entity refs suggests expansion attack
+    pattern: /(?:&\w{1,20};){3,}/
+  },
+  {
+    id: "xml-namespace-confusion",
+    description: "xmlns: attribute injection \u2014 can redefine namespaces to confuse parsers",
+    pattern: /\bxmlns\s*(?::\w{1,40})?\s*=/i
+  },
+  {
+    id: "xml-comment-injection",
+    description: "<!-- comment injection \u2014 can hide content from some parsers",
+    pattern: /<!--/
+  },
+  {
+    id: "xml-comment-close",
+    description: "--> closes an enclosing XML comment",
+    pattern: /-->/
+  },
+  {
+    id: "xml-pi-close",
+    description: "?> closes an enclosing processing instruction",
+    pattern: /\?>/
+  }
+];
+var xml_default = XML_PATTERNS;
+
+// node_modules/.pnpm/is-unsafe@2.0.0/node_modules/is-unsafe/src/contexts/svg.js
+var SVG_PATTERNS = [
+  {
+    id: "svg-script-element",
+    description: "<script element inside SVG executes JavaScript",
+    pattern: /<script[\s>/]/i
+  },
+  {
+    id: "svg-xlink-href-javascript",
+    description: "xlink:href with javascript: \u2014 classic SVG XSS via <a> or <use>",
+    pattern: /xlink\s*:\s*href\s*=\s*["']?\s*javascript\s*:/i
+  },
+  {
+    id: "svg-href-javascript",
+    description: "href= with javascript: in SVG context (<a>, <animate>, etc.)",
+    pattern: /href\s*=\s*["']?\s*javascript\s*:/i
+  },
+  {
+    id: "svg-foreignobject",
+    description: "<foreignObject embeds HTML inside SVG \u2014 can execute scripts",
+    pattern: /<foreignObject[\s>/]/i
+  },
+  {
+    id: "svg-use-external",
+    description: "<use xlink:href or href pointing to external resource (non-fragment URL)",
+    // Match <use with href= where the value starts with a non-# character (external URL)
+    // [\"'][^#] catches quoted values not starting with #; [^\"'#\s>] catches unquoted
+    pattern: /<use[\s\S]{0,60}(?:xlink\s*:\s*)?href\s*=\s*(?:["'][^#]|[^"'#\s>])/i
+  },
+  {
+    id: "svg-animate-href",
+    description: '<animate attributeName="href" \u2014 can dynamically change href to javascript:',
+    pattern: /<animate[\s\S]{0,80}attributeName\s*=\s*["'][\s]*href["']/i
+  },
+  {
+    id: "svg-animate-xlinkhref",
+    description: '<animate attributeName="xlink:href"',
+    pattern: /<animate[\s\S]{0,80}attributeName\s*=\s*["'][\s]*xlink\s*:\s*href["']/i
+  },
+  {
+    id: "svg-set-javascript",
+    description: '<set to="javascript:..." \u2014 sets an attribute to a javascript: URI',
+    pattern: /<set[\s\S]{0,80}to\s*=\s*["']?\s*javascript\s*:/i
+  },
+  {
+    id: "svg-event-handler",
+    description: "SVG-specific event handler attributes: onload=, onerror=, onactivate=, etc.",
+    pattern: /\bon(?:load|error|activate|begin|end|repeat|focus|blur|click|mouse\w{1,20}|key\w{1,20})\s*=/i
+  },
+  {
+    id: "svg-handler-generic",
+    description: "Generic on* handler catch-all for SVG attributes",
+    pattern: /\bon\w{1,30}\s*=/i
+  },
+  {
+    id: "svg-filter-feimage",
+    description: "<feImage href= \u2014 filter primitive that can load external resources",
+    pattern: /<feImage[\s\S]{0,80}(?:xlink\s*:\s*)?href\s*=/i
+  },
+  {
+    id: "svg-image-external",
+    description: "<image xlink:href with http/https or javascript protocol",
+    pattern: /<image[\s\S]{0,80}(?:xlink\s*:\s*)?href\s*=\s*["']?\s*(?:https?|javascript)\s*:/i
+  },
+  {
+    id: "svg-style-javascript",
+    description: "style= attribute containing javascript: (e.g. background:url(javascript:...))",
+    pattern: /style\s*=[\s\S]{0,60}javascript\s*:/i
+  }
+];
+var svg_default = SVG_PATTERNS;
+
+// node_modules/.pnpm/is-unsafe@2.0.0/node_modules/is-unsafe/src/contexts/sql.js
+var SQL_PATTERNS = [
+  {
+    id: "sql-block-comment-open",
+    description: "SQL block comment open: /* ... */ \u2014 unusual in legitimate user text",
+    pattern: /\/\*/
+  },
+  {
+    id: "sql-union-select",
+    description: "UNION SELECT \u2014 most common SQL injection aggregation attack",
+    pattern: /\bUNION\s{1,20}(?:ALL\s{1,20})?SELECT\b/i
+  },
+  {
+    id: "sql-drop-table",
+    description: "DROP TABLE \u2014 destructive DDL injection",
+    pattern: /\bDROP\s{1,20}TABLE\b/i
+  },
+  {
+    id: "sql-drop-database",
+    description: "DROP DATABASE \u2014 destructive DDL injection",
+    pattern: /\bDROP\s{1,20}DATABASE\b/i
+  },
+  {
+    id: "sql-insert-into",
+    description: "INSERT INTO \u2014 data injection",
+    pattern: /\bINSERT\s{1,20}INTO\b/i
+  },
+  {
+    id: "sql-delete-from",
+    description: "DELETE FROM \u2014 data deletion injection",
+    pattern: /\bDELETE\s{1,20}FROM\b/i
+  },
+  {
+    id: "sql-update-set",
+    description: "UPDATE ... SET \u2014 data modification injection",
+    // Allows arbitrary content between UPDATE and SET (table name, alias, etc.)
+    pattern: /\bUPDATE\b[\s\S]{1,60}\bSET\b/i
+  },
+  {
+    id: "sql-exec-xp",
+    description: "EXEC xp_ \u2014 MSSQL extended stored procedure execution",
+    pattern: /\bEXEC(?:UTE)?\s{1,20}xp_/i
+  },
+  {
+    id: "sql-tautology-string",
+    description: `Classic string tautology: ' OR '1'='1 or " OR "1"="1"`,
+    // Last quote is optional — injection may truncate it: ' OR '1'='1--
+    pattern: /'\s{0,10}OR\s{0,10}'[^']{0,20}'\s*=\s*'[^']{0,20}/i
+  },
+  {
+    id: "sql-tautology-numeric",
+    description: "Numeric tautology: OR 1=1",
+    pattern: /\bOR\s{1,10}1\s*=\s*1\b/i
+  },
+  {
+    id: "sql-always-true-zero",
+    description: "Numeric tautology: OR 0=0",
+    pattern: /\bOR\s{1,10}0\s*=\s*0\b/i
+  },
+  {
+    id: "sql-sleep-benchmark",
+    description: "Time-based blind injection: SLEEP() or BENCHMARK()",
+    pattern: /\b(?:SLEEP|BENCHMARK)\s*\(/i
+  },
+  {
+    id: "sql-waitfor-delay",
+    description: "MSSQL time-based blind injection: WAITFOR DELAY",
+    pattern: /\bWAITFOR\s{1,20}DELAY\b/i
+  },
+  {
+    id: "sql-char-function",
+    description: "CHAR() function \u2014 used to obfuscate injected strings",
+    pattern: /\bCHAR\s*\(\s*\d{1,3}/i
+  },
+  {
+    id: "sql-information-schema",
+    description: "INFORMATION_SCHEMA \u2014 reconnaissance query for table/column enumeration",
+    pattern: /\bINFORMATION_SCHEMA\b/i
+  }
+];
+var sql_default = SQL_PATTERNS;
+
+// node_modules/.pnpm/is-unsafe@2.0.0/node_modules/is-unsafe/src/contexts/shell.js
+var SHELL_PATTERNS = [
+  {
+    id: "shell-path-traversal-unix",
+    description: "Unix path traversal: ../  \u2014 climbing the directory tree",
+    pattern: /\.\.\//
+  },
+  {
+    id: "shell-path-traversal-windows",
+    description: "Windows path traversal: ..\\ \u2014 climbing the directory tree",
+    pattern: /\.\.\\/
+  },
+  {
+    id: "shell-path-traversal-encoded",
+    description: "URL-encoded path traversal: %2e%2e or %2f variants",
+    pattern: /%2e%2e|%2f\.\.|\.\.%2f/i
+  },
+  {
+    id: "shell-null-byte",
+    description: "Null byte injection: \\x00 or %00 \u2014 truncates strings in C-backed functions",
+    pattern: /\x00|%00/
+  },
+  {
+    id: "shell-semicolon",
+    description: "Semicolon command separator: cmd1; cmd2",
+    pattern: /;/
+  },
+  {
+    id: "shell-pipe",
+    description: "Pipe operator: cmd1 | cmd2",
+    pattern: /\|/
+  },
+  {
+    id: "shell-and-operator",
+    description: "AND operator: cmd1 && cmd2",
+    pattern: /&&/
+  },
+  {
+    id: "shell-or-operator",
+    description: "OR operator: cmd1 || cmd2",
+    pattern: /\|\|/
+  },
+  {
+    id: "shell-backtick",
+    description: "Backtick command substitution: `cmd`",
+    pattern: /`/
+  },
+  {
+    id: "shell-dollar-paren",
+    description: "Dollar-paren command substitution: $(cmd)",
+    pattern: /\$\(/
+  },
+  {
+    id: "shell-dollar-brace",
+    description: "Dollar-brace variable expansion: ${var} \u2014 can be abused for injection",
+    pattern: /\$\{/
+  },
+  {
+    id: "shell-redirect-out",
+    description: "Output redirection: cmd > file or cmd >> file",
+    pattern: />{1,2}/
+  },
+  {
+    id: "shell-redirect-in",
+    description: "Input redirection: cmd < file",
+    pattern: /</
+  },
+  {
+    id: "shell-newline-injection",
+    description: "Newline injection: \\n or \\r \u2014 can inject new shell commands",
+    pattern: /[\n\r]/
+  },
+  {
+    id: "shell-glob-star",
+    description: "Glob expansion: * or ? \u2014 can expand to unintended files",
+    // Only flag when combined with path separators to reduce false positives
+    pattern: /[/\\][*?]/
+  },
+  {
+    id: "shell-absolute-root",
+    description: "Absolute root path injection: string starting with / or \\ (Windows UNC)",
+    pattern: /^(?:\/|\\\\)/
+  },
+  {
+    id: "shell-windows-drive",
+    description: "Windows drive letter path injection: C:\\ or D:/",
+    pattern: /^[a-zA-Z]:[/\\]/
+  },
+  {
+    id: "shell-curl-wget",
+    description: "curl/wget with URL or flags \u2014 can exfiltrate data or download payloads",
+    // Require a URL scheme (http/https/ftp) or a flag (-) to reduce false positives
+    // "curl is a tool" won't match; "curl http://..." or "curl -s ..." will
+    pattern: /\b(?:curl|wget)\s+(?:https?:\/\/|ftp:\/\/|-)/i
+  }
+];
+var shell_default = SHELL_PATTERNS;
+
+// node_modules/.pnpm/is-unsafe@2.0.0/node_modules/is-unsafe/src/contexts/redos.js
+var REDOS_PATTERNS = [
+  {
+    id: "redos-nested-quantifier-plus",
+    description: "Nested + quantifier inside a group with outer quantifier: (a+)+, (.+b)*, etc.",
+    // Matches any group containing a + quantifier, with an outer * or + — catches (a+)+, (.+b)*, etc.
+    pattern: /\([^)]*\+[^)]*\)[+*]/
+  },
+  {
+    id: "redos-nested-quantifier-star",
+    description: "Nested * quantifier: (a*)* or (a*)+ \u2014 catastrophic backtracking",
+    pattern: /\([^)]*\*[^)]*\)[*+]/
+  },
+  {
+    id: "redos-nested-groups",
+    description: "Doubly nested quantified groups: ((a+)+) \u2014 guaranteed catastrophic",
+    pattern: /\(\([^)]{0,40}\)[+*]\)[+*]/
+  },
+  {
+    id: "redos-alternation-overlap",
+    description: "Overlapping alternation under quantifier: (a|a)+ \u2014 ambiguous NFA paths",
+    // Detect repeated identical alternatives under a quantifier
+    pattern: /\(([^|()]{1,20})\|(?:\1)(?:\|[^|()]{1,20}){0,5}\)[+*?]{1,2}/
+  },
+  {
+    id: "redos-star-plus-concat",
+    description: "(x*x)+ pattern \u2014 triggers super-linear backtracking",
+    pattern: /\([^)]{0,10}\*[^)]{0,10}\)[+*]/
+  },
+  {
+    id: "redos-dot-star-greedy",
+    description: "(.*){n,} or (.+){n,} \u2014 repeated greedy dot quantifiers",
+    pattern: /\(\.[*+]\)\{?\d/
+  },
+  {
+    id: "redos-large-repetition",
+    description: "Very large fixed or range repetition count {1000,} or {1000,n} \u2014 denial of service via backtracking",
+    // Matches { followed by 4+ digits (≥1000), then optional ,digits }
+    pattern: /\{\d{4,}(?:,\d*)?\}/
+  },
+  {
+    id: "redos-catastrophic-alternation",
+    description: "Long alternation with many similar branches \u2014 polynomial backtracking risk",
+    // Heuristic: 10+ pipe-separated alternatives in a single group
+    pattern: /\([^)]{0,200}(?:\|[^|)]{0,50}){9,}\)/
+  }
+];
+var redos_default = REDOS_PATTERNS;
+
+// node_modules/.pnpm/is-unsafe@2.0.0/node_modules/is-unsafe/src/contexts/nosql.js
+var sep7 = `["'\\s]*:`;
+var NOSQL_PATTERNS = [
+  // ─── MongoDB $ operator injection ────────────────────────────────────────
+  {
+    id: "nosql-where-operator",
+    description: "$where \u2014 executes arbitrary JavaScript server-side in MongoDB",
+    pattern: new RegExp(`\\$where${sep7}`, "i")
+  },
+  {
+    id: "nosql-ne-operator",
+    description: '$ne \u2014 "not equal" operator used to bypass equality checks',
+    pattern: new RegExp(`\\$ne${sep7}`, "i")
+  },
+  {
+    id: "nosql-gt-operator",
+    description: '$gt \u2014 "greater than" used to bypass password/value checks',
+    pattern: new RegExp(`\\$gte?${sep7}`, "i")
+  },
+  {
+    id: "nosql-lt-operator",
+    description: '$lt / $lte \u2014 "less than" bypass variants',
+    pattern: new RegExp(`\\$lte?${sep7}`, "i")
+  },
+  {
+    id: "nosql-regex-operator",
+    description: "$regex \u2014 can be used to extract data character by character (blind injection)",
+    pattern: new RegExp(`\\$regex${sep7}`, "i")
+  },
+  {
+    id: "nosql-or-operator",
+    description: "$or \u2014 logical OR; used to create always-true conditions",
+    pattern: new RegExp(`\\$or${sep7}\\s*\\[`, "i")
+  },
+  {
+    id: "nosql-and-operator",
+    description: "$and \u2014 logical AND operator injection",
+    pattern: new RegExp(`\\$and${sep7}\\s*\\[`, "i")
+  },
+  {
+    id: "nosql-nor-operator",
+    description: "$nor \u2014 logical NOR operator injection",
+    pattern: new RegExp(`\\$nor${sep7}\\s*\\[`, "i")
+  },
+  {
+    id: "nosql-exists-operator",
+    description: "$exists \u2014 can enumerate fields to determine schema",
+    pattern: new RegExp(`\\$exists${sep7}`, "i")
+  },
+  {
+    id: "nosql-in-operator",
+    description: "$in \u2014 matches any value in a list; can enumerate values",
+    pattern: new RegExp(`\\$in${sep7}\\s*\\[`, "i")
+  },
+  {
+    id: "nosql-expr-operator",
+    description: "$expr \u2014 allows aggregation expressions in queries (MongoDB 3.6+)",
+    pattern: new RegExp(`\\$expr${sep7}`, "i")
+  },
+  {
+    id: "nosql-function-operator",
+    description: "$function \u2014 executes arbitrary JavaScript in MongoDB 4.4+",
+    pattern: new RegExp(`\\$function${sep7}`, "i")
+  },
+  {
+    id: "nosql-accumulator-operator",
+    description: "$accumulator \u2014 custom aggregation with arbitrary JS execution",
+    pattern: new RegExp(`\\$accumulator${sep7}`, "i")
+  },
+  // ─── Prototype pollution ─────────────────────────────────────────────────
+  {
+    id: "nosql-proto-pollution",
+    description: "__proto__ \u2014 prototype pollution via object key injection",
+    pattern: /__proto__/
+  },
+  {
+    id: "nosql-constructor-prototype",
+    description: "constructor.prototype \u2014 alternative prototype pollution vector (dot notation or JSON key)",
+    // Matches dot-notation (obj.constructor.prototype) and JSON key adjacency
+    // ("constructor": {"prototype": ...})
+    pattern: /constructor[\s"':.,{\[]*prototype/i
+  },
+  {
+    id: "nosql-proto-bracket",
+    description: '["__proto__"] \u2014 bracket-notation prototype pollution',
+    pattern: /\[["']__proto__["']\]/
+  }
+];
+var nosql_default = NOSQL_PATTERNS;
+
+// node_modules/.pnpm/is-unsafe@2.0.0/node_modules/is-unsafe/src/contexts/log.js
+var LOG_PATTERNS = [
+  // ─── CRLF / newline injection ─────────────────────────────────────────────
+  {
+    id: "log-crlf-injection",
+    description: "CRLF injection: literal \\r or \\n embeds fake log lines",
+    pattern: /[\r\n]/
+  },
+  {
+    id: "log-url-encoded-crlf",
+    description: "URL-encoded CRLF: %0d, %0a, %0D, %0A \u2014 decoded by some log parsers",
+    pattern: /%0[dDaA]/
+  },
+  {
+    id: "log-unicode-newline",
+    description: "Unicode newline variants: U+2028 (line separator), U+2029 (paragraph separator)",
+    pattern: /[\u2028\u2029]/
+  },
+  // ─── Log4Shell / JNDI injection (CVE-2021-44228) ─────────────────────────
+  {
+    id: "log-log4shell-jndi",
+    description: "Log4Shell: ${jndi:...} triggers remote code execution in Apache Log4j",
+    pattern: /\$\{jndi\s*:/i
+  },
+  {
+    id: "log-log4shell-obfuscated",
+    description: "Obfuscated Log4Shell: ${::-j}... lookup-bypass prefix used to evade WAF detection",
+    // ${::- is the Log4j lookup-bypass escape sequence; presence alone is suspicious
+    pattern: /\$\{::-/
+  },
+  {
+    id: "log-log4j-lookup",
+    description: "Log4j lookup syntax: ${env:...}, ${sys:...}, ${ctx:...} \u2014 data exfiltration",
+    pattern: /\$\{(?:env|sys|ctx|main|map|sd|web|docker|k8s|spring)\s*:/i
+  },
+  // ─── Server-Side Template Injection (SSTI) in log messages ───────────────
+  {
+    id: "log-ssti-double-brace",
+    description: "SSTI double-brace: {{expression}} \u2014 Jinja2, Twig, Handlebars, etc.",
+    pattern: /\{\{[\s\S]{0,80}\}\}/
+  },
+  {
+    id: "log-ssti-hash-brace",
+    description: "SSTI hash-brace: #{expression} \u2014 Thymeleaf, Velocity, Ruby ERB",
+    pattern: /#\{[\s\S]{0,80}\}/
+  },
+  {
+    id: "log-ssti-dollar-brace",
+    description: "SSTI/EL injection: ${expression with operators or method calls} \u2014 JSP EL, Freemarker, SpEL",
+    // Require that the ${...} content looks like an expression, not a plain variable name.
+    // Flags if the content contains: . ( * + operators, or known SSTI keywords.
+    // This avoids flagging ${PATH}, ${HOME} etc. (plain shell variables).
+    pattern: /\$\{[^}]*(?:\.|\(|\*|\+|\bclass\b|\bruntime\b|\bprocess\b|\bexec\b)[^}]{0,80}\}/i
+  },
+  {
+    id: "log-ssti-percent-tag",
+    description: "SSTI ERB/ASP tag: <%= expression %> \u2014 Ruby ERB, ASP",
+    pattern: /<%=[\s\S]{0,80}%>/
+  },
+  // ─── Null byte ────────────────────────────────────────────────────────────
+  {
+    id: "log-null-byte",
+    description: "Null byte: \\x00 or %00 \u2014 can truncate log entries in C-backed loggers",
+    pattern: /\x00|%00/
+  },
+  // ─── ANSI escape injection ────────────────────────────────────────────────
+  {
+    id: "log-ansi-escape",
+    description: "ANSI escape sequence: ESC[ \u2014 can manipulate terminal output when logs are tailed",
+    pattern: /\x1b\[/
+  }
+];
+var log_default = LOG_PATTERNS;
+
+// node_modules/.pnpm/is-unsafe@2.0.0/node_modules/is-unsafe/src/contexts/sql-strict.js
+var SQL_STRICT_EXTRA = [
+  {
+    id: "sql-line-comment",
+    description: "SQL line comment: -- followed by whitespace or end of string",
+    pattern: /--(?:\s|$)/
+  },
+  {
+    id: "sql-stacked-query",
+    description: "Stacked queries: semicolon immediately followed by a SQL keyword",
+    pattern: /;\s{0,10}(?:SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|EXEC)\b/i
+  },
+  {
+    id: "sql-hex-encoding",
+    description: "Hex-encoded string injection: 0x41414141 style (MySQL)",
+    pattern: /\b0x[0-9a-f]{4,}/i
+  }
+];
+var SQL_STRICT_PATTERNS = [...sql_default, ...SQL_STRICT_EXTRA];
+var sql_strict_default = SQL_STRICT_PATTERNS;
+
+// node_modules/.pnpm/is-unsafe@2.0.0/node_modules/is-unsafe/src/index.js
+html_default.label = "HTML";
+xml_default.label = "XML";
+svg_default.label = "SVG";
+sql_default.label = "SQL";
+sql_strict_default.label = "SQL-STRICT";
+shell_default.label = "SHELL";
+redos_default.label = "REDOS";
+nosql_default.label = "NOSQL";
+log_default.label = "LOG";
+var VALID_CONTEXTS = Object.freeze({
+  HTML: html_default,
+  XML: xml_default,
+  SVG: svg_default,
+  SQL: sql_default,
+  "SQL-STRICT": sql_strict_default,
+  SHELL: shell_default,
+  REDOS: redos_default,
+  NOSQL: nosql_default,
+  LOG: log_default
+});
+function assertString(value) {
+  if (typeof value !== "string") {
+    throw new TypeError(
+      `is-unsafe: first argument must be a string, got ${typeof value}`
+    );
+  }
+}
+function assertContext(context3) {
+  if (context3 instanceof RegExp) return;
+  if (Array.isArray(context3)) {
+    if (context3.length === 0) {
+      throw new TypeError("is-unsafe: context must not be an empty array");
+    }
+    if (Array.isArray(context3[0])) {
+      for (const list of context3) {
+        if (!Array.isArray(list) || list.length === 0) {
+          throw new TypeError(
+            "is-unsafe: each context in the array must be a non-empty pattern array (PatternList)"
+          );
+        }
+      }
+    }
+    return;
+  }
+  throw new TypeError(
+    `is-unsafe: second argument must be a PatternList (e.g. HTML), an array of PatternLists (e.g. [HTML, XML]), or a RegExp. Got: ${typeof context3}`
+  );
+}
+function normalise(context3) {
+  if (context3 instanceof RegExp) return { lists: null, regex: context3 };
+  if (Array.isArray(context3[0])) return { lists: context3, regex: null };
+  return { lists: [context3], regex: null };
+}
+function matchList(value, list) {
+  const label = list.label ?? "CUSTOM";
+  for (const rule of list) {
+    if (rule.pattern.test(value)) {
+      return { context: label, id: rule.id, description: rule.description, pattern: rule.pattern };
+    }
+  }
+  return null;
+}
+function isUnsafe(value, context3) {
+  assertString(value);
+  assertContext(context3);
+  const { lists, regex } = normalise(context3);
+  if (regex) return regex.test(value);
+  for (const list of lists) {
+    if (matchList(value, list) !== null) return true;
+  }
+  return false;
+}
+
+// node_modules/.pnpm/fast-xml-parser@5.10.1/node_modules/fast-xml-parser/src/xmlparser/OrderedObjParser.js
 function extractRawAttributes(prefixedAttrs, options) {
   if (!prefixedAttrs) return {};
   const attrs = options.attributesGroupName ? prefixedAttrs[options.attributesGroupName] : prefixedAttrs;
@@ -64952,6 +65251,7 @@ var OrderedObjParser = class {
     this.ignoreAttributesFn = getIgnoreAttributesFn(this.options.ignoreAttributes);
     this.entityExpansionCount = 0;
     this.currentExpandedLength = 0;
+    this.doctypefound = false;
     let namedEntities = { ...XML };
     if (this.options.entityDecoder) {
       this.entityDecoder = this.options.entityDecoder;
@@ -64965,7 +65265,12 @@ var OrderedObjParser = class {
           maxTotalExpansions: this.options.processEntities.maxTotalExpansions,
           maxExpandedLength: this.options.processEntities.maxExpandedLength,
           applyLimitsTo: this.options.processEntities.appliesTo
-        }
+        },
+        // onExternalEntity: (name, value) => isUnsafe(value) ? 'block' : 'allow',
+        onInputEntity: (name, value) => (
+          //TODO: VALID_CONTEXTS.HTML should be set only if this.options.htmlEntities
+          isUnsafe(value, [html_default, xml_default]) ? ENTITY_ACTION.BLOCK : ENTITY_ACTION.ALLOW
+        )
         //postCheck: resolved => resolved
       });
     }
@@ -65098,6 +65403,7 @@ var parseXml = function(xmlData) {
   this.entityDecoder.reset();
   this.entityExpansionCount = 0;
   this.currentExpandedLength = 0;
+  this.doctypefound = false;
   const options = this.options;
   const docTypeReader = new DocTypeReader(options.processEntities);
   const xmlLen = xmlData.length;
@@ -65160,6 +65466,8 @@ var parseXml = function(xmlData) {
         }
         i = endIndex;
       } else if (c1 === 33 && xmlData.charCodeAt(i + 2) === 68) {
+        if (this.doctypefound) throw new Error("Multiple DOCTYPE declarations found.");
+        this.doctypefound = true;
         const result = docTypeReader.readDocType(xmlData, i);
         this.entityDecoder.addInputEntities(result.entities);
         i = result.i;
@@ -65489,7 +65797,7 @@ function sanitizeName(name, options) {
   return name;
 }
 
-// node_modules/.pnpm/fast-xml-parser@5.8.0/node_modules/fast-xml-parser/src/xmlparser/node2json.js
+// node_modules/.pnpm/fast-xml-parser@5.10.1/node_modules/fast-xml-parser/src/xmlparser/node2json.js
 var METADATA_SYMBOL2 = XmlNode.getMetaDataSymbol();
 function stripAttributePrefix(attrs, prefix2) {
   if (!attrs || typeof attrs !== "object") return {};
@@ -65601,7 +65909,7 @@ function isLeafTag(obj, options) {
   return false;
 }
 
-// node_modules/.pnpm/fast-xml-parser@5.8.0/node_modules/fast-xml-parser/src/xmlparser/XMLParser.js
+// node_modules/.pnpm/fast-xml-parser@5.10.1/node_modules/fast-xml-parser/src/xmlparser/XMLParser.js
 var XMLParser = class {
   constructor(options) {
     this.externalEntities = {};
@@ -65661,7 +65969,7 @@ var XMLParser = class {
   }
 };
 
-// node_modules/.pnpm/fast-xml-builder@1.2.0/node_modules/fast-xml-builder/src/util.js
+// node_modules/.pnpm/fast-xml-builder@1.3.0/node_modules/fast-xml-builder/src/util.js
 function safeComment(val) {
   return String(val).replace(/--/g, "- -").replace(/--/g, "- -").replace(/-$/, "- ");
 }
@@ -65672,7 +65980,7 @@ function escapeAttribute(val) {
   return String(val).replace(/"/g, "&quot;").replace(/'/g, "&apos;");
 }
 
-// node_modules/.pnpm/fast-xml-builder@1.2.0/node_modules/fast-xml-builder/src/orderedJs2Xml.js
+// node_modules/.pnpm/fast-xml-builder@1.3.0/node_modules/fast-xml-builder/src/orderedJs2Xml.js
 var EOL7 = "\n";
 function detectXmlVersionFromArray(jArray, options) {
   if (!Array.isArray(jArray) || jArray.length === 0) return "1.0";
@@ -65687,9 +65995,9 @@ function detectXmlVersionFromArray(jArray, options) {
   }
   return "1.0";
 }
-function resolveTagName(name, isAttribute2, options, matcher, xmlVersion) {
+function resolveTagName(name, isAttribute2, options, matcher, qNameValidator) {
   if (!options.sanitizeName) return name;
-  if (qName(name, { xmlVersion })) return name;
+  if (qNameValidator(name)) return name;
   return options.sanitizeName(name, { isAttribute: isAttribute2, matcher: matcher.readOnly() });
 }
 function toXml(jArray, options) {
@@ -65709,10 +66017,11 @@ function toXml(jArray, options) {
     }
   }
   const xmlVersion = detectXmlVersionFromArray(jArray, options);
+  const qNameValidator = createValidator("qName", { xmlVersion });
   const matcher = new Matcher();
-  return arrToStr(jArray, options, indentation, matcher, stopNodeExpressions, xmlVersion);
+  return arrToStr(jArray, options, indentation, matcher, stopNodeExpressions, qNameValidator);
 }
-function arrToStr(arr, options, indentation, matcher, stopNodeExpressions, xmlVersion) {
+function arrToStr(arr, options, indentation, matcher, stopNodeExpressions, qNameValidator) {
   let xmlStr = "";
   let isPreviousElementTag = false;
   if (options.maxNestedTags && matcher.getDepth() > options.maxNestedTags) {
@@ -65731,7 +66040,7 @@ function arrToStr(arr, options, indentation, matcher, stopNodeExpressions, xmlVe
     const rawTagName = propName2(tagObj);
     if (rawTagName === void 0) continue;
     const isSpecialName = rawTagName === options.textNodeName || rawTagName === options.cdataPropName || rawTagName === options.commentPropName || rawTagName[0] === "?";
-    const tagName = isSpecialName ? rawTagName : resolveTagName(rawTagName, false, options, matcher, xmlVersion);
+    const tagName = isSpecialName ? rawTagName : resolveTagName(rawTagName, false, options, matcher, qNameValidator);
     const attrValues = extractAttributeValues(tagObj[":@"], options);
     matcher.push(tagName, attrValues);
     const isStopNode = checkStopNode(matcher, stopNodeExpressions);
@@ -65766,7 +66075,7 @@ function arrToStr(arr, options, indentation, matcher, stopNodeExpressions, xmlVe
       matcher.pop();
       continue;
     } else if (tagName[0] === "?") {
-      const attStr2 = attr_to_str(tagObj[":@"], options, isStopNode, matcher, xmlVersion);
+      const attStr2 = attr_to_str(tagObj[":@"], options, isStopNode, matcher, qNameValidator);
       const tempInd = tagName === "?xml" ? "" : indentation;
       xmlStr += tempInd + `<${tagName}${attStr2}?>`;
       isPreviousElementTag = true;
@@ -65777,13 +66086,13 @@ function arrToStr(arr, options, indentation, matcher, stopNodeExpressions, xmlVe
     if (newIdentation !== "") {
       newIdentation += options.indentBy;
     }
-    const attStr = attr_to_str(tagObj[":@"], options, isStopNode, matcher, xmlVersion);
+    const attStr = attr_to_str(tagObj[":@"], options, isStopNode, matcher, qNameValidator);
     const tagStart = indentation + `<${tagName}${attStr}`;
     let tagValue;
     if (isStopNode) {
       tagValue = getRawContent2(tagObj[rawTagName], options);
     } else {
-      tagValue = arrToStr(tagObj[rawTagName], options, newIdentation, matcher, stopNodeExpressions, xmlVersion);
+      tagValue = arrToStr(tagObj[rawTagName], options, newIdentation, matcher, stopNodeExpressions, qNameValidator);
     }
     if (options.unpairedTags.indexOf(tagName) !== -1) {
       if (options.suppressUnpairedNode) xmlStr += tagStart + ">";
@@ -65872,13 +66181,13 @@ function propName2(obj) {
     if (key !== ":@") return key;
   }
 }
-function attr_to_str(attrMap, options, isStopNode, matcher, xmlVersion) {
+function attr_to_str(attrMap, options, isStopNode, matcher, qNameValidator) {
   let attrStr = "";
   if (attrMap && !options.ignoreAttributes) {
     for (let attr in attrMap) {
       if (!Object.prototype.hasOwnProperty.call(attrMap, attr)) continue;
       const cleanAttrName = attr.substr(options.attributeNamePrefix.length);
-      const resolvedAttrName = isStopNode ? cleanAttrName : resolveTagName(cleanAttrName, true, options, matcher, xmlVersion);
+      const resolvedAttrName = isStopNode ? cleanAttrName : resolveTagName(cleanAttrName, true, options, matcher, qNameValidator);
       let attrVal;
       if (isStopNode) {
         attrVal = attrMap[attr];
@@ -65914,7 +66223,7 @@ function replaceEntitiesValue2(textValue, options) {
   return textValue;
 }
 
-// node_modules/.pnpm/fast-xml-builder@1.2.0/node_modules/fast-xml-builder/src/ignoreAttributes.js
+// node_modules/.pnpm/fast-xml-builder@1.3.0/node_modules/fast-xml-builder/src/ignoreAttributes.js
 function getIgnoreAttributesFn2(ignoreAttributes) {
   if (typeof ignoreAttributes === "function") {
     return ignoreAttributes;
@@ -65934,7 +66243,7 @@ function getIgnoreAttributesFn2(ignoreAttributes) {
   return () => false;
 }
 
-// node_modules/.pnpm/fast-xml-builder@1.2.0/node_modules/fast-xml-builder/src/fxb.js
+// node_modules/.pnpm/fast-xml-builder@1.3.0/node_modules/fast-xml-builder/src/fxb.js
 var defaultOptions3 = {
   attributeNamePrefix: "@_",
   attributesGroupName: false,
@@ -66032,9 +66341,9 @@ function detectXmlVersionFromObj(jObj, options) {
   }
   return "1.0";
 }
-function resolveTagName2(name, isAttribute2, options, matcher, xmlVersion) {
+function resolveTagName2(name, isAttribute2, options, matcher, qNameValidator) {
   if (!options.sanitizeName) return name;
-  if (qName(name, { xmlVersion })) return name;
+  if (qNameValidator(name)) return name;
   return options.sanitizeName(name, { isAttribute: isAttribute2, matcher: matcher.readOnly() });
 }
 Builder.prototype.build = function(jObj) {
@@ -66048,10 +66357,11 @@ Builder.prototype.build = function(jObj) {
     }
     const matcher = new Matcher();
     const xmlVersion = detectXmlVersionFromObj(jObj, this.options);
-    return this.j2x(jObj, 0, matcher, xmlVersion).val;
+    const qNameValidator = createValidator("qName", { xmlVersion });
+    return this.j2x(jObj, 0, matcher, qNameValidator).val;
   }
 };
-Builder.prototype.j2x = function(jObj, level, matcher, xmlVersion) {
+Builder.prototype.j2x = function(jObj, level, matcher, qNameValidator) {
   let attrStr = "";
   let val = "";
   if (this.options.maxNestedTags && matcher.getDepth() >= this.options.maxNestedTags) {
@@ -66062,7 +66372,7 @@ Builder.prototype.j2x = function(jObj, level, matcher, xmlVersion) {
   for (let key in jObj) {
     if (!Object.prototype.hasOwnProperty.call(jObj, key)) continue;
     const isSpecialKey = key === this.options.textNodeName || key === this.options.cdataPropName || key === this.options.commentPropName || this.options.attributesGroupName && key === this.options.attributesGroupName || this.isAttribute(key) || key[0] === "?";
-    const resolvedKey = isSpecialKey ? key : resolveTagName2(key, false, this.options, matcher, xmlVersion);
+    const resolvedKey = isSpecialKey ? key : resolveTagName2(key, false, this.options, matcher, qNameValidator);
     if (typeof jObj[key] === "undefined") {
       if (this.isAttribute(key)) {
         val += "";
@@ -66082,7 +66392,7 @@ Builder.prototype.j2x = function(jObj, level, matcher, xmlVersion) {
     } else if (typeof jObj[key] !== "object") {
       const attr = this.isAttribute(key);
       if (attr && !this.ignoreAttributesFn(attr, jPath)) {
-        const resolvedAttr = resolveTagName2(attr, true, this.options, matcher, xmlVersion);
+        const resolvedAttr = resolveTagName2(attr, true, this.options, matcher, qNameValidator);
         attrStr += this.buildAttrPairStr(resolvedAttr, "" + jObj[key], isCurrentStopNode);
       } else if (!attr) {
         if (key === this.options.textNodeName) {
@@ -66117,14 +66427,14 @@ Builder.prototype.j2x = function(jObj, level, matcher, xmlVersion) {
         } else if (typeof item === "object") {
           if (this.options.oneListGroup) {
             matcher.push(resolvedKey);
-            const result = this.j2x(item, level + 1, matcher, xmlVersion);
+            const result = this.j2x(item, level + 1, matcher, qNameValidator);
             matcher.pop();
             listTagVal += result.val;
             if (this.options.attributesGroupName && item.hasOwnProperty(this.options.attributesGroupName)) {
               listTagAttr += result.attrStr;
             }
           } else {
-            listTagVal += this.processTextOrObjNode(item, resolvedKey, level, matcher, xmlVersion);
+            listTagVal += this.processTextOrObjNode(item, resolvedKey, level, matcher, qNameValidator);
           }
         } else {
           if (this.options.oneListGroup) {
@@ -66157,11 +66467,11 @@ Builder.prototype.j2x = function(jObj, level, matcher, xmlVersion) {
         const Ks = Object.keys(jObj[key]);
         const L = Ks.length;
         for (let j = 0; j < L; j++) {
-          const resolvedAttr = resolveTagName2(Ks[j], true, this.options, matcher, xmlVersion);
+          const resolvedAttr = resolveTagName2(Ks[j], true, this.options, matcher, qNameValidator);
           attrStr += this.buildAttrPairStr(resolvedAttr, "" + jObj[key][Ks[j]], isCurrentStopNode);
         }
       } else {
-        val += this.processTextOrObjNode(jObj[key], resolvedKey, level, matcher, xmlVersion);
+        val += this.processTextOrObjNode(jObj[key], resolvedKey, level, matcher, qNameValidator);
       }
     }
   }
@@ -66176,7 +66486,7 @@ Builder.prototype.buildAttrPairStr = function(attrName, val, isStopNode) {
     return " " + attrName;
   } else return " " + attrName + '="' + escapeAttribute(val) + '"';
 };
-function processTextOrObjNode(object2, key, level, matcher, xmlVersion) {
+function processTextOrObjNode(object2, key, level, matcher, qNameValidator) {
   const attrValues = this.extractAttributes(object2);
   matcher.push(key, attrValues);
   const isStopNode = this.checkStopNode(matcher);
@@ -66186,7 +66496,7 @@ function processTextOrObjNode(object2, key, level, matcher, xmlVersion) {
     matcher.pop();
     return this.buildObjectNode(rawContent2, key, attrStr, level);
   }
-  const result = this.j2x(object2, level + 1, matcher, xmlVersion);
+  const result = this.j2x(object2, level + 1, matcher, qNameValidator);
   matcher.pop();
   if (key[0] === "?") {
     return this.buildTextValNode("", key, result.attrStr, level, matcher);
@@ -66278,7 +66588,7 @@ Builder.prototype.buildAttributesForStopNode = function(obj) {
       if (val === true && this.options.suppressBooleanAttributes) {
         attrStr += " " + cleanKey;
       } else {
-        attrStr += " " + cleanKey + '="' + val + '"';
+        attrStr += " " + cleanKey + '="' + escapeAttribute(val) + '"';
       }
     }
   } else {
@@ -66290,7 +66600,7 @@ Builder.prototype.buildAttributesForStopNode = function(obj) {
         if (val === true && this.options.suppressBooleanAttributes) {
           attrStr += " " + attr;
         } else {
-          attrStr += " " + attr + '="' + val + '"';
+          attrStr += " " + attr + '="' + escapeAttribute(val) + '"';
         }
       }
     }
@@ -66315,7 +66625,7 @@ Builder.prototype.buildObjectNode = function(val, key, attrStr, level) {
     if ((attrStr || attrStr === "") && val.indexOf("<") === -1) {
       return this.indentate(level) + "<" + key + attrStr + piClosingChar + ">" + val + tagEndExp;
     } else if (this.options.commentPropName !== false && key === this.options.commentPropName && piClosingChar.length === 0) {
-      return this.indentate(level) + `<!--${val}-->` + this.newLine;
+      return this.indentate(level) + `<!--${safeComment(val)}-->` + this.newLine;
     } else {
       return this.indentate(level) + "<" + key + attrStr + piClosingChar + this.tagEndChar + val + this.indentate(level) + tagEndExp;
     }
@@ -66380,19 +66690,19 @@ function isAttribute(name) {
   }
 }
 
-// node_modules/.pnpm/fast-xml-parser@5.8.0/node_modules/fast-xml-parser/src/xmlbuilder/json2xml.js
+// node_modules/.pnpm/fast-xml-parser@5.10.1/node_modules/fast-xml-parser/src/xmlbuilder/json2xml.js
 var json2xml_default = Builder;
 
-// node_modules/.pnpm/fast-xml-parser@5.8.0/node_modules/fast-xml-parser/src/fxp.js
+// node_modules/.pnpm/fast-xml-parser@5.10.1/node_modules/fast-xml-parser/src/fxp.js
 var XMLValidator = {
   validate
 };
 
-// node_modules/.pnpm/@azure+core-xml@1.5.1/node_modules/@azure/core-xml/dist/esm/xml.common.js
+// node_modules/.pnpm/@azure+core-xml@1.6.0/node_modules/@azure/core-xml/dist/esm/xml.common.js
 var XML_ATTRKEY2 = "$";
 var XML_CHARKEY2 = "_";
 
-// node_modules/.pnpm/@azure+core-xml@1.5.1/node_modules/@azure/core-xml/dist/esm/xml.js
+// node_modules/.pnpm/@azure+core-xml@1.6.0/node_modules/@azure/core-xml/dist/esm/xml.js
 function getCommonOptions(options) {
   return {
     attributesGroupName: XML_ATTRKEY2,
@@ -66444,7 +66754,8 @@ async function parseXML(str, opts = {}) {
     delete parsedXml["?xml"];
   }
   if (!opts.includeRoot) {
-    for (const key of Object.keys(parsedXml)) {
+    const key = Object.keys(parsedXml)[0];
+    if (key !== void 0) {
       const value = parsedXml[key];
       return typeof value === "object" ? { ...value } : value;
     }
@@ -66452,13 +66763,13 @@ async function parseXML(str, opts = {}) {
   return parsedXml;
 }
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/log.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/log.js
 var logger4 = createClientLogger2("storage-blob");
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/BufferScheduler.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/BufferScheduler.js
 var import_events = require("events");
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/BuffersStream.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/BuffersStream.js
 var import_node_stream2 = require("stream");
 var BuffersStream = class extends import_node_stream2.Readable {
   /**
@@ -66543,7 +66854,7 @@ var BuffersStream = class extends import_node_stream2.Readable {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/PooledBuffer.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/PooledBuffer.js
 var import_node_buffer = __toESM(require("buffer"), 1);
 var maxBufferLength = import_node_buffer.default.constants.MAX_LENGTH;
 var PooledBuffer = class {
@@ -66623,7 +66934,7 @@ var PooledBuffer = class {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/BufferScheduler.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/BufferScheduler.js
 var BufferScheduler = class {
   /**
    * Creates an instance of BufferScheduler.
@@ -66867,7 +67178,2753 @@ var BufferScheduler = class {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/cache.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/StructuredMessageEncodingStream.js
+var import_node_stream3 = __toESM(require("stream"), 1);
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/crc64.js
+var NativeCRC64 = (() => {
+  var _scriptDir = typeof document !== "undefined" && document.currentScript ? document.currentScript.src : void 0;
+  return (function(NativeCRC642) {
+    NativeCRC642 = NativeCRC642 || {};
+    var Module = typeof NativeCRC642 != "undefined" ? NativeCRC642 : {};
+    var readyPromiseResolve, readyPromiseReject;
+    Module["ready"] = new Promise(function(resolve3, reject) {
+      readyPromiseResolve = resolve3;
+      readyPromiseReject = reject;
+    });
+    ["_malloc", "_free", "_emscripten_bind_VoidPtr___destroy___0", "_emscripten_bind_Crc64Hash_Crc64Hash_0", "_emscripten_bind_Crc64Hash_OnAppend_2", "_emscripten_bind_Crc64Hash_OnFinal_3", "_emscripten_bind_Crc64Hash___destroy___0", "_fflush", "onRuntimeInitialized"].forEach((prop) => {
+      if (!Object.getOwnPropertyDescriptor(Module["ready"], prop)) {
+        Object.defineProperty(Module["ready"], prop, {
+          get: () => abort("You are getting " + prop + " on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js"),
+          set: () => abort("You are setting " + prop + " on the Promise object, instead of the instance. Use .then() to get called back with the instance, see the MODULARIZE docs in src/settings.js")
+        });
+      }
+    });
+    var moduleOverrides = Object.assign({}, Module);
+    var arguments_ = [];
+    var thisProgram = "./this.program";
+    var quit_ = (status, toThrow) => {
+      throw toThrow;
+    };
+    var ENVIRONMENT_IS_WEB = typeof window == "object";
+    var ENVIRONMENT_IS_WORKER = typeof importScripts == "function";
+    var ENVIRONMENT_IS_NODE = typeof process == "object" && typeof process.versions == "object" && typeof process.versions.node == "string";
+    var ENVIRONMENT_IS_SHELL = !ENVIRONMENT_IS_WEB && !ENVIRONMENT_IS_NODE && !ENVIRONMENT_IS_WORKER;
+    if (Module["ENVIRONMENT"]) {
+      throw new Error("Module.ENVIRONMENT has been deprecated. To force the environment, use the ENVIRONMENT compile-time option (for example, -sENVIRONMENT=web or -sENVIRONMENT=node)");
+    }
+    var scriptDirectory = "";
+    function locateFile(path19) {
+      if (Module["locateFile"]) {
+        return Module["locateFile"](path19, scriptDirectory);
+      }
+      return scriptDirectory + path19;
+    }
+    var read_, readAsync, readBinary, setWindowTitle;
+    function logExceptionOnExit(e) {
+      if (e instanceof ExitStatus) return;
+      let toLog = e;
+      if (e && typeof e == "object" && e.stack) {
+        toLog = [e, e.stack];
+      }
+      err("exiting due to exception: " + toLog);
+    }
+    if (ENVIRONMENT_IS_NODE) {
+      if (typeof process == "undefined" || !process.release || process.release.name !== "node") throw new Error("not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)");
+      if (process["argv"].length > 1) {
+        thisProgram = process["argv"][1].replace(/\\/g, "/");
+      }
+      arguments_ = process["argv"].slice(2);
+      process["on"]("uncaughtException", function(ex) {
+        if (!(ex instanceof ExitStatus)) {
+          throw ex;
+        }
+      });
+      process["on"]("unhandledRejection", function(reason) {
+        throw reason;
+      });
+      quit_ = (status, toThrow) => {
+        if (keepRuntimeAlive()) {
+          process["exitCode"] = status;
+          throw toThrow;
+        }
+        logExceptionOnExit(toThrow);
+        process["exit"](status);
+      };
+      Module["inspect"] = function() {
+        return "[Emscripten Module object]";
+      };
+    } else if (ENVIRONMENT_IS_SHELL) {
+      if (typeof process == "object" && typeof require === "function" || typeof window == "object" || typeof importScripts == "function") throw new Error("not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)");
+      if (typeof scriptArgs != "undefined") {
+        arguments_ = scriptArgs;
+      } else if (typeof arguments != "undefined") {
+        arguments_ = arguments;
+      }
+      if (typeof quit == "function") {
+        quit_ = (status, toThrow) => {
+          logExceptionOnExit(toThrow);
+          quit(status);
+        };
+      }
+      if (typeof print != "undefined") {
+        if (typeof console == "undefined") console = /** @type{!Console} */
+        {};
+        console.log = /** @type{!function(this:Console, ...*): undefined} */
+        print;
+        console.warn = console.error = /** @type{!function(this:Console, ...*): undefined} */
+        typeof printErr != "undefined" ? printErr : print;
+      }
+    } else if (ENVIRONMENT_IS_WEB || ENVIRONMENT_IS_WORKER) {
+      if (!(typeof window == "object" || typeof importScripts == "function")) throw new Error("not compiled for this environment (did you build to HTML and try to run it not on the web, or set ENVIRONMENT to something - like node - and run it someplace else - like on the web?)");
+    } else {
+      throw new Error("environment detection error");
+    }
+    var out = Module["print"] || console.log.bind(console);
+    var err = Module["printErr"] || console.warn.bind(console);
+    Object.assign(Module, moduleOverrides);
+    moduleOverrides = null;
+    checkIncomingModuleAPI();
+    if (Module["arguments"]) arguments_ = Module["arguments"];
+    legacyModuleProp("arguments", "arguments_");
+    if (Module["thisProgram"]) thisProgram = Module["thisProgram"];
+    legacyModuleProp("thisProgram", "thisProgram");
+    if (Module["quit"]) quit_ = Module["quit"];
+    legacyModuleProp("quit", "quit_");
+    assert6(typeof Module["memoryInitializerPrefixURL"] == "undefined", "Module.memoryInitializerPrefixURL option was removed, use Module.locateFile instead");
+    assert6(typeof Module["pthreadMainPrefixURL"] == "undefined", "Module.pthreadMainPrefixURL option was removed, use Module.locateFile instead");
+    assert6(typeof Module["cdInitializerPrefixURL"] == "undefined", "Module.cdInitializerPrefixURL option was removed, use Module.locateFile instead");
+    assert6(typeof Module["filePackagePrefixURL"] == "undefined", "Module.filePackagePrefixURL option was removed, use Module.locateFile instead");
+    assert6(typeof Module["read"] == "undefined", "Module.read option was removed (modify read_ in JS)");
+    assert6(typeof Module["readAsync"] == "undefined", "Module.readAsync option was removed (modify readAsync in JS)");
+    assert6(typeof Module["readBinary"] == "undefined", "Module.readBinary option was removed (modify readBinary in JS)");
+    assert6(typeof Module["setWindowTitle"] == "undefined", "Module.setWindowTitle option was removed (modify setWindowTitle in JS)");
+    assert6(typeof Module["TOTAL_MEMORY"] == "undefined", "Module.TOTAL_MEMORY has been renamed Module.INITIAL_MEMORY");
+    legacyModuleProp("read", "read_");
+    legacyModuleProp("readAsync", "readAsync");
+    legacyModuleProp("readBinary", "readBinary");
+    legacyModuleProp("setWindowTitle", "setWindowTitle");
+    var IDBFS = "IDBFS is no longer included by default; build with -lidbfs.js";
+    var PROXYFS = "PROXYFS is no longer included by default; build with -lproxyfs.js";
+    var WORKERFS = "WORKERFS is no longer included by default; build with -lworkerfs.js";
+    var NODEFS = "NODEFS is no longer included by default; build with -lnodefs.js";
+    assert6(!ENVIRONMENT_IS_SHELL, "shell environment detected but not enabled at build time.  Add 'shell' to `-sENVIRONMENT` to enable.");
+    var STACK_ALIGN = 16;
+    var POINTER_SIZE = 4;
+    function getNativeTypeSize(type) {
+      switch (type) {
+        case "i1":
+        case "i8":
+        case "u8":
+          return 1;
+        case "i16":
+        case "u16":
+          return 2;
+        case "i32":
+        case "u32":
+          return 4;
+        case "i64":
+        case "u64":
+          return 8;
+        case "float":
+          return 4;
+        case "double":
+          return 8;
+        default: {
+          if (type[type.length - 1] === "*") {
+            return POINTER_SIZE;
+          }
+          if (type[0] === "i") {
+            const bits = Number(type.substr(1));
+            assert6(bits % 8 === 0, "getNativeTypeSize invalid bits " + bits + ", type " + type);
+            return bits / 8;
+          }
+          return 0;
+        }
+      }
+    }
+    function legacyModuleProp(prop, newName) {
+      if (!Object.getOwnPropertyDescriptor(Module, prop)) {
+        Object.defineProperty(Module, prop, {
+          configurable: true,
+          get: function() {
+            abort("Module." + prop + " has been replaced with plain " + newName + " (the initial value can be provided on Module, but after startup the value is only looked for on a local variable of that name)");
+          }
+        });
+      }
+    }
+    function ignoredModuleProp(prop) {
+      if (Object.getOwnPropertyDescriptor(Module, prop)) {
+        abort("`Module." + prop + "` was supplied but `" + prop + "` not included in INCOMING_MODULE_JS_API");
+      }
+    }
+    function isExportedByForceFilesystem(name) {
+      return name === "FS_createPath" || name === "FS_createDataFile" || name === "FS_createPreloadedFile" || name === "FS_unlink" || name === "addRunDependency" || // The old FS has some functionality that WasmFS lacks.
+      name === "FS_createLazyFile" || name === "FS_createDevice" || name === "removeRunDependency";
+    }
+    function missingLibrarySymbol(sym) {
+      if (typeof globalThis !== "undefined" && !Object.getOwnPropertyDescriptor(globalThis, sym)) {
+        Object.defineProperty(globalThis, sym, {
+          configurable: true,
+          get: function() {
+            var msg = "`" + sym + "` is a library symbol and not included by default; add it to your library.js __deps or to DEFAULT_LIBRARY_FUNCS_TO_INCLUDE on the command line";
+            var librarySymbol = sym;
+            if (!librarySymbol.startsWith("_")) {
+              librarySymbol = "$" + sym;
+            }
+            msg += " (e.g. -sDEFAULT_LIBRARY_FUNCS_TO_INCLUDE=" + librarySymbol + ")";
+            if (isExportedByForceFilesystem(sym)) {
+              msg += ". Alternatively, forcing filesystem support (-sFORCE_FILESYSTEM) can export this for you";
+            }
+            warnOnce(msg);
+            return void 0;
+          }
+        });
+      }
+    }
+    function unexportedRuntimeSymbol(sym) {
+      if (!Object.getOwnPropertyDescriptor(Module, sym)) {
+        Object.defineProperty(Module, sym, {
+          configurable: true,
+          get: function() {
+            var msg = "'" + sym + "' was not exported. add it to EXPORTED_RUNTIME_METHODS (see the FAQ)";
+            if (isExportedByForceFilesystem(sym)) {
+              msg += ". Alternatively, forcing filesystem support (-sFORCE_FILESYSTEM) can export this for you";
+            }
+            abort(msg);
+          }
+        });
+      }
+    }
+    var wasmBinary;
+    if (Module["wasmBinary"]) wasmBinary = Module["wasmBinary"];
+    legacyModuleProp("wasmBinary", "wasmBinary");
+    var noExitRuntime = Module["noExitRuntime"] || true;
+    legacyModuleProp("noExitRuntime", "noExitRuntime");
+    if (typeof WebAssembly != "object") {
+      abort("no native wasm support detected");
+    }
+    var wasmMemory;
+    var ABORT = false;
+    var EXITSTATUS;
+    function assert6(condition, text) {
+      if (!condition) {
+        abort("Assertion failed" + (text ? ": " + text : ""));
+      }
+    }
+    var UTF8Decoder = typeof TextDecoder != "undefined" ? new TextDecoder("utf8") : void 0;
+    function UTF8ArrayToString(heapOrArray, idx, maxBytesToRead) {
+      var endIdx = idx + maxBytesToRead;
+      var endPtr = idx;
+      while (heapOrArray[endPtr] && !(endPtr >= endIdx)) ++endPtr;
+      if (endPtr - idx > 16 && heapOrArray.buffer && UTF8Decoder) {
+        return UTF8Decoder.decode(heapOrArray.subarray(idx, endPtr));
+      }
+      var str = "";
+      while (idx < endPtr) {
+        var u0 = heapOrArray[idx++];
+        if (!(u0 & 128)) {
+          str += String.fromCharCode(u0);
+          continue;
+        }
+        var u1 = heapOrArray[idx++] & 63;
+        if ((u0 & 224) == 192) {
+          str += String.fromCharCode((u0 & 31) << 6 | u1);
+          continue;
+        }
+        var u2 = heapOrArray[idx++] & 63;
+        if ((u0 & 240) == 224) {
+          u0 = (u0 & 15) << 12 | u1 << 6 | u2;
+        } else {
+          if ((u0 & 248) != 240) warnOnce("Invalid UTF-8 leading byte " + ptrToString(u0) + " encountered when deserializing a UTF-8 string in wasm memory to a JS string!");
+          u0 = (u0 & 7) << 18 | u1 << 12 | u2 << 6 | heapOrArray[idx++] & 63;
+        }
+        if (u0 < 65536) {
+          str += String.fromCharCode(u0);
+        } else {
+          var ch = u0 - 65536;
+          str += String.fromCharCode(55296 | ch >> 10, 56320 | ch & 1023);
+        }
+      }
+      return str;
+    }
+    function UTF8ToString(ptr, maxBytesToRead) {
+      return ptr ? UTF8ArrayToString(HEAPU8, ptr, maxBytesToRead) : "";
+    }
+    function stringToUTF8Array(str, heap, outIdx, maxBytesToWrite) {
+      if (!(maxBytesToWrite > 0))
+        return 0;
+      var startIdx = outIdx;
+      var endIdx = outIdx + maxBytesToWrite - 1;
+      for (var i = 0; i < str.length; ++i) {
+        var u = str.charCodeAt(i);
+        if (u >= 55296 && u <= 57343) {
+          var u1 = str.charCodeAt(++i);
+          u = 65536 + ((u & 1023) << 10) | u1 & 1023;
+        }
+        if (u <= 127) {
+          if (outIdx >= endIdx) break;
+          heap[outIdx++] = u;
+        } else if (u <= 2047) {
+          if (outIdx + 1 >= endIdx) break;
+          heap[outIdx++] = 192 | u >> 6;
+          heap[outIdx++] = 128 | u & 63;
+        } else if (u <= 65535) {
+          if (outIdx + 2 >= endIdx) break;
+          heap[outIdx++] = 224 | u >> 12;
+          heap[outIdx++] = 128 | u >> 6 & 63;
+          heap[outIdx++] = 128 | u & 63;
+        } else {
+          if (outIdx + 3 >= endIdx) break;
+          if (u > 1114111) warnOnce("Invalid Unicode code point " + ptrToString(u) + " encountered when serializing a JS string to a UTF-8 string in wasm memory! (Valid unicode code points should be in range 0-0x10FFFF).");
+          heap[outIdx++] = 240 | u >> 18;
+          heap[outIdx++] = 128 | u >> 12 & 63;
+          heap[outIdx++] = 128 | u >> 6 & 63;
+          heap[outIdx++] = 128 | u & 63;
+        }
+      }
+      heap[outIdx] = 0;
+      return outIdx - startIdx;
+    }
+    function stringToUTF8(str, outPtr, maxBytesToWrite) {
+      assert6(typeof maxBytesToWrite == "number", "stringToUTF8(str, outPtr, maxBytesToWrite) is missing the third parameter that specifies the length of the output buffer!");
+      return stringToUTF8Array(str, HEAPU8, outPtr, maxBytesToWrite);
+    }
+    function lengthBytesUTF8(str) {
+      var len = 0;
+      for (var i = 0; i < str.length; ++i) {
+        var c = str.charCodeAt(i);
+        if (c <= 127) {
+          len++;
+        } else if (c <= 2047) {
+          len += 2;
+        } else if (c >= 55296 && c <= 57343) {
+          len += 4;
+          ++i;
+        } else {
+          len += 3;
+        }
+      }
+      return len;
+    }
+    var HEAP, buffer3, HEAP8, HEAPU8, HEAP16, HEAPU16, HEAP32, HEAPU32, HEAPF32, HEAPF64;
+    function updateGlobalBufferAndViews(buf) {
+      buffer3 = buf;
+      Module["HEAP8"] = HEAP8 = new Int8Array(buf);
+      Module["HEAP16"] = HEAP16 = new Int16Array(buf);
+      Module["HEAP32"] = HEAP32 = new Int32Array(buf);
+      Module["HEAPU8"] = HEAPU8 = new Uint8Array(buf);
+      Module["HEAPU16"] = HEAPU16 = new Uint16Array(buf);
+      Module["HEAPU32"] = HEAPU32 = new Uint32Array(buf);
+      Module["HEAPF32"] = HEAPF32 = new Float32Array(buf);
+      Module["HEAPF64"] = HEAPF64 = new Float64Array(buf);
+    }
+    var STACK_SIZE = 5242880;
+    if (Module["STACK_SIZE"]) assert6(STACK_SIZE === Module["STACK_SIZE"], "the stack size can no longer be determined at runtime");
+    var INITIAL_MEMORY = Module["INITIAL_MEMORY"] || 16777216;
+    legacyModuleProp("INITIAL_MEMORY", "INITIAL_MEMORY");
+    assert6(INITIAL_MEMORY >= STACK_SIZE, "INITIAL_MEMORY should be larger than STACK_SIZE, was " + INITIAL_MEMORY + "! (STACK_SIZE=" + STACK_SIZE + ")");
+    assert6(
+      typeof Int32Array != "undefined" && typeof Float64Array !== "undefined" && Int32Array.prototype.subarray != void 0 && Int32Array.prototype.set != void 0,
+      "JS engine does not provide full typed array support"
+    );
+    assert6(!Module["wasmMemory"], "Use of `wasmMemory` detected.  Use -sIMPORTED_MEMORY to define wasmMemory externally");
+    assert6(INITIAL_MEMORY == 16777216, "Detected runtime INITIAL_MEMORY setting.  Use -sIMPORTED_MEMORY to define wasmMemory dynamically");
+    var wasmTable;
+    function writeStackCookie() {
+      var max = _emscripten_stack_get_end();
+      assert6((max & 3) == 0);
+      if (max == 0) {
+        max += 4;
+      }
+      HEAPU32[max >> 2] = 34821223;
+      HEAPU32[max + 4 >> 2] = 2310721022;
+      HEAPU32[0] = 1668509029;
+    }
+    function checkStackCookie() {
+      if (ABORT) return;
+      var max = _emscripten_stack_get_end();
+      if (max == 0) {
+        max += 4;
+      }
+      var cookie1 = HEAPU32[max >> 2];
+      var cookie2 = HEAPU32[max + 4 >> 2];
+      if (cookie1 != 34821223 || cookie2 != 2310721022) {
+        abort("Stack overflow! Stack cookie has been overwritten at " + ptrToString(max) + ", expected hex dwords 0x89BACDFE and 0x2135467, but received " + ptrToString(cookie2) + " " + ptrToString(cookie1));
+      }
+      if (HEAPU32[0] !== 1668509029) {
+        abort("Runtime error: The application has corrupted its heap memory area (address zero)!");
+      }
+    }
+    (function() {
+      var h16 = new Int16Array(1);
+      var h8 = new Int8Array(h16.buffer);
+      h16[0] = 25459;
+      if (h8[0] !== 115 || h8[1] !== 99) throw "Runtime error: expected the system to be little-endian! (Run with -sSUPPORT_BIG_ENDIAN to bypass)";
+    })();
+    var __ATPRERUN__ = [];
+    var __ATINIT__ = [];
+    var __ATEXIT__ = [];
+    var __ATPOSTRUN__ = [];
+    var runtimeInitialized = false;
+    function keepRuntimeAlive() {
+      return noExitRuntime;
+    }
+    function preRun() {
+      if (Module["preRun"]) {
+        if (typeof Module["preRun"] == "function") Module["preRun"] = [Module["preRun"]];
+        while (Module["preRun"].length) {
+          addOnPreRun(Module["preRun"].shift());
+        }
+      }
+      callRuntimeCallbacks(__ATPRERUN__);
+    }
+    function initRuntime() {
+      assert6(!runtimeInitialized);
+      runtimeInitialized = true;
+      checkStackCookie();
+      callRuntimeCallbacks(__ATINIT__);
+    }
+    function postRun() {
+      checkStackCookie();
+      if (Module["postRun"]) {
+        if (typeof Module["postRun"] == "function") Module["postRun"] = [Module["postRun"]];
+        while (Module["postRun"].length) {
+          addOnPostRun(Module["postRun"].shift());
+        }
+      }
+      callRuntimeCallbacks(__ATPOSTRUN__);
+    }
+    function addOnPreRun(cb) {
+      __ATPRERUN__.unshift(cb);
+    }
+    function addOnInit(cb) {
+      __ATINIT__.unshift(cb);
+    }
+    function addOnExit(cb) {
+    }
+    function addOnPostRun(cb) {
+      __ATPOSTRUN__.unshift(cb);
+    }
+    assert6(Math.imul, "This browser does not support Math.imul(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill");
+    assert6(Math.fround, "This browser does not support Math.fround(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill");
+    assert6(Math.clz32, "This browser does not support Math.clz32(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill");
+    assert6(Math.trunc, "This browser does not support Math.trunc(), build with LEGACY_VM_SUPPORT or POLYFILL_OLD_MATH_FUNCTIONS to add in a polyfill");
+    var runDependencies = 0;
+    var runDependencyWatcher = null;
+    var dependenciesFulfilled = null;
+    var runDependencyTracking = {};
+    function getUniqueRunDependency(id) {
+      var orig = id;
+      while (1) {
+        if (!runDependencyTracking[id]) return id;
+        id = orig + Math.random();
+      }
+    }
+    function addRunDependency(id) {
+      runDependencies++;
+      if (Module["monitorRunDependencies"]) {
+        Module["monitorRunDependencies"](runDependencies);
+      }
+      if (id) {
+        assert6(!runDependencyTracking[id]);
+        runDependencyTracking[id] = 1;
+        if (runDependencyWatcher === null && typeof setInterval != "undefined") {
+          runDependencyWatcher = setInterval(function() {
+            if (ABORT) {
+              clearInterval(runDependencyWatcher);
+              runDependencyWatcher = null;
+              return;
+            }
+            var shown = false;
+            for (var dep in runDependencyTracking) {
+              if (!shown) {
+                shown = true;
+                err("still waiting on run dependencies:");
+              }
+              err("dependency: " + dep);
+            }
+            if (shown) {
+              err("(end of list)");
+            }
+          }, 1e4);
+        }
+      } else {
+        err("warning: run dependency added without ID");
+      }
+    }
+    function removeRunDependency(id) {
+      runDependencies--;
+      if (Module["monitorRunDependencies"]) {
+        Module["monitorRunDependencies"](runDependencies);
+      }
+      if (id) {
+        assert6(runDependencyTracking[id]);
+        delete runDependencyTracking[id];
+      } else {
+        err("warning: run dependency removed without ID");
+      }
+      if (runDependencies == 0) {
+        if (runDependencyWatcher !== null) {
+          clearInterval(runDependencyWatcher);
+          runDependencyWatcher = null;
+        }
+        if (dependenciesFulfilled) {
+          var callback = dependenciesFulfilled;
+          dependenciesFulfilled = null;
+          callback();
+        }
+      }
+    }
+    function abort(what) {
+      if (Module["onAbort"]) {
+        Module["onAbort"](what);
+      }
+      what = "Aborted(" + what + ")";
+      err(what);
+      ABORT = true;
+      EXITSTATUS = 1;
+      var e = new WebAssembly.RuntimeError(what);
+      readyPromiseReject(e);
+      throw e;
+    }
+    var FS = {
+      error: function() {
+        abort("Filesystem support (FS) was not included. The problem is that you are using files from JS, but files were not used from C/C++, so filesystem support was not auto-included. You can force-include filesystem support with -sFORCE_FILESYSTEM");
+      },
+      init: function() {
+        FS.error();
+      },
+      createDataFile: function() {
+        FS.error();
+      },
+      createPreloadedFile: function() {
+        FS.error();
+      },
+      createLazyFile: function() {
+        FS.error();
+      },
+      open: function() {
+        FS.error();
+      },
+      mkdev: function() {
+        FS.error();
+      },
+      registerDevice: function() {
+        FS.error();
+      },
+      analyzePath: function() {
+        FS.error();
+      },
+      loadFilesFromDB: function() {
+        FS.error();
+      },
+      ErrnoError: function ErrnoError() {
+        FS.error();
+      }
+    };
+    Module["FS_createDataFile"] = FS.createDataFile;
+    Module["FS_createPreloadedFile"] = FS.createPreloadedFile;
+    var dataURIPrefix = "data:application/octet-stream;base64,";
+    function isDataURI(filename) {
+      return filename.startsWith(dataURIPrefix);
+    }
+    function isFileURI(filename) {
+      return filename.startsWith("file://");
+    }
+    function createExportWrapper(name, fixedasm) {
+      return function() {
+        var displayName = name;
+        var asm2 = fixedasm;
+        if (!fixedasm) {
+          asm2 = Module["asm"];
+        }
+        assert6(runtimeInitialized, "native function `" + displayName + "` called before runtime initialization");
+        if (!asm2[name]) {
+          assert6(asm2[name], "exported native function `" + displayName + "` not found");
+        }
+        return asm2[name].apply(null, arguments);
+      };
+    }
+    var wasmBinaryFile;
+    wasmBinaryFile = "crc64.wasm";
+    if (!isDataURI(wasmBinaryFile)) {
+      wasmBinaryFile = locateFile(wasmBinaryFile);
+    }
+    var binaryInString = [
+      "AGFzbQEAAAABzYCAgAAMYAF/AX9gAAF/YAF/AGAAAGADf35/AX5gA39/fwBgBH9/f38AYAN/f38Bf2AFf39",
+      "/f38Bf2AEf39/fwF/YAR/f35/AX5gBH9+f38BfwKPgYCAAAUDZW52BWFib3J0AAMDZW52FmVtc2NyaXB0ZW",
+      "5fcmVzaXplX2hlYXAAABZ3YXNpX3NuYXBzaG90X3ByZXZpZXcxCGZkX2Nsb3NlAAAWd2FzaV9zbmFwc2hvd",
+      "F9wcmV2aWV3MQhmZF93cml0ZQAJFndhc2lfc25hcHNob3RfcHJldmlldzEHZmRfc2VlawAIA62AgIAALAMF",
+      "BgIBAAUGAgEBAAACAAIAAAAHBAQCAgEDAAIAAQIBAQIAAQMBAQEACggLBIWAgIAAAXABBAQFh4CAgAABAYA",
+      "CgIACBsiAgIAACn8BQYCAwAILfwFBAAt/AUEAC38BQQALfwBBnJHBAgt/AEGwkcECC38AQZyRwQILfwBBsJ",
+      "HBAgt/AEGwkcECC38AQZKSwQILB/qEgIAAGwZtZW1vcnkCABFfX3dhc21fY2FsbF9jdG9ycwAFJWVtc2Nya",
+      "XB0ZW5fYmluZF9Wb2lkUHRyX19fZGVzdHJveV9fXzAACCVlbXNjcmlwdGVuX2JpbmRfQ3JjNjRIYXNoX0Ny",
+      "YzY0SGFzaF8wAAkkZW1zY3JpcHRlbl9iaW5kX0NyYzY0SGFzaF9PbkFwcGVuZF8yAAsjZW1zY3JpcHRlbl9",
+      "iaW5kX0NyYzY0SGFzaF9PbkZpbmFsXzMADCdlbXNjcmlwdGVuX2JpbmRfQ3JjNjRIYXNoX19fZGVzdHJveV",
+      "9fXzAADRtfX2VtX2xpYl9kZXBzX3dlYmlkbF9iaW5kZXIDBCFfX2VtX2pzX19hcnJheV9ib3VuZHNfY2hlY",
+      "2tfZXJyb3IDBRlfX2luZGlyZWN0X2Z1bmN0aW9uX3RhYmxlAQAQX19lcnJub19sb2NhdGlvbgAPBmZmbHVz",
+      "aAAtBm1hbGxvYwARBGZyZWUAEhVlbXNjcmlwdGVuX3N0YWNrX2luaXQAKRllbXNjcmlwdGVuX3N0YWNrX2d",
+      "ldF9mcmVlACoZZW1zY3JpcHRlbl9zdGFja19nZXRfYmFzZQArGGVtc2NyaXB0ZW5fc3RhY2tfZ2V0X2VuZA",
+      "AsCXN0YWNrU2F2ZQAlDHN0YWNrUmVzdG9yZQAmCnN0YWNrQWxsb2MAJxxlbXNjcmlwdGVuX3N0YWNrX2dld",
+      "F9jdXJyZW50ACgTX19zdGFydF9lbV9saWJfZGVwcwMGEl9fc3RvcF9lbV9saWJfZGVwcwMHDV9fc3RhcnRf",
+      "ZW1fanMDCAxfX3N0b3BfZW1fanMDCQxkeW5DYWxsX2ppamkALwmJgICAAAEAQQELAxYYGgqtkYGAACwEABA",
+      "pC81IAvcCf6EFfiMAIQNBgAEhBCADIARrIQUgBSAANgJ8IAUgATYCeCAFIAI2AnQgBSgCfCEGIAUoAnghBy",
+      "AFIAc2AnAgBSgCdCEIIAghCSAJrCH6AiAGKQMIIfsCIPsCIPoCfCH8AiAGIPwCNwMIIAYpAwAh/QJCfyH+A",
+      "iD9AiD+AoUh/wIgBSD/AjcDaEIAIYADIAUggAM3A2AgBSgCdCEKIAUoAnQhC0EgIQwgCyAMbyENIAogDWsh",
+      "DiAFIA42AlwgBSgCXCEPQcAAIRAgDyERIBAhEiARIBJPIRNBASEUIBMgFHEhFQJAIBVFDQAgBSgCcCEWIAU",
+      "gFjYCWEIAIYEDIAUggQM3A1BCACGCAyAFIIIDNwNIQgAhgwMgBSCDAzcDQEIAIYQDIAUghAM3AzggBSkDYC",
+      "GFAyAFKAJcIRcgFyEYIBitIYYDIIUDIIYDfCGHA0IgIYgDIIcDIIgDfSGJAyAFIIkDNwMwIAUoAlwhGSAFK",
+      "AJ0IRogGiAZayEbIAUgGzYCdCAFKQNoIYoDIAUgigM3A1ACQANAIAUpA2AhiwMgBSkDMCGMAyCLAyGNAyCM",
+      "AyGOAyCNAyCOA1QhHEEBIR0gHCAdcSEeIB5FDQEgBSgCWCEfIB8pAwAhjwMgBSkDUCGQAyCPAyCQA4UhkQM",
+      "gBSCRAzcDKCAFKAJYISAgICkDCCGSAyAFKQNIIZMDIJIDIJMDhSGUAyAFIJQDNwMgIAUoAlghISAhKQMQIZ",
+      "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"
+    ].join("");
+    function _base64ToArrayBuffer(base642) {
+      var binary_string = window.atob(base642);
+      var len = binary_string.length;
+      var bytes = new Uint8Array(len);
+      for (var i = 0; i < len; i++) {
+        bytes[i] = binary_string.charCodeAt(i);
+      }
+      return bytes;
+    }
+    function getBinary(file) {
+      if (typeof Buffer == "function") {
+        return Buffer.from(binaryInString, "base64");
+      } else {
+        return _base64ToArrayBuffer(binaryInString);
+      }
+    }
+    function getBinaryPromise() {
+      return Promise.resolve().then(function() {
+        return getBinary(wasmBinaryFile);
+      });
+    }
+    function createWasm() {
+      var info2 = {
+        "env": asmLibraryArg,
+        "wasi_snapshot_preview1": asmLibraryArg
+      };
+      function receiveInstance(instance, module2) {
+        var exports3 = instance.exports;
+        Module["asm"] = exports3;
+        wasmMemory = Module["asm"]["memory"];
+        assert6(wasmMemory, "memory not found in wasm exports");
+        updateGlobalBufferAndViews(wasmMemory.buffer);
+        wasmTable = Module["asm"]["__indirect_function_table"];
+        assert6(wasmTable, "table not found in wasm exports");
+        addOnInit(Module["asm"]["__wasm_call_ctors"]);
+        removeRunDependency("wasm-instantiate");
+      }
+      addRunDependency("wasm-instantiate");
+      var trueModule = Module;
+      function receiveInstantiationResult(result) {
+        assert6(Module === trueModule, "the Module object should not be replaced during async compilation - perhaps the order of HTML elements is wrong?");
+        trueModule = null;
+        receiveInstance(result["instance"]);
+      }
+      function instantiateArrayBuffer(receiver) {
+        return getBinaryPromise().then(function(binary) {
+          return WebAssembly.instantiate(binary, info2);
+        }).then(function(instance) {
+          return instance;
+        }).then(receiver, function(reason) {
+          err("failed to asynchronously prepare wasm: " + reason);
+          if (isFileURI(wasmBinaryFile)) {
+            err("warning: Loading from a file URI (" + wasmBinaryFile + ") is not supported in most browsers. See https://emscripten.org/docs/getting_started/FAQ.html#how-do-i-run-a-local-webserver-for-testing-why-does-my-program-stall-in-downloading-or-preparing");
+          }
+          abort(reason);
+        });
+      }
+      function instantiateAsync() {
+        return instantiateArrayBuffer(receiveInstantiationResult);
+      }
+      if (Module["instantiateWasm"]) {
+        try {
+          var exports2 = Module["instantiateWasm"](info2, receiveInstance);
+          return exports2;
+        } catch (e) {
+          err("Module.instantiateWasm callback failed with error: " + e);
+          readyPromiseReject(e);
+        }
+      }
+      instantiateAsync().catch(readyPromiseReject);
+      return {};
+    }
+    var tempDouble;
+    var tempI64;
+    var ASM_CONSTS = {};
+    function array_bounds_check_error(idx, size) {
+      throw "Array index " + idx + " out of bounds: [0," + size + ")";
+    }
+    function ExitStatus(status) {
+      this.name = "ExitStatus";
+      this.message = "Program terminated with exit(" + status + ")";
+      this.status = status;
+    }
+    function callRuntimeCallbacks(callbacks) {
+      while (callbacks.length > 0) {
+        callbacks.shift()(Module);
+      }
+    }
+    function getValue(ptr, type = "i8") {
+      if (type.endsWith("*")) type = "*";
+      switch (type) {
+        case "i1":
+          return HEAP8[ptr >> 0];
+        case "i8":
+          return HEAP8[ptr >> 0];
+        case "i16":
+          return HEAP16[ptr >> 1];
+        case "i32":
+          return HEAP32[ptr >> 2];
+        case "i64":
+          return HEAP32[ptr >> 2];
+        case "float":
+          return HEAPF32[ptr >> 2];
+        case "double":
+          return HEAPF64[ptr >> 3];
+        case "*":
+          return HEAPU32[ptr >> 2];
+        default:
+          abort("invalid type for getValue: " + type);
+      }
+      return null;
+    }
+    function ptrToString(ptr) {
+      return "0x" + ptr.toString(16).padStart(8, "0");
+    }
+    function setValue(ptr, value, type = "i8") {
+      if (type.endsWith("*")) type = "*";
+      switch (type) {
+        case "i1":
+          HEAP8[ptr >> 0] = value;
+          break;
+        case "i8":
+          HEAP8[ptr >> 0] = value;
+          break;
+        case "i16":
+          HEAP16[ptr >> 1] = value;
+          break;
+        case "i32":
+          HEAP32[ptr >> 2] = value;
+          break;
+        case "i64":
+          tempI64 = [value >>> 0, (tempDouble = value, +Math.abs(tempDouble) >= 1 ? tempDouble > 0 ? (Math.min(+Math.floor(tempDouble / 4294967296), 4294967295) | 0) >>> 0 : ~~+Math.ceil((tempDouble - +(~~tempDouble >>> 0)) / 4294967296) >>> 0 : 0)], HEAP32[ptr >> 2] = tempI64[0], HEAP32[ptr + 4 >> 2] = tempI64[1];
+          break;
+        case "float":
+          HEAPF32[ptr >> 2] = value;
+          break;
+        case "double":
+          HEAPF64[ptr >> 3] = value;
+          break;
+        case "*":
+          HEAPU32[ptr >> 2] = value;
+          break;
+        default:
+          abort("invalid type for setValue: " + type);
+      }
+    }
+    function warnOnce(text) {
+      if (!warnOnce.shown) warnOnce.shown = {};
+      if (!warnOnce.shown[text]) {
+        warnOnce.shown[text] = 1;
+        if (ENVIRONMENT_IS_NODE) text = "warning: " + text;
+        err(text);
+      }
+    }
+    function _abort() {
+      abort("native code called abort()");
+    }
+    function getHeapMax() {
+      return 2147483648;
+    }
+    function emscripten_realloc_buffer(size) {
+      try {
+        wasmMemory.grow(size - buffer3.byteLength + 65535 >>> 16);
+        updateGlobalBufferAndViews(wasmMemory.buffer);
+        return 1;
+      } catch (e) {
+        err("emscripten_realloc_buffer: Attempted to grow heap from " + buffer3.byteLength + " bytes to " + size + " bytes, but got error: " + e);
+      }
+    }
+    function _emscripten_resize_heap(requestedSize) {
+      var oldSize = HEAPU8.length;
+      requestedSize = requestedSize >>> 0;
+      assert6(requestedSize > oldSize);
+      var maxHeapSize = getHeapMax();
+      if (requestedSize > maxHeapSize) {
+        err("Cannot enlarge memory, asked to go up to " + requestedSize + " bytes, but the limit is " + maxHeapSize + " bytes!");
+        return false;
+      }
+      let alignUp = (x, multiple) => x + (multiple - x % multiple) % multiple;
+      for (var cutDown = 1; cutDown <= 4; cutDown *= 2) {
+        var overGrownHeapSize = oldSize * (1 + 0.2 / cutDown);
+        overGrownHeapSize = Math.min(overGrownHeapSize, requestedSize + 100663296);
+        var newSize = Math.min(maxHeapSize, alignUp(Math.max(requestedSize, overGrownHeapSize), 65536));
+        var replacement = emscripten_realloc_buffer(newSize);
+        if (replacement) {
+          return true;
+        }
+      }
+      err("Failed to grow the heap from " + oldSize + " bytes to " + newSize + " bytes, not enough memory!");
+      return false;
+    }
+    var SYSCALLS = { varargs: void 0, get: function() {
+      assert6(SYSCALLS.varargs != void 0);
+      SYSCALLS.varargs += 4;
+      var ret = HEAP32[SYSCALLS.varargs - 4 >> 2];
+      return ret;
+    }, getStr: function(ptr) {
+      var ret = UTF8ToString(ptr);
+      return ret;
+    } };
+    function _fd_close(fd) {
+      abort("fd_close called without SYSCALLS_REQUIRE_FILESYSTEM");
+    }
+    function convertI32PairToI53Checked(lo, hi) {
+      assert6(lo == lo >>> 0 || lo == (lo | 0));
+      assert6(hi === (hi | 0));
+      return hi + 2097152 >>> 0 < 4194305 - !!lo ? (lo >>> 0) + hi * 4294967296 : NaN;
+    }
+    function _fd_seek(fd, offset_low, offset_high, whence, newOffset) {
+      return 70;
+    }
+    var printCharBuffers = [null, [], []];
+    function printChar(stream3, curr) {
+      var buffer4 = printCharBuffers[stream3];
+      assert6(buffer4);
+      if (curr === 0 || curr === 10) {
+        (stream3 === 1 ? out : err)(UTF8ArrayToString(buffer4, 0));
+        buffer4.length = 0;
+      } else {
+        buffer4.push(curr);
+      }
+    }
+    function flush_NO_FILESYSTEM() {
+      _fflush(0);
+      if (printCharBuffers[1].length) printChar(1, 10);
+      if (printCharBuffers[2].length) printChar(2, 10);
+    }
+    function _fd_write(fd, iov, iovcnt, pnum) {
+      var num = 0;
+      for (var i = 0; i < iovcnt; i++) {
+        var ptr = HEAPU32[iov >> 2];
+        var len = HEAPU32[iov + 4 >> 2];
+        iov += 8;
+        for (var j = 0; j < len; j++) {
+          printChar(fd, HEAPU8[ptr + j]);
+        }
+        num += len;
+      }
+      HEAPU32[pnum >> 2] = num;
+      return 0;
+    }
+    function intArrayFromString(stringy, dontAddNull, length) {
+      var len = length > 0 ? length : lengthBytesUTF8(stringy) + 1;
+      var u8array = new Array(len);
+      var numBytesWritten = stringToUTF8Array(stringy, u8array, 0, u8array.length);
+      if (dontAddNull) u8array.length = numBytesWritten;
+      return u8array;
+    }
+    var ASSERTIONS = true;
+    function checkIncomingModuleAPI() {
+      ignoredModuleProp("fetchSettings");
+    }
+    var asmLibraryArg = {
+      "abort": _abort,
+      "array_bounds_check_error": array_bounds_check_error,
+      "emscripten_resize_heap": _emscripten_resize_heap,
+      "fd_close": _fd_close,
+      "fd_seek": _fd_seek,
+      "fd_write": _fd_write
+    };
+    var asm = createWasm();
+    var ___wasm_call_ctors = Module["___wasm_call_ctors"] = createExportWrapper("__wasm_call_ctors");
+    var _emscripten_bind_VoidPtr___destroy___0 = Module["_emscripten_bind_VoidPtr___destroy___0"] = createExportWrapper("emscripten_bind_VoidPtr___destroy___0");
+    var _emscripten_bind_Crc64Hash_Crc64Hash_0 = Module["_emscripten_bind_Crc64Hash_Crc64Hash_0"] = createExportWrapper("emscripten_bind_Crc64Hash_Crc64Hash_0");
+    var _emscripten_bind_Crc64Hash_OnAppend_2 = Module["_emscripten_bind_Crc64Hash_OnAppend_2"] = createExportWrapper("emscripten_bind_Crc64Hash_OnAppend_2");
+    var _emscripten_bind_Crc64Hash_OnFinal_3 = Module["_emscripten_bind_Crc64Hash_OnFinal_3"] = createExportWrapper("emscripten_bind_Crc64Hash_OnFinal_3");
+    var _emscripten_bind_Crc64Hash___destroy___0 = Module["_emscripten_bind_Crc64Hash___destroy___0"] = createExportWrapper("emscripten_bind_Crc64Hash___destroy___0");
+    var ___errno_location = Module["___errno_location"] = createExportWrapper("__errno_location");
+    var _fflush = Module["_fflush"] = createExportWrapper("fflush");
+    var _malloc = Module["_malloc"] = createExportWrapper("malloc");
+    var _free = Module["_free"] = createExportWrapper("free");
+    var _emscripten_stack_init = Module["_emscripten_stack_init"] = function() {
+      return (_emscripten_stack_init = Module["_emscripten_stack_init"] = Module["asm"]["emscripten_stack_init"]).apply(null, arguments);
+    };
+    var _emscripten_stack_get_free = Module["_emscripten_stack_get_free"] = function() {
+      return (_emscripten_stack_get_free = Module["_emscripten_stack_get_free"] = Module["asm"]["emscripten_stack_get_free"]).apply(null, arguments);
+    };
+    var _emscripten_stack_get_base = Module["_emscripten_stack_get_base"] = function() {
+      return (_emscripten_stack_get_base = Module["_emscripten_stack_get_base"] = Module["asm"]["emscripten_stack_get_base"]).apply(null, arguments);
+    };
+    var _emscripten_stack_get_end = Module["_emscripten_stack_get_end"] = function() {
+      return (_emscripten_stack_get_end = Module["_emscripten_stack_get_end"] = Module["asm"]["emscripten_stack_get_end"]).apply(null, arguments);
+    };
+    var stackSave = Module["stackSave"] = createExportWrapper("stackSave");
+    var stackRestore = Module["stackRestore"] = createExportWrapper("stackRestore");
+    var stackAlloc = Module["stackAlloc"] = createExportWrapper("stackAlloc");
+    var _emscripten_stack_get_current = Module["_emscripten_stack_get_current"] = function() {
+      return (_emscripten_stack_get_current = Module["_emscripten_stack_get_current"] = Module["asm"]["emscripten_stack_get_current"]).apply(null, arguments);
+    };
+    var dynCall_jiji = Module["dynCall_jiji"] = createExportWrapper("dynCall_jiji");
+    var ___start_em_js = Module["___start_em_js"] = 5261488;
+    var ___stop_em_js = Module["___stop_em_js"] = 5261586;
+    var unexportedRuntimeSymbols = [
+      "run",
+      "UTF8ArrayToString",
+      "UTF8ToString",
+      "stringToUTF8Array",
+      "stringToUTF8",
+      "lengthBytesUTF8",
+      "addOnPreRun",
+      "addOnInit",
+      "addOnPreMain",
+      "addOnExit",
+      "addOnPostRun",
+      "addRunDependency",
+      "removeRunDependency",
+      "FS_createFolder",
+      "FS_createPath",
+      "FS_createDataFile",
+      "FS_createPreloadedFile",
+      "FS_createLazyFile",
+      "FS_createLink",
+      "FS_createDevice",
+      "FS_unlink",
+      "getLEB",
+      "getFunctionTables",
+      "alignFunctionTables",
+      "registerFunctions",
+      "prettyPrint",
+      "getCompilerSetting",
+      "out",
+      "err",
+      "callMain",
+      "abort",
+      "keepRuntimeAlive",
+      "wasmMemory",
+      "stackAlloc",
+      "stackSave",
+      "stackRestore",
+      "getTempRet0",
+      "setTempRet0",
+      "writeStackCookie",
+      "checkStackCookie",
+      "ptrToString",
+      "zeroMemory",
+      "stringToNewUTF8",
+      "exitJS",
+      "getHeapMax",
+      "emscripten_realloc_buffer",
+      "ENV",
+      "ERRNO_CODES",
+      "ERRNO_MESSAGES",
+      "setErrNo",
+      "inetPton4",
+      "inetNtop4",
+      "inetPton6",
+      "inetNtop6",
+      "readSockaddr",
+      "writeSockaddr",
+      "DNS",
+      "getHostByName",
+      "Protocols",
+      "Sockets",
+      "getRandomDevice",
+      "warnOnce",
+      "traverseStack",
+      "UNWIND_CACHE",
+      "convertPCtoSourceLocation",
+      "readEmAsmArgsArray",
+      "readEmAsmArgs",
+      "runEmAsmFunction",
+      "runMainThreadEmAsm",
+      "jstoi_q",
+      "jstoi_s",
+      "getExecutableName",
+      "listenOnce",
+      "autoResumeAudioContext",
+      "dynCallLegacy",
+      "getDynCaller",
+      "dynCall",
+      "handleException",
+      "runtimeKeepalivePush",
+      "runtimeKeepalivePop",
+      "callUserCallback",
+      "maybeExit",
+      "safeSetTimeout",
+      "asmjsMangle",
+      "asyncLoad",
+      "alignMemory",
+      "mmapAlloc",
+      "writeI53ToI64",
+      "writeI53ToI64Clamped",
+      "writeI53ToI64Signaling",
+      "writeI53ToU64Clamped",
+      "writeI53ToU64Signaling",
+      "readI53FromI64",
+      "readI53FromU64",
+      "convertI32PairToI53",
+      "convertI32PairToI53Checked",
+      "convertU32PairToI53",
+      "getCFunc",
+      "ccall",
+      "cwrap",
+      "uleb128Encode",
+      "sigToWasmTypes",
+      "generateFuncType",
+      "convertJsFunctionToWasm",
+      "freeTableIndexes",
+      "functionsInTableMap",
+      "getEmptyTableSlot",
+      "updateTableMap",
+      "addFunction",
+      "removeFunction",
+      "reallyNegative",
+      "unSign",
+      "strLen",
+      "reSign",
+      "formatString",
+      "setValue",
+      "getValue",
+      "PATH",
+      "PATH_FS",
+      "intArrayFromString",
+      "intArrayToString",
+      "AsciiToString",
+      "stringToAscii",
+      "UTF16Decoder",
+      "UTF16ToString",
+      "stringToUTF16",
+      "lengthBytesUTF16",
+      "UTF32ToString",
+      "stringToUTF32",
+      "lengthBytesUTF32",
+      "allocateUTF8",
+      "allocateUTF8OnStack",
+      "writeStringToMemory",
+      "writeArrayToMemory",
+      "writeAsciiToMemory",
+      "SYSCALLS",
+      "getSocketFromFD",
+      "getSocketAddress",
+      "JSEvents",
+      "registerKeyEventCallback",
+      "specialHTMLTargets",
+      "maybeCStringToJsString",
+      "findEventTarget",
+      "findCanvasEventTarget",
+      "getBoundingClientRect",
+      "fillMouseEventData",
+      "registerMouseEventCallback",
+      "registerWheelEventCallback",
+      "registerUiEventCallback",
+      "registerFocusEventCallback",
+      "fillDeviceOrientationEventData",
+      "registerDeviceOrientationEventCallback",
+      "fillDeviceMotionEventData",
+      "registerDeviceMotionEventCallback",
+      "screenOrientation",
+      "fillOrientationChangeEventData",
+      "registerOrientationChangeEventCallback",
+      "fillFullscreenChangeEventData",
+      "registerFullscreenChangeEventCallback",
+      "JSEvents_requestFullscreen",
+      "JSEvents_resizeCanvasForFullscreen",
+      "registerRestoreOldStyle",
+      "hideEverythingExceptGivenElement",
+      "restoreHiddenElements",
+      "setLetterbox",
+      "currentFullscreenStrategy",
+      "restoreOldWindowedStyle",
+      "softFullscreenResizeWebGLRenderTarget",
+      "doRequestFullscreen",
+      "fillPointerlockChangeEventData",
+      "registerPointerlockChangeEventCallback",
+      "registerPointerlockErrorEventCallback",
+      "requestPointerLock",
+      "fillVisibilityChangeEventData",
+      "registerVisibilityChangeEventCallback",
+      "registerTouchEventCallback",
+      "fillGamepadEventData",
+      "registerGamepadEventCallback",
+      "registerBeforeUnloadEventCallback",
+      "fillBatteryEventData",
+      "battery",
+      "registerBatteryEventCallback",
+      "setCanvasElementSize",
+      "getCanvasElementSize",
+      "demangle",
+      "demangleAll",
+      "jsStackTrace",
+      "stackTrace",
+      "ExitStatus",
+      "getEnvStrings",
+      "checkWasiClock",
+      "flush_NO_FILESYSTEM",
+      "dlopenMissingError",
+      "createDyncallWrapper",
+      "setImmediateWrapped",
+      "clearImmediateWrapped",
+      "polyfillSetImmediate",
+      "uncaughtExceptionCount",
+      "exceptionLast",
+      "exceptionCaught",
+      "ExceptionInfo",
+      "exception_addRef",
+      "exception_decRef",
+      "Browser",
+      "setMainLoop",
+      "wget",
+      "FS",
+      "MEMFS",
+      "TTY",
+      "PIPEFS",
+      "SOCKFS",
+      "_setNetworkCallback",
+      "tempFixedLengthArray",
+      "miniTempWebGLFloatBuffers",
+      "heapObjectForWebGLType",
+      "heapAccessShiftForWebGLHeap",
+      "GL",
+      "emscriptenWebGLGet",
+      "computeUnpackAlignedImageSize",
+      "emscriptenWebGLGetTexPixelData",
+      "emscriptenWebGLGetUniform",
+      "webglGetUniformLocation",
+      "webglPrepareUniformLocationsBeforeFirstUse",
+      "webglGetLeftBracePos",
+      "emscriptenWebGLGetVertexAttrib",
+      "writeGLArray",
+      "AL",
+      "SDL_unicode",
+      "SDL_ttfContext",
+      "SDL_audio",
+      "SDL",
+      "SDL_gfx",
+      "GLUT",
+      "EGL",
+      "GLFW_Window",
+      "GLFW",
+      "GLEW",
+      "IDBStore",
+      "runAndAbortIfError",
+      "ALLOC_NORMAL",
+      "ALLOC_STACK",
+      "allocate"
+    ];
+    unexportedRuntimeSymbols.forEach(unexportedRuntimeSymbol);
+    var missingLibrarySymbols = [
+      "zeroMemory",
+      "stringToNewUTF8",
+      "exitJS",
+      "setErrNo",
+      "inetPton4",
+      "inetNtop4",
+      "inetPton6",
+      "inetNtop6",
+      "readSockaddr",
+      "writeSockaddr",
+      "getHostByName",
+      "getRandomDevice",
+      "traverseStack",
+      "convertPCtoSourceLocation",
+      "readEmAsmArgs",
+      "runEmAsmFunction",
+      "runMainThreadEmAsm",
+      "jstoi_q",
+      "jstoi_s",
+      "getExecutableName",
+      "listenOnce",
+      "autoResumeAudioContext",
+      "dynCallLegacy",
+      "getDynCaller",
+      "dynCall",
+      "handleException",
+      "runtimeKeepalivePush",
+      "runtimeKeepalivePop",
+      "callUserCallback",
+      "maybeExit",
+      "safeSetTimeout",
+      "asmjsMangle",
+      "asyncLoad",
+      "alignMemory",
+      "mmapAlloc",
+      "writeI53ToI64",
+      "writeI53ToI64Clamped",
+      "writeI53ToI64Signaling",
+      "writeI53ToU64Clamped",
+      "writeI53ToU64Signaling",
+      "readI53FromI64",
+      "readI53FromU64",
+      "convertI32PairToI53",
+      "convertU32PairToI53",
+      "getCFunc",
+      "ccall",
+      "cwrap",
+      "uleb128Encode",
+      "sigToWasmTypes",
+      "generateFuncType",
+      "convertJsFunctionToWasm",
+      "getEmptyTableSlot",
+      "updateTableMap",
+      "addFunction",
+      "removeFunction",
+      "reallyNegative",
+      "unSign",
+      "strLen",
+      "reSign",
+      "formatString",
+      "intArrayToString",
+      "AsciiToString",
+      "stringToAscii",
+      "UTF16ToString",
+      "stringToUTF16",
+      "lengthBytesUTF16",
+      "UTF32ToString",
+      "stringToUTF32",
+      "lengthBytesUTF32",
+      "allocateUTF8",
+      "allocateUTF8OnStack",
+      "writeStringToMemory",
+      "writeArrayToMemory",
+      "writeAsciiToMemory",
+      "getSocketFromFD",
+      "getSocketAddress",
+      "registerKeyEventCallback",
+      "maybeCStringToJsString",
+      "findEventTarget",
+      "findCanvasEventTarget",
+      "getBoundingClientRect",
+      "fillMouseEventData",
+      "registerMouseEventCallback",
+      "registerWheelEventCallback",
+      "registerUiEventCallback",
+      "registerFocusEventCallback",
+      "fillDeviceOrientationEventData",
+      "registerDeviceOrientationEventCallback",
+      "fillDeviceMotionEventData",
+      "registerDeviceMotionEventCallback",
+      "screenOrientation",
+      "fillOrientationChangeEventData",
+      "registerOrientationChangeEventCallback",
+      "fillFullscreenChangeEventData",
+      "registerFullscreenChangeEventCallback",
+      "JSEvents_requestFullscreen",
+      "JSEvents_resizeCanvasForFullscreen",
+      "registerRestoreOldStyle",
+      "hideEverythingExceptGivenElement",
+      "restoreHiddenElements",
+      "setLetterbox",
+      "softFullscreenResizeWebGLRenderTarget",
+      "doRequestFullscreen",
+      "fillPointerlockChangeEventData",
+      "registerPointerlockChangeEventCallback",
+      "registerPointerlockErrorEventCallback",
+      "requestPointerLock",
+      "fillVisibilityChangeEventData",
+      "registerVisibilityChangeEventCallback",
+      "registerTouchEventCallback",
+      "fillGamepadEventData",
+      "registerGamepadEventCallback",
+      "registerBeforeUnloadEventCallback",
+      "fillBatteryEventData",
+      "battery",
+      "registerBatteryEventCallback",
+      "setCanvasElementSize",
+      "getCanvasElementSize",
+      "demangle",
+      "demangleAll",
+      "jsStackTrace",
+      "stackTrace",
+      "getEnvStrings",
+      "checkWasiClock",
+      "createDyncallWrapper",
+      "setImmediateWrapped",
+      "clearImmediateWrapped",
+      "polyfillSetImmediate",
+      "ExceptionInfo",
+      "exception_addRef",
+      "exception_decRef",
+      "setMainLoop",
+      "_setNetworkCallback",
+      "heapObjectForWebGLType",
+      "heapAccessShiftForWebGLHeap",
+      "emscriptenWebGLGet",
+      "computeUnpackAlignedImageSize",
+      "emscriptenWebGLGetTexPixelData",
+      "emscriptenWebGLGetUniform",
+      "webglGetUniformLocation",
+      "webglPrepareUniformLocationsBeforeFirstUse",
+      "webglGetLeftBracePos",
+      "emscriptenWebGLGetVertexAttrib",
+      "writeGLArray",
+      "SDL_unicode",
+      "SDL_ttfContext",
+      "SDL_audio",
+      "GLFW_Window",
+      "runAndAbortIfError",
+      "ALLOC_NORMAL",
+      "ALLOC_STACK",
+      "allocate"
+    ];
+    missingLibrarySymbols.forEach(missingLibrarySymbol);
+    var calledRun;
+    dependenciesFulfilled = function runCaller() {
+      if (!calledRun) run2();
+      if (!calledRun) dependenciesFulfilled = runCaller;
+    };
+    function stackCheckInit() {
+      _emscripten_stack_init();
+      writeStackCookie();
+    }
+    function run2(args) {
+      args = args || arguments_;
+      if (runDependencies > 0) {
+        return;
+      }
+      stackCheckInit();
+      preRun();
+      if (runDependencies > 0) {
+        return;
+      }
+      function doRun() {
+        if (calledRun) return;
+        calledRun = true;
+        Module["calledRun"] = true;
+        if (ABORT) return;
+        initRuntime();
+        readyPromiseResolve(Module);
+        if (Module["onRuntimeInitialized"]) Module["onRuntimeInitialized"]();
+        assert6(!Module["_main"], 'compiled without a main, but one is present. if you added it from JS, use Module["onRuntimeInitialized"]');
+        postRun();
+      }
+      if (Module["setStatus"]) {
+        Module["setStatus"]("Running...");
+        setTimeout(function() {
+          setTimeout(function() {
+            Module["setStatus"]("");
+          }, 1);
+          doRun();
+        }, 1);
+      } else {
+        doRun();
+      }
+      checkStackCookie();
+    }
+    function checkUnflushedContent() {
+      var oldOut = out;
+      var oldErr = err;
+      var has = false;
+      out = err = (x) => {
+        has = true;
+      };
+      try {
+        flush_NO_FILESYSTEM();
+      } catch (e) {
+      }
+      out = oldOut;
+      err = oldErr;
+      if (has) {
+        warnOnce("stdio streams had content in them that was not flushed. you should set EXIT_RUNTIME to 1 (see the FAQ), or make sure to emit a newline when you printf etc.");
+        warnOnce("(this may also be due to not including full filesystem support - try building with -sFORCE_FILESYSTEM)");
+      }
+    }
+    if (Module["preInit"]) {
+      if (typeof Module["preInit"] == "function") Module["preInit"] = [Module["preInit"]];
+      while (Module["preInit"].length > 0) {
+        Module["preInit"].pop()();
+      }
+    }
+    run2();
+    function WrapperObject() {
+    }
+    WrapperObject.prototype = Object.create(WrapperObject.prototype);
+    WrapperObject.prototype.constructor = WrapperObject;
+    WrapperObject.prototype.__class__ = WrapperObject;
+    WrapperObject.__cache__ = {};
+    Module["WrapperObject"] = WrapperObject;
+    function getCache(__class__) {
+      return (__class__ || WrapperObject).__cache__;
+    }
+    Module["getCache"] = getCache;
+    function wrapPointer(ptr, __class__) {
+      var cache = getCache(__class__);
+      var ret = cache[ptr];
+      if (ret) return ret;
+      ret = Object.create((__class__ || WrapperObject).prototype);
+      ret.ptr = ptr;
+      return cache[ptr] = ret;
+    }
+    Module["wrapPointer"] = wrapPointer;
+    function castObject(obj, __class__) {
+      return wrapPointer(obj.ptr, __class__);
+    }
+    Module["castObject"] = castObject;
+    Module["NULL"] = wrapPointer(0);
+    function destroy2(obj) {
+      if (!obj["__destroy__"]) throw "Error: Cannot destroy object. (Did you create it yourself?)";
+      obj["__destroy__"]();
+      delete getCache(obj.__class__)[obj.ptr];
+    }
+    Module["destroy"] = destroy2;
+    function compare(obj1, obj2) {
+      return obj1.ptr === obj2.ptr;
+    }
+    Module["compare"] = compare;
+    function getPointer(obj) {
+      return obj.ptr;
+    }
+    Module["getPointer"] = getPointer;
+    function getClass(obj) {
+      return obj.__class__;
+    }
+    Module["getClass"] = getClass;
+    var ensureCache = {
+      buffer: 0,
+      // the main buffer of temporary storage
+      size: 0,
+      // the size of buffer
+      pos: 0,
+      // the next free offset in buffer
+      temps: [],
+      // extra allocations
+      needed: 0,
+      // the total size we need next time
+      prepare: function() {
+        if (ensureCache.needed) {
+          for (var i = 0; i < ensureCache.temps.length; i++) {
+            Module["_free"](ensureCache.temps[i]);
+          }
+          ensureCache.temps.length = 0;
+          Module["_free"](ensureCache.buffer);
+          ensureCache.buffer = 0;
+          ensureCache.size += ensureCache.needed;
+          ensureCache.needed = 0;
+        }
+        if (!ensureCache.buffer) {
+          ensureCache.size += 128;
+          ensureCache.buffer = Module["_malloc"](ensureCache.size);
+          assert6(ensureCache.buffer);
+        }
+        ensureCache.pos = 0;
+      },
+      alloc: function(array2, view) {
+        assert6(ensureCache.buffer);
+        var bytes = view.BYTES_PER_ELEMENT;
+        var len = array2.length * bytes;
+        len = len + 7 & -8;
+        var ret;
+        if (ensureCache.pos + len >= ensureCache.size) {
+          assert6(len > 0);
+          ensureCache.needed += len;
+          ret = Module["_malloc"](len);
+          ensureCache.temps.push(ret);
+        } else {
+          ret = ensureCache.buffer + ensureCache.pos;
+          ensureCache.pos += len;
+        }
+        return ret;
+      },
+      copy: function(array2, view, offset) {
+        offset >>>= 0;
+        var bytes = view.BYTES_PER_ELEMENT;
+        switch (bytes) {
+          case 2:
+            offset >>>= 1;
+            break;
+          case 4:
+            offset >>>= 2;
+            break;
+          case 8:
+            offset >>>= 3;
+            break;
+        }
+        for (var i = 0; i < array2.length; i++) {
+          view[offset + i] = array2[i];
+        }
+      }
+    };
+    function ensureString(value) {
+      if (typeof value === "string") {
+        var intArray = intArrayFromString(value);
+        var offset = ensureCache.alloc(intArray, HEAP8);
+        ensureCache.copy(intArray, HEAP8, offset);
+        return offset;
+      }
+      return value;
+    }
+    function ensureInt8(value) {
+      if (typeof value === "object") {
+        var offset = ensureCache.alloc(value, HEAP8);
+        ensureCache.copy(value, HEAP8, offset);
+        return offset;
+      }
+      return value;
+    }
+    function ensureInt16(value) {
+      if (typeof value === "object") {
+        var offset = ensureCache.alloc(value, HEAP16);
+        ensureCache.copy(value, HEAP16, offset);
+        return offset;
+      }
+      return value;
+    }
+    function ensureInt32(value) {
+      if (typeof value === "object") {
+        var offset = ensureCache.alloc(value, HEAP32);
+        ensureCache.copy(value, HEAP32, offset);
+        return offset;
+      }
+      return value;
+    }
+    function ensureFloat32(value) {
+      if (typeof value === "object") {
+        var offset = ensureCache.alloc(value, HEAPF32);
+        ensureCache.copy(value, HEAPF32, offset);
+        return offset;
+      }
+      return value;
+    }
+    function ensureFloat64(value) {
+      if (typeof value === "object") {
+        var offset = ensureCache.alloc(value, HEAPF64);
+        ensureCache.copy(value, HEAPF64, offset);
+        return offset;
+      }
+      return value;
+    }
+    function VoidPtr() {
+      throw "cannot construct a VoidPtr, no constructor in IDL";
+    }
+    VoidPtr.prototype = Object.create(WrapperObject.prototype);
+    VoidPtr.prototype.constructor = VoidPtr;
+    VoidPtr.prototype.__class__ = VoidPtr;
+    VoidPtr.__cache__ = {};
+    Module["VoidPtr"] = VoidPtr;
+    VoidPtr.prototype["__destroy__"] = VoidPtr.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */
+    function() {
+      var self = this.ptr;
+      _emscripten_bind_VoidPtr___destroy___0(self);
+    };
+    function Crc64Hash() {
+      this.ptr = _emscripten_bind_Crc64Hash_Crc64Hash_0();
+      getCache(Crc64Hash)[this.ptr] = this;
+    }
+    ;
+    ;
+    Crc64Hash.prototype = Object.create(WrapperObject.prototype);
+    Crc64Hash.prototype.constructor = Crc64Hash;
+    Crc64Hash.prototype.__class__ = Crc64Hash;
+    Crc64Hash.__cache__ = {};
+    Module["Crc64Hash"] = Crc64Hash;
+    Crc64Hash.prototype["OnAppend"] = Crc64Hash.prototype.OnAppend = /** @suppress {undefinedVars, duplicate} @this{Object} */
+    function(data, length) {
+      var self = this.ptr;
+      if (data && typeof data === "object") data = data.ptr;
+      if (length && typeof length === "object") length = length.ptr;
+      _emscripten_bind_Crc64Hash_OnAppend_2(self, data, length);
+    };
+    ;
+    Crc64Hash.prototype["OnFinal"] = Crc64Hash.prototype.OnFinal = /** @suppress {undefinedVars, duplicate} @this{Object} */
+    function(data, length, result) {
+      var self = this.ptr;
+      if (data && typeof data === "object") data = data.ptr;
+      if (length && typeof length === "object") length = length.ptr;
+      if (result && typeof result === "object") result = result.ptr;
+      _emscripten_bind_Crc64Hash_OnFinal_3(self, data, length, result);
+    };
+    ;
+    Crc64Hash.prototype["__destroy__"] = Crc64Hash.prototype.__destroy__ = /** @suppress {undefinedVars, duplicate} @this{Object} */
+    function() {
+      var self = this.ptr;
+      _emscripten_bind_Crc64Hash___destroy___0(self);
+    };
+    return NativeCRC642.ready;
+  });
+})();
+var crc64_default = NativeCRC64;
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/StorageCRC64Calculator.js
+var _StorageCRC64Calculator = class _StorageCRC64Calculator {
+  constructor() {
+    __publicField(this, "nativeCrc64Hash");
+    this.nativeCrc64Hash = new _StorageCRC64Calculator.nativeInstance.Crc64Hash();
+  }
+  /**
+   * Initialize environment for CRC64 checksum calculator
+   */
+  static async init() {
+    if (!this.initPromise) {
+      this.initPromise = crc64_default().then((instance) => {
+        this.nativeInstance = instance;
+        return;
+      });
+    }
+    return this.initPromise;
+  }
+  /**
+   * Append data for CRC64 checksum calculator
+   * @param body - content to be append
+   * @param length - length of the content
+   */
+  append(body2, length) {
+    const ptr = _StorageCRC64Calculator.nativeInstance._malloc(length);
+    _StorageCRC64Calculator.nativeInstance.HEAPU8.set(body2, ptr);
+    this.nativeCrc64Hash.OnAppend(ptr, length);
+    _StorageCRC64Calculator.nativeInstance._free(ptr);
+  }
+  /**
+   * Complete CRC64 checksum calculating and get the final result.
+   * @param body -
+   * @param length -
+   * @returns
+   */
+  final(body2, length) {
+    const ptr = _StorageCRC64Calculator.nativeInstance._malloc(length);
+    _StorageCRC64Calculator.nativeInstance.HEAPU8.set(body2, ptr);
+    const result = _StorageCRC64Calculator.nativeInstance._malloc(8);
+    this.nativeCrc64Hash.OnFinal(ptr, length, result);
+    _StorageCRC64Calculator.nativeInstance._free(ptr);
+    const resultArray = new Uint8Array(8);
+    resultArray.set(_StorageCRC64Calculator.nativeInstance.HEAPU8.subarray(result, result + 8));
+    _StorageCRC64Calculator.nativeInstance._free(result);
+    return resultArray;
+  }
+};
+__publicField(_StorageCRC64Calculator, "nativeInstance");
+__publicField(_StorageCRC64Calculator, "initPromise");
+var StorageCRC64Calculator = _StorageCRC64Calculator;
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/streamHelpers.js
+function signalStreamEnd(pushData) {
+  pushData(null);
+}
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/StructuredMessageEncoding.js
+var MESSAGE_VERSION = 1;
+var MESSAGE_HEADER_LENGTH = 13;
+var SEGMENT_HEADER_LENGTH = 10;
+var FOOTER_LENGTH = 8;
+var MAX_SEGMENT_CONTENT_LENGTH = 4 * 1024 * 1024;
+var SMRegion;
+(function(SMRegion3) {
+  SMRegion3[SMRegion3["StreamHeader"] = 0] = "StreamHeader";
+  SMRegion3[SMRegion3["StreamFooter"] = 1] = "StreamFooter";
+  SMRegion3[SMRegion3["SegmentHeader"] = 2] = "SegmentHeader";
+  SMRegion3[SMRegion3["SegmentFooter"] = 3] = "SegmentFooter";
+  SMRegion3[SMRegion3["SegmentContent"] = 4] = "SegmentContent";
+  SMRegion3[SMRegion3["Completed"] = 5] = "Completed";
+})(SMRegion || (SMRegion = {}));
+var StructuredMessageEncoding = class {
+  constructor(pushData, contentLength2) {
+    __publicField(this, "pushData");
+    __publicField(this, "contentLength");
+    __publicField(this, "messageLength");
+    __publicField(this, "currentDataOffset");
+    __publicField(this, "contentOffset");
+    __publicField(this, "segmentsCount");
+    __publicField(this, "messageHeaderBuffer");
+    __publicField(this, "segmentNumber");
+    __publicField(this, "segmentContentLength");
+    __publicField(this, "segmentContentOffset");
+    __publicField(this, "segmentCrc64");
+    __publicField(this, "messageCrc64");
+    __publicField(this, "state");
+    __publicField(this, "sourceDataHandler", (data) => {
+      this.currentDataOffset = 0;
+      if (this.state === SMRegion.StreamHeader) {
+        this.handlingMessageHeader();
+      }
+      while (this.segmentNumber < this.segmentsCount) {
+        this.segmentContentLength = Math.min(MAX_SEGMENT_CONTENT_LENGTH, this.contentLength - this.contentOffset);
+        if (this.state === SMRegion.SegmentHeader) {
+          this.handlingSegmentHeader();
+        }
+        if (this.state === SMRegion.SegmentContent) {
+          this.handlingSegmentContent(data);
+        }
+        if (this.state === SMRegion.SegmentFooter) {
+          this.handlingSegmentFooter();
+          this.contentOffset += this.segmentContentLength;
+        }
+        if (this.currentDataOffset === data.length) {
+          break;
+        }
+      }
+      if (this.state === SMRegion.StreamFooter) {
+        this.handlingMessageFooter();
+      }
+    });
+    this.pushData = pushData;
+    this.contentLength = contentLength2;
+    this.contentOffset = 0;
+    this.currentDataOffset = 0;
+    this.segmentsCount = Math.ceil(this.contentLength / MAX_SEGMENT_CONTENT_LENGTH);
+    this.messageLength = this.contentLength + MESSAGE_HEADER_LENGTH + (SEGMENT_HEADER_LENGTH + FOOTER_LENGTH) * this.segmentsCount + FOOTER_LENGTH;
+    this.messageHeaderBuffer = new Uint8Array(MESSAGE_HEADER_LENGTH);
+    this.segmentNumber = 0;
+    this.segmentContentLength = 0;
+    this.segmentContentOffset = 0;
+    this.state = SMRegion.StreamHeader;
+    this.segmentCrc64 = new StorageCRC64Calculator();
+    this.messageCrc64 = new StorageCRC64Calculator();
+  }
+  handlingMessageHeader() {
+    this.messageHeaderBuffer[0] = MESSAGE_VERSION;
+    this.fillInt64(this.messageHeaderBuffer, 1, this.messageLength);
+    this.fillInt16(this.messageHeaderBuffer, 9, 1);
+    this.fillInt16(this.messageHeaderBuffer, 11, this.segmentsCount);
+    this.pushData(this.messageHeaderBuffer);
+    this.state = SMRegion.SegmentHeader;
+  }
+  handlingSegmentHeader() {
+    const segmentHeaderBuffer = new Uint8Array(SEGMENT_HEADER_LENGTH);
+    this.fillInt16(segmentHeaderBuffer, 0, this.segmentNumber + 1);
+    this.fillInt64(segmentHeaderBuffer, 2, this.segmentContentLength);
+    this.segmentContentOffset = 0;
+    this.pushData(segmentHeaderBuffer);
+    this.state = SMRegion.SegmentContent;
+  }
+  handlingSegmentContent(data) {
+    const length = Math.min(this.segmentContentLength - this.segmentContentOffset, data.length - this.currentDataOffset);
+    if (length !== 0) {
+      const current_content = Uint8Array.prototype.slice.call(data, this.currentDataOffset, this.currentDataOffset + length);
+      this.messageCrc64.append(current_content, length);
+      this.segmentCrc64.append(current_content, length);
+      this.pushData(current_content);
+    }
+    this.segmentContentOffset += length;
+    this.currentDataOffset += length;
+    if (this.segmentContentOffset === this.segmentContentLength) {
+      this.state = SMRegion.SegmentFooter;
+    }
+  }
+  handlingSegmentFooter() {
+    const crc64Result = this.segmentCrc64.final(new Uint8Array([]), 0);
+    this.pushData(crc64Result);
+    this.segmentCrc64 = new StorageCRC64Calculator();
+    ++this.segmentNumber;
+    if (this.segmentNumber === this.segmentsCount) {
+      this.state = SMRegion.StreamFooter;
+    } else {
+      this.state = SMRegion.SegmentHeader;
+    }
+  }
+  handlingMessageFooter() {
+    const crc64Result = this.messageCrc64.final(new Uint8Array([]), 0);
+    this.pushData(crc64Result);
+    signalStreamEnd(this.pushData);
+    this.state = SMRegion.Completed;
+  }
+  fillInt64(buffer3, offset, input) {
+    if (buffer3.length < offset + 8) {
+      throw new Error("Uint8Array length is not expected.");
+    }
+    const view = new DataView(buffer3.buffer, buffer3.byteOffset + offset, 8);
+    view.setBigUint64(0, BigInt(input), true);
+  }
+  fillInt16(buffer3, offset, input) {
+    if (buffer3.length < offset + 2) {
+      throw new Error("Uint8Array length is not expected.");
+    }
+    const view = new DataView(buffer3.buffer, buffer3.byteOffset + offset, 2);
+    view.setUint16(0, input, true);
+  }
+};
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/StructuredMessageEncodingStream.js
+function isNodeReadableStream2(source) {
+  return source !== null && source instanceof import_node_stream3.default && typeof source._read === "function" && typeof source._readableState === "object" && typeof source.pipe === "function";
+}
+async function structuredMessageEncoding(source, contentLength2) {
+  if (source === null) {
+    return {
+      body: source,
+      encodedContentLength: contentLength2
+    };
+  }
+  if (isNodeReadableStream2(source)) {
+    const encodingMessage = new StructuredMessageEncodingStream(source, contentLength2, {});
+    return {
+      body: encodingMessage,
+      encodedContentLength: encodingMessage.messageLength()
+    };
+  }
+  if (typeof source === "function") {
+    const encodingMessage = new StructuredMessageEncodingStream(source(), contentLength2, {});
+    return {
+      body: encodingMessage,
+      encodedContentLength: encodingMessage.messageLength()
+    };
+  }
+  if (source instanceof Blob) {
+    const encoding = await BrowserStream(source, contentLength2);
+    return {
+      body: encoding.content,
+      encodedContentLength: encoding.encodedContentLength
+    };
+  }
+  if (typeof source === "string") {
+    const s = new import_node_stream3.Readable();
+    s._read = () => {
+    };
+    s.push(source);
+    s.push(null);
+    const stringContentLength = Buffer.byteLength(source);
+    const encodingMessage = await new StructuredMessageEncodingStream(s, stringContentLength, {});
+    return {
+      body: encodingMessage,
+      encodedContentLength: encodingMessage.messageLength()
+    };
+  }
+  if (source instanceof ArrayBuffer) {
+    const stream3 = import_node_stream3.Readable.from(Buffer.from(source));
+    const encodingMessage = await new StructuredMessageEncodingStream(stream3, contentLength2, {});
+    return {
+      body: encodingMessage,
+      encodedContentLength: encodingMessage.messageLength()
+    };
+  }
+  if (source instanceof Buffer) {
+    const stream3 = import_node_stream3.Readable.from(source);
+    const encodingMessage = await new StructuredMessageEncodingStream(stream3, contentLength2, {});
+    return {
+      body: encodingMessage,
+      encodedContentLength: encodingMessage.messageLength()
+    };
+  }
+  if (ArrayBuffer.isView(source)) {
+    const stream3 = import_node_stream3.Readable.from(Buffer.from(source.buffer, source.byteOffset, source.byteLength));
+    const encodingMessage = await new StructuredMessageEncodingStream(stream3, contentLength2, {});
+    return {
+      body: encodingMessage,
+      encodedContentLength: encodingMessage.messageLength()
+    };
+  }
+  throw new Error("The specified request body type is not supported for CRC64 checksum");
+}
+async function pump(reader, controller, encodingStream) {
+  const { done, value } = await reader.read();
+  if (done) {
+    controller.close();
+    return;
+  }
+  encodingStream.sourceDataHandler(Buffer.from(value));
+}
+async function BrowserStream(source, contentLength2) {
+  const sourceStream = source instanceof Blob ? source.stream() : source;
+  const reader = sourceStream.getReader();
+  let encodingStream = void 0;
+  const stream3 = new ReadableStream({
+    start(controller) {
+      encodingStream = new StructuredMessageEncoding((data) => {
+        controller.enqueue(data);
+      }, contentLength2);
+    },
+    pull(controller) {
+      pump(reader, controller, encodingStream).then(() => {
+        return;
+      }).catch(function(error2) {
+        controller.error(error2);
+      });
+    }
+  });
+  const response = new Response(stream3);
+  return {
+    content: await response.blob(),
+    encodedContentLength: encodingStream.messageLength
+  };
+}
+var StructuredMessageEncodingStream = class extends import_node_stream3.Readable {
+  constructor(source, contentLength2, options) {
+    super({ highWaterMark: options.highWaterMark });
+    __publicField(this, "source");
+    __publicField(this, "encodingMethods");
+    __publicField(this, "sourceDataHandler", (data) => {
+      this.encodingMethods.sourceDataHandler(data);
+    });
+    __publicField(this, "sourceAbortedHandler", () => {
+      const abortError = new AbortError2("The operation was aborted.");
+      this.destroy(abortError);
+    });
+    __publicField(this, "sourceErrorOrEndHandler", (err) => {
+      if (err && err.name === "AbortError") {
+        this.destroy(err);
+        return;
+      }
+      this.removeSourceEventHandlers();
+    });
+    this.source = source;
+    this.encodingMethods = new StructuredMessageEncoding((dataToHandle) => {
+      if (!this.push(dataToHandle)) {
+        source.pause();
+      }
+    }, contentLength2);
+    this.setSourceEventHandlers();
+  }
+  messageLength() {
+    return this.encodingMethods.messageLength;
+  }
+  setSourceEventHandlers() {
+    this.source.on("data", this.sourceDataHandler);
+    this.source.on("end", this.sourceErrorOrEndHandler);
+    this.source.on("error", this.sourceErrorOrEndHandler);
+    this.source.on("aborted", this.sourceAbortedHandler);
+  }
+  removeSourceEventHandlers() {
+    this.source.removeListener("data", this.sourceDataHandler);
+    this.source.removeListener("end", this.sourceErrorOrEndHandler);
+    this.source.removeListener("error", this.sourceErrorOrEndHandler);
+    this.source.removeListener("aborted", this.sourceAbortedHandler);
+  }
+  _read() {
+    this.source.resume();
+  }
+  _destroy(error2, callback) {
+    this.removeSourceEventHandlers();
+    this.source.destroy();
+    callback(error2 === null ? void 0 : error2);
+  }
+};
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/StructuredMessageDecodingStream.js
+var import_node_stream4 = require("stream");
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/StructuredMessageDecoding.js
+var MESSAGE_VERSION2 = 1;
+var MESSAGE_HEADER_LENGTH2 = 13;
+var SEGMENT_HEADER_LENGTH2 = 10;
+var FOOTER_LENGTH2 = 8;
+var SMRegion2;
+(function(SMRegion3) {
+  SMRegion3[SMRegion3["StreamHeader"] = 0] = "StreamHeader";
+  SMRegion3[SMRegion3["StreamFooter"] = 1] = "StreamFooter";
+  SMRegion3[SMRegion3["SegmentHeader"] = 2] = "SegmentHeader";
+  SMRegion3[SMRegion3["SegmentFooter"] = 3] = "SegmentFooter";
+  SMRegion3[SMRegion3["SegmentContent"] = 4] = "SegmentContent";
+})(SMRegion2 || (SMRegion2 = {}));
+var StructuredMessageDecoding = class {
+  constructor(pushData) {
+    __publicField(this, "pushData");
+    __publicField(this, "segmentsCount");
+    //   private currentState: SMRegion;
+    __publicField(this, "currentOffset");
+    __publicField(this, "currentDataOffset");
+    __publicField(this, "messageHeaderBuffer");
+    __publicField(this, "messageHeaderOffset");
+    __publicField(this, "segmentNumber");
+    __publicField(this, "segmentHeaderOffset");
+    __publicField(this, "segmentHeaderBuffer");
+    __publicField(this, "segmentContentOffset");
+    __publicField(this, "segmentContentLength");
+    __publicField(this, "segmentFooterOffset");
+    __publicField(this, "segmentFooterBuffer");
+    __publicField(this, "messageFooterOffset");
+    __publicField(this, "messageFooterBuffer");
+    __publicField(this, "segmentCrc64");
+    __publicField(this, "messageCrc64");
+    __publicField(this, "state");
+    __publicField(this, "sourceDataHandler", (data) => {
+      this.currentDataOffset = 0;
+      if (this.state === SMRegion2.StreamHeader) {
+        this.parseMessageHeader(data);
+      }
+      while (this.segmentNumber < this.segmentsCount && this.currentDataOffset < data.length) {
+        if (this.state === SMRegion2.SegmentHeader) {
+          this.parseSegmentHeader(data);
+        }
+        if (this.state === SMRegion2.SegmentContent) {
+          this.parseSegmentContent(data);
+        }
+        if (this.state === SMRegion2.SegmentFooter) {
+          this.parseSegmentFooter(data);
+        }
+      }
+      if (this.state === SMRegion2.StreamFooter) {
+        this.parseMessageFooter(data);
+      }
+    });
+    this.pushData = pushData;
+    this.currentOffset = 0;
+    this.segmentsCount = 0;
+    this.messageHeaderOffset = 0;
+    this.messageHeaderBuffer = new Uint8Array(MESSAGE_HEADER_LENGTH2);
+    this.currentDataOffset = 0;
+    this.segmentNumber = 0;
+    this.segmentHeaderOffset = 0;
+    this.segmentHeaderBuffer = new Uint8Array(SEGMENT_HEADER_LENGTH2);
+    this.segmentContentOffset = 0;
+    this.segmentContentLength = 0;
+    this.state = SMRegion2.StreamHeader;
+    this.segmentFooterOffset = 0;
+    this.segmentFooterBuffer = new Uint8Array(FOOTER_LENGTH2);
+    this.messageFooterOffset = 0;
+    this.messageFooterBuffer = new Uint8Array(FOOTER_LENGTH2);
+    this.segmentCrc64 = new StorageCRC64Calculator();
+    this.messageCrc64 = new StorageCRC64Calculator();
+  }
+  parseMessageHeader(data) {
+    const length = Math.min(MESSAGE_HEADER_LENGTH2 - this.messageHeaderOffset, data.length - this.currentDataOffset);
+    this.messageHeaderBuffer.set(Uint8Array.prototype.slice.call(data, this.currentDataOffset, this.currentDataOffset + length), this.messageHeaderOffset);
+    this.currentDataOffset += length;
+    this.messageHeaderOffset += length;
+    this.currentOffset += length;
+    if (this.messageHeaderOffset === MESSAGE_HEADER_LENGTH2) {
+      const currentVersion = this.messageHeaderBuffer[0];
+      if (currentVersion !== MESSAGE_VERSION2) {
+        throw new Error("Unexpected message version");
+      }
+      this.segmentsCount = this.toInt16(Uint8Array.prototype.slice.call(this.messageHeaderBuffer, 11, 13));
+      this.state = SMRegion2.SegmentHeader;
+    }
+  }
+  parseSegmentHeader(data) {
+    const length = Math.min(SEGMENT_HEADER_LENGTH2 - this.segmentHeaderOffset, data.length - this.currentDataOffset);
+    this.segmentHeaderBuffer.set(Uint8Array.prototype.slice.call(data, this.currentDataOffset, this.currentDataOffset + length), this.segmentHeaderOffset);
+    this.currentDataOffset += length;
+    this.segmentHeaderOffset += length;
+    this.currentOffset += length;
+    if (this.segmentHeaderOffset === SEGMENT_HEADER_LENGTH2) {
+      const currentSegmentNumber = this.toInt16(Uint8Array.prototype.slice.call(this.segmentHeaderBuffer, 0, 2));
+      if (currentSegmentNumber !== this.segmentNumber + 1) {
+        throw new Error("Segment number is unexpected.");
+      }
+      this.segmentContentLength = this.toInt64(this.segmentHeaderBuffer, 2);
+      this.segmentContentOffset = 0;
+      this.state = SMRegion2.SegmentContent;
+    }
+  }
+  parseSegmentContent(data) {
+    const length = Math.min(this.segmentContentLength - this.segmentContentOffset, data.length - this.currentDataOffset);
+    const dataToHandle = Uint8Array.prototype.slice.call(data, this.currentDataOffset, this.currentDataOffset + length);
+    this.segmentCrc64.append(dataToHandle, length);
+    this.messageCrc64.append(dataToHandle, length);
+    this.pushData(dataToHandle);
+    this.currentDataOffset += length;
+    this.segmentContentOffset += length;
+    this.currentOffset += length;
+    if (this.segmentContentOffset === this.segmentContentLength) {
+      this.state = SMRegion2.SegmentFooter;
+    }
+  }
+  parseSegmentFooter(data) {
+    const length = Math.min(FOOTER_LENGTH2 - this.segmentFooterOffset, data.length - this.currentDataOffset);
+    this.segmentFooterBuffer.set(Uint8Array.prototype.slice.call(data, this.currentDataOffset, this.currentDataOffset + length), this.segmentFooterOffset);
+    this.currentDataOffset += length;
+    this.segmentFooterOffset += length;
+    this.currentOffset += length;
+    if (this.segmentFooterOffset === FOOTER_LENGTH2) {
+      const crc64Result = this.segmentCrc64.final(new Uint8Array([]), 0);
+      if (!this.checkCrc64CheckSum(crc64Result, this.segmentFooterBuffer)) {
+        throw new Error(`Segment check sum mismatch, segmentNumber: ${this.segmentNumber}`);
+      }
+      ++this.segmentNumber;
+      if (this.segmentNumber === this.segmentsCount) {
+        this.state = SMRegion2.StreamFooter;
+      } else {
+        this.segmentHeaderOffset = 0;
+        this.segmentFooterOffset = 0;
+        this.segmentCrc64 = new StorageCRC64Calculator();
+        this.state = SMRegion2.SegmentHeader;
+      }
+    }
+  }
+  parseMessageFooter(data) {
+    const length = Math.min(FOOTER_LENGTH2 - this.messageFooterOffset, data.length - this.currentDataOffset);
+    this.messageFooterBuffer.set(Uint8Array.prototype.slice.call(data, this.currentDataOffset, this.currentDataOffset + length), this.messageFooterOffset);
+    this.currentDataOffset += length;
+    this.messageFooterOffset += length;
+    this.currentOffset += length;
+    if (this.messageFooterOffset === FOOTER_LENGTH2) {
+      const crc64Result = this.messageCrc64.final(new Uint8Array([]), 0);
+      if (!this.checkCrc64CheckSum(crc64Result, this.messageFooterBuffer)) {
+        throw new Error("Check sum mismatch");
+      }
+      this.pushData(null);
+    }
+  }
+  toInt64(input, offset) {
+    if (input.length < offset + 8) {
+      throw new Error("CRC64 buffer error, something wrong with crc64 calculator");
+    }
+    const view = new DataView(input.buffer, input.byteOffset + offset, 8);
+    return Number(view.getBigUint64(0, true));
+  }
+  toInt16(input) {
+    if (input.length !== 2) {
+      throw new Error("CRC64 buffer error, something wrong with crc64 calculator");
+    }
+    return input[0] + input[1] * 256;
+  }
+  checkCrc64CheckSum(first, second) {
+    if (first.length !== 8 || second.length !== 8) {
+      throw new Error("CRC64 buffer error, something wrong with crc64 calculator");
+    }
+    for (let index = 0; index < 8; ++index) {
+      if (first[index] !== second[index]) {
+        return false;
+      }
+    }
+    return true;
+  }
+};
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/StructuredMessageDecodingStream.js
+async function structuredMessageDecodingBrowser(source) {
+  source;
+  throw new Error("structuredMessageDecodingBrowser is only for Browser");
+}
+function structuredMessageDecodingStream(source, options) {
+  return new StructuredMessageDecodingStream(source, options);
+}
+var StructuredMessageDecodingStream = class extends import_node_stream4.Readable {
+  constructor(source, options) {
+    super({ highWaterMark: options.highWaterMark });
+    __publicField(this, "source");
+    __publicField(this, "decodingMethods");
+    __publicField(this, "sourceDataHandler", (data) => {
+      try {
+        this.decodingMethods.sourceDataHandler(data);
+      } catch (err) {
+        this.destroy(err);
+      }
+    });
+    __publicField(this, "sourceAbortedHandler", () => {
+      const abortError = new AbortError2("The operation was aborted.");
+      this.destroy(abortError);
+    });
+    __publicField(this, "sourceErrorOrEndHandler", (err) => {
+      if (err) {
+        this.destroy(err);
+        return;
+      }
+      this.removeSourceEventHandlers();
+    });
+    this.source = source;
+    this.decodingMethods = new StructuredMessageDecoding((dataToHandle) => {
+      if (!this.push(dataToHandle)) {
+        source.pause();
+      }
+    });
+    this.setSourceEventHandlers();
+  }
+  _read() {
+    this.source.resume();
+  }
+  setSourceEventHandlers() {
+    this.source.on("data", this.sourceDataHandler);
+    this.source.on("end", this.sourceErrorOrEndHandler);
+    this.source.on("error", this.sourceErrorOrEndHandler);
+    this.source.on("aborted", this.sourceAbortedHandler);
+  }
+  removeSourceEventHandlers() {
+    this.source.removeListener("data", this.sourceDataHandler);
+    this.source.removeListener("end", this.sourceErrorOrEndHandler);
+    this.source.removeListener("error", this.sourceErrorOrEndHandler);
+    this.source.removeListener("aborted", this.sourceAbortedHandler);
+  }
+  _destroy(error2, callback) {
+    this.removeSourceEventHandlers();
+    this.source.destroy();
+    callback(error2 === null ? void 0 : error2);
+  }
+};
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/cache.js
 var _defaultHttpClient;
 function getCachedDefaultHttpClient2() {
   if (!_defaultHttpClient) {
@@ -66876,7 +69933,7 @@ function getCachedDefaultHttpClient2() {
   return _defaultHttpClient;
 }
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/policies/RequestPolicy.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/policies/RequestPolicy.js
 var BaseRequestPolicy = class {
   /**
    * The main method to implement that manipulates a request/response.
@@ -66906,7 +69963,106 @@ var BaseRequestPolicy = class {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/utils/constants.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/policies/StorageBrowserPolicy.js
+var StorageBrowserPolicy = class extends BaseRequestPolicy {
+  /**
+   * Creates an instance of StorageBrowserPolicy.
+   * @param nextPolicy -
+   * @param options -
+   */
+  // The base class has a protected constructor. Adding a public one to enable constructing of this class.
+  /* eslint-disable-next-line @typescript-eslint/no-useless-constructor*/
+  constructor(nextPolicy, options) {
+    super(nextPolicy, options);
+  }
+  /**
+   * Sends out request.
+   *
+   * @param request -
+   */
+  async sendRequest(request) {
+    return this._nextPolicy.sendRequest(request);
+  }
+};
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/StorageBrowserPolicyFactory.js
+var StorageBrowserPolicyFactory = class {
+  /**
+   * Creates a StorageBrowserPolicyFactory object.
+   *
+   * @param nextPolicy -
+   * @param options -
+   */
+  create(nextPolicy, options) {
+    return new StorageBrowserPolicy(nextPolicy, options);
+  }
+};
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/policies/CredentialPolicy.js
+var CredentialPolicy = class extends BaseRequestPolicy {
+  /**
+   * Sends out request.
+   *
+   * @param request -
+   */
+  sendRequest(request) {
+    return this._nextPolicy.sendRequest(this.signRequest(request));
+  }
+  /**
+   * Child classes must implement this method with request signing. This method
+   * will be executed in {@link sendRequest}.
+   *
+   * @param request -
+   */
+  signRequest(request) {
+    return request;
+  }
+};
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/policies/AnonymousCredentialPolicy.js
+var AnonymousCredentialPolicy = class extends CredentialPolicy {
+  /**
+   * Creates an instance of AnonymousCredentialPolicy.
+   * @param nextPolicy -
+   * @param options -
+   */
+  // The base class has a protected constructor. Adding a public one to enable constructing of this class.
+  /* eslint-disable-next-line @typescript-eslint/no-useless-constructor*/
+  constructor(nextPolicy, options) {
+    super(nextPolicy, options);
+  }
+};
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/credentials/Credential.js
+var Credential = class {
+  /**
+   * Creates a RequestPolicy object.
+   *
+   * @param _nextPolicy -
+   * @param _options -
+   */
+  create(_nextPolicy, _options) {
+    throw new Error("Method should be implemented in children classes.");
+  }
+};
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/credentials/AnonymousCredential.js
+var AnonymousCredential = class extends Credential {
+  /**
+   * Creates an {@link AnonymousCredentialPolicy} object.
+   *
+   * @param nextPolicy -
+   * @param options -
+   */
+  create(nextPolicy, options) {
+    return new AnonymousCredentialPolicy(nextPolicy, options);
+  }
+};
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/credentials/StorageSharedKeyCredential.js
+var import_node_crypto2 = require("crypto");
+
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/utils/constants.js
 var URLConstants = {
   Parameters: {
     FORCE_BROWSER_NO_CACHE: "_",
@@ -66943,7 +70099,7 @@ var HeaderConstants = {
   X_MS_CopySourceErrorCode: "x-ms-copy-source-error-code"
 };
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/utils/utils.common.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/utils/utils.common.js
 function setURLParameter(url2, name, value) {
   const urlParsed = new URL(url2);
   const encodedName = encodeURIComponent(name);
@@ -67021,114 +70177,7 @@ async function delay3(timeInMs, aborter, abortError) {
   });
 }
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/policies/StorageBrowserPolicy.js
-var StorageBrowserPolicy = class extends BaseRequestPolicy {
-  /**
-   * Creates an instance of StorageBrowserPolicy.
-   * @param nextPolicy -
-   * @param options -
-   */
-  // The base class has a protected constructor. Adding a public one to enable constructing of this class.
-  /* eslint-disable-next-line @typescript-eslint/no-useless-constructor*/
-  constructor(nextPolicy, options) {
-    super(nextPolicy, options);
-  }
-  /**
-   * Sends out request.
-   *
-   * @param request -
-   */
-  async sendRequest(request) {
-    if (isNodeLike2) {
-      return this._nextPolicy.sendRequest(request);
-    }
-    if (request.method.toUpperCase() === "GET" || request.method.toUpperCase() === "HEAD") {
-      request.url = setURLParameter(request.url, URLConstants.Parameters.FORCE_BROWSER_NO_CACHE, (/* @__PURE__ */ new Date()).getTime().toString());
-    }
-    request.headers.remove(HeaderConstants.COOKIE);
-    request.headers.remove(HeaderConstants.CONTENT_LENGTH);
-    return this._nextPolicy.sendRequest(request);
-  }
-};
-
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/StorageBrowserPolicyFactory.js
-var StorageBrowserPolicyFactory = class {
-  /**
-   * Creates a StorageBrowserPolicyFactory object.
-   *
-   * @param nextPolicy -
-   * @param options -
-   */
-  create(nextPolicy, options) {
-    return new StorageBrowserPolicy(nextPolicy, options);
-  }
-};
-
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/policies/CredentialPolicy.js
-var CredentialPolicy = class extends BaseRequestPolicy {
-  /**
-   * Sends out request.
-   *
-   * @param request -
-   */
-  sendRequest(request) {
-    return this._nextPolicy.sendRequest(this.signRequest(request));
-  }
-  /**
-   * Child classes must implement this method with request signing. This method
-   * will be executed in {@link sendRequest}.
-   *
-   * @param request -
-   */
-  signRequest(request) {
-    return request;
-  }
-};
-
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/policies/AnonymousCredentialPolicy.js
-var AnonymousCredentialPolicy = class extends CredentialPolicy {
-  /**
-   * Creates an instance of AnonymousCredentialPolicy.
-   * @param nextPolicy -
-   * @param options -
-   */
-  // The base class has a protected constructor. Adding a public one to enable constructing of this class.
-  /* eslint-disable-next-line @typescript-eslint/no-useless-constructor*/
-  constructor(nextPolicy, options) {
-    super(nextPolicy, options);
-  }
-};
-
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/credentials/Credential.js
-var Credential = class {
-  /**
-   * Creates a RequestPolicy object.
-   *
-   * @param _nextPolicy -
-   * @param _options -
-   */
-  create(_nextPolicy, _options) {
-    throw new Error("Method should be implemented in children classes.");
-  }
-};
-
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/credentials/AnonymousCredential.js
-var AnonymousCredential = class extends Credential {
-  /**
-   * Creates an {@link AnonymousCredentialPolicy} object.
-   *
-   * @param nextPolicy -
-   * @param options -
-   */
-  create(nextPolicy, options) {
-    return new AnonymousCredentialPolicy(nextPolicy, options);
-  }
-};
-
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/credentials/StorageSharedKeyCredential.js
-var import_node_crypto2 = require("crypto");
-
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/utils/SharedKeyComparator.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/utils/SharedKeyComparator.js
 var table_lv0 = new Uint32Array([
   0,
   0,
@@ -67553,7 +70602,7 @@ function isLessThan(lhs, rhs) {
   return false;
 }
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/policies/StorageSharedKeyCredentialPolicy.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/policies/StorageSharedKeyCredentialPolicy.js
 var StorageSharedKeyCredentialPolicy = class extends CredentialPolicy {
   /**
    * Creates an instance of StorageSharedKeyCredentialPolicy.
@@ -67677,7 +70726,7 @@ ${key}:${decodeURIComponent(lowercaseQueries[key])}`;
   }
 };
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/credentials/StorageSharedKeyCredential.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/credentials/StorageSharedKeyCredential.js
 var StorageSharedKeyCredential = class extends Credential {
   /**
    * Creates an instance of StorageSharedKeyCredential.
@@ -67716,17 +70765,17 @@ var StorageSharedKeyCredential = class extends Credential {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/log.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/log.js
 var logger5 = createClientLogger2("storage-common");
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/policies/StorageRetryPolicyType.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/policies/StorageRetryPolicyType.js
 var StorageRetryPolicyType;
 (function(StorageRetryPolicyType2) {
   StorageRetryPolicyType2[StorageRetryPolicyType2["EXPONENTIAL"] = 0] = "EXPONENTIAL";
   StorageRetryPolicyType2[StorageRetryPolicyType2["FIXED"] = 1] = "FIXED";
 })(StorageRetryPolicyType || (StorageRetryPolicyType = {}));
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/policies/StorageRetryPolicy.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/policies/StorageRetryPolicy.js
 var DEFAULT_RETRY_OPTIONS = {
   maxRetryDelayInMs: 120 * 1e3,
   maxTries: 4,
@@ -67893,7 +70942,7 @@ var StorageRetryPolicy = class extends BaseRequestPolicy {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/StorageRetryPolicyFactory.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/StorageRetryPolicyFactory.js
 var StorageRetryPolicyFactory = class {
   /**
    * Creates an instance of StorageRetryPolicyFactory.
@@ -67914,26 +70963,18 @@ var StorageRetryPolicyFactory = class {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/policies/StorageBrowserPolicyV2.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/policies/StorageBrowserPolicyV2.js
 var storageBrowserPolicyName = "storageBrowserPolicy";
 function storageBrowserPolicy() {
   return {
     name: storageBrowserPolicyName,
     async sendRequest(request, next) {
-      if (isNodeLike2) {
-        return next(request);
-      }
-      if (request.method === "GET" || request.method === "HEAD") {
-        request.url = setURLParameter(request.url, URLConstants.Parameters.FORCE_BROWSER_NO_CACHE, (/* @__PURE__ */ new Date()).getTime().toString());
-      }
-      request.headers.delete(HeaderConstants.COOKIE);
-      request.headers.delete(HeaderConstants.CONTENT_LENGTH);
       return next(request);
     }
   };
 }
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/policies/StorageCorrectContentLengthPolicy.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/policies/StorageCorrectContentLengthPolicy.js
 var storageCorrectContentLengthPolicyName = "StorageCorrectContentLengthPolicy";
 function storageCorrectContentLengthPolicy() {
   function correctContentLength(request) {
@@ -67950,7 +70991,7 @@ function storageCorrectContentLengthPolicy() {
   };
 }
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/policies/StorageRetryPolicyV2.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/policies/StorageRetryPolicyV2.js
 var storageRetryPolicyName = "storageRetryPolicy";
 var DEFAULT_RETRY_OPTIONS2 = {
   maxRetryDelayInMs: 120 * 1e3,
@@ -68085,7 +71126,7 @@ function storageRetryPolicy(options = {}) {
   };
 }
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/policies/StorageSharedKeyCredentialPolicyV2.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/policies/StorageSharedKeyCredentialPolicyV2.js
 var import_node_crypto3 = require("crypto");
 var storageSharedKeyCredentialPolicyName = "storageSharedKeyCredentialPolicy";
 function storageSharedKeyCredentialPolicy(options) {
@@ -68176,7 +71217,7 @@ ${key}:${decodeURIComponent(lowercaseQueries[key])}`;
   };
 }
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/policies/StorageRequestFailureDetailsParserPolicy.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/policies/StorageRequestFailureDetailsParserPolicy.js
 var storageRequestFailureDetailsParserPolicyName = "storageRequestFailureDetailsParserPolicy";
 function storageRequestFailureDetailsParserPolicy() {
   return {
@@ -68184,6 +71225,9 @@ function storageRequestFailureDetailsParserPolicy() {
     async sendRequest(request, next) {
       try {
         const response = await next(request);
+        if (response.status === 400 && response.bodyAsText?.includes("<Error><Code>InvalidHeaderValue</Code>") && response.bodyAsText.includes("<HeaderName>x-ms-version</HeaderName>")) {
+          response.bodyAsText = response.bodyAsText.replace(/<Message>.*<\/Message>/s, "<Message>The provided service version is not enabled on this storage account. Please see https://learn.microsoft.com/rest/api/storageservices/versioning-for-the-azure-storage-services for additional information.</Message>");
+        }
         return response;
       } catch (err) {
         if (typeof err === "object" && err !== null && err.response && err.response.parsedBody) {
@@ -68197,7 +71241,7 @@ function storageRequestFailureDetailsParserPolicy() {
   };
 }
 
-// node_modules/.pnpm/@azure+storage-common@12.3.0_@azure+core-client@1.10.1/node_modules/@azure/storage-common/dist/esm/credentials/UserDelegationKeyCredential.js
+// node_modules/.pnpm/@azure+storage-common@12.5.0_@azure+core-client@1.11.0/node_modules/@azure/storage-common/dist/esm/credentials/UserDelegationKeyCredential.js
 var import_node_crypto4 = require("crypto");
 var UserDelegationKeyCredential = class {
   /**
@@ -68232,9 +71276,9 @@ var UserDelegationKeyCredential = class {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/utils/constants.js
-var SDK_VERSION3 = "12.31.0";
-var SERVICE_VERSION = "2026-02-06";
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/utils/constants.js
+var SDK_VERSION3 = "12.33.0";
+var SERVICE_VERSION = "2026-06-06";
 var BLOCK_BLOB_MAX_UPLOAD_BLOB_BYTES = 256 * 1024 * 1024;
 var BLOCK_BLOB_MAX_STAGE_BLOCK_BYTES = 4e3 * 1024 * 1024;
 var BLOCK_BLOB_MAX_BLOCKS = 5e4;
@@ -68416,7 +71460,7 @@ var PathStylePorts2 = [
   "11104"
 ];
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/Pipeline.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/Pipeline.js
 function isPipelineLike(pipeline3) {
   if (!pipeline3 || typeof pipeline3 !== "object") {
     return false;
@@ -68642,7 +71686,7 @@ function isCoreHttpPolicyFactory(factory) {
   });
 }
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/generated/src/models/index.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/generated/src/models/index.js
 var KnownEncryptionAlgorithmType;
 (function(KnownEncryptionAlgorithmType3) {
   KnownEncryptionAlgorithmType3["AES256"] = "AES256";
@@ -68722,7 +71766,7 @@ var KnownStorageErrorCode;
   KnownStorageErrorCode2["CopyIdMismatch"] = "CopyIdMismatch";
   KnownStorageErrorCode2["FeatureVersionMismatch"] = "FeatureVersionMismatch";
   KnownStorageErrorCode2["IncrementalCopyBlobMismatch"] = "IncrementalCopyBlobMismatch";
-  KnownStorageErrorCode2["IncrementalCopyOfEarlierVersionSnapshotNotAllowed"] = "IncrementalCopyOfEarlierVersionSnapshotNotAllowed";
+  KnownStorageErrorCode2["IncrementalCopyOfEarlierSnapshotNotAllowed"] = "IncrementalCopyOfEarlierSnapshotNotAllowed";
   KnownStorageErrorCode2["IncrementalCopySourceMustBeSnapshot"] = "IncrementalCopySourceMustBeSnapshot";
   KnownStorageErrorCode2["InfiniteLeaseDurationRequired"] = "InfiniteLeaseDurationRequired";
   KnownStorageErrorCode2["InvalidBlobOrBlock"] = "InvalidBlobOrBlock";
@@ -68776,7 +71820,7 @@ var KnownStorageErrorCode;
   KnownStorageErrorCode2["BlobAccessTierNotSupportedForAccountType"] = "BlobAccessTierNotSupportedForAccountType";
 })(KnownStorageErrorCode || (KnownStorageErrorCode = {}));
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/generated/src/models/mappers.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/generated/src/models/mappers.js
 var mappers_exports = {};
 __export(mappers_exports, {
   AccessPolicy: () => AccessPolicy,
@@ -69575,6 +72619,13 @@ var KeyInfo = {
         type: {
           name: "String"
         }
+      },
+      delegatedUserTid: {
+        serializedName: "DelegatedUserTid",
+        xmlName: "DelegatedUserTid",
+        type: {
+          name: "String"
+        }
       }
     }
   }
@@ -69629,6 +72680,13 @@ var UserDelegationKey = {
         serializedName: "SignedVersion",
         required: true,
         xmlName: "SignedVersion",
+        type: {
+          name: "String"
+        }
+      },
+      signedDelegatedUserTenantId: {
+        serializedName: "SignedDelegatedUserTid",
+        xmlName: "SignedDelegatedUserTid",
         type: {
           name: "String"
         }
@@ -70259,7 +73317,8 @@ var BlobPropertiesInternal = {
             "Hot",
             "Cool",
             "Archive",
-            "Cold"
+            "Cold",
+            "Smart"
           ]
         }
       },
@@ -70278,7 +73337,33 @@ var BlobPropertiesInternal = {
           allowedValues: [
             "rehydrate-pending-to-hot",
             "rehydrate-pending-to-cool",
-            "rehydrate-pending-to-cold"
+            "rehydrate-pending-to-cold",
+            "rehydrate-pending-to-smart"
+          ]
+        }
+      },
+      smartAccessTier: {
+        serializedName: "SmartAccessTier",
+        xmlName: "SmartAccessTier",
+        type: {
+          name: "Enum",
+          allowedValues: [
+            "P4",
+            "P6",
+            "P10",
+            "P15",
+            "P20",
+            "P30",
+            "P40",
+            "P50",
+            "P60",
+            "P70",
+            "P80",
+            "Hot",
+            "Cool",
+            "Archive",
+            "Cold",
+            "Smart"
           ]
         }
       },
@@ -71259,7 +74344,10 @@ var ServiceGetAccountInfoHeaders = {
             "Standard_GRS",
             "Standard_RAGRS",
             "Standard_ZRS",
-            "Premium_LRS"
+            "Premium_LRS",
+            "Standard_GZRS",
+            "Premium_ZRS",
+            "Standard_RAGZRS"
           ]
         }
       },
@@ -72710,7 +75798,10 @@ var ContainerGetAccountInfoHeaders = {
             "Standard_GRS",
             "Standard_RAGRS",
             "Standard_ZRS",
-            "Premium_LRS"
+            "Premium_LRS",
+            "Standard_GZRS",
+            "Premium_ZRS",
+            "Standard_RAGZRS"
           ]
         }
       },
@@ -73077,6 +76168,20 @@ var BlobDownloadHeaders = {
           name: "Boolean"
         }
       },
+      structuredBodyType: {
+        serializedName: "x-ms-structured-body",
+        xmlName: "x-ms-structured-body",
+        type: {
+          name: "String"
+        }
+      },
+      structuredContentLength: {
+        serializedName: "x-ms-structured-content-length",
+        xmlName: "x-ms-structured-content-length",
+        type: {
+          name: "Number"
+        }
+      },
       errorCode: {
         serializedName: "x-ms-error-code",
         xmlName: "x-ms-error-code",
@@ -73402,6 +76507,13 @@ var BlobGetPropertiesHeaders = {
         xmlName: "x-ms-access-tier-change-time",
         type: {
           name: "DateTimeRfc1123"
+        }
+      },
+      smartAccessTier: {
+        serializedName: "x-ms-smart-access-tier",
+        xmlName: "x-ms-smart-access-tier",
+        type: {
+          name: "String"
         }
       },
       versionId: {
@@ -74909,7 +78021,10 @@ var BlobGetAccountInfoHeaders = {
             "Standard_GRS",
             "Standard_RAGRS",
             "Standard_ZRS",
-            "Premium_LRS"
+            "Premium_LRS",
+            "Standard_GZRS",
+            "Premium_ZRS",
+            "Standard_RAGZRS"
           ]
         }
       },
@@ -75544,6 +78659,13 @@ var PageBlobUploadPagesHeaders = {
       encryptionScope: {
         serializedName: "x-ms-encryption-scope",
         xmlName: "x-ms-encryption-scope",
+        type: {
+          name: "String"
+        }
+      },
+      structuredBodyType: {
+        serializedName: "x-ms-structured-body",
+        xmlName: "x-ms-structured-body",
         type: {
           name: "String"
         }
@@ -76411,6 +79533,13 @@ var AppendBlobAppendBlockHeaders = {
           name: "String"
         }
       },
+      structuredBodyType: {
+        serializedName: "x-ms-structured-body",
+        xmlName: "x-ms-structured-body",
+        type: {
+          name: "String"
+        }
+      },
       errorCode: {
         serializedName: "x-ms-error-code",
         xmlName: "x-ms-error-code",
@@ -76724,6 +79853,13 @@ var BlockBlobUploadHeaders = {
           name: "String"
         }
       },
+      structuredBodyType: {
+        serializedName: "x-ms-structured-body",
+        xmlName: "x-ms-structured-body",
+        type: {
+          name: "String"
+        }
+      },
       errorCode: {
         serializedName: "x-ms-error-code",
         xmlName: "x-ms-error-code",
@@ -76938,6 +80074,13 @@ var BlockBlobStageBlockHeaders = {
       encryptionScope: {
         serializedName: "x-ms-encryption-scope",
         xmlName: "x-ms-encryption-scope",
+        type: {
+          name: "String"
+        }
+      },
+      structuredBodyType: {
+        serializedName: "x-ms-structured-body",
+        xmlName: "x-ms-structured-body",
         type: {
           name: "String"
         }
@@ -77282,7 +80425,7 @@ var BlockBlobGetBlockListExceptionHeaders = {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/generated/src/models/parameters.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/generated/src/models/parameters.js
 var contentType = {
   parameterPath: ["options", "contentType"],
   mapper: {
@@ -77359,7 +80502,7 @@ var timeoutInSeconds = {
 var version2 = {
   parameterPath: "version",
   mapper: {
-    defaultValue: "2026-02-06",
+    defaultValue: "2026-06-06",
     isConstant: true,
     serializedName: "x-ms-version",
     type: {
@@ -77965,6 +81108,16 @@ var rangeGetContentCRC64 = {
     }
   }
 };
+var structuredBodyType = {
+  parameterPath: ["options", "structuredBodyType"],
+  mapper: {
+    serializedName: "x-ms-structured-body",
+    xmlName: "x-ms-structured-body",
+    type: {
+      name: "String"
+    }
+  }
+};
 var encryptionKey = {
   parameterPath: ["options", "cpkInfo", "encryptionKey"],
   mapper: {
@@ -78043,6 +81196,26 @@ var blobDeleteType = {
     xmlName: "deletetype",
     type: {
       name: "String"
+    }
+  }
+};
+var accessTierIfModifiedSince = {
+  parameterPath: ["options", "accessTierIfModifiedSince"],
+  mapper: {
+    serializedName: "x-ms-access-tier-if-modified-since",
+    xmlName: "x-ms-access-tier-if-modified-since",
+    type: {
+      name: "DateTimeRfc1123"
+    }
+  }
+};
+var accessTierIfUnmodifiedSince = {
+  parameterPath: ["options", "accessTierIfUnmodifiedSince"],
+  mapper: {
+    serializedName: "x-ms-access-tier-if-unmodified-since",
+    xmlName: "x-ms-access-tier-if-unmodified-since",
+    type: {
+      name: "DateTimeRfc1123"
     }
   }
 };
@@ -78235,7 +81408,8 @@ var tier = {
         "Hot",
         "Cool",
         "Archive",
-        "Cold"
+        "Cold",
+        "Smart"
       ]
     }
   }
@@ -78473,7 +81647,8 @@ var tier1 = {
         "Hot",
         "Cool",
         "Archive",
-        "Cold"
+        "Cold",
+        "Smart"
       ]
     }
   }
@@ -78702,6 +81877,16 @@ var ifSequenceNumberEqualTo = {
     }
   }
 };
+var structuredContentLength = {
+  parameterPath: ["options", "structuredContentLength"],
+  mapper: {
+    serializedName: "x-ms-structured-content-length",
+    xmlName: "x-ms-structured-content-length",
+    type: {
+      name: "Number"
+    }
+  }
+};
 var pageWrite1 = {
   parameterPath: "pageWrite",
   mapper: {
@@ -78751,6 +81936,36 @@ var range1 = {
     serializedName: "x-ms-range",
     required: true,
     xmlName: "x-ms-range",
+    type: {
+      name: "String"
+    }
+  }
+};
+var sourceEncryptionKey = {
+  parameterPath: ["options", "sourceCpkInfo", "sourceEncryptionKey"],
+  mapper: {
+    serializedName: "x-ms-source-encryption-key",
+    xmlName: "x-ms-source-encryption-key",
+    type: {
+      name: "String"
+    }
+  }
+};
+var sourceEncryptionKeySha256 = {
+  parameterPath: ["options", "sourceCpkInfo", "sourceEncryptionKeySha256"],
+  mapper: {
+    serializedName: "x-ms-source-encryption-key-sha256",
+    xmlName: "x-ms-source-encryption-key-sha256",
+    type: {
+      name: "String"
+    }
+  }
+};
+var sourceEncryptionAlgorithm = {
+  parameterPath: ["options", "sourceCpkInfo", "sourceEncryptionAlgorithm"],
+  mapper: {
+    serializedName: "x-ms-source-encryption-algorithm",
+    xmlName: "x-ms-source-encryption-algorithm",
     type: {
       name: "String"
     }
@@ -78949,7 +82164,7 @@ var listType = {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/generated/src/operations/service.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/generated/src/operations/service.js
 var ServiceImpl = class {
   /**
    * Initialize a new instance of the class Service class.
@@ -79266,7 +82481,7 @@ var filterBlobsOperationSpec = {
   serializer: xmlSerializer
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/generated/src/operations/container.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/generated/src/operations/container.js
 var ContainerImpl = class {
   /**
    * Initialize a new instance of the class Container class.
@@ -79975,7 +83190,7 @@ var getAccountInfoOperationSpec2 = {
   serializer: xmlSerializer2
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/generated/src/operations/blob.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/generated/src/operations/blob.js
 var BlobImpl = class {
   /**
    * Initialize a new instance of the class Blob class.
@@ -80243,6 +83458,7 @@ var downloadOperationSpec = {
     range,
     rangeGetContentMD5,
     rangeGetContentCRC64,
+    structuredBodyType,
     encryptionKey,
     encryptionKeySha256,
     encryptionAlgorithm,
@@ -80317,7 +83533,9 @@ var deleteOperationSpec2 = {
     ifMatch,
     ifNoneMatch,
     ifTags,
-    deleteSnapshots
+    deleteSnapshots,
+    accessTierIfModifiedSince,
+    accessTierIfUnmodifiedSince
   ],
   isXML: true,
   serializer: xmlSerializer3
@@ -80998,7 +84216,7 @@ var setTagsOperationSpec = {
   serializer: xmlSerializer3
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/generated/src/operations/pageBlob.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/generated/src/operations/pageBlob.js
 var PageBlobImpl = class {
   /**
    * Initialize a new instance of the class PageBlob class.
@@ -81176,6 +84394,7 @@ var uploadPagesOperationSpec = {
     ifModifiedSince,
     ifUnmodifiedSince,
     range,
+    structuredBodyType,
     encryptionKey,
     encryptionKeySha256,
     encryptionAlgorithm,
@@ -81190,7 +84409,8 @@ var uploadPagesOperationSpec = {
     pageWrite,
     ifSequenceNumberLessThanOrEqualTo,
     ifSequenceNumberLessThan,
-    ifSequenceNumberEqualTo
+    ifSequenceNumberEqualTo,
+    structuredContentLength
   ],
   isXML: true,
   contentType: "application/xml; charset=utf-8",
@@ -81278,7 +84498,10 @@ var uploadPagesFromURLOperationSpec = {
     sourceUrl,
     sourceRange,
     sourceContentCrc64,
-    range1
+    range1,
+    sourceEncryptionKey,
+    sourceEncryptionKeySha256,
+    sourceEncryptionAlgorithm
   ],
   isXML: true,
   serializer: xmlSerializer4
@@ -81449,7 +84672,7 @@ var copyIncrementalOperationSpec = {
   serializer: xmlSerializer4
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/generated/src/operations/appendBlob.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/generated/src/operations/appendBlob.js
 var AppendBlobImpl = class {
   /**
    * Initialize a new instance of the class AppendBlob class.
@@ -81571,6 +84794,7 @@ var appendBlockOperationSpec = {
     leaseId,
     ifModifiedSince,
     ifUnmodifiedSince,
+    structuredBodyType,
     encryptionKey,
     encryptionKeySha256,
     encryptionAlgorithm,
@@ -81582,6 +84806,7 @@ var appendBlockOperationSpec = {
     transactionalContentCrc64,
     contentType1,
     accept2,
+    structuredContentLength,
     maxSize,
     appendPosition
   ],
@@ -81629,6 +84854,9 @@ var appendBlockFromUrlOperationSpec = {
     transactionalContentMD5,
     sourceUrl,
     sourceContentCrc64,
+    sourceEncryptionKey,
+    sourceEncryptionKeySha256,
+    sourceEncryptionAlgorithm,
     maxSize,
     appendPosition,
     sourceRange1
@@ -81665,7 +84893,7 @@ var sealOperationSpec = {
   serializer: xmlSerializer5
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/generated/src/operations/blockBlob.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/generated/src/operations/blockBlob.js
 var BlockBlobImpl = class {
   /**
    * Initialize a new instance of the class BlockBlob class.
@@ -81781,6 +85009,7 @@ var uploadOperationSpec = {
     leaseId,
     ifModifiedSince,
     ifUnmodifiedSince,
+    structuredBodyType,
     encryptionKey,
     encryptionKeySha256,
     encryptionAlgorithm,
@@ -81803,6 +85032,7 @@ var uploadOperationSpec = {
     transactionalContentCrc64,
     contentType1,
     accept2,
+    structuredContentLength,
     blobType2
   ],
   isXML: true,
@@ -81859,6 +85089,9 @@ var putBlobFromUrlOperationSpec = {
     copySourceTags,
     fileRequestIntent,
     transactionalContentMD5,
+    sourceEncryptionKey,
+    sourceEncryptionKeySha256,
+    sourceEncryptionAlgorithm,
     blobType2,
     copySourceBlobProperties
   ],
@@ -81889,6 +85122,7 @@ var stageBlockOperationSpec = {
     requestId,
     contentLength,
     leaseId,
+    structuredBodyType,
     encryptionKey,
     encryptionKeySha256,
     encryptionAlgorithm,
@@ -81896,7 +85130,8 @@ var stageBlockOperationSpec = {
     transactionalContentMD5,
     transactionalContentCrc64,
     contentType1,
-    accept2
+    accept2,
+    structuredContentLength
   ],
   isXML: true,
   contentType: "application/xml; charset=utf-8",
@@ -81940,6 +85175,9 @@ var stageBlockFromURLOperationSpec = {
     fileRequestIntent,
     sourceUrl,
     sourceContentCrc64,
+    sourceEncryptionKey,
+    sourceEncryptionKeySha256,
+    sourceEncryptionAlgorithm,
     sourceRange1
   ],
   isXML: true,
@@ -82026,7 +85264,7 @@ var getBlockListOperationSpec = {
   serializer: xmlSerializer6
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/generated/src/storageClient.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/generated/src/storageClient.js
 var StorageClient = class extends ExtendedServiceClient {
   /**
    * Initializes a new instance of the StorageClient class.
@@ -82044,7 +85282,7 @@ var StorageClient = class extends ExtendedServiceClient {
     const defaults = {
       requestContentType: "application/json; charset=utf-8"
     };
-    const packageDetails = `azsdk-js-azure-storage-blob/12.30.0`;
+    const packageDetails = `azsdk-js-azure-storage-blob/12.33.0`;
     const userAgentPrefix = options.userAgentOptions && options.userAgentOptions.userAgentPrefix ? `${options.userAgentOptions.userAgentPrefix} ${packageDetails}` : `${packageDetails}`;
     const optionsWithDefaults = {
       ...defaults,
@@ -82064,7 +85302,7 @@ var StorageClient = class extends ExtendedServiceClient {
     __publicField(this, "appendBlob");
     __publicField(this, "blockBlob");
     this.url = url2;
-    this.version = options.version || "2026-02-06";
+    this.version = options.version || "2026-06-06";
     this.service = new ServiceImpl(this);
     this.container = new ContainerImpl(this);
     this.blob = new BlobImpl(this);
@@ -82074,7 +85312,7 @@ var StorageClient = class extends ExtendedServiceClient {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/StorageContextClient.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/StorageContextClient.js
 var StorageContextClient = class extends StorageClient {
   async sendOperationRequest(operationArguments, operationSpec) {
     const operationSpecToSend = { ...operationSpec };
@@ -82085,7 +85323,14 @@ var StorageContextClient = class extends StorageClient {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/utils/utils.common.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/utils/utils.common.js
+var accountNameSuffixes = [
+  "-secondary-ipv6",
+  "-secondary-dualstack",
+  "-ipv6",
+  "-dualstack",
+  "-secondary"
+];
 function escapeURLPath(url2) {
   const urlParsed = new URL(url2);
   let path19 = urlParsed.pathname;
@@ -82238,10 +85483,10 @@ function generateBlockID(blockIDPrefix, blockIndex) {
   if (blockIDPrefix.length > maxAllowedBlockIDPrefixLength) {
     blockIDPrefix = blockIDPrefix.slice(0, maxAllowedBlockIDPrefixLength);
   }
-  const res = blockIDPrefix + padStart(blockIndex.toString(), maxSourceStringLength - blockIDPrefix.length, "0");
+  const res = blockIDPrefix + padStart2(blockIndex.toString(), maxSourceStringLength - blockIDPrefix.length, "0");
   return base64encode(res);
 }
-function padStart(currentString, targetLength, padString = " ") {
+function padStart2(currentString, targetLength, padString = " ") {
   if (String.prototype.padStart) {
     return currentString.padStart(targetLength, padString);
   }
@@ -82265,6 +85510,13 @@ function getAccountNameFromUrl(url2) {
   try {
     if (parsedUrl.hostname.split(".")[1] === "blob") {
       accountName = parsedUrl.hostname.split(".")[0];
+      for (let i = 0; i < accountNameSuffixes.length; ++i) {
+        const suffix = accountNameSuffixes[i];
+        if (accountName.endsWith(suffix)) {
+          accountName = accountName.substring(0, accountName.length - suffix.length);
+          break;
+        }
+      }
     } else if (isIpEndpointStyle(parsedUrl)) {
       accountName = parsedUrl.pathname.split("/")[1];
     } else {
@@ -82446,8 +85698,32 @@ function assertResponse(response) {
   }
   throw new TypeError(`Unexpected response object ${response}`);
 }
+async function setUploadChecksumParameters(body2, contentLength2, parameters, uploadOptions, configContentChecksumAlgorithm) {
+  let contentChecksumAlgorithm = uploadOptions.contentChecksumAlgorithm ?? configContentChecksumAlgorithm;
+  if (contentChecksumAlgorithm === void 0) {
+    contentChecksumAlgorithm = "Customized";
+  }
+  if (contentChecksumAlgorithm === "Auto") {
+    contentChecksumAlgorithm = "StorageCrc64";
+  }
+  let bodyInfo = void 0;
+  if (contentChecksumAlgorithm === "Customized") {
+    parameters.transactionalContentMD5 = uploadOptions.transactionalContentMD5;
+    parameters.transactionalContentCrc64 = uploadOptions.transactionalContentCrc64;
+  } else if (contentChecksumAlgorithm === "StorageCrc64") {
+    await StorageCRC64Calculator.init();
+    bodyInfo = await structuredMessageEncoding(body2, contentLength2);
+    parameters.structuredBodyType = "XSM/1.0; properties=crc64";
+    parameters.structuredContentLength = contentLength2;
+  }
+  return {
+    body: contentChecksumAlgorithm === "StorageCrc64" ? bodyInfo.body : body2,
+    contentLength: contentChecksumAlgorithm === "StorageCrc64" ? bodyInfo.encodedContentLength : contentLength2,
+    contentChecksumAlgorithm
+  };
+}
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/StorageClient.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/StorageClient.js
 var StorageClient2 = class {
   /**
    * Creates an instance of StorageClient.
@@ -82489,14 +85765,14 @@ var StorageClient2 = class {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/utils/tracing.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/utils/tracing.js
 var tracingClient = createTracingClient({
   packageName: "@azure/storage-blob",
   packageVersion: SDK_VERSION3,
   namespace: "Microsoft.Storage"
 });
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/sas/BlobSASPermissions.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/sas/BlobSASPermissions.js
 var BlobSASPermissions = class _BlobSASPermissions {
   constructor() {
     /**
@@ -82681,7 +85957,7 @@ var BlobSASPermissions = class _BlobSASPermissions {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/sas/ContainerSASPermissions.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/sas/ContainerSASPermissions.js
 var ContainerSASPermissions = class _ContainerSASPermissions {
   constructor() {
     /**
@@ -82894,19 +86170,19 @@ var ContainerSASPermissions = class _ContainerSASPermissions {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/sas/SasIPRange.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/sas/SasIPRange.js
 function ipRangeToString(ipRange) {
   return ipRange.end ? `${ipRange.start}-${ipRange.end}` : ipRange.start;
 }
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/sas/SASQueryParameters.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/sas/SASQueryParameters.js
 var SASProtocol;
 (function(SASProtocol2) {
   SASProtocol2["Https"] = "https";
   SASProtocol2["HttpsAndHttp"] = "https,http";
 })(SASProtocol || (SASProtocol = {}));
 var SASQueryParameters = class {
-  constructor(version4, signature, permissionsOrOptions, services, resourceTypes, protocol, startsOn, expiresOn2, ipRange, identifier, resource, cacheControl, contentDisposition, contentEncoding, contentLanguage, contentType2, userDelegationKey, preauthorizedAgentObjectId, correlationId, encryptionScope2, delegatedUserObjectId) {
+  constructor(version4, signature, permissionsOrOptions, services, resourceTypes, protocol, startsOn, expiresOn2, ipRange, identifier, resource, cacheControl, contentDisposition, contentEncoding, contentLanguage, contentType2, userDelegationKey, preauthorizedAgentObjectId, correlationId, encryptionScope2, delegatedUserObjectId, requestHeaderKeys, requestQueryParameterKeys, directoryDepth) {
     /**
      * The storage API version.
      */
@@ -83019,6 +86295,11 @@ var SASQueryParameters = class {
      */
     __publicField(this, "signedVersion");
     /**
+     * The delegated user tenant id in Azure AD.
+     * Property of user delegation key.
+     */
+    __publicField(this, "signedDelegatedUserTid");
+    /**
      * Authorized AAD Object ID in GUID format. The AAD Object ID of a user authorized by the owner of the User Delegation Key
      * to perform the action granted by the SAS. The Azure Storage service will ensure that the owner of the user delegation key
      * has the required permissions before granting access but no additional permission check for the user specified in
@@ -83030,6 +86311,18 @@ var SASQueryParameters = class {
      * This is only used for User Delegation SAS.
      */
     __publicField(this, "correlationId");
+    /**
+     * Keys for request headers required in the SAS token
+     */
+    __publicField(this, "requestHeaderKeys");
+    /**
+     * Keys for request query parameters required in the SAS token
+     */
+    __publicField(this, "requestQueryParameterKeys");
+    /** To indicate the depth of the virtual blob directory specified
+     * in the canonicalizedresource field of the string-to-sign.
+     */
+    __publicField(this, "directoryDepth");
     this.version = version4;
     this.signature = signature;
     if (permissionsOrOptions !== void 0 && typeof permissionsOrOptions !== "string") {
@@ -83049,6 +86342,9 @@ var SASQueryParameters = class {
       this.contentEncoding = permissionsOrOptions.contentEncoding;
       this.contentLanguage = permissionsOrOptions.contentLanguage;
       this.contentType = permissionsOrOptions.contentType;
+      this.requestHeaderKeys = permissionsOrOptions.requestHeaderKeys;
+      this.requestQueryParameterKeys = permissionsOrOptions.requestQueryParameterKeys;
+      this.directoryDepth = permissionsOrOptions.directoryDepth;
       if (permissionsOrOptions.userDelegationKey) {
         this.signedOid = permissionsOrOptions.userDelegationKey.signedObjectId;
         this.signedTenantId = permissionsOrOptions.userDelegationKey.signedTenantId;
@@ -83056,6 +86352,7 @@ var SASQueryParameters = class {
         this.signedExpiresOn = permissionsOrOptions.userDelegationKey.signedExpiresOn;
         this.signedService = permissionsOrOptions.userDelegationKey.signedService;
         this.signedVersion = permissionsOrOptions.userDelegationKey.signedVersion;
+        this.signedDelegatedUserTid = permissionsOrOptions.userDelegationKey.signedDelegatedUserTenantId;
         this.preauthorizedAgentObjectId = permissionsOrOptions.preauthorizedAgentObjectId;
         this.correlationId = permissionsOrOptions.correlationId;
       }
@@ -83076,6 +86373,9 @@ var SASQueryParameters = class {
       this.contentEncoding = contentEncoding;
       this.contentLanguage = contentLanguage;
       this.contentType = contentType2;
+      this.requestHeaderKeys = requestHeaderKeys;
+      this.requestQueryParameterKeys = requestQueryParameterKeys;
+      this.directoryDepth = directoryDepth;
       if (userDelegationKey) {
         this.signedOid = userDelegationKey.signedObjectId;
         this.signedTenantId = userDelegationKey.signedTenantId;
@@ -83083,6 +86383,7 @@ var SASQueryParameters = class {
         this.signedExpiresOn = userDelegationKey.signedExpiresOn;
         this.signedService = userDelegationKey.signedService;
         this.signedVersion = userDelegationKey.signedVersion;
+        this.signedDelegatedUserTid = userDelegationKey.signedDelegatedUserTenantId;
         this.preauthorizedAgentObjectId = preauthorizedAgentObjectId;
         this.correlationId = correlationId;
       }
@@ -83131,7 +86432,6 @@ var SASQueryParameters = class {
       // Signed key version
       "sr",
       "sp",
-      "sig",
       "rscc",
       "rscd",
       "rsce",
@@ -83139,8 +86439,16 @@ var SASQueryParameters = class {
       "rsct",
       "saoid",
       "scid",
-      "sduoid"
+      "sdd",
+      "sduoid",
       // Signed key user delegation object ID
+      "skdutid",
+      // Signed key user delegation tenant ID
+      "srh",
+      // Request Headers
+      "srq",
+      // Request QueryParameters
+      "sig"
     ];
     const queries = [];
     for (const param of params) {
@@ -83190,6 +86498,9 @@ var SASQueryParameters = class {
         case "skv":
           this.tryAppendQueryParameter(queries, param, this.signedVersion);
           break;
+        case "skdutid":
+          this.tryAppendQueryParameter(queries, param, this.signedDelegatedUserTid);
+          break;
         case "sr":
           this.tryAppendQueryParameter(queries, param, this.resource);
           break;
@@ -83223,6 +86534,15 @@ var SASQueryParameters = class {
         case "sduoid":
           this.tryAppendQueryParameter(queries, param, this.delegatedUserObjectId);
           break;
+        case "srh":
+          this.tryAppendQueryParameter(queries, param, this.requestHeaderKeys);
+          break;
+        case "srq":
+          this.tryAppendQueryParameter(queries, param, this.requestQueryParameterKeys);
+          break;
+        case "sdd":
+          this.tryAppendQueryParameter(queries, param, this.directoryDepth !== void 0 ? this.directoryDepth.toString() : "");
+          break;
       }
     }
     return queries.join("&");
@@ -83246,7 +86566,7 @@ var SASQueryParameters = class {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/sas/BlobSASSignatureValues.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/sas/BlobSASSignatureValues.js
 function generateBlobSASQueryParameters(blobSASSignatureValues, sharedKeyCredentialOrUserDelegationKey, accountName) {
   return generateBlobSASQueryParametersInternal(blobSASSignatureValues, sharedKeyCredentialOrUserDelegationKey, accountName).sasQueryParameters;
 }
@@ -83264,7 +86584,9 @@ function generateBlobSASQueryParametersInternal(blobSASSignatureValues, sharedKe
     if (sharedKeyCredential !== void 0) {
       return generateBlobSASQueryParameters20201206(blobSASSignatureValues, sharedKeyCredential);
     } else {
-      if (version4 >= "2025-07-05") {
+      if (version4 >= "2026-04-06") {
+        return generateBlobSASQueryParametersUDK20260406(blobSASSignatureValues, userDelegationKeyCredential);
+      } else if (version4 >= "2025-07-05") {
         return generateBlobSASQueryParametersUDK20250705(blobSASSignatureValues, userDelegationKeyCredential);
       } else {
         return generateBlobSASQueryParametersUDK20201206(blobSASSignatureValues, userDelegationKeyCredential);
@@ -83273,7 +86595,11 @@ function generateBlobSASQueryParametersInternal(blobSASSignatureValues, sharedKe
   }
   if (version4 >= "2018-11-09") {
     if (sharedKeyCredential !== void 0) {
-      return generateBlobSASQueryParameters20181109(blobSASSignatureValues, sharedKeyCredential);
+      if (version4 >= "2020-02-10") {
+        return generateBlobSASQueryParameters20200210(blobSASSignatureValues, sharedKeyCredential);
+      } else {
+        return generateBlobSASQueryParameters20181109(blobSASSignatureValues, sharedKeyCredential);
+      }
     } else {
       if (version4 >= "2020-02-10") {
         return generateBlobSASQueryParametersUDK20200210(blobSASSignatureValues, userDelegationKeyCredential);
@@ -83376,6 +86702,59 @@ function generateBlobSASQueryParameters20181109(blobSASSignatureValues, sharedKe
     stringToSign
   };
 }
+function generateBlobSASQueryParameters20200210(blobSASSignatureValues, sharedKeyCredential) {
+  blobSASSignatureValues = SASSignatureValuesSanityCheckAndAutofill(blobSASSignatureValues);
+  if (!blobSASSignatureValues.identifier && !(blobSASSignatureValues.permissions && blobSASSignatureValues.expiresOn)) {
+    throw new RangeError("Must provide 'permissions' and 'expiresOn' for Blob SAS generation when 'identifier' is not provided.");
+  }
+  let resource = "c";
+  let timestamp = blobSASSignatureValues.snapshotTime;
+  let directoryDepth = void 0;
+  if (blobSASSignatureValues.blobName) {
+    if (blobSASSignatureValues.isDirectory === true) {
+      resource = "d";
+      directoryDepth = trimBlobName(blobSASSignatureValues.blobName).split("/").length;
+    } else {
+      resource = "b";
+      if (blobSASSignatureValues.snapshotTime) {
+        resource = "bs";
+      } else if (blobSASSignatureValues.versionId) {
+        resource = "bv";
+        timestamp = blobSASSignatureValues.versionId;
+      }
+    }
+  }
+  let verifiedPermissions;
+  if (blobSASSignatureValues.permissions) {
+    if (blobSASSignatureValues.blobName) {
+      verifiedPermissions = BlobSASPermissions.parse(blobSASSignatureValues.permissions.toString()).toString();
+    } else {
+      verifiedPermissions = ContainerSASPermissions.parse(blobSASSignatureValues.permissions.toString()).toString();
+    }
+  }
+  const stringToSign = [
+    verifiedPermissions ? verifiedPermissions : "",
+    blobSASSignatureValues.startsOn ? truncatedISO8061Date(blobSASSignatureValues.startsOn, false) : "",
+    blobSASSignatureValues.expiresOn ? truncatedISO8061Date(blobSASSignatureValues.expiresOn, false) : "",
+    getCanonicalName(sharedKeyCredential.accountName, blobSASSignatureValues.containerName, blobSASSignatureValues.blobName),
+    blobSASSignatureValues.identifier,
+    blobSASSignatureValues.ipRange ? ipRangeToString(blobSASSignatureValues.ipRange) : "",
+    blobSASSignatureValues.protocol ? blobSASSignatureValues.protocol : "",
+    blobSASSignatureValues.version,
+    resource,
+    timestamp,
+    blobSASSignatureValues.cacheControl ? blobSASSignatureValues.cacheControl : "",
+    blobSASSignatureValues.contentDisposition ? blobSASSignatureValues.contentDisposition : "",
+    blobSASSignatureValues.contentEncoding ? blobSASSignatureValues.contentEncoding : "",
+    blobSASSignatureValues.contentLanguage ? blobSASSignatureValues.contentLanguage : "",
+    blobSASSignatureValues.contentType ? blobSASSignatureValues.contentType : ""
+  ].join("\n");
+  const signature = sharedKeyCredential.computeHMACSHA256(stringToSign);
+  return {
+    sasQueryParameters: new SASQueryParameters(blobSASSignatureValues.version, signature, verifiedPermissions, void 0, void 0, blobSASSignatureValues.protocol, blobSASSignatureValues.startsOn, blobSASSignatureValues.expiresOn, blobSASSignatureValues.ipRange, blobSASSignatureValues.identifier, resource, blobSASSignatureValues.cacheControl, blobSASSignatureValues.contentDisposition, blobSASSignatureValues.contentEncoding, blobSASSignatureValues.contentLanguage, blobSASSignatureValues.contentType, void 0, void 0, void 0, void 0, void 0, void 0, void 0, directoryDepth),
+    stringToSign
+  };
+}
 function generateBlobSASQueryParameters20201206(blobSASSignatureValues, sharedKeyCredential) {
   blobSASSignatureValues = SASSignatureValuesSanityCheckAndAutofill(blobSASSignatureValues);
   if (!blobSASSignatureValues.identifier && !(blobSASSignatureValues.permissions && blobSASSignatureValues.expiresOn)) {
@@ -83383,13 +86762,19 @@ function generateBlobSASQueryParameters20201206(blobSASSignatureValues, sharedKe
   }
   let resource = "c";
   let timestamp = blobSASSignatureValues.snapshotTime;
+  let directoryDepth = void 0;
   if (blobSASSignatureValues.blobName) {
-    resource = "b";
-    if (blobSASSignatureValues.snapshotTime) {
-      resource = "bs";
-    } else if (blobSASSignatureValues.versionId) {
-      resource = "bv";
-      timestamp = blobSASSignatureValues.versionId;
+    if (blobSASSignatureValues.isDirectory === true) {
+      resource = "d";
+      directoryDepth = trimBlobName(blobSASSignatureValues.blobName).split("/").length;
+    } else {
+      resource = "b";
+      if (blobSASSignatureValues.snapshotTime) {
+        resource = "bs";
+      } else if (blobSASSignatureValues.versionId) {
+        resource = "bv";
+        timestamp = blobSASSignatureValues.versionId;
+      }
     }
   }
   let verifiedPermissions;
@@ -83420,7 +86805,7 @@ function generateBlobSASQueryParameters20201206(blobSASSignatureValues, sharedKe
   ].join("\n");
   const signature = sharedKeyCredential.computeHMACSHA256(stringToSign);
   return {
-    sasQueryParameters: new SASQueryParameters(blobSASSignatureValues.version, signature, verifiedPermissions, void 0, void 0, blobSASSignatureValues.protocol, blobSASSignatureValues.startsOn, blobSASSignatureValues.expiresOn, blobSASSignatureValues.ipRange, blobSASSignatureValues.identifier, resource, blobSASSignatureValues.cacheControl, blobSASSignatureValues.contentDisposition, blobSASSignatureValues.contentEncoding, blobSASSignatureValues.contentLanguage, blobSASSignatureValues.contentType, void 0, void 0, void 0, blobSASSignatureValues.encryptionScope),
+    sasQueryParameters: new SASQueryParameters(blobSASSignatureValues.version, signature, verifiedPermissions, void 0, void 0, blobSASSignatureValues.protocol, blobSASSignatureValues.startsOn, blobSASSignatureValues.expiresOn, blobSASSignatureValues.ipRange, blobSASSignatureValues.identifier, resource, blobSASSignatureValues.cacheControl, blobSASSignatureValues.contentDisposition, blobSASSignatureValues.contentEncoding, blobSASSignatureValues.contentLanguage, blobSASSignatureValues.contentType, void 0, void 0, void 0, blobSASSignatureValues.encryptionScope, void 0, void 0, void 0, directoryDepth),
     stringToSign
   };
 }
@@ -83483,13 +86868,19 @@ function generateBlobSASQueryParametersUDK20200210(blobSASSignatureValues, userD
   }
   let resource = "c";
   let timestamp = blobSASSignatureValues.snapshotTime;
+  let directoryDepth = void 0;
   if (blobSASSignatureValues.blobName) {
-    resource = "b";
-    if (blobSASSignatureValues.snapshotTime) {
-      resource = "bs";
-    } else if (blobSASSignatureValues.versionId) {
-      resource = "bv";
-      timestamp = blobSASSignatureValues.versionId;
+    if (blobSASSignatureValues.isDirectory === true) {
+      resource = "d";
+      directoryDepth = trimBlobName(blobSASSignatureValues.blobName).split("/").length;
+    } else {
+      resource = "b";
+      if (blobSASSignatureValues.snapshotTime) {
+        resource = "bs";
+      } else if (blobSASSignatureValues.versionId) {
+        resource = "bv";
+        timestamp = blobSASSignatureValues.versionId;
+      }
     }
   }
   let verifiedPermissions;
@@ -83528,7 +86919,7 @@ function generateBlobSASQueryParametersUDK20200210(blobSASSignatureValues, userD
   ].join("\n");
   const signature = userDelegationKeyCredential.computeHMACSHA256(stringToSign);
   return {
-    sasQueryParameters: new SASQueryParameters(blobSASSignatureValues.version, signature, verifiedPermissions, void 0, void 0, blobSASSignatureValues.protocol, blobSASSignatureValues.startsOn, blobSASSignatureValues.expiresOn, blobSASSignatureValues.ipRange, blobSASSignatureValues.identifier, resource, blobSASSignatureValues.cacheControl, blobSASSignatureValues.contentDisposition, blobSASSignatureValues.contentEncoding, blobSASSignatureValues.contentLanguage, blobSASSignatureValues.contentType, userDelegationKeyCredential.userDelegationKey, blobSASSignatureValues.preauthorizedAgentObjectId, blobSASSignatureValues.correlationId),
+    sasQueryParameters: new SASQueryParameters(blobSASSignatureValues.version, signature, verifiedPermissions, void 0, void 0, blobSASSignatureValues.protocol, blobSASSignatureValues.startsOn, blobSASSignatureValues.expiresOn, blobSASSignatureValues.ipRange, blobSASSignatureValues.identifier, resource, blobSASSignatureValues.cacheControl, blobSASSignatureValues.contentDisposition, blobSASSignatureValues.contentEncoding, blobSASSignatureValues.contentLanguage, blobSASSignatureValues.contentType, userDelegationKeyCredential.userDelegationKey, blobSASSignatureValues.preauthorizedAgentObjectId, blobSASSignatureValues.correlationId, void 0, void 0, void 0, void 0, directoryDepth),
     stringToSign
   };
 }
@@ -83539,13 +86930,19 @@ function generateBlobSASQueryParametersUDK20201206(blobSASSignatureValues, userD
   }
   let resource = "c";
   let timestamp = blobSASSignatureValues.snapshotTime;
+  let directoryDepth = void 0;
   if (blobSASSignatureValues.blobName) {
-    resource = "b";
-    if (blobSASSignatureValues.snapshotTime) {
-      resource = "bs";
-    } else if (blobSASSignatureValues.versionId) {
-      resource = "bv";
-      timestamp = blobSASSignatureValues.versionId;
+    if (blobSASSignatureValues.isDirectory === true) {
+      resource = "d";
+      directoryDepth = trimBlobName(blobSASSignatureValues.blobName).split("/").length;
+    } else {
+      resource = "b";
+      if (blobSASSignatureValues.snapshotTime) {
+        resource = "bs";
+      } else if (blobSASSignatureValues.versionId) {
+        resource = "bv";
+        timestamp = blobSASSignatureValues.versionId;
+      }
     }
   }
   let verifiedPermissions;
@@ -83585,7 +86982,7 @@ function generateBlobSASQueryParametersUDK20201206(blobSASSignatureValues, userD
   ].join("\n");
   const signature = userDelegationKeyCredential.computeHMACSHA256(stringToSign);
   return {
-    sasQueryParameters: new SASQueryParameters(blobSASSignatureValues.version, signature, verifiedPermissions, void 0, void 0, blobSASSignatureValues.protocol, blobSASSignatureValues.startsOn, blobSASSignatureValues.expiresOn, blobSASSignatureValues.ipRange, blobSASSignatureValues.identifier, resource, blobSASSignatureValues.cacheControl, blobSASSignatureValues.contentDisposition, blobSASSignatureValues.contentEncoding, blobSASSignatureValues.contentLanguage, blobSASSignatureValues.contentType, userDelegationKeyCredential.userDelegationKey, blobSASSignatureValues.preauthorizedAgentObjectId, blobSASSignatureValues.correlationId, blobSASSignatureValues.encryptionScope),
+    sasQueryParameters: new SASQueryParameters(blobSASSignatureValues.version, signature, verifiedPermissions, void 0, void 0, blobSASSignatureValues.protocol, blobSASSignatureValues.startsOn, blobSASSignatureValues.expiresOn, blobSASSignatureValues.ipRange, blobSASSignatureValues.identifier, resource, blobSASSignatureValues.cacheControl, blobSASSignatureValues.contentDisposition, blobSASSignatureValues.contentEncoding, blobSASSignatureValues.contentLanguage, blobSASSignatureValues.contentType, userDelegationKeyCredential.userDelegationKey, blobSASSignatureValues.preauthorizedAgentObjectId, blobSASSignatureValues.correlationId, blobSASSignatureValues.encryptionScope, void 0, void 0, void 0, directoryDepth),
     stringToSign
   };
 }
@@ -83596,13 +86993,19 @@ function generateBlobSASQueryParametersUDK20250705(blobSASSignatureValues, userD
   }
   let resource = "c";
   let timestamp = blobSASSignatureValues.snapshotTime;
+  let directoryDepth = void 0;
   if (blobSASSignatureValues.blobName) {
-    resource = "b";
-    if (blobSASSignatureValues.snapshotTime) {
-      resource = "bs";
-    } else if (blobSASSignatureValues.versionId) {
-      resource = "bv";
-      timestamp = blobSASSignatureValues.versionId;
+    if (blobSASSignatureValues.isDirectory === true) {
+      resource = "d";
+      directoryDepth = trimBlobName(blobSASSignatureValues.blobName).split("/").length;
+    } else {
+      resource = "b";
+      if (blobSASSignatureValues.snapshotTime) {
+        resource = "bs";
+      } else if (blobSASSignatureValues.versionId) {
+        resource = "bv";
+        timestamp = blobSASSignatureValues.versionId;
+      }
     }
   }
   let verifiedPermissions;
@@ -83628,7 +87031,7 @@ function generateBlobSASQueryParametersUDK20250705(blobSASSignatureValues, userD
     void 0,
     // agentObjectId
     blobSASSignatureValues.correlationId,
-    void 0,
+    userDelegationKeyCredential.userDelegationKey.signedDelegatedUserTenantId,
     // SignedKeyDelegatedUserTenantId, will be added in a future release.
     blobSASSignatureValues.delegatedUserObjectId,
     blobSASSignatureValues.ipRange ? ipRangeToString(blobSASSignatureValues.ipRange) : "",
@@ -83645,9 +87048,112 @@ function generateBlobSASQueryParametersUDK20250705(blobSASSignatureValues, userD
   ].join("\n");
   const signature = userDelegationKeyCredential.computeHMACSHA256(stringToSign);
   return {
-    sasQueryParameters: new SASQueryParameters(blobSASSignatureValues.version, signature, verifiedPermissions, void 0, void 0, blobSASSignatureValues.protocol, blobSASSignatureValues.startsOn, blobSASSignatureValues.expiresOn, blobSASSignatureValues.ipRange, blobSASSignatureValues.identifier, resource, blobSASSignatureValues.cacheControl, blobSASSignatureValues.contentDisposition, blobSASSignatureValues.contentEncoding, blobSASSignatureValues.contentLanguage, blobSASSignatureValues.contentType, userDelegationKeyCredential.userDelegationKey, blobSASSignatureValues.preauthorizedAgentObjectId, blobSASSignatureValues.correlationId, blobSASSignatureValues.encryptionScope, blobSASSignatureValues.delegatedUserObjectId),
+    sasQueryParameters: new SASQueryParameters(blobSASSignatureValues.version, signature, verifiedPermissions, void 0, void 0, blobSASSignatureValues.protocol, blobSASSignatureValues.startsOn, blobSASSignatureValues.expiresOn, blobSASSignatureValues.ipRange, blobSASSignatureValues.identifier, resource, blobSASSignatureValues.cacheControl, blobSASSignatureValues.contentDisposition, blobSASSignatureValues.contentEncoding, blobSASSignatureValues.contentLanguage, blobSASSignatureValues.contentType, userDelegationKeyCredential.userDelegationKey, blobSASSignatureValues.preauthorizedAgentObjectId, blobSASSignatureValues.correlationId, blobSASSignatureValues.encryptionScope, blobSASSignatureValues.delegatedUserObjectId, void 0, void 0, directoryDepth),
     stringToSign
   };
+}
+function generateBlobSASQueryParametersUDK20260406(blobSASSignatureValues, userDelegationKeyCredential) {
+  blobSASSignatureValues = SASSignatureValuesSanityCheckAndAutofill(blobSASSignatureValues);
+  if (!blobSASSignatureValues.permissions || !blobSASSignatureValues.expiresOn) {
+    throw new RangeError("Must provide 'permissions' and 'expiresOn' for Blob SAS generation when generating user delegation SAS.");
+  }
+  let resource = "c";
+  let timestamp = blobSASSignatureValues.snapshotTime;
+  let directoryDepth = void 0;
+  if (blobSASSignatureValues.blobName) {
+    if (blobSASSignatureValues.isDirectory === true) {
+      resource = "d";
+      directoryDepth = trimBlobName(blobSASSignatureValues.blobName).split("/").length;
+    } else {
+      resource = "b";
+      if (blobSASSignatureValues.snapshotTime) {
+        resource = "bs";
+      } else if (blobSASSignatureValues.versionId) {
+        resource = "bv";
+        timestamp = blobSASSignatureValues.versionId;
+      }
+    }
+  }
+  let verifiedPermissions;
+  if (blobSASSignatureValues.permissions) {
+    if (blobSASSignatureValues.blobName) {
+      verifiedPermissions = BlobSASPermissions.parse(blobSASSignatureValues.permissions.toString()).toString();
+    } else {
+      verifiedPermissions = ContainerSASPermissions.parse(blobSASSignatureValues.permissions.toString()).toString();
+    }
+  }
+  const stringToSign = [
+    verifiedPermissions ? verifiedPermissions : "",
+    blobSASSignatureValues.startsOn ? truncatedISO8061Date(blobSASSignatureValues.startsOn, false) : "",
+    blobSASSignatureValues.expiresOn ? truncatedISO8061Date(blobSASSignatureValues.expiresOn, false) : "",
+    getCanonicalName(userDelegationKeyCredential.accountName, blobSASSignatureValues.containerName, blobSASSignatureValues.blobName),
+    userDelegationKeyCredential.userDelegationKey.signedObjectId,
+    userDelegationKeyCredential.userDelegationKey.signedTenantId,
+    userDelegationKeyCredential.userDelegationKey.signedStartsOn ? truncatedISO8061Date(userDelegationKeyCredential.userDelegationKey.signedStartsOn, false) : "",
+    userDelegationKeyCredential.userDelegationKey.signedExpiresOn ? truncatedISO8061Date(userDelegationKeyCredential.userDelegationKey.signedExpiresOn, false) : "",
+    userDelegationKeyCredential.userDelegationKey.signedService,
+    userDelegationKeyCredential.userDelegationKey.signedVersion,
+    blobSASSignatureValues.preauthorizedAgentObjectId,
+    void 0,
+    // agentObjectId
+    blobSASSignatureValues.correlationId,
+    userDelegationKeyCredential.userDelegationKey.signedDelegatedUserTenantId,
+    // SignedKeyDelegatedUserTenantId, will be added in a future release.
+    blobSASSignatureValues.delegatedUserObjectId,
+    blobSASSignatureValues.ipRange ? ipRangeToString(blobSASSignatureValues.ipRange) : "",
+    blobSASSignatureValues.protocol ? blobSASSignatureValues.protocol : "",
+    blobSASSignatureValues.version,
+    resource,
+    timestamp,
+    blobSASSignatureValues.encryptionScope,
+    formatRequestHeadersForSasSigning(blobSASSignatureValues.requestHeaders),
+    formatRequestQueryParametersForSasSigning(blobSASSignatureValues.requestQueryParameters),
+    blobSASSignatureValues.cacheControl,
+    blobSASSignatureValues.contentDisposition,
+    blobSASSignatureValues.contentEncoding,
+    blobSASSignatureValues.contentLanguage,
+    blobSASSignatureValues.contentType
+  ].join("\n");
+  const signature = userDelegationKeyCredential.computeHMACSHA256(stringToSign);
+  return {
+    sasQueryParameters: new SASQueryParameters(blobSASSignatureValues.version, signature, verifiedPermissions, void 0, void 0, blobSASSignatureValues.protocol, blobSASSignatureValues.startsOn, blobSASSignatureValues.expiresOn, blobSASSignatureValues.ipRange, blobSASSignatureValues.identifier, resource, blobSASSignatureValues.cacheControl, blobSASSignatureValues.contentDisposition, blobSASSignatureValues.contentEncoding, blobSASSignatureValues.contentLanguage, blobSASSignatureValues.contentType, userDelegationKeyCredential.userDelegationKey, blobSASSignatureValues.preauthorizedAgentObjectId, blobSASSignatureValues.correlationId, blobSASSignatureValues.encryptionScope, blobSASSignatureValues.delegatedUserObjectId, getKeysOfRequestHeaders(blobSASSignatureValues.requestHeaders), getKeysOfRequestHeaders(blobSASSignatureValues.requestQueryParameters), directoryDepth),
+    stringToSign
+  };
+}
+function formatRequestHeadersForSasSigning(requestHeaders) {
+  if (requestHeaders === void 0) {
+    return void 0;
+  }
+  let canonicalValue = "";
+  Object.keys(requestHeaders).forEach(function(key) {
+    canonicalValue = canonicalValue + key + ":" + requestHeaders[key] + "\n";
+  });
+  return canonicalValue;
+}
+function formatRequestQueryParametersForSasSigning(queryParameters) {
+  if (queryParameters === void 0) {
+    return void 0;
+  }
+  let canonicalValue = "";
+  Object.keys(queryParameters).forEach(function(key) {
+    canonicalValue = canonicalValue + "\n" + key + ":" + queryParameters[key];
+  });
+  return canonicalValue;
+}
+function getKeysOfRequestHeaders(requestHeaders) {
+  if (requestHeaders === void 0) {
+    return void 0;
+  }
+  let requestKeys = "";
+  let index = 0;
+  Object.keys(requestHeaders).forEach(function(key) {
+    if (index !== 0) {
+      requestKeys = requestKeys + ",";
+    }
+    requestKeys = requestKeys + key;
+    ++index;
+  });
+  return requestKeys;
 }
 function getCanonicalName(accountName, containerName, blobName) {
   const elements = [`/blob/${accountName}/${containerName}`];
@@ -83697,8 +87203,18 @@ function SASSignatureValuesSanityCheckAndAutofill(blobSASSignatureValues) {
   blobSASSignatureValues.version = version4;
   return blobSASSignatureValues;
 }
+function trimBlobName(blobName) {
+  let internalName = blobName;
+  while (internalName.startsWith("/")) {
+    internalName = internalName.substring(1);
+  }
+  while (internalName.endsWith("/")) {
+    internalName = internalName.substring(0, internalName.length - 1);
+  }
+  return internalName;
+}
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/BlobLeaseClient.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/BlobLeaseClient.js
 var BlobLeaseClient = class {
   /**
    * Creates an instance of BlobLeaseClient.
@@ -83875,9 +87391,9 @@ var BlobLeaseClient = class {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/utils/RetriableReadableStream.js
-var import_node_stream3 = require("stream");
-var RetriableReadableStream = class extends import_node_stream3.Readable {
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/utils/RetriableReadableStream.js
+var import_node_stream5 = require("stream");
+var RetriableReadableStream = class extends import_node_stream5.Readable {
   /**
    * Creates an instance of RetriableReadableStream.
    *
@@ -83976,7 +87492,7 @@ var RetriableReadableStream = class extends import_node_stream3.Readable {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/BlobDownloadResponse.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/BlobDownloadResponse.js
 var BlobDownloadResponse = class {
   /**
    * Creates an instance of BlobDownloadResponse.
@@ -83991,7 +87507,8 @@ var BlobDownloadResponse = class {
     __publicField(this, "originalResponse");
     __publicField(this, "blobDownloadStream");
     this.originalResponse = originalResponse2;
-    this.blobDownloadStream = new RetriableReadableStream(this.originalResponse.readableStreamBody, getter, offset, count, options);
+    const streamBody = this.originalResponse.structuredBodyType === void 0 ? this.originalResponse.readableStreamBody : structuredMessageDecodingStream(this.originalResponse.readableStreamBody, options);
+    this.blobDownloadStream = new RetriableReadableStream(streamBody, getter, offset, count, options);
   }
   /**
    * Indicates that the service supports
@@ -84400,6 +87917,9 @@ var BlobDownloadResponse = class {
   get legalHold() {
     return this.originalResponse.legalHold;
   }
+  get structuredBodyType() {
+    return this.originalResponse.structuredBodyType;
+  }
   /**
    * The response body as a browser Blob.
    * Always undefined in node.js.
@@ -84428,16 +87948,16 @@ var BlobDownloadResponse = class {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/utils/BlobQuickQueryStream.js
-var import_node_stream4 = require("stream");
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/utils/BlobQuickQueryStream.js
+var import_node_stream6 = require("stream");
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/internal-avro/AvroConstants.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/internal-avro/AvroConstants.js
 var AVRO_SYNC_MARKER_SIZE = 16;
 var AVRO_INIT_BYTES = new Uint8Array([79, 98, 106, 1]);
 var AVRO_CODEC_KEY = "avro.codec";
 var AVRO_SCHEMA_KEY = "avro.schema";
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/internal-avro/AvroParser.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/internal-avro/AvroParser.js
 var AvroParser = class _AvroParser {
   /**
    * Reads a fixed number of bytes from the stream.
@@ -84703,10 +88223,10 @@ var AvroEnumType = class extends AvroType {
   }
 };
 var AvroUnionType = class extends AvroType {
-  constructor(types2) {
+  constructor(types) {
     super();
     __publicField(this, "_types");
-    this._types = types2;
+    this._types = types;
   }
   async read(stream3, options = {}) {
     const typeIndex = await AvroParser.readInt(stream3, options);
@@ -84748,7 +88268,7 @@ var AvroRecordType = class extends AvroType {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/internal-avro/utils/utils.common.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/internal-avro/utils/utils.common.js
 function arraysEqual(a, b) {
   if (a === b)
     return true;
@@ -84763,7 +88283,7 @@ function arraysEqual(a, b) {
   return true;
 }
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/internal-avro/AvroReader.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/internal-avro/AvroReader.js
 var AvroReader = class {
   constructor(dataStream, headerStream, currentBlockOffset, indexWithinCurrentBlock) {
     __publicField(this, "_dataStream");
@@ -84864,11 +88384,11 @@ var AvroReader = class {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/internal-avro/AvroReadable.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/internal-avro/AvroReadable.js
 var AvroReadable = class {
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/internal-avro/AvroReadableFromStream.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/internal-avro/AvroReadableFromStream.js
 var import_buffer = require("buffer");
 var ABORT_ERROR = new AbortError2("Reading from the avro stream was aborted.");
 var AvroReadableFromStream = class extends AvroReadable {
@@ -84944,8 +88464,8 @@ var AvroReadableFromStream = class extends AvroReadable {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/utils/BlobQuickQueryStream.js
-var BlobQuickQueryStream = class extends import_node_stream4.Readable {
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/utils/BlobQuickQueryStream.js
+var BlobQuickQueryStream = class extends import_node_stream6.Readable {
   /**
    * Creates an instance of BlobQuickQueryStream.
    *
@@ -85052,7 +88572,7 @@ var BlobQuickQueryStream = class extends import_node_stream4.Readable {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/BlobQueryResponse.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/BlobQueryResponse.js
 var BlobQueryResponse = class {
   /**
    * Creates an instance of BlobQueryResponse.
@@ -85412,7 +88932,7 @@ var BlobQueryResponse = class {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/models.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/models.js
 var BlockBlobTier;
 (function(BlockBlobTier2) {
   BlockBlobTier2["Hot"] = "Hot";
@@ -85454,7 +88974,7 @@ var StorageBlobAudience;
   StorageBlobAudience2["DiskComputeOAuthScopes"] = "https://disk.compute.azure.com/.default";
 })(StorageBlobAudience || (StorageBlobAudience = {}));
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/PageBlobRangeResponse.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/PageBlobRangeResponse.js
 function rangeResponseFromModel(response) {
   const pageRange = (response._response.parsedBody.pageRange || []).map((x) => ({
     offset: x.start,
@@ -85794,7 +89314,7 @@ var Poller = class {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/pollers/BlobStartCopyFromUrlPoller.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/pollers/BlobStartCopyFromUrlPoller.js
 var BlobBeginCopyFromUrlPoller = class extends Poller {
   constructor(options) {
     const { blobClient, copySource: copySource2, intervalInMs = 15e3, onProgress, resumeFrom, startCopyFromURLOptions } = options;
@@ -85887,7 +89407,7 @@ function makeBlobBeginCopyFromURLPollOperation(state3) {
   };
 }
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/Range.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/Range.js
 function rangeToString(iRange) {
   if (iRange.offset < 0) {
     throw new RangeError(`Range.offset cannot be smaller than 0.`);
@@ -85898,7 +89418,7 @@ function rangeToString(iRange) {
   return iRange.count ? `bytes=${iRange.offset}-${iRange.offset + iRange.count - 1}` : `bytes=${iRange.offset}-`;
 }
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/utils/Batch.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/utils/Batch.js
 var import_events2 = require("events");
 var BatchStates;
 (function(BatchStates2) {
@@ -86015,7 +89535,7 @@ var Batch = class {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/utils/utils.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/utils/utils.js
 var import_node_fs = __toESM(require("fs"), 1);
 var import_node_util3 = __toESM(require("util"), 1);
 async function streamToBuffer(stream3, buffer3, offset, end, encoding) {
@@ -86029,16 +89549,20 @@ async function streamToBuffer(stream3, buffer3, offset, end, encoding) {
         resolve3();
         return;
       }
-      let chunk = stream3.read();
-      if (!chunk) {
-        return;
+      let chunk;
+      while ((chunk = stream3.read()) !== null) {
+        if (typeof chunk === "string") {
+          chunk = Buffer.from(chunk, encoding);
+        }
+        const chunkLength = pos + chunk.length > count ? count - pos : chunk.length;
+        buffer3.fill(chunk.slice(0, chunkLength), offset + pos, offset + pos + chunkLength);
+        pos += chunkLength;
+        if (pos >= count) {
+          clearTimeout(timeout);
+          resolve3();
+          return;
+        }
       }
-      if (typeof chunk === "string") {
-        chunk = Buffer.from(chunk, encoding);
-      }
-      const chunkLength = pos + chunk.length > count ? count - pos : chunk.length;
-      buffer3.fill(chunk.slice(0, chunkLength), offset + pos, offset + pos + chunkLength);
-      pos += chunkLength;
     });
     stream3.on("end", () => {
       clearTimeout(timeout);
@@ -86069,7 +89593,7 @@ async function readStreamToLocalFile(rs, file) {
 var fsStat = import_node_util3.default.promisify(import_node_fs.default.stat);
 var fsCreateReadStream = import_node_fs.default.createReadStream;
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/Clients.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/Clients.js
 var BlobClient = class _BlobClient extends StorageClient2 {
   constructor(urlOrConnectionString, credentialOrPipelineOrContainerName, blobNameOrOptions, options) {
     options = options || {};
@@ -86078,6 +89602,7 @@ var BlobClient = class _BlobClient extends StorageClient2 {
     if (isPipelineLike(credentialOrPipelineOrContainerName)) {
       url2 = urlOrConnectionString;
       pipeline3 = credentialOrPipelineOrContainerName;
+      options = blobNameOrOptions;
     } else if (isNodeLike2 && credentialOrPipelineOrContainerName instanceof StorageSharedKeyCredential || credentialOrPipelineOrContainerName instanceof AnonymousCredential || isTokenCredential(credentialOrPipelineOrContainerName)) {
       url2 = urlOrConnectionString;
       options = blobNameOrOptions;
@@ -86121,10 +89646,15 @@ var BlobClient = class _BlobClient extends StorageClient2 {
     __publicField(this, "_containerName");
     __publicField(this, "_versionId");
     __publicField(this, "_snapshot");
+    /**
+     * Config used in creating blob client instances.
+     */
+    __publicField(this, "blobClientConfig");
     ({ blobName: this._name, containerName: this._containerName } = this.getBlobAndContainerNamesFromUrl());
     this.blobContext = this.storageClientContext.blob;
     this._snapshot = getURLParameter(this.url, URLConstants2.Parameters.SNAPSHOT);
     this._versionId = getURLParameter(this.url, URLConstants2.Parameters.VERSIONID);
+    this.blobClientConfig = options;
   }
   /**
    * The name of the blob.
@@ -86146,7 +89676,7 @@ var BlobClient = class _BlobClient extends StorageClient2 {
    * @returns A new BlobClient object identical to the source but with the specified snapshot timestamp
    */
   withSnapshot(snapshot2) {
-    return new _BlobClient(setURLParameter2(this.url, URLConstants2.Parameters.SNAPSHOT, snapshot2.length === 0 ? void 0 : snapshot2), this.pipeline);
+    return new _BlobClient(setURLParameter2(this.url, URLConstants2.Parameters.SNAPSHOT, snapshot2.length === 0 ? void 0 : snapshot2), this.pipeline, this.blobClientConfig);
   }
   /**
    * Creates a new BlobClient object pointing to a version of this blob.
@@ -86156,28 +89686,28 @@ var BlobClient = class _BlobClient extends StorageClient2 {
    * @returns A new BlobClient object pointing to the version of this blob.
    */
   withVersion(versionId2) {
-    return new _BlobClient(setURLParameter2(this.url, URLConstants2.Parameters.VERSIONID, versionId2.length === 0 ? void 0 : versionId2), this.pipeline);
+    return new _BlobClient(setURLParameter2(this.url, URLConstants2.Parameters.VERSIONID, versionId2.length === 0 ? void 0 : versionId2), this.pipeline, this.blobClientConfig);
   }
   /**
    * Creates a AppendBlobClient object.
    *
    */
   getAppendBlobClient() {
-    return new AppendBlobClient(this.url, this.pipeline);
+    return new AppendBlobClient(this.url, this.pipeline, this.blobClientConfig);
   }
   /**
    * Creates a BlockBlobClient object.
    *
    */
   getBlockBlobClient() {
-    return new BlockBlobClient(this.url, this.pipeline);
+    return new BlockBlobClient(this.url, this.pipeline, this.blobClientConfig);
   }
   /**
    * Creates a PageBlobClient object.
    *
    */
   getPageBlobClient() {
-    return new PageBlobClient(this.url, this.pipeline);
+    return new PageBlobClient(this.url, this.pipeline, this.blobClientConfig);
   }
   /**
    * Reads or downloads a blob from the system, including its metadata and properties.
@@ -86198,6 +89728,7 @@ var BlobClient = class _BlobClient extends StorageClient2 {
    * ```ts snippet:ReadmeSampleDownloadBlob_Node
    * import { BlobServiceClient } from "@azure/storage-blob";
    * import { DefaultAzureCredential } from "@azure/identity";
+   * import { buffer } from "node:stream/consumers";
    *
    * const account = "<account>";
    * const blobServiceClient = new BlobServiceClient(
@@ -86214,22 +89745,10 @@ var BlobClient = class _BlobClient extends StorageClient2 {
    * // In Node.js, get downloaded data by accessing downloadBlockBlobResponse.readableStreamBody
    * const downloadBlockBlobResponse = await blobClient.download();
    * if (downloadBlockBlobResponse.readableStreamBody) {
-   *   const downloaded = await streamToString(downloadBlockBlobResponse.readableStreamBody);
-   *   console.log(`Downloaded blob content: ${downloaded}`);
-   * }
-   *
-   * async function streamToString(stream: NodeJS.ReadableStream): Promise<string> {
-   *   const result = await new Promise<Buffer<ArrayBuffer>>((resolve, reject) => {
-   *     const chunks: Buffer[] = [];
-   *     stream.on("data", (data) => {
-   *       chunks.push(Buffer.isBuffer(data) ? data : Buffer.from(data));
-   *     });
-   *     stream.on("end", () => {
-   *       resolve(Buffer.concat(chunks));
-   *     });
-   *     stream.on("error", reject);
-   *   });
-   *   return result.toString();
+   *   // Download the raw bytes of the blob. Use `text` from "node:stream/consumers"
+   *   // instead if you want to read the content as a string directly.
+   *   const downloaded = await buffer(downloadBlockBlobResponse.readableStreamBody);
+   *   console.log(`Downloaded blob content: ${downloaded.toString()}`);
    * }
    * ```
    *
@@ -86265,6 +89784,15 @@ var BlobClient = class _BlobClient extends StorageClient2 {
     options.conditions = options.conditions || {};
     ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
     return tracingClient.withSpan("BlobClient-download", options, async (updatedOptions) => {
+      let contentChecksumAlgorithm = options.contentChecksumAlgorithm ?? this.blobClientConfig?.downloadContentChecksumAlgorithm;
+      if (contentChecksumAlgorithm === void 0) {
+        contentChecksumAlgorithm = "Customized";
+      } else if (contentChecksumAlgorithm === "Auto") {
+        contentChecksumAlgorithm = "StorageCrc64";
+      }
+      if (contentChecksumAlgorithm === "StorageCrc64") {
+        await StorageCRC64Calculator.init();
+      }
       const res = assertResponse(await this.blobContext.download({
         abortSignal: options.abortSignal,
         leaseAccessConditions: options.conditions,
@@ -86281,7 +89809,8 @@ var BlobClient = class _BlobClient extends StorageClient2 {
         rangeGetContentCRC64: options.rangeGetContentCrc64,
         snapshot: options.snapshot,
         cpkInfo: options.customerProvidedKey,
-        tracingOptions: updatedOptions.tracingOptions
+        tracingOptions: updatedOptions.tracingOptions,
+        structuredBodyType: contentChecksumAlgorithm === "StorageCrc64" ? "XSM/1.0; properties=crc64" : void 0
       }));
       const wrappedRes = {
         ...res,
@@ -86291,6 +89820,9 @@ var BlobClient = class _BlobClient extends StorageClient2 {
         objectReplicationSourceProperties: parseObjectReplicationRecord(res.objectReplicationRules)
       };
       if (!isNodeLike2) {
+        if (contentChecksumAlgorithm === "StorageCrc64") {
+          wrappedRes.blobBody = structuredMessageDecodingBrowser(await wrappedRes.blobBody);
+        }
         return wrappedRes;
       }
       if (options.maxRetryRequests === void 0 || options.maxRetryRequests < 0) {
@@ -86299,9 +89831,13 @@ var BlobClient = class _BlobClient extends StorageClient2 {
       if (res.contentLength === void 0) {
         throw new RangeError(`File download response doesn't contain valid content length header`);
       }
+      if (contentChecksumAlgorithm === "StorageCrc64" && res.structuredContentLength === void 0) {
+        throw new RangeError(`Unexpected structured content length`);
+      }
       if (!res.etag) {
         throw new RangeError(`File download response doesn't contain valid etag header`);
       }
+      const expectedContentLength = contentChecksumAlgorithm === "StorageCrc64" ? res.structuredContentLength : res.contentLength;
       return new BlobDownloadResponse(wrappedRes, async (start) => {
         const updatedDownloadOptions = {
           leaseAccessConditions: options.conditions,
@@ -86313,19 +89849,25 @@ var BlobClient = class _BlobClient extends StorageClient2 {
             ifTags: options.conditions?.tagConditions
           },
           range: rangeToString({
-            count: offset + res.contentLength - start,
+            count: offset + expectedContentLength - start,
             offset: start
           }),
           rangeGetContentMD5: options.rangeGetContentMD5,
           rangeGetContentCRC64: options.rangeGetContentCrc64,
           snapshot: options.snapshot,
-          cpkInfo: options.customerProvidedKey
+          cpkInfo: options.customerProvidedKey,
+          structuredBodyType: contentChecksumAlgorithm === "StorageCrc64" ? "XSM/1.0; properties=crc64" : void 0
         };
-        return (await this.blobContext.download({
+        const resBody = (await this.blobContext.download({
           abortSignal: options.abortSignal,
           ...updatedDownloadOptions
         })).readableStreamBody;
-      }, offset, res.contentLength, {
+        if (contentChecksumAlgorithm === "StorageCrc64") {
+          return structuredMessageDecodingStream(resBody, {});
+        } else {
+          return resBody;
+        }
+      }, offset, expectedContentLength, {
         maxRetryRequests: options.maxRetryRequests,
         onProgress: options.onProgress
       });
@@ -86416,7 +89958,9 @@ var BlobClient = class _BlobClient extends StorageClient2 {
           ...options.conditions,
           ifTags: options.conditions?.tagConditions
         },
-        tracingOptions: updatedOptions.tracingOptions
+        tracingOptions: updatedOptions.tracingOptions,
+        accessTierIfModifiedSince: options.conditions?.accessTierIfModifiedSince,
+        accessTierIfUnmodifiedSince: options.conditions?.accessTierIfUnmodifiedSince
       }));
     });
   }
@@ -86847,6 +90391,7 @@ var BlobClient = class _BlobClient extends StorageClient2 {
             conditions: options.conditions,
             maxRetryRequests: options.maxRetryRequestsPerBlock,
             customerProvidedKey: options.customerProvidedKey,
+            contentChecksumAlgorithm: options.contentChecksumAlgorithm,
             tracingOptions: updatedOptions.tracingOptions
           });
           const stream3 = response.readableStreamBody;
@@ -87121,12 +90666,14 @@ var AppendBlobClient = class _AppendBlobClient extends BlobClient {
     if (isPipelineLike(credentialOrPipelineOrContainerName)) {
       url2 = urlOrConnectionString;
       pipeline3 = credentialOrPipelineOrContainerName;
+      options = blobNameOrOptions;
     } else if (isNodeLike2 && credentialOrPipelineOrContainerName instanceof StorageSharedKeyCredential || credentialOrPipelineOrContainerName instanceof AnonymousCredential || isTokenCredential(credentialOrPipelineOrContainerName)) {
       url2 = urlOrConnectionString;
       options = blobNameOrOptions;
       pipeline3 = newPipeline(credentialOrPipelineOrContainerName, options);
     } else if (!credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName !== "string") {
       url2 = urlOrConnectionString;
+      options = blobNameOrOptions;
       pipeline3 = newPipeline(new AnonymousCredential(), options);
     } else if (credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName === "string" && blobNameOrOptions && typeof blobNameOrOptions === "string") {
       const containerName = credentialOrPipelineOrContainerName;
@@ -87158,6 +90705,7 @@ var AppendBlobClient = class _AppendBlobClient extends BlobClient {
      */
     __publicField(this, "appendBlobContext");
     this.appendBlobContext = this.storageClientContext.appendBlob;
+    this.blobClientConfig = options;
   }
   /**
    * Creates a new AppendBlobClient object identical to the source but with the
@@ -87168,7 +90716,7 @@ var AppendBlobClient = class _AppendBlobClient extends BlobClient {
    * @returns A new AppendBlobClient object identical to the source but with the specified snapshot timestamp.
    */
   withSnapshot(snapshot2) {
-    return new _AppendBlobClient(setURLParameter2(this.url, URLConstants2.Parameters.SNAPSHOT, snapshot2.length === 0 ? void 0 : snapshot2), this.pipeline);
+    return new _AppendBlobClient(setURLParameter2(this.url, URLConstants2.Parameters.SNAPSHOT, snapshot2.length === 0 ? void 0 : snapshot2), this.pipeline, this.blobClientConfig);
   }
   /**
    * Creates a 0-length append blob. Call AppendBlock to append data to an append blob.
@@ -87314,7 +90862,7 @@ var AppendBlobClient = class _AppendBlobClient extends BlobClient {
     options.conditions = options.conditions || {};
     ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
     return tracingClient.withSpan("AppendBlobClient-appendBlock", options, async (updatedOptions) => {
-      return assertResponse(await this.appendBlobContext.appendBlock(contentLength2, body2, {
+      const parameters = {
         abortSignal: options.abortSignal,
         appendPositionAccessConditions: options.conditions,
         leaseAccessConditions: options.conditions,
@@ -87325,12 +90873,12 @@ var AppendBlobClient = class _AppendBlobClient extends BlobClient {
         requestOptions: {
           onUploadProgress: options.onProgress
         },
-        transactionalContentMD5: options.transactionalContentMD5,
-        transactionalContentCrc64: options.transactionalContentCrc64,
         cpkInfo: options.customerProvidedKey,
         encryptionScope: options.encryptionScope,
         tracingOptions: updatedOptions.tracingOptions
-      }));
+      };
+      const uploadBodyParameters = await setUploadChecksumParameters(body2, contentLength2, parameters, options, this.blobClientConfig?.uploadContentChecksumAlgorithm);
+      return assertResponse(await this.appendBlobContext.appendBlock(uploadBodyParameters.contentLength, uploadBodyParameters.body, parameters));
     });
   }
   /**
@@ -87373,7 +90921,12 @@ var AppendBlobClient = class _AppendBlobClient extends BlobClient {
         cpkInfo: options.customerProvidedKey,
         encryptionScope: options.encryptionScope,
         fileRequestIntent: options.sourceShareTokenIntent,
-        tracingOptions: updatedOptions.tracingOptions
+        tracingOptions: updatedOptions.tracingOptions,
+        sourceCpkInfo: {
+          sourceEncryptionKey: options.sourceCustomerProvidedKey?.encryptionKey,
+          sourceEncryptionAlgorithm: options.sourceCustomerProvidedKey?.encryptionAlgorithm,
+          sourceEncryptionKeySha256: options.sourceCustomerProvidedKey?.encryptionKeySha256
+        }
       }));
     });
   }
@@ -87386,6 +90939,7 @@ var BlockBlobClient = class _BlockBlobClient extends BlobClient {
     if (isPipelineLike(credentialOrPipelineOrContainerName)) {
       url2 = urlOrConnectionString;
       pipeline3 = credentialOrPipelineOrContainerName;
+      options = blobNameOrOptions;
     } else if (isNodeLike2 && credentialOrPipelineOrContainerName instanceof StorageSharedKeyCredential || credentialOrPipelineOrContainerName instanceof AnonymousCredential || isTokenCredential(credentialOrPipelineOrContainerName)) {
       url2 = urlOrConnectionString;
       options = blobNameOrOptions;
@@ -87434,6 +90988,7 @@ var BlockBlobClient = class _BlockBlobClient extends BlobClient {
     __publicField(this, "blockBlobContext");
     this.blockBlobContext = this.storageClientContext.blockBlob;
     this._blobContext = this.storageClientContext.blob;
+    this.blobClientConfig = options;
   }
   /**
    * Creates a new BlockBlobClient object identical to the source but with the
@@ -87444,7 +90999,7 @@ var BlockBlobClient = class _BlockBlobClient extends BlobClient {
    * @returns A new BlockBlobClient object identical to the source but with the specified snapshot timestamp.
    */
   withSnapshot(snapshot2) {
-    return new _BlockBlobClient(setURLParameter2(this.url, URLConstants2.Parameters.SNAPSHOT, snapshot2.length === 0 ? void 0 : snapshot2), this.pipeline);
+    return new _BlockBlobClient(setURLParameter2(this.url, URLConstants2.Parameters.SNAPSHOT, snapshot2.length === 0 ? void 0 : snapshot2), this.pipeline, this.blobClientConfig);
   }
   /**
    * ONLY AVAILABLE IN NODE.JS RUNTIME.
@@ -87456,6 +91011,7 @@ var BlockBlobClient = class _BlockBlobClient extends BlobClient {
    * ```ts snippet:ClientsQuery
    * import { BlobServiceClient } from "@azure/storage-blob";
    * import { DefaultAzureCredential } from "@azure/identity";
+   * import { buffer } from "node:stream/consumers";
    *
    * const account = "<account>";
    * const blobServiceClient = new BlobServiceClient(
@@ -87471,22 +91027,10 @@ var BlockBlobClient = class _BlockBlobClient extends BlobClient {
    * // Query and convert a blob to a string
    * const queryBlockBlobResponse = await blockBlobClient.query("select from BlobStorage");
    * if (queryBlockBlobResponse.readableStreamBody) {
-   *   const downloadedBuffer = await streamToBuffer(queryBlockBlobResponse.readableStreamBody);
-   *   const downloaded = downloadedBuffer.toString();
-   *   console.log(`Query blob content: ${downloaded}`);
-   * }
-   *
-   * async function streamToBuffer(readableStream: NodeJS.ReadableStream): Promise<Buffer> {
-   *   return new Promise((resolve, reject) => {
-   *     const chunks: Buffer[] = [];
-   *     readableStream.on("data", (data) => {
-   *       chunks.push(data instanceof Buffer ? data : Buffer.from(data));
-   *     });
-   *     readableStream.on("end", () => {
-   *       resolve(Buffer.concat(chunks));
-   *     });
-   *     readableStream.on("error", reject);
-   *   });
+   *   // Read the response bytes. Use `text` from "node:stream/consumers" instead
+   *   // if you want the response as a string directly.
+   *   const downloadedBuffer = await buffer(queryBlockBlobResponse.readableStreamBody);
+   *   console.log(`Query blob content: ${downloadedBuffer.toString()}`);
    * }
    * ```
    *
@@ -87567,7 +91111,7 @@ var BlockBlobClient = class _BlockBlobClient extends BlobClient {
     options.conditions = options.conditions || {};
     ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
     return tracingClient.withSpan("BlockBlobClient-upload", options, async (updatedOptions) => {
-      return assertResponse(await this.blockBlobContext.upload(contentLength2, body2, {
+      const parameters = {
         abortSignal: options.abortSignal,
         blobHttpHeaders: options.blobHTTPHeaders,
         leaseAccessConditions: options.conditions,
@@ -87587,7 +91131,9 @@ var BlockBlobClient = class _BlockBlobClient extends BlobClient {
         tier: toAccessTier(options.tier),
         blobTagsString: toBlobTagsString(options.tags),
         tracingOptions: updatedOptions.tracingOptions
-      }));
+      };
+      const uploadBodyParameters = await setUploadChecksumParameters(body2, contentLength2, parameters, options, this.blobClientConfig?.uploadContentChecksumAlgorithm);
+      return assertResponse(await this.blockBlobContext.upload(uploadBodyParameters.contentLength, uploadBodyParameters.body, parameters));
     });
   }
   /**
@@ -87633,7 +91179,12 @@ var BlockBlobClient = class _BlockBlobClient extends BlobClient {
         blobTagsString: toBlobTagsString(options.tags),
         copySourceTags: options.copySourceTags,
         fileRequestIntent: options.sourceShareTokenIntent,
-        tracingOptions: updatedOptions.tracingOptions
+        tracingOptions: updatedOptions.tracingOptions,
+        sourceCpkInfo: {
+          sourceEncryptionKey: options.sourceCustomerProvidedKey?.encryptionKey,
+          sourceEncryptionAlgorithm: options.sourceCustomerProvidedKey?.encryptionAlgorithm,
+          sourceEncryptionKeySha256: options.sourceCustomerProvidedKey?.encryptionKeySha256
+        }
       }));
     });
   }
@@ -87651,18 +91202,18 @@ var BlockBlobClient = class _BlockBlobClient extends BlobClient {
   async stageBlock(blockId2, body2, contentLength2, options = {}) {
     ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
     return tracingClient.withSpan("BlockBlobClient-stageBlock", options, async (updatedOptions) => {
-      return assertResponse(await this.blockBlobContext.stageBlock(blockId2, contentLength2, body2, {
+      const parameters = {
         abortSignal: options.abortSignal,
         leaseAccessConditions: options.conditions,
         requestOptions: {
           onUploadProgress: options.onProgress
         },
-        transactionalContentMD5: options.transactionalContentMD5,
-        transactionalContentCrc64: options.transactionalContentCrc64,
         cpkInfo: options.customerProvidedKey,
         encryptionScope: options.encryptionScope,
         tracingOptions: updatedOptions.tracingOptions
-      }));
+      };
+      const uploadBodyParameters = await setUploadChecksumParameters(body2, contentLength2, parameters, options, this.blobClientConfig?.uploadContentChecksumAlgorithm);
+      return assertResponse(await this.blockBlobContext.stageBlock(blockId2, uploadBodyParameters.contentLength, uploadBodyParameters.body, parameters));
     });
   }
   /**
@@ -87699,7 +91250,12 @@ var BlockBlobClient = class _BlockBlobClient extends BlobClient {
         encryptionScope: options.encryptionScope,
         copySourceAuthorization: httpAuthorizationToString(options.sourceAuthorization),
         fileRequestIntent: options.sourceShareTokenIntent,
-        tracingOptions: updatedOptions.tracingOptions
+        tracingOptions: updatedOptions.tracingOptions,
+        sourceCpkInfo: {
+          sourceEncryptionKey: options.sourceCustomerProvidedKey?.encryptionKey,
+          sourceEncryptionAlgorithm: options.sourceCustomerProvidedKey?.encryptionAlgorithm,
+          sourceEncryptionKeySha256: options.sourceCustomerProvidedKey?.encryptionKeySha256
+        }
       }));
     });
   }
@@ -87893,7 +91449,8 @@ var BlockBlobClient = class _BlockBlobClient extends BlobClient {
             abortSignal: options.abortSignal,
             conditions: options.conditions,
             encryptionScope: options.encryptionScope,
-            tracingOptions: updatedOptions.tracingOptions
+            tracingOptions: updatedOptions.tracingOptions,
+            contentChecksumAlgorithm: options.contentChecksumAlgorithm
           });
           transferProgress += contentLength2;
           if (options.onProgress) {
@@ -87975,7 +91532,8 @@ var BlockBlobClient = class _BlockBlobClient extends BlobClient {
             customerProvidedKey: options.customerProvidedKey,
             conditions: options.conditions,
             encryptionScope: options.encryptionScope,
-            tracingOptions: updatedOptions.tracingOptions
+            tracingOptions: updatedOptions.tracingOptions,
+            contentChecksumAlgorithm: options.contentChecksumAlgorithm
           });
           transferProgress += length;
           if (options.onProgress) {
@@ -88004,12 +91562,14 @@ var PageBlobClient = class _PageBlobClient extends BlobClient {
     if (isPipelineLike(credentialOrPipelineOrContainerName)) {
       url2 = urlOrConnectionString;
       pipeline3 = credentialOrPipelineOrContainerName;
+      options = blobNameOrOptions;
     } else if (isNodeLike2 && credentialOrPipelineOrContainerName instanceof StorageSharedKeyCredential || credentialOrPipelineOrContainerName instanceof AnonymousCredential || isTokenCredential(credentialOrPipelineOrContainerName)) {
       url2 = urlOrConnectionString;
       options = blobNameOrOptions;
       pipeline3 = newPipeline(credentialOrPipelineOrContainerName, options);
     } else if (!credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName !== "string") {
       url2 = urlOrConnectionString;
+      options = blobNameOrOptions;
       pipeline3 = newPipeline(new AnonymousCredential(), options);
     } else if (credentialOrPipelineOrContainerName && typeof credentialOrPipelineOrContainerName === "string" && blobNameOrOptions && typeof blobNameOrOptions === "string") {
       const containerName = credentialOrPipelineOrContainerName;
@@ -88041,6 +91601,7 @@ var PageBlobClient = class _PageBlobClient extends BlobClient {
      */
     __publicField(this, "pageBlobContext");
     this.pageBlobContext = this.storageClientContext.pageBlob;
+    this.blobClientConfig = options;
   }
   /**
    * Creates a new PageBlobClient object identical to the source but with the
@@ -88051,7 +91612,7 @@ var PageBlobClient = class _PageBlobClient extends BlobClient {
    * @returns A new PageBlobClient object identical to the source but with the specified snapshot timestamp.
    */
   withSnapshot(snapshot2) {
-    return new _PageBlobClient(setURLParameter2(this.url, URLConstants2.Parameters.SNAPSHOT, snapshot2.length === 0 ? void 0 : snapshot2), this.pipeline);
+    return new _PageBlobClient(setURLParameter2(this.url, URLConstants2.Parameters.SNAPSHOT, snapshot2.length === 0 ? void 0 : snapshot2), this.pipeline, this.blobClientConfig);
   }
   /**
    * Creates a page blob of the specified length. Call uploadPages to upload data
@@ -88137,7 +91698,7 @@ var PageBlobClient = class _PageBlobClient extends BlobClient {
     options.conditions = options.conditions || {};
     ensureCpkIfSpecified(options.customerProvidedKey, this.isHttps);
     return tracingClient.withSpan("PageBlobClient-uploadPages", options, async (updatedOptions) => {
-      return assertResponse(await this.pageBlobContext.uploadPages(count, body2, {
+      const parameters = {
         abortSignal: options.abortSignal,
         leaseAccessConditions: options.conditions,
         modifiedAccessConditions: {
@@ -88149,12 +91710,12 @@ var PageBlobClient = class _PageBlobClient extends BlobClient {
         },
         range: rangeToString({ offset, count }),
         sequenceNumberAccessConditions: options.conditions,
-        transactionalContentMD5: options.transactionalContentMD5,
-        transactionalContentCrc64: options.transactionalContentCrc64,
         cpkInfo: options.customerProvidedKey,
         encryptionScope: options.encryptionScope,
         tracingOptions: updatedOptions.tracingOptions
-      }));
+      };
+      const uploadBodyParameters = await setUploadChecksumParameters(body2, count, parameters, options, this.blobClientConfig?.uploadContentChecksumAlgorithm);
+      return assertResponse(await this.pageBlobContext.uploadPages(uploadBodyParameters.contentLength, uploadBodyParameters.body, parameters));
     });
   }
   /**
@@ -88193,7 +91754,12 @@ var PageBlobClient = class _PageBlobClient extends BlobClient {
         encryptionScope: options.encryptionScope,
         copySourceAuthorization: httpAuthorizationToString(options.sourceAuthorization),
         fileRequestIntent: options.sourceShareTokenIntent,
-        tracingOptions: updatedOptions.tracingOptions
+        tracingOptions: updatedOptions.tracingOptions,
+        sourceCpkInfo: {
+          sourceEncryptionKey: options.sourceCustomerProvidedKey?.encryptionKey,
+          sourceEncryptionAlgorithm: options.sourceCustomerProvidedKey?.encryptionAlgorithm,
+          sourceEncryptionKeySha256: options.sourceCustomerProvidedKey?.encryptionKeySha256
+        }
       }));
     });
   }
@@ -88726,20 +92292,20 @@ var PageBlobClient = class _PageBlobClient extends BlobClient {
   }
 };
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/utils/Mutex.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/utils/Mutex.js
 var MutexLockStatus;
 (function(MutexLockStatus2) {
   MutexLockStatus2[MutexLockStatus2["LOCKED"] = 0] = "LOCKED";
   MutexLockStatus2[MutexLockStatus2["UNLOCKED"] = 1] = "UNLOCKED";
 })(MutexLockStatus || (MutexLockStatus = {}));
 
-// node_modules/.pnpm/@azure+storage-blob@12.31.0/node_modules/@azure/storage-blob/dist/esm/generatedModels.js
+// node_modules/.pnpm/@azure+storage-blob@12.33.0/node_modules/@azure/storage-blob/dist/esm/generatedModels.js
 var KnownEncryptionAlgorithmType2;
 (function(KnownEncryptionAlgorithmType3) {
   KnownEncryptionAlgorithmType3["AES256"] = "AES256";
 })(KnownEncryptionAlgorithmType2 || (KnownEncryptionAlgorithmType2 = {}));
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/shared/errors.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/shared/errors.js
 var InvalidResponseError = class extends Error {
   constructor(message) {
     super(message);
@@ -88786,7 +92352,7 @@ var RateLimitError = class extends Error {
   }
 };
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/uploadUtils.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/uploadUtils.js
 var __awaiter17 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve3) {
@@ -88924,13 +92490,13 @@ function uploadCacheArchiveSDK(signedUploadURL, archivePath, options) {
   });
 }
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/downloadUtils.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/downloadUtils.js
 var buffer2 = __toESM(require("buffer"), 1);
 var fs10 = __toESM(require("fs"), 1);
 var stream2 = __toESM(require("stream"), 1);
 var util5 = __toESM(require("util"), 1);
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/requestUtils.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/requestUtils.js
 var __awaiter18 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve3) {
@@ -89055,7 +92621,7 @@ function retryHttpClientResponse(name_1, method_1) {
   });
 }
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/downloadUtils.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/downloadUtils.js
 var __awaiter19 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve3) {
@@ -89366,7 +92932,7 @@ var promiseWithTimeout = (timeoutMs, promise) => __awaiter19(void 0, void 0, voi
   });
 });
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/options.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/options.js
 function getUploadOptions(copy) {
   const result = {
     useAzureSdk: false,
@@ -89433,7 +92999,7 @@ function getDownloadOptions(copy) {
   return result;
 }
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/config.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/config.js
 function isGhes() {
   const ghUrl = new URL(process.env["GITHUB_SERVER_URL"] || "https://github.com");
   const hostname = ghUrl.hostname.trimEnd().toUpperCase();
@@ -89447,6 +93013,20 @@ function getCacheServiceVersion() {
     return "v1";
   return process.env["ACTIONS_CACHE_SERVICE_V2"] ? "v2" : "v1";
 }
+var KNOWN_CACHE_MODES = ["none", "read", "write", "write-only"];
+function getCacheMode() {
+  return (process.env["ACTIONS_CACHE_MODE"] || "").trim().toLowerCase();
+}
+function isCacheReadable(mode) {
+  if (!KNOWN_CACHE_MODES.includes(mode))
+    return true;
+  return mode === "read" || mode === "write";
+}
+function isCacheWritable(mode) {
+  if (!KNOWN_CACHE_MODES.includes(mode))
+    return true;
+  return mode === "write" || mode === "write-only";
+}
 function getCacheServiceURL() {
   const version4 = getCacheServiceVersion();
   switch (version4) {
@@ -89459,13 +93039,13 @@ function getCacheServiceURL() {
   }
 }
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/shared/user-agent.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/shared/user-agent.js
 var import_package_version = __toESM(require_package_version(), 1);
 function getUserAgentString2() {
   return `@actions/cache-${import_package_version.version}`;
 }
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/cacheHttpClient.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/cacheHttpClient.js
 var __awaiter20 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve3) {
@@ -89520,6 +93100,7 @@ function createHttpClient() {
 }
 function getCacheEntry(keys, paths, options) {
   return __awaiter20(this, void 0, void 0, function* () {
+    var _a3;
     const httpClient = createHttpClient();
     const version4 = getCacheVersion(paths, options === null || options === void 0 ? void 0 : options.compressionMethod, options === null || options === void 0 ? void 0 : options.enableCrossOsArchive);
     const resource = `cache?keys=${encodeURIComponent(keys.join(","))}&version=${version4}`;
@@ -89533,6 +93114,10 @@ function getCacheEntry(keys, paths, options) {
       return null;
     }
     if (!isSuccessStatusCode(response.statusCode)) {
+      const errorMessage = (_a3 = response.error) === null || _a3 === void 0 ? void 0 : _a3.message;
+      if (errorMessage === null || errorMessage === void 0 ? void 0 : errorMessage.includes(CacheReadDeniedMessagePrefix)) {
+        throw new Error(errorMessage);
+      }
       throw new Error(`Cache service responded with ${response.statusCode}`);
     }
     const cacheResult = response.result;
@@ -92144,7 +95729,7 @@ var ServiceType = class {
   }
 };
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/generated/results/entities/v1/cachescope.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/generated/results/entities/v1/cachescope.js
 var CacheScope$Type = class extends MessageType {
   constructor() {
     super("github.actions.results.entities.v1.CacheScope", [
@@ -92208,7 +95793,7 @@ var CacheScope$Type = class extends MessageType {
 };
 var CacheScope = new CacheScope$Type();
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/generated/results/entities/v1/cachemetadata.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/generated/results/entities/v1/cachemetadata.js
 var CacheMetadata$Type = class extends MessageType {
   constructor() {
     super("github.actions.results.entities.v1.CacheMetadata", [
@@ -92266,7 +95851,7 @@ var CacheMetadata$Type = class extends MessageType {
 };
 var CacheMetadata = new CacheMetadata$Type();
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/generated/results/api/v1/cache.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/generated/results/api/v1/cache.js
 var CreateCacheEntryRequest$Type = class extends MessageType {
   constructor() {
     super("github.actions.results.api.v1.CreateCacheEntryRequest", [
@@ -92732,7 +96317,7 @@ var CacheService = new ServiceType("github.actions.results.api.v1.CacheService",
   { name: "GetCacheEntryDownloadURL", options: {}, I: GetCacheEntryDownloadURLRequest, O: GetCacheEntryDownloadURLResponse }
 ]);
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/generated/results/api/v1/cache.twirp-client.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/generated/results/api/v1/cache.twirp-client.js
 var CacheServiceClientJSON = class {
   constructor(rpc) {
     this.rpc = rpc;
@@ -92772,7 +96357,7 @@ var CacheServiceClientJSON = class {
   }
 };
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/shared/util.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/shared/util.js
 function maskSigUrl(url2) {
   if (!url2)
     return;
@@ -92800,7 +96385,7 @@ function maskSecretUrls(body2) {
   }
 }
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/shared/cacheTwirpClient.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/shared/cacheTwirpClient.js
 var __awaiter21 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve3) {
@@ -92972,7 +96557,7 @@ function internalCacheTwirpClient(options) {
   return new CacheServiceClientJSON(client);
 }
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/internal/tar.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/internal/tar.js
 var import_fs3 = require("fs");
 var path14 = __toESM(require("path"), 1);
 var __awaiter22 = function(thisArg, _arguments, P, generator) {
@@ -93174,7 +96759,7 @@ function createTar(archiveFolder, sourceDirectories, compressionMethod) {
   });
 }
 
-// node_modules/.pnpm/@actions+cache@6.0.1/node_modules/@actions/cache/lib/cache.js
+// node_modules/.pnpm/@actions+cache@6.2.0/node_modules/@actions/cache/lib/cache.js
 var __awaiter23 = function(thisArg, _arguments, P, generator) {
   function adopt(value) {
     return value instanceof P ? value : new P(function(resolve3) {
@@ -93216,6 +96801,22 @@ var ReserveCacheError = class _ReserveCacheError extends Error {
     Object.setPrototypeOf(this, _ReserveCacheError.prototype);
   }
 };
+var CACHE_WRITE_DENIED_PREFIX = "cache write denied:";
+var CacheWriteDeniedError = class _CacheWriteDeniedError extends ReserveCacheError {
+  constructor(message) {
+    super(message);
+    this.name = "CacheWriteDeniedError";
+    Object.setPrototypeOf(this, _CacheWriteDeniedError.prototype);
+  }
+};
+var CACHE_READ_DENIED_PREFIX = CacheReadDeniedMessagePrefix;
+var CacheReadDeniedError = class _CacheReadDeniedError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "CacheReadDeniedError";
+    Object.setPrototypeOf(this, _CacheReadDeniedError.prototype);
+  }
+};
 var FinalizeCacheError = class _FinalizeCacheError extends Error {
   constructor(message) {
     super(message);
@@ -93242,6 +96843,12 @@ function restoreCache(paths_1, primaryKey_1, restoreKeys_1, options_1) {
     const cacheServiceVersion = getCacheServiceVersion();
     debug(`Cache service version: ${cacheServiceVersion}`);
     checkPaths(paths);
+    const cacheMode = getCacheMode();
+    if (!isCacheReadable(cacheMode)) {
+      info(`Cache restore skipped: the effective cache-mode '${cacheMode}' does not permit reads.`);
+      debug(`Skipped restore for paths [${paths.join(", ")}] with primary key '${primaryKey}'.`);
+      return void 0;
+    }
     switch (cacheServiceVersion) {
       case "v2":
         return yield restoreCacheV2(paths, primaryKey, restoreKeys, options, enableCrossOsArchive);
@@ -93253,6 +96860,7 @@ function restoreCache(paths_1, primaryKey_1, restoreKeys_1, options_1) {
 }
 function restoreCacheV1(paths_1, primaryKey_1, restoreKeys_1, options_1) {
   return __awaiter23(this, arguments, void 0, function* (paths, primaryKey, restoreKeys, options, enableCrossOsArchive = false) {
+    var _a3;
     restoreKeys = restoreKeys || [];
     const keys = [primaryKey, ...restoreKeys];
     debug("Resolved Keys:");
@@ -93266,10 +96874,19 @@ function restoreCacheV1(paths_1, primaryKey_1, restoreKeys_1, options_1) {
     const compressionMethod = yield getCompressionMethod();
     let archivePath = "";
     try {
-      const cacheEntry = yield getCacheEntry(keys, paths, {
-        compressionMethod,
-        enableCrossOsArchive
-      });
+      let cacheEntry;
+      try {
+        cacheEntry = yield getCacheEntry(keys, paths, {
+          compressionMethod,
+          enableCrossOsArchive
+        });
+      } catch (error2) {
+        const errorMessage = (_a3 = error2 === null || error2 === void 0 ? void 0 : error2.message) !== null && _a3 !== void 0 ? _a3 : "";
+        if (errorMessage.includes(CACHE_READ_DENIED_PREFIX)) {
+          throw new CacheReadDeniedError(errorMessage);
+        }
+        throw error2;
+      }
       if (!(cacheEntry === null || cacheEntry === void 0 ? void 0 : cacheEntry.archiveLocation)) {
         return void 0;
       }
@@ -93311,6 +96928,7 @@ function restoreCacheV1(paths_1, primaryKey_1, restoreKeys_1, options_1) {
 }
 function restoreCacheV2(paths_1, primaryKey_1, restoreKeys_1, options_1) {
   return __awaiter23(this, arguments, void 0, function* (paths, primaryKey, restoreKeys, options, enableCrossOsArchive = false) {
+    var _a3;
     options = Object.assign(Object.assign({}, options), { useAzureSdk: true });
     restoreKeys = restoreKeys || [];
     const keys = [primaryKey, ...restoreKeys];
@@ -93331,7 +96949,16 @@ function restoreCacheV2(paths_1, primaryKey_1, restoreKeys_1, options_1) {
         restoreKeys,
         version: getCacheVersion(paths, compressionMethod, enableCrossOsArchive)
       };
-      const response = yield twirpClient.GetCacheEntryDownloadURL(request);
+      let response;
+      try {
+        response = yield twirpClient.GetCacheEntryDownloadURL(request);
+      } catch (error2) {
+        const errorMessage = (_a3 = error2 === null || error2 === void 0 ? void 0 : error2.message) !== null && _a3 !== void 0 ? _a3 : "";
+        if (errorMessage.includes(CACHE_READ_DENIED_PREFIX)) {
+          throw new CacheReadDeniedError(errorMessage);
+        }
+        throw error2;
+      }
       if (!response.ok) {
         debug(`Cache not found for version ${request.version} of keys: ${keys.join(", ")}`);
         return void 0;
@@ -93387,6 +97014,12 @@ function saveCache2(paths_1, key_1, options_1) {
     debug(`Cache service version: ${cacheServiceVersion}`);
     checkPaths(paths);
     checkKey(key);
+    const cacheMode = getCacheMode();
+    if (!isCacheWritable(cacheMode)) {
+      info(`Cache save skipped: the effective cache-mode '${cacheMode}' does not permit writes.`);
+      debug(`Skipped save for paths [${paths.join(", ")}] with key '${key}'.`);
+      return -1;
+    }
     switch (cacheServiceVersion) {
       case "v2":
         return yield saveCacheV2(paths, key, options, enableCrossOsArchive);
@@ -93398,7 +97031,7 @@ function saveCache2(paths_1, key_1, options_1) {
 }
 function saveCacheV1(paths_1, key_1, options_1) {
   return __awaiter23(this, arguments, void 0, function* (paths, key, options, enableCrossOsArchive = false) {
-    var _a3, _b, _c, _d, _e;
+    var _a3, _b, _c, _d, _e, _f;
     const compressionMethod = yield getCompressionMethod();
     let cacheId = -1;
     const cachePaths = yield resolvePaths(paths);
@@ -93432,7 +97065,11 @@ function saveCacheV1(paths_1, key_1, options_1) {
       } else if ((reserveCacheResponse === null || reserveCacheResponse === void 0 ? void 0 : reserveCacheResponse.statusCode) === 400) {
         throw new Error((_d = (_c = reserveCacheResponse === null || reserveCacheResponse === void 0 ? void 0 : reserveCacheResponse.error) === null || _c === void 0 ? void 0 : _c.message) !== null && _d !== void 0 ? _d : `Cache size of ~${Math.round(archiveFileSize / (1024 * 1024))} MB (${archiveFileSize} B) is over the data cap limit, not saving cache.`);
       } else {
-        throw new ReserveCacheError(`Unable to reserve cache with key ${key}, another job may be creating this cache. More details: ${(_e = reserveCacheResponse === null || reserveCacheResponse === void 0 ? void 0 : reserveCacheResponse.error) === null || _e === void 0 ? void 0 : _e.message}`);
+        const detailMessage = (_e = reserveCacheResponse === null || reserveCacheResponse === void 0 ? void 0 : reserveCacheResponse.error) === null || _e === void 0 ? void 0 : _e.message;
+        if (detailMessage === null || detailMessage === void 0 ? void 0 : detailMessage.startsWith(CACHE_WRITE_DENIED_PREFIX)) {
+          throw new CacheWriteDeniedError(`Unable to reserve cache with key ${key}. More details: ${detailMessage}`);
+        }
+        throw new ReserveCacheError(`Unable to reserve cache with key ${key}, another job may be creating this cache. More details: ${(_f = reserveCacheResponse === null || reserveCacheResponse === void 0 ? void 0 : reserveCacheResponse.error) === null || _f === void 0 ? void 0 : _f.message}`);
       }
       debug(`Saving Cache (ID: ${cacheId})`);
       yield saveCache(cacheId, archivePath, "", options);
@@ -93461,6 +97098,7 @@ function saveCacheV1(paths_1, key_1, options_1) {
 }
 function saveCacheV2(paths_1, key_1, options_1) {
   return __awaiter23(this, arguments, void 0, function* (paths, key, options, enableCrossOsArchive = false) {
+    var _a3;
     options = Object.assign(Object.assign({}, options), { uploadChunkSize: 64 * 1024 * 1024, uploadConcurrency: 8, useAzureSdk: true });
     const compressionMethod = yield getCompressionMethod();
     const twirpClient = internalCacheTwirpClient();
@@ -93492,7 +97130,7 @@ function saveCacheV2(paths_1, key_1, options_1) {
       try {
         const response = yield twirpClient.CreateCacheEntry(request);
         if (!response.ok) {
-          if (response.message) {
+          if (response.message && !response.message.startsWith(CACHE_WRITE_DENIED_PREFIX)) {
             warning(`Cache reservation failed: ${response.message}`);
           }
           throw new Error(response.message || "Response was not ok");
@@ -93500,6 +97138,10 @@ function saveCacheV2(paths_1, key_1, options_1) {
         signedUploadUrl = response.signedUploadUrl;
       } catch (error2) {
         debug(`Failed to reserve cache: ${error2}`);
+        const errorMessage = (_a3 = error2 === null || error2 === void 0 ? void 0 : error2.message) !== null && _a3 !== void 0 ? _a3 : "";
+        if (errorMessage.startsWith(CACHE_WRITE_DENIED_PREFIX)) {
+          throw new CacheWriteDeniedError(`Unable to reserve cache with key ${key}. More details: ${errorMessage}`);
+        }
         throw new ReserveCacheError(`Unable to reserve cache with key ${key}, another job may be creating this cache.`);
       }
       debug(`Attempting to upload cache located at: ${archivePath}`);
@@ -93617,8 +97259,8 @@ var import_promises = __toESM(require("fs/promises"));
 var import_os3 = __toESM(require("os"));
 var import_path3 = __toESM(require("path"));
 var import_child_process = require("child_process");
-var import_util19 = require("util");
-var execFileAsync = (0, import_util19.promisify)(import_child_process.execFile);
+var import_util18 = require("util");
+var execFileAsync = (0, import_util18.promisify)(import_child_process.execFile);
 var getCondaPackageExtension = (packageUrl) => {
   const pathname = new URL(packageUrl).pathname;
   if (pathname.endsWith(".tar.bz2")) {
@@ -93863,6 +97505,6 @@ undici/lib/web/websocket/frame.js:
   (*! ws. MIT License. Einar Otto Stangvik <einaros@gmail.com> *)
 
 js-yaml/dist/js-yaml.mjs:
-  (*! js-yaml 4.2.0 https://github.com/nodeca/js-yaml @license MIT *)
+  (*! js-yaml 5.2.3 https://github.com/nodeca/js-yaml @license MIT *)
 */
 //# sourceMappingURL=main.js.map
