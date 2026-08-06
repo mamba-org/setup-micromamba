@@ -18,11 +18,26 @@ export const getCondaPackageExtension = (packageUrl: string): string => {
 }
 
 /**
+ * Normalize a filesystem path for GNU tar on the given platform.
+ *
+ * Git-for-Windows GNU tar mis-parses backslash paths (e.g. `-C C:\Users\...`
+ * becomes `C\:\\Users\...` and fails with "Cannot open: No such file or directory").
+ * Forward slashes work; pair with `--force-local` so drive-letter colons are not
+ * treated as remote-host separators. macOS bsdtar does not support `--force-local`.
+ */
+export const toGnuTarPath = (filePath: string, platform: NodeJS.Platform = os.platform()): string => {
+  if (platform !== 'win32') {
+    return filePath
+  }
+  return filePath.replace(/\\/g, '/')
+}
+
+/**
  * Build tar args to extract a member from a local conda .tar.bz2 package.
  *
- * On Windows, GNU tar treats ":" as a remote-host separator (`host:path`). Paths
- * like `C:\...` then fail with "Cannot connect to C: resolve failed". `--force-local`
- * disables that; only pass it on win32 because macOS bsdtar does not support it.
+ * Prefer calling this with paths relative to `cwd` (see
+ * `extractMicromambaFromCondaPackage`) so Windows drive letters never reach tar.
+ * Absolute Windows paths are still normalized to forward slashes + `--force-local`.
  */
 export const getCondaPackageExtractArgs = (
   packagePath: string,
@@ -30,7 +45,13 @@ export const getCondaPackageExtractArgs = (
   binaryMember: string,
   platform: NodeJS.Platform = os.platform()
 ): string[] => {
-  const args = ['-xjf', packagePath, '-C', extractDir, binaryMember]
+  const args = [
+    '-xjf',
+    toGnuTarPath(packagePath, platform),
+    '-C',
+    toGnuTarPath(extractDir, platform),
+    binaryMember
+  ]
   if (platform === 'win32') {
     args.unshift('--force-local')
   }
@@ -42,11 +63,18 @@ export const extractMicromambaFromCondaPackage = async (
   destBinaryPath: string,
   binaryMember: string
 ) => {
-  const extractDir = path.join(path.dirname(packagePath), 'micromamba-extract')
+  const packageDir = path.dirname(packagePath)
+  const extractDirName = 'micromamba-extract'
+  const extractDir = path.join(packageDir, extractDirName)
   await fs.mkdir(extractDir, { recursive: true })
 
   if (packagePath.endsWith('.tar.bz2')) {
-    await execFileAsync('tar', getCondaPackageExtractArgs(packagePath, extractDir, binaryMember))
+    // Use cwd + relative paths so GNU tar never sees Windows drive-letter paths.
+    await execFileAsync(
+      'tar',
+      getCondaPackageExtractArgs(path.basename(packagePath), extractDirName, binaryMember),
+      { cwd: packageDir }
+    )
   } else if (packagePath.endsWith('.conda')) {
     throw new Error(
       'Prerelease micromamba packages in .conda format are not supported yet. Use a .tar.bz2 build or specify micromamba-url.'

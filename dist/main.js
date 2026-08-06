@@ -93629,18 +93629,36 @@ var getCondaPackageExtension = (packageUrl) => {
   }
   return ".tar.bz2";
 };
+var toGnuTarPath = (filePath, platform6 = import_os3.default.platform()) => {
+  if (platform6 !== "win32") {
+    return filePath;
+  }
+  return filePath.replace(/\\/g, "/");
+};
 var getCondaPackageExtractArgs = (packagePath, extractDir, binaryMember, platform6 = import_os3.default.platform()) => {
-  const args = ["-xjf", packagePath, "-C", extractDir, binaryMember];
+  const args = [
+    "-xjf",
+    toGnuTarPath(packagePath, platform6),
+    "-C",
+    toGnuTarPath(extractDir, platform6),
+    binaryMember
+  ];
   if (platform6 === "win32") {
     args.unshift("--force-local");
   }
   return args;
 };
 var extractMicromambaFromCondaPackage = async (packagePath, destBinaryPath, binaryMember) => {
-  const extractDir = import_path3.default.join(import_path3.default.dirname(packagePath), "micromamba-extract");
+  const packageDir = import_path3.default.dirname(packagePath);
+  const extractDirName = "micromamba-extract";
+  const extractDir = import_path3.default.join(packageDir, extractDirName);
   await import_promises.default.mkdir(extractDir, { recursive: true });
   if (packagePath.endsWith(".tar.bz2")) {
-    await execFileAsync("tar", getCondaPackageExtractArgs(packagePath, extractDir, binaryMember));
+    await execFileAsync(
+      "tar",
+      getCondaPackageExtractArgs(import_path3.default.basename(packagePath), extractDirName, binaryMember),
+      { cwd: packageDir }
+    );
   } else if (packagePath.endsWith(".conda")) {
     throw new Error(
       "Prerelease micromamba packages in .conda format are not supported yet. Use a .tar.bz2 build or specify micromamba-url."
