@@ -30,27 +30,27 @@
     "@actions/io": "^3.0.2",
     "@actions/tool-cache": "^4.0.0",
     "fp-ts": "^2.16.11",
-    "js-yaml": "^5.2.3",
+    "js-yaml": "^5.4.1",
     "untildify": "^6.0.0",
     "which": "^7.0.0",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^26.1.2",
+    "@types/node": "^26.4.0",
     "@types/which": "^3.0.4",
-    "@typescript-eslint/eslint-plugin": "^8.65.0",
-    "@typescript-eslint/parser": "^8.65.0",
-    "eslint": "^10.8.0",
+    "@typescript-eslint/eslint-plugin": "^8.68.0",
+    "@typescript-eslint/parser": "^8.68.0",
+    "eslint": "^10.9.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.32.0",
-    "eslint-plugin-n": "^18.2.2",
+    "eslint-plugin-n": "^18.3.0",
     "eslint-plugin-prettier": "^5.5.6",
     "eslint-plugin-promise": "^7.3.0",
     "prettier": "^3.9.6",
     "tsup": "^8.5.1",
-    "tsx": "^4.23.9",
+    "tsx": "^4.23.12",
     "typescript": "^7.0.2"
   }
 }
